@@ -1,12 +1,15 @@
-// components/mentee/dashboard/Topbar.jsx
+// src/components/mentee/dashboard/Topbar.jsx
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";           
+import { logoutUser } from "../../../store/slices/authSlice"; 
 
 const Topbar = ({ onMenuToggle, onLogoClick }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();                     
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+  const handleLogout = async () => {
+    await dispatch(logoutUser());   // ✅ FIXED: hits /auth/logout → clears HttpOnly cookie server-side
+    navigate("/login");
   };
 
   return (

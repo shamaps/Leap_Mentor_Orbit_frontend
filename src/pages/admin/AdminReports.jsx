@@ -1,11 +1,9 @@
 // src/pages/admin/AdminReports.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
-import axios from "axios";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
 import StatCard from "../../components/admin/common/StatCard";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("adminToken")}` });
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
@@ -113,10 +111,9 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
     try {
       setSaving(true);
       setError("");
-      const res = await axios.patch(
-        `${BASE_URL}/admin/reports/${report.id}`,
-        { status: selectedStatus, adminNote },
-        { headers: authHeader() }
+      const res = await adminAxiosInstance.patch(
+        `/admin/reports/${report.id}`,
+        { status: selectedStatus, adminNote }
       );
       onSave(report.id, res.data.report);
       onClose();
@@ -130,10 +127,9 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
   const handleRefund = async () => {
     try {
       setActionLoading(true);
-      await axios.post(
-        `${BASE_URL}/admin/reports/${report.id}/refund`,
-        { adminNote },
-        { headers: authHeader() }
+      await adminAxiosInstance.post(
+        `/admin/reports/${report.id}/refund`,
+        { adminNote }
       );
       onRefund(report.id);
       onClose();
@@ -148,9 +144,8 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
   const handleDeleteSession = async () => {
     try {
       setActionLoading(true);
-      await axios.delete(
-        `${BASE_URL}/admin/reports/${report.id}/session`,
-        { headers: authHeader(), data: { adminNote } }
+      await adminAxiosInstance.delete(
+        `/admin/reports/${report.id}/session`
       );
       onDeleteSession(report.id);
       onClose();
@@ -421,7 +416,7 @@ const AdminReports = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/admin/reports/stats`, { headers: authHeader() });
+      const res = await adminAxiosInstance.get("/admin/reports/stats");
       setStats(res.data);
     } catch { showToast("Failed to load stats.", "error"); }
   }, []);
@@ -432,7 +427,7 @@ const AdminReports = () => {
       const params = { page, limit: 10 };
       if (q) params.search = q;
       if (status) params.status = status;
-      const res = await axios.get(`${BASE_URL}/admin/reports`, { headers: authHeader(), params });
+      const res = await adminAxiosInstance.get("/admin/reports");
       setReports(res.data.reports || []);
       setPagination(res.data.pagination);
     } catch { showToast("Failed to load reports.", "error"); }

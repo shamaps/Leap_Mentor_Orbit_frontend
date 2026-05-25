@@ -1,35 +1,31 @@
 // src/components/mentor/dashboard/requests/RequestsTab.jsx
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import axiosInstance from "../../../../utils/axiosInstance";
 import RequestCard from "./RequestCard";
 import MenteeProfileModal from "./MenteeProfileModal";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
 const TABS = [
-  { key: "all",       label: "All Requests" },
-  { key: "pending",   label: "Pending"      },
-  { key: "accepted",  label: "Accepted"     },
-  { key: "rejected",  label: "Rejected"     },
-  { key: "referred",  label: "Referred"     },
-  { key: "ongoing",   label: "Ongoing"      },
-  { key: "completed", label: "Completed"    },
+  { key: "all", label: "All Requests" },
+  { key: "pending", label: "Pending" },
+  { key: "accepted", label: "Accepted" },
+  { key: "rejected", label: "Rejected" },
+  { key: "referred", label: "Referred" },
+  { key: "ongoing", label: "Ongoing" },
+  { key: "completed", label: "Completed" },
 ];
 
 const RequestsTab = () => {
-  const [requests,        setRequests]        = useState([]);
-  const [loading,         setLoading]         = useState(true);
-  const [initialLoad,     setInitialLoad]     = useState(true);
-  const [error,           setError]           = useState("");
-  const [activeTab,       setActiveTab]       = useState("all");
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState(null);
 
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/connect-requests/incoming`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await axiosInstance.get(`/connect-requests/incoming`, {
       });
       setRequests(res.data.requests || []);
     } catch (err) {
@@ -40,24 +36,24 @@ const RequestsTab = () => {
     }
   }, []);
   // ✅ ADD this useEffect (make sure useEffect is already imported):
-useEffect(() => {
-  const handleRequestChanged = () => fetchRequests();
+  useEffect(() => {
+    const handleRequestChanged = () => fetchRequests();
 
-  const waitForSocket = setInterval(() => {
-    if (window.__leapSocket?.connected) {
+    const waitForSocket = setInterval(() => {
+      if (window.__leapSocket?.connected) {
+        clearInterval(waitForSocket);
+        window.__leapSocket.on("request_status_changed", handleRequestChanged);
+      }
+    }, 200);
+
+    return () => {
       clearInterval(waitForSocket);
-      window.__leapSocket.on("request_status_changed", handleRequestChanged);
-    }
-  }, 200);
-
-  return () => {
-    clearInterval(waitForSocket);
-    window.__leapSocket?.off("request_status_changed", handleRequestChanged);
-  };
-}, [fetchRequests]);
+      window.__leapSocket?.off("request_status_changed", handleRequestChanged);
+    };
+  }, [fetchRequests]);
 
   useEffect(() => { fetchRequests(); }, [fetchRequests]);
-  
+
 
   const handleUpdate = (id, newStatus) => {
     setRequests((prev) =>
@@ -74,12 +70,12 @@ useEffect(() => {
     : requests.filter((r) => r.status === activeTab);
 
   const counts = {
-    all:       requests.length,
-    pending:   requests.filter((r) => r.status === "pending").length,
-    accepted:  requests.filter((r) => r.status === "accepted").length,
-    rejected:  requests.filter((r) => r.status === "rejected").length,
-    referred:  requests.filter((r) => r.status === "referred").length,
-    ongoing:   requests.filter((r) => r.status === "ongoing").length,
+    all: requests.length,
+    pending: requests.filter((r) => r.status === "pending").length,
+    accepted: requests.filter((r) => r.status === "accepted").length,
+    rejected: requests.filter((r) => r.status === "rejected").length,
+    referred: requests.filter((r) => r.status === "referred").length,
+    ongoing: requests.filter((r) => r.status === "ongoing").length,
     completed: requests.filter((r) => r.status === "completed").length,
   };
 
@@ -128,21 +124,19 @@ useEffect(() => {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 border-b-2 whitespace-nowrap ${
-                  activeTab === tab.key
+                className={`flex-shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 border-b-2 whitespace-nowrap ${activeTab === tab.key
                     ? "text-blue-900 border-blue-900 bg-blue-50/50"
                     : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 {tab.label}
                 {counts[tab.key] > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                    activeTab === tab.key
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeTab === tab.key
                       ? "bg-blue-900 text-white"
                       : tab.key === "referred"
-                      ? "bg-violet-100 text-violet-600"
-                      : "bg-slate-100 text-slate-500"
-                  }`}>
+                        ? "bg-violet-100 text-violet-600"
+                        : "bg-slate-100 text-slate-500"
+                    }`}>
                     {counts[tab.key]}
                   </span>
                 )}
@@ -156,7 +150,7 @@ useEffect(() => {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
             </div>
             <p className="text-sm font-bold text-slate-700">
@@ -166,10 +160,10 @@ useEffect(() => {
               {activeTab === "pending"
                 ? "You'll see new requests here when mentees reach out."
                 : activeTab === "referred"
-                ? "Requests you've referred to other mentors will appear here."
-                : activeTab === "all"
-                ? "When mentees send you connect requests, they'll appear here."
-                : `No requests have been ${activeTab} yet.`}
+                  ? "Requests you've referred to other mentors will appear here."
+                  : activeTab === "all"
+                    ? "When mentees send you connect requests, they'll appear here."
+                    : `No requests have been ${activeTab} yet.`}
             </p>
           </div>
         ) : (

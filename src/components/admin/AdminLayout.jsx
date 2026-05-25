@@ -1,9 +1,7 @@
 // src/components/admin/AdminLayout.jsx
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 
 const NAV_ITEMS = [
   {
@@ -116,10 +114,7 @@ const AdminLayout = ({ children }) => {
   useEffect(() => {
     const fetchPendingCount = async () => {
       try {
-        const res = await axios.get(
-          `${BASE_URL}/admin/leap-requests/pending-count`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` } }
-        );
+        const res = await adminAxiosInstance.get("/admin/leap-requests/pending-count");
         setPendingWalletCount(res.data.count ?? 499);
       } catch {
         // silent — badge just won't show if this fails

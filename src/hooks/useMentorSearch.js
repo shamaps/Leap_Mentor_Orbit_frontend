@@ -1,8 +1,7 @@
 // src/hooks/useMentorSearch.js
 import { useState, useEffect, useCallback, useRef } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 
-const BASE_URL    = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const DEBOUNCE_MS = 300;
 const LIMIT       = 6;
 
@@ -22,8 +21,6 @@ const useMentorSearch = () => {
   const [totalCount,  setTotalCount]  = useState(0);
 
   const debounceTimer = useRef(null);
-  const token         = localStorage.getItem("token");
-  const authHeader    = { Authorization: "Bearer " + token };
 
   const fetchMentors = useCallback(async (
     currentSkill, currentFilters, currentPage, append = false
@@ -56,10 +53,8 @@ const useMentorSearch = () => {
       params.set("page",  currentPage);
       params.set("limit", LIMIT);
 
-      const res = await axios.get(
-        `${BASE_URL}/mentors/search?${params.toString()}`,
-        { headers: authHeader }
-      );
+      const res = await axiosInstance.get(`/mentors/search?${params.toString()}`);
+
 
       const newMentors = res.data.mentors;
       const pagination = res.data.pagination;

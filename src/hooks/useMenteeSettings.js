@@ -1,8 +1,6 @@
 // src/hooks/useMenteeSettings.js
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";
 
 const useMenteeSettings = (initialProfile) => {
   const [fetching, setFetching]   = useState(!initialProfile);
@@ -36,10 +34,7 @@ const useMenteeSettings = (initialProfile) => {
     const fetchProfile = async () => {
       try {
         setFetching(true);
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${BASE_URL}/mentee-profile/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axiosInstance.get("/mentee-profile/me");
         const p = res.data;
         setEmailNotifications(p.emailNotifications ?? true);
         setMarketingPreferences(p.marketingPreferences ?? false);
@@ -58,10 +53,7 @@ const useMenteeSettings = (initialProfile) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${BASE_URL}/users/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axiosInstance.get("/users/me");
         setPasswordChangedAt(res.data.passwordChangedAt || null);
       } catch (err) { // eslint-disable-line no-unused-vars
         // silent fail — not critical
@@ -75,10 +67,7 @@ const useMenteeSettings = (initialProfile) => {
 useEffect(() => {
   const fetchWallet = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/escrow/wallet`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosInstance.get("/escrow/wallet");
       setBalance(res.data.balance);
       setEscrow(res.data.escrow);
     } catch (err) { // eslint-disable-line no-unused-vars
@@ -93,12 +82,7 @@ useEffect(() => {
     try {
       setSaving(true);
       setMsg({ type: "", text: "" });
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${BASE_URL}/mentee-profile/me`,
-        { emailNotifications, marketingPreferences },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axiosInstance.put("/mentee-profile/me", { emailNotifications, marketingPreferences });
       setMsg({ type: "success", text: "Preferences saved successfully!" });
       setTimeout(() => setMsg({ type: "", text: "" }), 3000);
     } catch (err) { // eslint-disable-line no-unused-vars
@@ -124,12 +108,8 @@ useEffect(() => {
 
     try {
       setChangingPw(true);
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${BASE_URL}/auth/change-password`,
-        { currentPassword, newPassword },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axiosInstance.put("/auth/change-password", { currentPassword, newPassword });
+
       setPwMsg({ type: "success", text: "Password changed successfully!" });
       setCurrentPassword("");
       setNewPassword("");

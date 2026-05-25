@@ -1,17 +1,17 @@
 // src/pages/SSOCallback.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";                          // ✅ ADDED
+import { setUser } from "../store/slices/authSlice";               // ✅ ADDED
 import { AuthenticateWithRedirectCallback, useAuth } from "@clerk/clerk-react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";
 
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor")) {
-    localStorage.setItem("role", "mentor");  // 👈 add
+    localStorage.setItem("role", "mentor");
     navigate("/dashboard/mentor");
   } else {
-    localStorage.setItem("role", "mentee");  // 👈 add
+    localStorage.setItem("role", "mentee");
     navigate("/dashboard/mentee");
   }
 };
@@ -20,6 +20,7 @@ const redirectByRole = (roles, navigate) => {
 const SyncWithBackend = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useDispatch();                                   // ✅ ADDED
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -32,7 +33,7 @@ const SyncWithBackend = () => {
         const termsAccepted = localStorage.getItem("sso_terms") === "true";
         console.log("Role:", role);
 
-        const res = await axios.post(`${BASE_URL}/auth/clerk-sso`, {
+        const res = await axiosInstance.post("/auth/clerk-sso", {
           clerkToken,
           roles: role && role !== "existing" ? [role] : undefined,
           termsAccepted: role !== "existing" ? termsAccepted : true,
@@ -40,7 +41,15 @@ const SyncWithBackend = () => {
 
         console.log("✅ Backend response:", res.data);
 
-        if (res.data?.token) localStorage.setItem("token", res.data.token);
+        // ✅ FIXED: was localStorage.setItem("token", res.data.token)
+        // Token is now in the HttpOnly cookie set by the backend.
+        // We only dispatch into Redux memory — never store in localStorage.
+        if (res.data?.accessToken || res.data?.token) {
+          dispatch(setUser({
+            token: res.data.accessToken || res.data.token,
+            user: res.data.user || null,
+          }));
+        }
 
         localStorage.removeItem("sso_role");
         localStorage.removeItem("sso_terms");

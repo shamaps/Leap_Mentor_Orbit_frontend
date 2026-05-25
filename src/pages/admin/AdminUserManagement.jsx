@@ -1,13 +1,11 @@
 // src/pages/admin/AdminUserManagement.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
-import axios from "axios";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
+
 import AdminLayout          from "../../components/admin/AdminLayout";
 import StatCard             from "../../components/admin/common/StatCard";
 import UserGrowthChart      from "../../components/admin/common/UserGrowthChart";
 import MentorIndustryChart  from "../../components/admin/common/MentorIndustryChart";
-
-const BASE_URL   = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("adminToken")}` });
 
 // ── Unified Action Modal (Handles Delete, Block, Unblock) ─────
 const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }) => {
@@ -132,7 +130,7 @@ const AdminUserManagement = () => {
   // ── Fetchers ──────────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/admin/stats`, { headers: authHeader() });
+      const res = await adminAxiosInstance.get("/admin/stats");
       setStats(res.data);
     } catch (err) {
       console.error("Error fetching stats", err);
@@ -141,7 +139,7 @@ const AdminUserManagement = () => {
 
   const fetchGrowthData = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/admin/user-growth`, { headers: authHeader() });
+      const res = await adminAxiosInstance.get("/admin/user-growth");
       setGrowthData(res.data);
     } catch (err) {
       console.error("Failed to fetch growth data", err);
@@ -150,7 +148,7 @@ const AdminUserManagement = () => {
 
   const fetchIndustryData = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/admin/stats/mentor-industries`, { headers: authHeader() });
+      const res = await adminAxiosInstance.get("/admin/stats/mentor-industries");
       setIndustryData(res.data);
     } catch (err) {
       console.error("Failed to fetch industry data", err);
@@ -165,7 +163,7 @@ const AdminUserManagement = () => {
       if (role)    params.role   = role;
       if (blocked) params.deleted = true;
 
-      const res = await axios.get(`${BASE_URL}/admin/users`, { headers: authHeader(), params });
+      const res = await adminAxiosInstance.get("/admin/users");
       setUsers(res.data.users);
       setPagination(res.data.pagination);
     } catch {
@@ -206,15 +204,15 @@ const AdminUserManagement = () => {
     
     try {
       if (mode === "delete") {
-        await axios.delete(`${BASE_URL}/admin/users/${user._id}`, { headers: authHeader() });
+        await adminAxiosInstance.delete(`/admin/users/${user._id}`);
         showToast(`${user.name} has been permanently deleted.`);
       } 
       else if (mode === "block") {
-        await axios.patch(`${BASE_URL}/admin/users/${user._id}/block`, {}, { headers: authHeader() });
+        await adminAxiosInstance.patch(`/admin/users/${user._id}/block`, {});
         showToast(`${user.name} has been blocked.`);
       } 
       else if (mode === "unblock") {
-        await axios.patch(`${BASE_URL}/admin/users/${user._id}/unblock`, {}, { headers: authHeader() });
+        await adminAxiosInstance.patch(`/admin/users/${user._id}/unblock`, {});
         showToast(`${user.name} has been restored.`);
       }
       

@@ -1,11 +1,9 @@
 // components/mentee/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const PersonalInfoSection = ({ form, handleChange }) => {
-  const fileInputRef          = useRef(null);
+  const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");
 
@@ -26,17 +24,15 @@ const PersonalInfoSection = ({ form, handleChange }) => {
     setUploading(true);
 
     try {
-      const token = localStorage.getItem("token");
 
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const res = await axios.post(
-        `${BASE_URL}/upload/profile-picture`,
+      const res = await axiosInstance.post(
+        "/upload/profile-picture",
         formData,
         {
           headers: {
-            Authorization:  `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -44,7 +40,7 @@ const PersonalInfoSection = ({ form, handleChange }) => {
 
       handleChange({
         target: {
-          name:  "profilePicture",
+          name: "profilePicture",
           value: res.data.url,
         },
       });
@@ -64,8 +60,8 @@ const PersonalInfoSection = ({ form, handleChange }) => {
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
             stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
           </svg>
         </div>
         <h2 className="text-sm font-bold text-slate-800">Profile Picture & Bio</h2>
@@ -94,8 +90,8 @@ const PersonalInfoSection = ({ form, handleChange }) => {
             ) : (
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
                 stroke="#93c5fd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
               </svg>
             )}
           </button>

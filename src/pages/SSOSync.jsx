@@ -4,18 +4,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";           // ✅ ADDED useSelector
 import { setUser } from "../store/slices/authSlice";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";               // ✅ FIXED: was "../../utils/axiosInstance" (wrong path)
 
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor")) {
-    localStorage.setItem("role", "mentor");  //  add
+    localStorage.setItem("role", "mentor");
     navigate("/dashboard/mentor");
   } else {
-    localStorage.setItem("role", "mentee");  //  add
+    localStorage.setItem("role", "mentee");
     navigate("/dashboard/mentee");
   }
 };
@@ -24,20 +22,20 @@ const SSOSync = () => {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const reduxToken = useSelector((state) => state.auth.token);   // ✅ FIXED: replaces localStorage.getItem("token")
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!isLoaded) return;
 
-    // FIX: If there's already a token in localStorage it means the user
-    // came from Google SSO (not Clerk/LinkedIn). Redirect them away immediately
-    // so they don't hit getToken() which would return null and cause "invalid token".
-    const existingToken = localStorage.getItem("token");
-    if (existingToken && !isSignedIn) {
-  const role = localStorage.getItem("role");     //read existing role
-  navigate(role === "mentor" ? "/dashboard/mentor" : "/dashboard/mentee", { replace: true });
-  return;
-}
+    // ✅ FIXED: was localStorage.getItem("token") — now reads from Redux.
+    // If we already have a token in Redux (e.g. Google SSO set it) and
+    // Clerk says the user isn't signed in, redirect them away immediately.
+    if (reduxToken && !isSignedIn) {
+      const role = localStorage.getItem("role");
+      navigate(role === "mentor" ? "/dashboard/mentor" : "/dashboard/mentee", { replace: true });
+      return;
+    }
 
     if (!isSignedIn) {
       navigate("/login?error=sso_failed", { replace: true });
@@ -48,7 +46,7 @@ const SSOSync = () => {
       try {
         const clerkToken = await getToken();
 
-        // ✅ FIX: If Clerk token is null, don't hit the backend — it will fail
+        // ✅ If Clerk token is null, don't hit the backend — it will fail
         if (!clerkToken) {
           setError("Authentication failed. Please try logging in again.");
           return;
@@ -57,22 +55,19 @@ const SSOSync = () => {
         const role = localStorage.getItem("sso_role");
         const termsAccepted = localStorage.getItem("sso_terms") === "true";
 
-        const res = await axios.post(`${BASE_URL}/auth/clerk-sso`, {
+        const res = await axiosInstance.post("/auth/clerk-sso", {
           clerkToken,
           roles: role && role !== "existing" ? [role] : undefined,
           termsAccepted: role !== "existing" ? termsAccepted : true,
         });
 
-        if (res.data?.token) {
-          localStorage.setItem("token", res.data.token);
-
-          // ✅ Sync token + user into Redux so onboarding slices can read it
+        // ✅ FIXED: was localStorage.setItem("token", res.data.token)
+        // Dispatch into Redux only — HttpOnly cookie is set by backend automatically
+        if (res.data?.accessToken || res.data?.token) {
           dispatch(setUser({
-            token: res.data.token,
+            token: res.data.accessToken || res.data.token,
             user: res.data.user || null,
           }));
-
-          await new Promise((resolve) => setTimeout(resolve, 50));
         }
 
         localStorage.removeItem("sso_role");
@@ -87,14 +82,14 @@ const SSOSync = () => {
           const intendedRole = role && role !== "existing" ? role : null;
 
           if (intendedRole === "mentee") {
-  localStorage.setItem("role", "mentee");        // 👈 add
-  navigate("/dashboard/mentee", { replace: true });
-} else if (intendedRole === "mentor") {
-  localStorage.setItem("role", "mentor");        // 👈 add
-  navigate("/dashboard/mentor", { replace: true });
-} else {
-  redirectByRole(res.data?.user?.roles || [], navigate);
-}
+            localStorage.setItem("role", "mentee");
+            navigate("/dashboard/mentee", { replace: true });
+          } else if (intendedRole === "mentor") {
+            localStorage.setItem("role", "mentor");
+            navigate("/dashboard/mentor", { replace: true });
+          } else {
+            redirectByRole(res.data?.user?.roles || [], navigate);
+          }
         }
 
       } catch (err) {

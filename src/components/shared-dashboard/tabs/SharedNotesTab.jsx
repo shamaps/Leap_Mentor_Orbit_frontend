@@ -1,5 +1,6 @@
 // src/components/shared-dashboard/tabs/SharedNotesTab.jsx
 import { useState, useRef } from "react";
+import { useSelector } from "react-redux";      
 import useNotes from "../../../hooks/useNotes";
 import PrivateNotesTab from "./PrivateNotesTab";
 
@@ -24,13 +25,9 @@ const formatDateSeparator = (dateStr) => {
   return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 };
 const isSameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
-const getMyId = () => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
-    return JSON.parse(atob(token.split(".")[1])).id;
-  } catch { return null; }
-};
+
+// ← REMOVED getMyId() — was reading token from localStorage which is always null now.
+// myId is now read from Redux in SharedFilesSection and passed down as a prop.
 
 // ── File Type Config ──────────────────────────────────────────
 const FILE_TYPE_CONFIG = {
@@ -121,8 +118,8 @@ const UploadModal = ({ onUpload, uploading, onClose, isPrivateView }) => {
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 ${dragOver ? "border-blue-400 bg-blue-50 cursor-pointer"
-                : selectedFile ? "border-emerald-400 bg-emerald-50 cursor-default"
-                  : "border-slate-200 bg-slate-50 cursor-pointer hover:border-blue-300 hover:bg-blue-50/40"
+              : selectedFile ? "border-emerald-400 bg-emerald-50 cursor-default"
+                : "border-slate-200 bg-slate-50 cursor-pointer hover:border-blue-300 hover:bg-blue-50/40"
               }`}
           >
             {selectedFile ? (
@@ -199,9 +196,9 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
       const response = await fetch(note.fileUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = note.fileName || "download";
-      document.body.appendChild(a); a.click(); a.remove();
+      const anchor = document.createElement("a");
+      anchor.href = url; anchor.download = note.fileName || "download";
+      document.body.appendChild(anchor); anchor.click(); anchor.remove();
       window.URL.revokeObjectURL(url);
     } catch { window.open(note.fileUrl, "_blank"); }
   };
@@ -236,7 +233,6 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
         <p className="text-xs text-slate-400 mt-1.5 font-medium">{formatFileSize(note.fileSize)} · {formatDate(note.createdAt)}</p>
 
         <div className="flex flex-wrap gap-2 mt-3">
-
           <button type="button" onClick={handleDownload}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -263,7 +259,7 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
 const SharedFilesSection = ({ connect }) => {
   const [showUpload, setShowUpload] = useState(false);
   const { notes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connect?._id);
-  const myId = getMyId();
+  const myId = useSelector((state) => state.auth.user?._id);   // ← FIXED: was getMyId() reading from localStorage
   const isCompleted = connect?.status === "completed";
 
   const handleUpload = async (file, title) => uploadNote(file, title, false);
@@ -325,7 +321,6 @@ const SharedFilesSection = ({ connect }) => {
           )}
         </div>
       ) : (
-        /* ── Full-width equal 2-column grid ── */
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full" style={{ gridAutoRows: "1fr" }}>
           {groupedItems.map((item) =>
             item.type === "separator" ? (
@@ -371,8 +366,8 @@ const SharedNotesTab = ({ connect }) => {
 
       <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1 mb-6 w-full sm:w-fit">
         <button onClick={() => setActiveView("shared")}
-  className={`flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${activeView === "shared" ? "bg-white text-blue-700 shadow-sm border border-blue-100" : "text-slate-500 hover:text-slate-700"
-    }`}>
+          className={`flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${activeView === "shared" ? "bg-white text-blue-700 shadow-sm border border-blue-100" : "text-slate-500 hover:text-slate-700"
+            }`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
             <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
@@ -380,8 +375,8 @@ const SharedNotesTab = ({ connect }) => {
           Shared
         </button>
         <button onClick={() => setActiveView("private")}
-  className={`flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${activeView === "private" ? "bg-white text-amber-700 shadow-sm border border-amber-100" : "text-slate-500 hover:text-slate-700"
-    }`}>
+          className={`flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${activeView === "private" ? "bg-white text-amber-700 shadow-sm border border-amber-100" : "text-slate-500 hover:text-slate-700"
+            }`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>

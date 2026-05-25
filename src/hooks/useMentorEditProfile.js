@@ -1,12 +1,13 @@
 // src/hooks/useMentorEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import { useSelector } from "react-redux"; // ✅ ADDED
+import axiosInstance from "../utils/axiosInstance";
+import getErrorMessage from "../utils/getErrorMessage";
 
 const useMentorEditProfile = () => {
   const navigate = useNavigate();
+  const token = useSelector((state) => state.auth.token); // ✅ FIXED: replaces both localStorage calls
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [msg, setMsg] = useState({ type: "", text: "" });
@@ -28,12 +29,10 @@ const useMentorEditProfile = () => {
 
   // Pre-fill form with existing profile data
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    // ✅ REMOVED: const token = localStorage.getItem("token"); — not needed, axiosInstance handles auth
     const fetchProfile = async () => {
       try {
-        const { data } = await axios.get(`${BASE_URL}/mentor-profile/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const { data } = await axiosInstance.get("/mentor-profile/me");
         setForm({
           profilePicture: data.profilePicture || "",
           bio: data.bio || "",
@@ -57,32 +56,32 @@ const useMentorEditProfile = () => {
     fetchProfile();
   }, []);
 
-  // ✅ Same universal onChange as OnboardingFormShell
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Same payload shape as OnboardingFormShell but calls PUT
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
+
     const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
     if (isOnlyNumbers(form.currentRole))
       return setMsg({ type: "error", text: "Current Role cannot be a number." });
     if (isOnlyNumbers(form.company))
       return setMsg({ type: "error", text: "Company name cannot be a number." });
+
     const isValidUrl = (val) => {
       if (!val) return true;
       try { new URL(val); return true; }
       catch { return false; }
     };
     if (!isValidUrl(form.linkedInUrl))
-      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
+      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL." });
     if (!isValidUrl(form.portfolioUrl))
-      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
+      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL." });
 
-    const token = localStorage.getItem("token");
+    // ✅ FIXED: was localStorage.getItem("token") — now reads from Redux
     if (!token) { navigate("/login"); return; }
 
     try {
@@ -97,14 +96,12 @@ const useMentorEditProfile = () => {
           : form.languages,
       };
 
-      await axios.put(`${BASE_URL}/mentor-profile/me`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data } = await axiosInstance.put("/mentor-profile/me", payload);
 
       setMsg({ type: "success", text: "Profile updated! Redirecting to dashboard…" });
       setTimeout(() => navigate("/dashboard/mentor"), 1000);
     } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Something went wrong.";
+      const apiMsg = getErrorMessage(err);
       setMsg({ type: "error", text: apiMsg });
     } finally {
       setLoading(false);

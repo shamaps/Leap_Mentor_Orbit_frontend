@@ -1,9 +1,5 @@
 // src/escrow.api.js
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const getToken = () => localStorage.getItem("token");
-const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
+import axiosInstance from "../utils/axiosInstance";
 
 // ─────────────────────────────────────────────────────────────
 // POST /escrow/pay
@@ -14,10 +10,9 @@ export const payEscrow = async ({
   sessionRate,
   sessionCount,
 }) => {
-  const res = await axios.post(
-    `${BASE_URL}/escrow/pay`,
-    { connectRequestId, sessionRate, sessionCount },
-    { headers: authHeader() },
+  const res = await axiosInstance.post(
+    "/escrow/pay",
+    { connectRequestId, sessionRate, sessionCount }
   );
   return res.data;
 };
@@ -27,10 +22,9 @@ export const payEscrow = async ({
 // Mentee confirms session complete — tokens go to mentor
 // ─────────────────────────────────────────────────────────────
 export const releaseEscrow = async (requestId) => {
-  const res = await axios.post(
-    `${BASE_URL}/escrow/release/${requestId}`,
-    {},
-    { headers: authHeader() },
+  const res = await axiosInstance.post(
+    `/escrow/release/${requestId}`,
+    {}
   );
   return res.data;
 };
@@ -40,10 +34,9 @@ export const releaseEscrow = async (requestId) => {
 // Either party cancels — tokens return to mentee
 // ─────────────────────────────────────────────────────────────
 export const refundEscrow = async (requestId) => {
-  const res = await axios.post(
-    `${BASE_URL}/escrow/refund/${requestId}`,
-    {},
-    { headers: authHeader() },
+  const res = await axiosInstance.post(
+    `/escrow/refund/${requestId}`,
+    {}
   );
   return res.data;
 };
@@ -53,9 +46,7 @@ export const refundEscrow = async (requestId) => {
 // Get payment + wallet snapshot for a connect request
 // ─────────────────────────────────────────────────────────────
 export const getEscrowStatus = async (requestId) => {
-  const res = await axios.get(`${BASE_URL}/escrow/status/${requestId}`, {
-    headers: authHeader(),
-  });
+  const res = await axiosInstance.get(`/escrow/status/${requestId}`);
   return res.data;
 };
 
@@ -64,17 +55,14 @@ export const getEscrowStatus = async (requestId) => {
 // Mentee locks tokens for a single additional session slot
 // ─────────────────────────────────────────────────────────────
 export const payAdditionalEscrow = async ({ connectRequestId, sessionRate, slotId }) => {
-  const res = await axios.post(
-    `${BASE_URL}/escrow/pay-additional`,
-    { connectRequestId, sessionRate, slotId },
-    { headers: authHeader() },
+  const res = await axiosInstance.post(
+    "/escrow/pay-additional",
+    { connectRequestId, sessionRate, slotId }
   );
   return res.data;
 };
 // GET /escrow/commission-rate
 export const getPlatformCommissionRate = async () => {
-  const res = await axios.get(`${BASE_URL}/escrow/commission-rate`, {
-    headers: authHeader(),
-  });
+  const res = await axiosInstance.get("/escrow/commission-rate");
   return res.data;
 };

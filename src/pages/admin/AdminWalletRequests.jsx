@@ -1,12 +1,8 @@
 // src/pages/admin/AdminWalletRequests.jsx
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-import AdminLayout from "../../components/admin/AdminLayout";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
-const authHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-});
+import AdminLayout from "../../components/admin/AdminLayout";
 
 const getInitials = (name = "") =>
   name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -58,8 +54,7 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
     const fetchEngagements = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${BASE_URL}/admin/engagements`, {
-          headers: authHeader(),
+        const res = await adminAxiosInstance.get("/admin/engagements", {
           params: { search: mentee.name, limit: 50 },
         });
         const all = res.data.engagements || res.data.data || res.data || [];
@@ -368,9 +363,7 @@ const AdminWalletRequests = () => {
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BASE_URL}/admin/leap-requests`, {
-        headers: authHeader(),
-      });
+      const res = await adminAxiosInstance.get("/admin/leap-requests");
       setRequests(res.data.requests || res.data || []);
     } catch (err) {
       showToast("Failed to load requests.", "error");
@@ -384,7 +377,7 @@ const AdminWalletRequests = () => {
   const handleApprove = async (reqId) => {
     try {
       setActionLoading(reqId);
-      await axios.patch(`${BASE_URL}/admin/leap-requests/${reqId}/approve`, {}, { headers: authHeader() });
+      await adminAxiosInstance.patch(`/admin/leap-requests/${reqId}/approve`, {});
       setRequests((prev) => prev.map((r) => r._id === reqId ? { ...r, status: "approved" } : r));
       showToast("500 LP added to mentee's wallet successfully!", "success");
     } catch (err) {
@@ -397,7 +390,7 @@ const AdminWalletRequests = () => {
   const handleReject = async (reqId) => {
     try {
       setActionLoading(reqId);
-      await axios.patch(`${BASE_URL}/admin/leap-requests/${reqId}/reject`, {}, { headers: authHeader() });
+      await adminAxiosInstance.patch(`/admin/leap-requests/${reqId}/reject`, {});
       setRequests((prev) => prev.map((r) => r._id === reqId ? { ...r, status: "rejected" } : r));
       showToast("Request rejected.", "error");
     } catch (err) {

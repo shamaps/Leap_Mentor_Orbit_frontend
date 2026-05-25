@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import axios from "axios";
+import { useSelector } from "react-redux"; // ✅ ADDED
+import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
 const urlBase64ToUint8Array = (base64String) => {
@@ -14,11 +14,11 @@ const urlBase64ToUint8Array = (base64String) => {
 
 const usePushNotification = () => {
   const { showToast } = useToast();
+  const token = useSelector((state) => state.auth.token); // ✅ FIXED: top level, not inside useEffect
 
-  // ✅ Register service worker + subscribe to push
+  // Register service worker + subscribe to push
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) return; // ✅ guard still works, now reads from Redux
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
     const setup = async () => {
@@ -32,11 +32,7 @@ const usePushNotification = () => {
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
         });
 
-        await axios.post(
-          `${BASE_URL}/push/subscribe`,
-          { subscription },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await axiosInstance.post("/push/subscribe", { subscription });
 
         console.log("✅ Push notifications enabled");
       } catch (err) {
@@ -45,20 +41,20 @@ const usePushNotification = () => {
     };
 
     setup();
-  }, []);
+  }, [token]); // ✅ re-run when token appears after login
 
-  // ✅ Listen for messages from service worker → show in-app toast
+  // Listen for messages from service worker → show in-app toast
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
     const handleMessage = (event) => {
-  console.log("📩 Message from SW received:", event.data); // ✅ check if message arrives
-  if (event.data?.type === "SHOW_TOAST") {
-    const { title, message, type } = event.data.payload;
-    console.log("🍞 Calling showToast:", { title, message, type }); // ✅ check if toast fires
-    showToast({ type: type || "info", title, message });
-  }
-};
+      console.log("📩 Message from SW received:", event.data);
+      if (event.data?.type === "SHOW_TOAST") {
+        const { title, message, type } = event.data.payload;
+        console.log("🍞 Calling showToast:", { title, message, type });
+        showToast({ type: type || "info", title, message });
+      }
+    };
     navigator.serviceWorker.addEventListener("message", handleMessage);
     return () => {
       navigator.serviceWorker.removeEventListener("message", handleMessage);

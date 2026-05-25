@@ -1,8 +1,6 @@
-// src/components/mentor/dashboard/NotificationsTab.jsx
+// src/components/mentee/dashboard/NotificationsTab.jsx
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../../../utils/axiosInstance";
 
 // ── Type config ───────────────────────────────────────────────
 const TYPE_CONFIG = {
@@ -133,7 +131,7 @@ const resolveNavigation = (notif, setActiveTab) => {
   switch (type) {
     case "connect_request_received":
     case "connect_request_declined":
-      setActiveTab("requests");
+      setActiveTab("history");
       break;
 
     case "connect_request_accepted":
@@ -283,13 +281,10 @@ const NotificationsTab = ({ setActiveTab }) => {
   const [error, setError] = useState("");
   const [useStatic, setUseStatic] = useState(false);
 
-  const token = localStorage.getItem("token");
-  const authHeader = { Authorization: `Bearer ${token}` };
-
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BASE_URL}/notifications`, { headers: authHeader });
+      const res = await axiosInstance.get("/notifications");
       const apiNotifs = (res.data.notifications || []).map(normalizeApiNotif);
       setNotifications(apiNotifs);
       setUseStatic(false);
@@ -307,31 +302,31 @@ const NotificationsTab = ({ setActiveTab }) => {
   const unreadCount = notifications.filter((n) => !n.read).length;
   const thisWeekCount = notifications.filter((n) => {
     if (n.isApi) return true;
-    const t = n.time || "";
+    const timeStr= n.time || "";
     return (
-      t.includes("minute") || t.includes("hour") ||
-      t.toLowerCase() === "yesterday" ||
-      (t.includes("day") && parseInt(t) <= 7)
+      timeStr.includes("minute") || timeStr.includes("hour") ||
+      timeStr.toLowerCase() === "yesterday" ||
+      (timeStr.includes("day") && parseInt(timeStr) <= 7)
     );
   }).length;
 
   const markAllRead = async () => {
-    if (!useStatic) await axios.patch(`${BASE_URL}/notifications/mark-all-read`, {}, { headers: authHeader });
+    if (!useStatic) await axiosInstance.patch("/notifications/mark-all-read", {});
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
   const clearAll = async () => {
-    if (!useStatic) await axios.delete(`${BASE_URL}/notifications/clear-all`, { headers: authHeader });
+    if (!useStatic) await axiosInstance.delete("/notifications/clear-all");
     setNotifications([]);
   };
 
   const markRead = async (id) => {
-    if (!useStatic) await axios.patch(`${BASE_URL}/notifications/${id}/read`, {}, { headers: authHeader });
+    if (!useStatic) await axiosInstance.patch(`/notifications/${id}/read`, {});
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
   const deleteOne = async (id) => {
-    if (!useStatic) await axios.delete(`${BASE_URL}/notifications/${id}`, { headers: authHeader });
+    if (!useStatic) await axiosInstance.delete(`/notifications/${id}`);
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 

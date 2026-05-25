@@ -1,8 +1,7 @@
 // src/hooks/useAvailability.js
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";
+import getErrorMessage from "../utils/getErrorMessage";
 
 const useAvailability = () => {
   const [availability, setAvailability] = useState({
@@ -16,17 +15,12 @@ const useAvailability = () => {
   const [saving,  setSaving]  = useState(false);
   const [msg,     setMsg]     = useState({ type: "", text: "" });
 
-  const token      = localStorage.getItem("token");
-  const authHeader = { Authorization: `Bearer ${token}` };
-
   // Fetch existing availability on mount
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${BASE_URL}/availability/me`, {
-          headers: authHeader,
-        });
+        const res = await axiosInstance.get("/availability/me");
         const { ...data } = res.data;
         setAvailability((prev) => ({
           ...prev,
@@ -76,18 +70,15 @@ const useAvailability = () => {
     setMsg({ type: "", text: "" });
     try {
       setSaving(true);
-      await axios.patch(
-        `${BASE_URL}/availability/me`,
+      await axiosInstance.patch("/availability/me",
         {
           timezone:         availability.timezone,
           sessionDurations: availability.sessionDurations,
           specificDates:    availability.specificDates,
-        },
-        { headers: authHeader }
-      );
+        });
       setMsg({ type: "success", text: "Availability saved successfully!" });
     } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Failed to save.";
+      const apiMsg = getErrorMessage(err, "Failed to save.");
       setMsg({ type: "error", text: apiMsg });
     } finally {
       setSaving(false);
@@ -98,9 +89,7 @@ const useAvailability = () => {
   const cancelChanges = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BASE_URL}/availability/me`, {
-        headers: authHeader,
-      });
+      const res = await axiosInstance.get("/availability/me");
       const { ...data } = res.data;
       setAvailability((prev) => ({
         ...prev,

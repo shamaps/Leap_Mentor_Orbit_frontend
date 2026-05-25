@@ -1,12 +1,9 @@
 // src/components/mentee/dashboard/HomeTab.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = (profile) => {
@@ -26,15 +23,13 @@ const useHomeData = (profile) => {
           profile?.interestedFields?.[0] ||
           "";
 
-        const mentorRes = await axios.get(`${BASE_URL}/mentors/search`, {
-          params: { skill: skillTerm, limit: 4 },
-          headers: authHeader(),
+        const mentorRes = await axiosInstance.get("/mentors/search", {
+          params: { skill: skillTerm, limit: 4 }
         });
         setMentors(mentorRes.data.mentors || []);
 
-        const sessionRes = await axios.get(
-          `${BASE_URL}/connect-requests/my-requests`,
-          { headers: authHeader() }
+        const sessionRes = await axiosInstance.get(
+          "/connect-requests/my-requests",
         );
         const allRequests = sessionRes.data.requests || [];
         const upcoming = allRequests
@@ -46,9 +41,7 @@ const useHomeData = (profile) => {
           });
         setSessions(upcoming);
 
-        const walletRes = await axios.get(`${BASE_URL}/escrow/wallet`, {
-          headers: authHeader(),
-        });
+        const walletRes = await axiosInstance.get("/escrow/wallet");
         setBalance(walletRes.data.balance ?? 0);
         setEscrow(walletRes.data.escrow ?? 0);
       } catch (err) {
@@ -262,9 +255,7 @@ const LeapPointsPanel = ({ balance, loading }) => {
   useEffect(() => {
     const checkExistingRequest = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/leap-requests/my-request`, {
-          headers: authHeader(),
-        });
+        const res = await axiosInstance.get("/leap-requests/my-request");
         if (res.data?.status === "pending") {
           setRequestStatus("pending");
         }
@@ -284,10 +275,9 @@ const LeapPointsPanel = ({ balance, loading }) => {
   const handleUpgradeRequest = async () => {
     try {
       setRequestStatus("sending");
-      await axios.post(
-        `${BASE_URL}/leap-requests`,
-        { reason: "balance_refill" },
-        { headers: { ...authHeader(), "Content-Type": "application/json" } }
+      await axiosInstance.post(
+        "/leap-requests",
+        { reason: "balance_refill" }
       );
       setRequestStatus("sent");
     } catch (err) {

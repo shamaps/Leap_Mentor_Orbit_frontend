@@ -1,19 +1,13 @@
 // src/hooks/useUnreadCount.js
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";
 
 const useUnreadCount = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      const res = await axios.get(`${BASE_URL}/notifications`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosInstance.get("/notifications");
       const count = (res.data.notifications || []).filter(
         (n) => !n.read,
       ).length;

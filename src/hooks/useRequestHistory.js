@@ -1,10 +1,6 @@
 // src/hooks/useRequestHistory.js
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const getToken = () => localStorage.getItem("token");
-const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
+import axiosInstance from "../utils/axiosInstance"
 
 const useRequestHistory = () => {
   const [requests, setRequests] = useState([]);
@@ -18,10 +14,7 @@ const useRequestHistory = () => {
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        `${BASE_URL}/connect-requests/my-requests`,
-        { headers: authHeader() }
-      );
+      const res = await axiosInstance.get("/connect-requests/my-requests");
       setRequests(res.data.requests || []);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load requests.");
@@ -38,10 +31,7 @@ const useRequestHistory = () => {
   // ── Delete / cancel a request ───────────────────────────────
   const deleteRequest = useCallback(async (id) => {
     try {
-      await axios.delete(
-        `${BASE_URL}/connect-requests/${id}`,
-        { headers: authHeader() }
-      );
+      await axiosInstance.delete(`/connect-requests/${id}`);
       setRequests((prev) => prev.filter((r) => r._id !== id));
       setSelected((prev) => (prev?._id === id ? null : prev));
     } catch (err) {

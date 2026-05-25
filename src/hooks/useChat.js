@@ -1,8 +1,7 @@
 // src/hooks/useChat.js
 import { useState, useEffect, useRef, useCallback } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 
-const API_URL    = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 //const SOCKET_URL = import.meta.env.VITE_SOCKET_URL   || "http://localhost:5000";
 const TYPING_DEBOUNCE_MS = 2000;
 const PAGE_LIMIT = 30;
@@ -28,10 +27,8 @@ const useChat = (connectRequestId) => {
 
   // ── Fetch message history (REST) ──────────────────────────
   const fetchHistory = useCallback(async (roomId, pageNum = 1) => {
-    const token = localStorage.getItem("token");
-    const res = await axios.get(`${API_URL}/messages/${roomId}`, {
+    const res = await axiosInstance.get(`/messages/${roomId}`, {
       params: { page: pageNum, limit: PAGE_LIMIT },
-      headers: { Authorization: `Bearer ${token}` },
     });
     return res.data;
   }, []); // ✅ stable — no dependencies

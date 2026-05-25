@@ -1,29 +1,29 @@
 // src/pages/SharedDashboardPage.jsx
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
+import { useSelector } from "react-redux";
+import axiosInstance from "../utils/axiosInstance";
 import SharedDashboardLayout from "../components/shared-dashboard/SharedDashboardLayout";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const VALID_TABS = ["overview", "chat", "goals", "notes", "addSession"];
 
 const SharedDashboardPage = () => {
   const { connectRequestId } = useParams();
-  const navigate             = useNavigate();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const token = useSelector((state) => state.auth.token);
+  const bootstrapping = useSelector((state) => state.auth.bootstrapping); // ✅ renamed
 
   const [connect, setConnect] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
+  const [error, setError] = useState(null);
 
-  // ── Read initial tab from URL, fallback to "overview" ──
   const tabFromUrl = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(
     VALID_TABS.includes(tabFromUrl) ? tabFromUrl : "overview"
   );
 
-  // ── When tab changes, sync to URL ──
   const handleSetActiveTab = useCallback((tab) => {
     setActiveTab(tab);
     setSearchParams({ tab }, { replace: true });
@@ -31,14 +31,12 @@ const SharedDashboardPage = () => {
 
   const fetchConnect = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) { navigate("/login"); return; }
-      const res = await axios.get(
-        `${BASE_URL}/connect-requests/${connectRequestId}/detail`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await axiosInstance.get(
+        `/connect-requests/${connectRequestId}/detail`
       );
-      setConnect(res.data.connect);
+      setConnect(res.data.connect ?? res.data);
     } catch (err) {
+      console.error("❌ fetchConnect error:", err?.response?.status, err?.response?.data);
       const status = err?.response?.status;
       if (status === 401) return navigate("/login");
       if (status === 403) return navigate(-1);
@@ -48,7 +46,21 @@ const SharedDashboardPage = () => {
     }
   }, [connectRequestId, navigate]);
 
-  useEffect(() => { fetchConnect(); }, [fetchConnect]);
+  useEffect(() => {
+    // ✅ Token exists — fetch immediately
+    // (user navigated here from dashboard, token is already in Redux)
+    if (token) {
+      fetchConnect();
+      return;
+    }
+
+    // ✅ No token yet — wait for bootstrap to complete
+    // (user landed directly on this URL, App.jsx is still refreshing)
+    if (bootstrapping) return; // ✅ FIXED: was (!bootstrapped)
+
+    // ✅ Bootstrap done, still no token — not logged in
+    navigate("/login");
+  }, [token, bootstrapping, fetchConnect, navigate]); // ✅ updated dependency
 
   const handleAllComplete = useCallback(() => {
     fetchConnect();
@@ -83,6 +95,8 @@ const SharedDashboardPage = () => {
       </div>
     );
   }
+
+  if (!connect) return null;
 
   return (
     <SharedDashboardLayout

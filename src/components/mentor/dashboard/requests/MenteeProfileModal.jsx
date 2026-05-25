@@ -1,10 +1,8 @@
 // src/components/mentor/dashboard/requests/MenteeProfileModal.jsx
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../../../utils/axiosInstance";
 import RequestActionModal from "./RequestActionModal";
 import ReferModal from "./ReferModal";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const formatTime = (time) => {
   if (!time) return "";
@@ -47,12 +45,10 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
     const confirmedSlot = status === "accepted" ? slots[0] : undefined;
     try {
       setLoading(status);
-      const token = localStorage.getItem("token");
       const body = { status, ...(confirmedSlot ? { confirmedSlot } : {}) };
-      await axios.patch(
-        `${BASE_URL}/connect-requests/${request._id}`,
+      await axiosInstance.patch(
+        `/connect-requests/${request._id}`,
         body,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       setActionModal({ type: status, mentee: mentee?.name });
       onUpdate(request._id, status);

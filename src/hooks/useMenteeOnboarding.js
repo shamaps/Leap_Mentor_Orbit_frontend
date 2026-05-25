@@ -9,7 +9,7 @@ const useMenteeOnboarding = () => {
   const dispatch = useDispatch();
 
   const { loading, error, successMsg } = useSelector((state) => state.menteeOnboarding);
-  const token = localStorage.getItem("token");
+  const token = useSelector((state) => state.auth.token); // ✅ FIXED: was localStorage.getItem("token")
 
   const [form, setForm] = useState(() => {
     try {
@@ -49,22 +49,19 @@ const useMenteeOnboarding = () => {
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [redirecting, setRedirecting] = useState(false);
 
-
   useEffect(() => {
     if (error) {
       setMsg({ type: "error", text: error });
     }
 
     if (successMsg) {
-  sessionStorage.removeItem("menteeOnboardingForm");
-  dispatch(clearOnboardingMessages());
-  setRedirecting(true);
-  setTimeout(() => navigate("/dashboard/mentee"), 1500);
-}
+      sessionStorage.removeItem("menteeOnboardingForm");
+      dispatch(clearOnboardingMessages());
+      setRedirecting(true);
+      setTimeout(() => navigate("/dashboard/mentee"), 1500);
+    }
   }, [error, successMsg]);
 
-  // ✅ Clear Redux messages on unmount so stale state never bleeds
-  // into a future visit to this page
   useEffect(() => {
     return () => { dispatch(clearOnboardingMessages()); };
   }, []);
@@ -83,7 +80,6 @@ const useMenteeOnboarding = () => {
     setMsg({ type: "", text: "" });
     dispatch(clearOnboardingMessages());
 
-    // ── Client-side validations ──
     if (!form.currentRole.trim())
       return setMsg({ type: "error", text: "Current Role is required." });
     if (!form.yearsOfExperience)
@@ -111,12 +107,12 @@ const useMenteeOnboarding = () => {
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
 
-    if (!token) { navigate("/login"); return; }
+    if (!token) { navigate("/login"); return; } // ✅ still guards, now reads from Redux
 
     dispatch(submitMenteeOnboarding({ ...form }));
   };
 
-return { form, loading, msg, redirecting, handleChange, handleSubmit };
+  return { form, loading, msg, redirecting, handleChange, handleSubmit };
 };
 
 export default useMenteeOnboarding;

@@ -1,14 +1,17 @@
-import { useSignIn, useUser } from "@clerk/clerk-react";
+// src/pages/UnifiedLogin.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import { useUser, useAuth, SignIn } from "@clerk/clerk-react";   // ← ADDED useAuth, SignIn
+import { useDispatch } from "react-redux";                        // ← ADDED
+import { setUser } from "../store/slices/authSlice";              // ← ADDED
+import axiosInstance from "../utils/axiosInstance";
 
 export default function UnifiedLogin() {
   const { isSignedIn, user } = useUser();
+  const { getToken } = useAuth();                                 // ← ADDED — to get Clerk JWT
   const navigate = useNavigate();
-  const [roles, setRoles] = useState(null); // null = loading, [] = not registered, ["mentor"] etc
+  const dispatch = useDispatch();                                 // ← ADDED
+  const [roles, setRoles] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -18,44 +21,61 @@ export default function UnifiedLogin() {
     if (!email) return;
 
     setLoading(true);
-    axios
-      .get(`${API}/api/auth/my-roles`, { params: { email } })
+    axiosInstance
+      .get("/auth/my-roles", { params: { email } })
       .then((res) => {
         const { roles } = res.data;
 
         if (roles.length === 0) {
-          // Not registered → go to role selection
           navigate("/select-role");
         } else if (roles.length === 1) {
-          // Single role → auto redirect
-          issueTokenAndRedirect(email, roles[0]);
+          issueTokenAndRedirect(roles[0]);
         } else {
-          // Both roles → show picker
           setRoles(roles);
           setLoading(false);
         }
       })
       .catch(() => {
-        navigate("/select-role"); // fallback
+        navigate("/select-role");
       });
   }, [isSignedIn, user]);
 
-  const issueTokenAndRedirect = async (email, role) => {
+  // ← FIXED: was calling /auth/issue-token (doesn't exist) and storing in localStorage
+  // Now calls /auth/clerk-sso (same endpoint SSOSync uses) and dispatches to Redux
+  const issueTokenAndRedirect = async (role) => {
     try {
-      const res = await axios.post(`${API}/api/auth/issue-token`, { email, role });
-      localStorage.setItem("token", res.data.token);
-      navigate(role === "mentor" ? "/dashboard/mentor" : "/dashboard/mentee");
+      const clerkToken = await getToken();
+      if (!clerkToken) return;
+
+      const res = await axiosInstance.post("/auth/clerk-sso", {
+        clerkToken,
+        roles: undefined,       // existing user — no new roles
+        termsAccepted: true,    // existing user — already accepted
+      });
+
+      if (res.data?.accessToken || res.data?.token) {
+        dispatch(setUser({
+          token: res.data.accessToken || res.data.token,
+          user: res.data.user || null,
+        }));
+      }
+
+      if (role === "mentor") {
+        localStorage.setItem("role", "mentor");
+        navigate("/dashboard/mentor");
+      } else {
+        localStorage.setItem("role", "mentee");
+        navigate("/dashboard/mentee");
+      }
     } catch (err) {
-      console.error("Token issue failed", err);
+      console.error("SSO token issue failed", err);
     }
   };
 
   const handleRolePick = (role) => {
-    const email = user.primaryEmailAddress?.emailAddress;
-    issueTokenAndRedirect(email, role);
+    issueTokenAndRedirect(role);
   };
 
-  // If not signed in yet, show Clerk's SignIn embed
   if (!isSignedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -63,7 +83,6 @@ export default function UnifiedLogin() {
           <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
             Welcome
           </h1>
-          {/* Use Clerk's prebuilt SignIn component */}
           <SignInEmbed />
         </div>
       </div>
@@ -78,7 +97,6 @@ export default function UnifiedLogin() {
     );
   }
 
-  // Dual-role picker
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-sm text-center">
@@ -107,14 +125,11 @@ export default function UnifiedLogin() {
   );
 }
 
-// Inline Clerk SignIn (no redirect, embedded)
-import { SignIn } from "@clerk/clerk-react";
-
 function SignInEmbed() {
   return (
     <SignIn
       routing="hash"
-      afterSignInUrl="/login" // comes back to this page after Clerk auth
+      afterSignInUrl="/login"
     />
   );
 }

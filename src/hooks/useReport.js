@@ -1,9 +1,6 @@
 // src/hooks/useReport.js
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+import axiosInstance from "../utils/axiosInstance";
 
 const useReport = (connectRequestId, refreshKey = 0) => {
   const [myFeedback, setMyFeedback] = useState(null);
@@ -18,10 +15,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get(
-        `${BASE_URL}/feedback/${connectRequestId}`,
-        { headers: authHeader() }
-      );
+      const res = await axiosInstance.get(`/feedback/${connectRequestId}`);
       setMyFeedback(res.data.myFeedback || null);
       setTheirFeedback(res.data.theirFeedback || null);
       setSessionStatus(res.data.sessionStatus || null);
@@ -41,10 +35,9 @@ const useReport = (connectRequestId, refreshKey = 0) => {
     try {
       setSubmitting(true);
       setError(null);
-      const res = await axios.post(
-        `${BASE_URL}/feedback`,
-        { connectRequestId, rating, comment, slotIndex },
-        { headers: authHeader() }
+      const res = await axiosInstance.post(
+        "/feedback",
+        { connectRequestId, rating, comment, slotIndex }
       );
       setMyFeedback(res.data.feedback);
       return { success: true };

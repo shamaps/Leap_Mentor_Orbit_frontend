@@ -1,9 +1,8 @@
 // src/pages/admin/AdminLogin.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -18,8 +17,8 @@ const AdminLogin = () => {
     setError("");
     setLoading(true);
     try {
-      const res = await axios.post(`${BASE_URL}/admin/auth/login`, { email, password });
-      localStorage.setItem("adminToken", res.data.token);
+      const res = await adminAxiosInstance.post("admin/auth/login", { email, password });
+      localStorage.setItem("adminToken", res.data.accessToken);
       localStorage.setItem("adminUser", JSON.stringify(res.data.admin));
       navigate("/admin/users");
     } catch (err) {

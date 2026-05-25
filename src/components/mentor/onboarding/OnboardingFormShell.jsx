@@ -18,7 +18,7 @@ const OnboardingFormShell = () => {
   const dispatch = useDispatch();
 
   const { loading, error, successMsg } = useSelector((state) => state.mentorOnboarding);
-  const token = localStorage.getItem("token");
+  const token = useSelector((state) => state.auth.token); // ✅ Redux, not localStorage
 
   const [form, setForm] = useState(() => {
     try {
@@ -55,26 +55,22 @@ const OnboardingFormShell = () => {
     }
   });
 
-  // ── Validation errors ──
   const [errors, setErrors] = useState({});
-
-  // local msg — used for validation errors + synced from Redux
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [redirecting, setRedirecting] = useState(false);
 
-  // ── Refs for custom section components that can't be targeted by name= ──
   const sectionRefs = {
     skills: useRef(null),
   };
 
-  // sync Redux error/successMsg → local msg
+  // ✅ Fixed: navigate to /dashboard/mentor after onboarding
   useEffect(() => {
     if (error) setMsg({ type: "error", text: error });
     if (successMsg) {
       sessionStorage.removeItem("mentorOnboardingForm");
       dispatch(clearMentorOnboardingMessages());
       setRedirecting(true);
-      setTimeout(() => navigate("/verify-documents"), 1500);
+      setTimeout(() => navigate("/verify-documents"), 1500); // ✅ was /verify-documents
     }
   }, [error, successMsg]);
 
@@ -86,7 +82,6 @@ const OnboardingFormShell = () => {
     sessionStorage.setItem("mentorOnboardingForm", JSON.stringify(form));
   }, [form]);
 
-  // ── Validate required fields ──
   const validate = () => {
     const newErrors = {};
     if (!form.currentRole?.trim()) newErrors.currentRole = true;
@@ -96,35 +91,24 @@ const OnboardingFormShell = () => {
     return newErrors;
   };
 
-  // ── Scroll to the first errored field ──
-  // Priority: name= attribute → data-field= attribute → React ref
   const scrollToFirstError = (errorKeys) => {
     if (!errorKeys.length) return;
     const firstKey = errorKeys[0];
-
     const el =
       document.querySelector(`[name="${firstKey}"]`) ||
       document.querySelector(`[data-field="${firstKey}"]`) ||
       sectionRefs[firstKey]?.current;
-
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
-  // ── Universal onChange — clears error + enforces numeric range limits ──
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // ── hourlyRate: only block values clearly over the max as you type.
-    //    Do NOT enforce min here — enforcing min=1 causes the "reduces by 1"
-    //    glitch because the browser normalises an empty/transitional value to
-    //    the min before React can update state. Min is checked on submit instead.
     if (name === "hourlyRate" && value !== "") {
       const num = Number(value);
       if (num > 100) return;
     }
-
     if (errors[name]) {
       setErrors((prev) => {
         const next = { ...prev };
@@ -140,7 +124,6 @@ const OnboardingFormShell = () => {
     setMsg({ type: "", text: "" });
     dispatch(clearMentorOnboardingMessages());
 
-    // ── Run client-side required-field validation first ──
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -149,14 +132,12 @@ const OnboardingFormShell = () => {
     }
     setErrors({});
 
-    // ── Additional validations ──
     const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
     if (isOnlyNumbers(form.currentRole))
       return setMsg({ type: "error", text: "Current Role cannot be a number." });
     if (isOnlyNumbers(form.company))
       return setMsg({ type: "error", text: "Company name cannot be a number." });
 
-    // ── Numeric range safety net (catches pasted values that bypass onChange) ──
     if (form.hourlyRate && (Number(form.hourlyRate) < 1 || Number(form.hourlyRate) > 100))
       return setMsg({ type: "error", text: "Session rate must be between ₹1 and ₹100." });
 
@@ -170,8 +151,8 @@ const OnboardingFormShell = () => {
     if (!isValidUrl(form.portfolioUrl))
       return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
 
-    // ── No token → redirect to login ──
-    if (!token) { navigate("/login"); return; }
+    // ✅ Fixed: use Redux token, redirect to role-specific login
+    if (!token) { navigate("/login/mentor"); return; }
 
     const payload = {
       ...form,
@@ -191,10 +172,8 @@ const OnboardingFormShell = () => {
 
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
-      {/* Top accent bar */}
       <div className="h-1 w-full bg-blue-900" />
 
-      {/* Sticky header */}
       <header className="sticky top-0 z-10 bg-white border-b border-[#e8edf5] shadow-sm">
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -210,7 +189,6 @@ const OnboardingFormShell = () => {
 
       <OnboardingProgressBar form={form} fields={MENTOR_ONBOARDING_FIELDS} />
 
-      {/* Page title */}
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
         <h1 className="text-2xl font-bold text-[#0f172a]">Mentor Onboarding</h1>
         <p className="text-sm text-slate-600 mt-1">
@@ -218,14 +196,12 @@ const OnboardingFormShell = () => {
         </p>
       </div>
 
-      {/* Form */}
       <main className="max-w-2xl mx-auto px-6 py-6">
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
 
           <PersonalInfoSection form={form} onChange={handleChange} errors={errors} />
           <ProfessionalInfoSection form={form} onChange={handleChange} errors={errors} />
 
-          {/* ref forwarded so scrollToFirstError can target this section */}
           <SkillsSection
             ref={sectionRefs.skills}
             form={form}
@@ -236,7 +212,6 @@ const OnboardingFormShell = () => {
           <PreferencesSection form={form} onChange={handleChange} />
           <SocialLinksSection form={form} onChange={handleChange} />
 
-          {/* Status message */}
           {msg.text && (
             <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
               ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
@@ -247,7 +222,6 @@ const OnboardingFormShell = () => {
             </div>
           )}
 
-          {/* Submit button */}
           <button
             type="submit"
             disabled={loading}

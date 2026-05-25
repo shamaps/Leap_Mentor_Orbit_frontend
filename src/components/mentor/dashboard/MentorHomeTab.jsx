@@ -1,11 +1,8 @@
 // src/components/mentor/dashboard/MentorHomeTab.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 import LeapBuddy from "../../LeapBuddy";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
 const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
 const getAccent = (idx) => ACCENT_COLORS[idx % ACCENT_COLORS.length];
@@ -195,7 +192,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
     const fetchSessions = async () => {
       try {
         setLoadingSessions(true);
-        const res = await axios.get(`${BASE_URL}/connect-requests/incoming`, { headers: authHeader() });
+        const res = await axiosInstance.get("/connect-requests/incoming");
         const all = res.data.requests || [];
         const active = all.filter((r) => r.status === "ongoing" || r.status === "accepted");
         const pending = all.filter((r) => r.status === "pending");
@@ -216,7 +213,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
     const fetchEarnings = async () => {
       try {
         setLoadingEarnings(true);
-        const res = await axios.get(`${BASE_URL}/mentor/earnings`, { headers: authHeader() });
+        const res = await axiosInstance.get("/mentor/earnings");
         setEarnings({
           totalEarnings: res.data.totalEarnings || 0,
           sessionsThisMonth: res.data.sessionsThisMonth || 0,

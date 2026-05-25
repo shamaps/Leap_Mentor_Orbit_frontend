@@ -30,8 +30,8 @@ const UserGrowthChart = ({ data = [] }) => {
   const H = 160;
 
   const sliced = useMemo(() => {
-    const n = range === "7D" ? 7 : range === "30D" ? 30 : 90;
-    return data.length ? data.slice(-n) : [];
+    const dayCount = range === "7D" ? 7 : range === "30D" ? 30 : 90;
+    return data.length ? data.slice(-(dayCount)) : [];
   }, [data, range]);
 
   if (!sliced.length) return (
