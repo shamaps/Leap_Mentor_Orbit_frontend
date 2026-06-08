@@ -1,26 +1,18 @@
 // src/hooks/useRespondToRequest.js
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext"; // ✅
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const useRespondToRequest = () => {
   const [responding, setResponding] = useState(false);
-  const [referring,  setReferring]  = useState(false);
+  const [referring, setReferring] = useState(false);
   const { showToast } = useToast(); // ✅
 
   // ── Accept or Reject ──────────────────────────────────────
   const respond = async ({ requestId, status, confirmedSlot, menteeName }) => {
     try {
       setResponding(true);
-      const token = localStorage.getItem("token");
-      await axios.patch(
-        `${BASE_URL}/connect-requests/${requestId}`,
-        { status, confirmedSlot },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      await axiosInstance.patch(`/connect-requests/${requestId}`, { status, confirmedSlot });
       if (status === "accepted") {
         showToast({
           type: "success",
@@ -48,12 +40,7 @@ const useRespondToRequest = () => {
   const refer = async ({ requestId, referToMentorId, menteeName, referredMentorName }) => {
     try {
       setReferring(true);
-      const token = localStorage.getItem("token");
-      await axios.patch(
-        `${BASE_URL}/connect-requests/${requestId}/refer`,
-        { referToMentorId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axiosInstance.patch(`/connect-requests/${requestId}/refer`, { referToMentorId });
       showToast({
         type: "info",
         title: "Request Referred",

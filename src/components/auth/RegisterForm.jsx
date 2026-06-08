@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
 import { registerUser, clearMessages , setUser } from "../../store/slices/authSlice";
-import FullScreenLoader from "../FullScreenLoader";
+import FullScreenLoader from "@/components/atoms/FullScreenLoader";
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthMessageBanner, AuthDivider, AuthField, AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";

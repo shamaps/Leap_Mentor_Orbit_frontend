@@ -1,27 +1,23 @@
 // src/components/mentor/dashboard/requests/ReferModal.jsx
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../../../../utils/axiosInstance";
 
 const ReferModal = ({ request, onClose, onReferred }) => {
-  const [mentors, setMentors]       = useState([]);
-  const [mySkills, setMySkills]     = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [referring, setReferring]   = useState(false);
-  const [selected, setSelected]     = useState(null);
-  const [error, setError]           = useState("");
-  const [success, setSuccess]       = useState(false);
+  const [mentors, setMentors] = useState([]);
+  const [mySkills, setMySkills] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [referring, setReferring] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   // ✅ Fetch similar mentors on mount
   useEffect(() => {
     const fetchSimilarMentors = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
-        const res = await axios.get(
-          `${BASE_URL}/connect-requests/${request._id}/similar-mentors`,
-          { headers: { Authorization: `Bearer ${token}` } }
+        const res = await axiosInstance.get(
+          `/connect-requests/${request._id}/similar-mentors`
         );
         setMentors(res.data.mentors || []);
         setMySkills(res.data.mySkills || []);
@@ -40,11 +36,9 @@ const ReferModal = ({ request, onClose, onReferred }) => {
     try {
       setReferring(true);
       setError("");
-      const token = localStorage.getItem("token");
-      await axios.patch(
-        `${BASE_URL}/connect-requests/${request._id}/refer`,
-        { referToMentorId: selected.user._id },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await axiosInstance.patch(
+        `/connect-requests/${request._id}/refer`,
+        { referToMentorId: selected.user._id }
       );
       setSuccess(true);
       onReferred(request._id, "referred");
@@ -68,7 +62,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
           <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-5">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
               stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
+              <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
           <h2 className="text-2xl font-extrabold text-emerald-600 mb-2">Request Referred!</h2>
@@ -110,7 +104,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
           <button type="button" onClick={onClose}
             className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center shrink-0 transition-colors">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
@@ -146,10 +140,10 @@ const ReferModal = ({ request, onClose, onReferred }) => {
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
               </div>
               <p className="text-sm font-bold text-slate-700">No similar mentors found</p>
@@ -179,11 +173,10 @@ const ReferModal = ({ request, onClose, onReferred }) => {
                       key={mentor._id}
                       type="button"
                       onClick={() => setSelected(mentor)}
-                      className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all duration-150 ${
-                        isSelected
+                      className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all duration-150 ${isSelected
                           ? "border-blue-500 bg-blue-50"
                           : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         {/* Avatar */}
@@ -233,13 +226,12 @@ const ReferModal = ({ request, onClose, onReferred }) => {
                         </div>
 
                         {/* Selected indicator */}
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                          isSelected ? "border-blue-500 bg-blue-500" : "border-slate-300"
-                        }`}>
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${isSelected ? "border-blue-500 bg-blue-500" : "border-slate-300"
+                          }`}>
                           {isSelected && (
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
                               stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="20 6 9 17 4 12"/>
+                              <polyline points="20 6 9 17 4 12" />
                             </svg>
                           )}
                         </div>

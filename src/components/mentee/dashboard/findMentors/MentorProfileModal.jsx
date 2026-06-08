@@ -1,10 +1,10 @@
 // src/components/mentee/dashboard/findMentors/MentorProfileModal.jsx
 import { useState, useEffect,useRef } from "react";
-import axios from "axios";
+import axiosInstance from "../../../../utils/axiosInstance";
 import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const BADGES = [
   { key: "newcomer",     label: "Newcomer",     icon: "👋", desc: "Joined LeapMentor",        condition: () => true },
   { key: "ten_sessions", label: "10 Sessions",  icon: "🎯", desc: "Completed 10 sessions",    condition: (p) => (p?.totalSessions || 0) >= 10 },
@@ -132,10 +132,8 @@ const badges = BADGES.map((badge) => ({
       setSlotsError("");
       setSelectedSlots([]);
       setActiveDayIndex(0);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        `${BASE_URL}/availability/${mentor.user._id}/slots?duration=${duration}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await axiosInstance.get(
+        `/availability/${mentor.user._id}/slots?duration=${duration}`
       );
       setGroupedSlots(res.data.slots || []);
       if (res.data.sessionDurations?.length) {

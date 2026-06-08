@@ -1,10 +1,6 @@
 // src/hooks/useTrackEarnings.js
 import { useState, useEffect, useCallback, useRef } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const getToken = () => localStorage.getItem("token");
-const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
+import axiosInstance from "../utils/axiosInstance";
 
 const useTrackEarnings = () => {
   // ── Stats ─────────────────────────────────────────────────
@@ -44,9 +40,7 @@ const useTrackEarnings = () => {
   const fetchStats = useCallback(async () => {
     try {
       setLoadingStats(true);
-      const res = await axios.get(`${BASE_URL}/mentor/earnings`, {
-        headers: authHeader(),
-      });
+      const res = await axiosInstance.get("/mentor/earnings");
       setStats({
         totalEarnings:     res.data.totalEarnings     || 0,
         sessionsThisMonth: res.data.sessionsThisMonth || 0,
@@ -65,10 +59,7 @@ const useTrackEarnings = () => {
   const fetchChart = useCallback(async (period) => {
     try {
       setLoadingChart(true);
-      const res = await axios.get(
-        `${BASE_URL}/mentor/earnings/chart?period=${period}`,
-        { headers: authHeader() }
-      );
+      const res = await axiosInstance.get(`/mentor/earnings/chart?period=${period}`);
       setChartData(res.data.data || []);
     } catch (err) {
       console.error("Chart fetch error:", err.message);
@@ -86,10 +77,7 @@ const useTrackEarnings = () => {
         limit: 10,
         ...(currentSearch ? { search: currentSearch } : {}),
       });
-      const res = await axios.get(
-        `${BASE_URL}/mentor/earnings/payouts?${params.toString()}`,
-        { headers: authHeader() }
-      );
+      const res = await axiosInstance.get(`/mentor/earnings/payouts?${params.toString()}`);
       const newPayouts = res.data.payouts || [];
       setPayouts((prev) => append ? [...prev, ...newPayouts] : newPayouts);
       setHasMore(res.data.pagination?.hasMore || false);
@@ -149,11 +137,7 @@ const useTrackEarnings = () => {
     try {
       setWithdrawing(true);
       setWithdrawMsg({ type: "", text: "" });
-      const res = await axios.post(
-        `${BASE_URL}/mentor/earnings/withdraw`,
-        {},
-        { headers: authHeader() }
-      );
+      const res = await axiosInstance.post("/mentor/earnings/withdraw", {});
       setWithdrawMsg({ type: "success", text: res.data.message });
       setStats((prev) => ({ ...prev, walletBalance: 0 }));
       setTimeout(() => {

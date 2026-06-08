@@ -1,9 +1,7 @@
 // src/components/admin/AdminLayout.jsx
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 
 const NAV_ITEMS = [
   {
@@ -22,15 +20,15 @@ const NAV_ITEMS = [
         ),
       },
       {
-  to: "/admin/verifications",
-  label: "Verifications",
-  icon: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-  ),
-},
+        to: "/admin/verifications",
+        label: "Verifications",
+        icon: (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        ),
+      },
       {
         to: "/admin/engagements",
         label: "Engagements",
@@ -109,17 +107,20 @@ const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingWalletCount, setPendingWalletCount] = useState(0);
   const navigate = useNavigate();
-  const adminRaw = localStorage.getItem("adminUser");
-  const adminUser = adminRaw ? JSON.parse(adminRaw) : { name: "Admin" };
+  const [adminUser, setAdminUser] = useState({ name: "Admin" });
+
+  // ← UPDATED: fetch admin info from API since we no longer store in localStorage
+  useEffect(() => {
+    adminAxiosInstance.get("/admin/auth/me")
+      .then((res) => setAdminUser(res.data.admin || { name: "Admin" }))
+      .catch(() => { }); // silent — name just shows as "Admin" if fails
+  }, []);
 
   // ── Fetch pending wallet request count for sidebar badge ──
   useEffect(() => {
     const fetchPendingCount = async () => {
       try {
-        const res = await axios.get(
-          `${BASE_URL}/admin/leap-requests/pending-count`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("adminToken")}` } }
-        );
+        const res = await adminAxiosInstance.get("/admin/leap-requests/pending-count");
         setPendingWalletCount(res.data.count ?? 499);
       } catch {
         // silent — badge just won't show if this fails
@@ -132,9 +133,14 @@ const AdminLayout = ({ children }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminUser");
+  const handleLogout = async () => {
+    try {
+      // ← UPDATED: must call backend to clear the httpOnly cookie
+      // JS cannot clear an httpOnly cookie — only the server can
+      await adminAxiosInstance.post("/admin/auth/logout");
+    } catch (_) {
+      // even if request fails, redirect to login
+    }
     navigate("/admin/login");
   };
 

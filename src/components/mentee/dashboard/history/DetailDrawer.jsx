@@ -1,11 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../../../utils/axiosInstance";
 import { STATUS_STYLES, STATUS_LABELS, formatDate, formatTime, getInitials } from "./constants";
-import StatusBadge from "./StatusBadge";
+import StatusBadge from "../../../atoms/StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"; // ✅ NEW
 
 // ── Slot row ────────────────────────────────────────────────
 const SlotRow = ({ slot, isConfirmed }) => (
@@ -112,18 +110,17 @@ const OngoingContent = ({ request, onClose }) => {
   // ✅ NEW
   const [downloading, setDownloading] = useState(false);
 
-  // ✅ NEW
+  // NEW
   const handleDownload = async () => {
     try {
       setDownloading(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        `${BASE_URL}/invoices/${request._id}`,
-        { headers: { Authorization: `Bearer ${token}` }, responseType: "blob" }
-      );
-      const url  = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
+      const res = await axiosInstance.get(`/invoices/${request._id}`, {
+        responseType: "arraybuffer",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
       const link = document.createElement("a");
-      link.href     = url;
+      link.href = url;
       link.download = `Invoice-${request._id.slice(-6).toUpperCase()}.pdf`;
       document.body.appendChild(link);
       link.click();
@@ -429,7 +426,7 @@ const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }) => {
             <p className="font-bold text-slate-800 text-sm truncate">{mentor?.name}</p>
             <p className="text-xs text-slate-400 truncate">{mentor?.email}</p>
           </div>
-          <StatusBadge status={status} />
+          <StatusBadge status={status} variant="history" />
         </div>
 
         {/* Status banner */}

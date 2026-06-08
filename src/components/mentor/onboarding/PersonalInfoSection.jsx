@@ -1,11 +1,9 @@
 // components/mentor/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const PersonalInfoSection = ({ form, onChange }) => {
-  const fileInputRef              = useRef(null);
+  const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");
 
@@ -17,7 +15,7 @@ const PersonalInfoSection = ({ form, onChange }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // ✅ Client-side validation before uploading
+    // Client-side validation before uploading
     if (!file.type.startsWith("image/")) {
       setUploadErr("Only image files are allowed.");
       return;
@@ -31,18 +29,16 @@ const PersonalInfoSection = ({ form, onChange }) => {
     setUploading(true);
 
     try {
-      const token = localStorage.getItem("token");
 
-      // ✅ Send as multipart/form-data — NOT Base64
+      // Send as multipart/form-data — NOT Base64
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const res = await axios.post(
-        `${BASE_URL}/upload/profile-picture`,
+      const res = await axiosInstance.post(
+        "/upload/profile-picture",
         formData,
         {
           headers: {
-            Authorization:  `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -51,7 +47,7 @@ const PersonalInfoSection = ({ form, onChange }) => {
       // ✅ Store Cloudinary URL in form state
       onChange({
         target: {
-          name:  "profilePicture",
+          name: "profilePicture",
           value: res.data.url,
         },
       });
@@ -74,8 +70,8 @@ const PersonalInfoSection = ({ form, onChange }) => {
         <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
             stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
           </svg>
         </div>
         <h2 className="text-sm font-bold text-[#0f172a]">Profile Picture & Bio</h2>
@@ -108,8 +104,8 @@ const PersonalInfoSection = ({ form, onChange }) => {
               ) : (
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
                   stroke="#93c5fd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
                 </svg>
               )}
             </button>

@@ -1,11 +1,9 @@
 // src/components/mentor/dashboard/MentorHomeTab.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 import LeapBuddy from "../../LeapBuddy";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+import StatCard from "@/components/atoms/StatCard";
 
 const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
 const getAccent = (idx) => ACCENT_COLORS[idx % ACCENT_COLORS.length];
@@ -76,19 +74,6 @@ const IconInbox = () => (
     <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
     <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
   </svg>
-);
-
-const StatCard = ({ label, value, sub, icon }) => (
-  <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-4">
-    <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-      {icon}
-    </div>
-    <div className="min-w-0">
-      <p className="text-xl font-extrabold text-slate-800 leading-none truncate">{value}</p>
-      {sub && <p className="text-[14px] text-blue-900 mt-0.5">{sub}</p>}
-      <p className="text-xs font-bold text-blue-900 mt-1">{label}</p>
-    </div>
-  </div>
 );
 
 const SessionCard = ({ request, index, navigate }) => {
@@ -195,7 +180,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
     const fetchSessions = async () => {
       try {
         setLoadingSessions(true);
-        const res = await axios.get(`${BASE_URL}/connect-requests/incoming`, { headers: authHeader() });
+        const res = await axiosInstance.get("/connect-requests/incoming");
         const all = res.data.requests || [];
         const active = all.filter((r) => r.status === "ongoing" || r.status === "accepted");
         const pending = all.filter((r) => r.status === "pending");
@@ -216,7 +201,7 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
     const fetchEarnings = async () => {
       try {
         setLoadingEarnings(true);
-        const res = await axios.get(`${BASE_URL}/mentor/earnings`, { headers: authHeader() });
+        const res = await axiosInstance.get("/mentor/earnings");
         setEarnings({
           totalEarnings: res.data.totalEarnings || 0,
           sessionsThisMonth: res.data.sessionsThisMonth || 0,
@@ -277,24 +262,28 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
       {/* ── Quick Stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
+          variant="home"
           label="Total Sessions"
           value={loadingSessions ? "—" : (actualSessionCount ?? 0)}
           sub="completed + ongoing"
           icon={<IconSessions />}
         />
         <StatCard
+          variant="home"
           label="Avg Rating"
           value={profile?.avgRating > 0 ? profile.avgRating.toFixed(1) : "New"}
           sub={profile?.avgRating > 0 ? "out of 5.0" : "no reviews yet"}
           icon={<IconStar />}
         />
         <StatCard
+          variant="home"
           label="Wallet Balance"
           value={loadingEarnings ? "—" : `${fmt(earnings?.walletBalance)} LP`}
           sub="available to withdraw"
           icon={<IconMoney />}
         />
         <StatCard
+          variant="home"
           label="Pending Requests"
           value={loadingSessions ? "—" : pendingCount}
           sub="awaiting your response"

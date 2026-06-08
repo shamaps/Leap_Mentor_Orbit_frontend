@@ -1,6 +1,7 @@
 // components/mentor/dashboard/availability/CalendarAvailabilitySection.jsx
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import axiosInstance from "../../../../utils/axiosInstance";
 
 const MONTHS = [
   "January","February","March","April","May","June",
@@ -571,30 +572,24 @@ const CalendarAvailabilitySection = ({ specificDates, setSpecificDates, googleCa
     onBusySlotsChange?.(slots);
   };
 
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
   useEffect(() => {
     if (!googleCalendarConnected) {
       setBusySlots([]);
       setCalendarEvents([]);
       return;
     }
-    const token    = localStorage.getItem("token");
     const firstDay = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-01`;
-    const lastDay  = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${new Date(calYear, calMonth + 1, 0).getDate()}`;
+    const lastDay = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${new Date(calYear, calMonth + 1, 0).getDate()}`;
+    const params = { startDate: firstDay, endDate: lastDay };
 
-    import("axios").then(({ default: axios }) => {
-      const headers = { Authorization: `Bearer ${token}` };
-      const params  = { startDate: firstDay, endDate: lastDay };
+    axiosInstance.get("/google-calendar/busy", { params })
+      .then(({ data }) => updateBusySlots(data.busy || []))
+      .catch((err) => console.error("Failed to fetch busy slots:", err));
 
-      axios.get(`${BASE_URL}/google-calendar/busy`, { params, headers })
-        .then(({ data }) => updateBusySlots(data.busy || []))
-        .catch((err) => console.error("Failed to fetch busy slots:", err));
+    axiosInstance.get("/google-calendar/events", { params })
+      .then(({ data }) => setCalendarEvents(data.events || []))
+      .catch((err) => console.error("Failed to fetch events:", err));
 
-      axios.get(`${BASE_URL}/google-calendar/events`, { params, headers })
-        .then(({ data }) => setCalendarEvents(data.events || []))
-        .catch((err) => console.error("Failed to fetch events:", err));
-    });
   }, [googleCalendarConnected, calYear, calMonth]);
 
   const handleToggleDate = (dateStr) => {

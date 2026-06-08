@@ -2,8 +2,9 @@
 // Usage: <LeapBuddy role="mentor" /> or <LeapBuddy role="mentee" />
 
 import { useState, useRef, useEffect } from "react";
+import axiosInstance from "../utils/axiosInstance";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
 const INDIGO = "#4f46e5";
 const INDIGO_LIGHT = "#eef2ff";
@@ -197,16 +198,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
     if (!form?.email || !form?.subject || !form?.message) return;
     setTicketStatus((p) => ({ ...p, [idx]: "sending" }));
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/support/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ ...form, role }),
-      });
-      if (!res.ok) throw new Error();
+      await axiosInstance.post("/support/messages", { ...form, role });
       setTicketStatus((p) => ({ ...p, [idx]: "sent" }));
     } catch {
       setTicketStatus((p) => ({ ...p, [idx]: "error" }));

@@ -4,26 +4,11 @@ import {
   Tooltip, ResponsiveContainer,
 } from "recharts";
 import useTrackEarnings from "../../../../hooks/useTrackEarnings";
+import StatCard from "@/components/atoms/StatCard";
 
 // ── Helpers ───────────────────────────────────────────────────
 const fmt = (n) =>
   Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-// ── Stat Card ─────────────────────────────────────────────────
-const StatCard = ({ label, value, sub, subColor = "text-emerald-500", icon }) => (
-  <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex flex-col gap-1 min-w-0">
-    <p className="text-xs text-slate-700 font-semibold">{label}</p>
-    <div className="flex items-end gap-2 flex-wrap">
-      <p className="text-2xl font-extrabold text-slate-800 tracking-tight">{value}</p>
-      {sub && (
-        <span className={`text-xs font-bold mb-0.5 flex items-center gap-0.5 ${subColor}`}>
-          {sub}
-        </span>
-      )}
-    </div>
-    {icon && <div className="mt-1 text-slate-300">{icon}</div>}
-  </div>
-);
 
 // ── Custom Tooltip ────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }) => {
@@ -112,6 +97,7 @@ const TrackEarningsTab = () => {
           ) : (
             <>
               <StatCard
+                  variant="earnings"
                 label="Total Earnings"
                 value={fmt(stats.totalEarnings)}
                 sub={
@@ -124,6 +110,7 @@ const TrackEarningsTab = () => {
                 }
               />
               <StatCard
+                  variant="earnings"
                 label="Sessions This Month"
                 value={stats.sessionsThisMonth}
                 sub={
@@ -134,6 +121,7 @@ const TrackEarningsTab = () => {
                 subColor="text-slate-400"
               />
               <StatCard
+                  variant="earnings"
                 label="Average Rating"
                 value={`${Number(stats.avgRating || 0).toFixed(1)}/5.0`}
                 sub={
@@ -144,6 +132,7 @@ const TrackEarningsTab = () => {
                 subColor="text-amber-400"
               />
               <StatCard
+                  variant="earnings"
                 label="Pending Payout"
                 value={fmt(stats.pendingPayout)}
                 sub={

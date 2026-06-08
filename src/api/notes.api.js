@@ -1,11 +1,5 @@
 // src/notes.api.js
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
-const authHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("token")}`,
-});
+import axiosInstance from "../utils/axiosInstance";
 
 // ── Upload a note (multipart/form-data) ───────────────────────
 export const uploadNote = async (connectRequestId, file, title = "", isPrivate = false) => {
@@ -15,38 +9,32 @@ export const uploadNote = async (connectRequestId, file, title = "", isPrivate =
   if (title?.trim())  formData.append("title",     title.trim());
   if (isPrivate)      formData.append("isPrivate",  "true");       // ✅ NEW
 
-  const res = await axios.post(`${BASE_URL}/notes/upload`, formData, {
-    headers: {
-      ...authHeader(),
-      "Content-Type": "multipart/form-data",
-    },
+  const res = await axiosInstance.post("/notes/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
 };
 
 // ── Fetch all shared notes for a session ──────────────────────
 export const getNotes = async (connectRequestId) => {
-  const res = await axios.get(
-    `${BASE_URL}/notes/${connectRequestId}`,
-    { headers: authHeader() }
+  const res = await axiosInstance.get(
+    `/notes/${connectRequestId}`
   );
   return res.data;
 };
 
 // ── Fetch private notes (own only) ────────────────────────────
 export const getPrivateNotes = async (connectRequestId) => {
-  const res = await axios.get(
-    `${BASE_URL}/notes/${connectRequestId}/private`,
-    { headers: authHeader() }
+  const res = await axiosInstance.get(
+    `/notes/${connectRequestId}/private`
   );
   return res.data;
 };
 
 // ── Delete a note ─────────────────────────────────────────────
 export const deleteNote = async (noteId) => {
-  const res = await axios.delete(
-    `${BASE_URL}/notes/${noteId}`,
-    { headers: authHeader() }
+  const res = await axiosInstance.delete(
+    `/notes/${noteId}`
   );
   return res.data;
 };

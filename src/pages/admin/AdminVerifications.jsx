@@ -1,8 +1,7 @@
 // src/pages/admin/AdminVerifications.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
-
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 
 // ── Icons ────────────────────────────────────────────────
 const IconShield = () => (
@@ -162,11 +161,11 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
           <div className="flex items-center gap-3">
             {mentorProfile?.profilePicture
               ? <img src={mentorProfile.profilePicture} alt={user?.name}
-                  className="w-11 h-11 rounded-2xl object-cover border-2 border-white shadow-sm" />
+                className="w-11 h-11 rounded-2xl object-cover border-2 border-white shadow-sm" />
               : <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-base font-bold text-white flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #1e40af, #3b82f6)" }}>
-                  {user?.name?.[0]?.toUpperCase() || "M"}
-                </div>
+                style={{ background: "linear-gradient(135deg, #1e40af, #3b82f6)" }}>
+                {user?.name?.[0]?.toUpperCase() || "M"}
+              </div>
             }
             <div>
               <p className="text-sm font-bold text-slate-800">{user?.name}</p>
@@ -317,9 +316,6 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════
 const AdminVerifications = () => {
-  // ✅ Replace those 3 lines with just this
-const authHeader = localStorage.getItem("adminToken");
-
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -334,18 +330,15 @@ const authHeader = localStorage.getItem("adminToken");
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API}/admin/mentor-verifications`, {
-        headers: { Authorization: `Bearer ${authHeader}` },
-      });
-      if (!res.ok) throw new Error("Failed to load verifications");
-      const data = await res.json();
+      const res = await adminAxiosInstance.get("/admin/mentor-verifications");
+      const data = res.data;
       setMentors(data.mentors || data);
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
-  }, [authHeader]);
+  }, []);
 
   useEffect(() => { fetchMentors(); }, [fetchMentors]);
 
@@ -353,14 +346,11 @@ const authHeader = localStorage.getItem("adminToken");
   const handleVerify = async (mentorProfileId) => {
     setVerifying(true);
     try {
-      const res = await fetch(`${API}/admin/mentor-verifications/${mentorProfileId}/verify`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authHeader}`,
-        },
-      });
-      if (!res.ok) throw new Error("Verification failed");
+      const res = await adminAxiosInstance.patch(
+        `/admin/mentor-verifications/${mentorProfileId}/verify`,
+        { status: "verified" }
+      );
+
 
       // Update local state
       setMentors(prev => prev.map(m =>
@@ -373,7 +363,7 @@ const authHeader = localStorage.getItem("adminToken");
       }
       showToast("✓ Mentor verified successfully!", "success");
     } catch (e) {
-      showToast(e.message, "error");
+      showToast(e?.response?.data?.message || e.message, "error");
     } finally {
       setVerifying(false);
     }
@@ -557,11 +547,11 @@ const authHeader = localStorage.getItem("adminToken");
                 <div className="flex items-center gap-3 min-w-0">
                   {m.mentorProfile?.profilePicture
                     ? <img src={m.mentorProfile.profilePicture} alt={m.user?.name}
-                        className="w-8 h-8 rounded-xl object-cover flex-shrink-0 border border-slate-100" />
+                      className="w-8 h-8 rounded-xl object-cover flex-shrink-0 border border-slate-100" />
                     : <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg,#1e40af,#3b82f6)" }}>
-                        {m.user?.name?.[0]?.toUpperCase() || "?"}
-                      </div>
+                      style={{ background: "linear-gradient(135deg,#1e40af,#3b82f6)" }}>
+                      {m.user?.name?.[0]?.toUpperCase() || "?"}
+                    </div>
                   }
                   <p className="text-sm font-semibold text-slate-800 truncate">{m.user?.name || "—"}</p>
                 </div>

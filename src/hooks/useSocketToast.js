@@ -1,5 +1,6 @@
 // src/hooks/useSocketToast.js
 import { useEffect, useRef } from "react";
+import { useSelector } from "react-redux"; // ✅ ADDED
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
 import useUnreadCount from "./useUnreadCount";
@@ -9,6 +10,7 @@ const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 const useSocketToast = (onRequestChanged) => {
   const { showToast } = useToast();
   const { incrementBadge } = useUnreadCount();
+  const token = useSelector((state) => state.auth.token); // ✅ FIXED: moved to top level (hooks must not be inside useEffect)
 
   const socketRef = useRef(null);
 
@@ -28,23 +30,14 @@ const useSocketToast = (onRequestChanged) => {
   }, [onRequestChanged]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (!token) return; // ✅ no token = no socket (onboarding, login pages)
-    {
-      /*
-    // ✅ prevent duplicate socket if already connected
-    if (socketRef.current?.connected) return;*/
-    }
-
-    //the above was the past code i changed it and added below lines
 
     if (window.__leapSocket?.connected) return; // ✅ globally shared
-    // ✅ added global socket reference to prevent duplicates across multiple hook instances (e.g. multiple pages open)
 
     const socket = io(BASE_URL, {
       auth: { token },
       reconnection: true,
-      reconnectionAttempts: 5, // ✅ reduced from 10
+      reconnectionAttempts: 5,
       reconnectionDelay: 2000,
       transports: ["websocket", "polling"],
     });
@@ -52,15 +45,11 @@ const useSocketToast = (onRequestChanged) => {
     socketRef.current = socket;
     window.__leapSocket = socket;
 
-    // ✅ removed connect log
-    // ✅ removed disconnect log
-    // ✅ removed cleanup log
-
     socket.on("connect_error", (err) => {
       console.warn("⚠️ Socket error:", err.message);
     });
     socket.on("reconnect", () => {
-      window.__leapSocket = socket; // ✅ re-expose after reconnect
+      window.__leapSocket = socket;
     });
 
     socket.on("new_connect_request", ({ title, message, type }) => {
@@ -94,7 +83,7 @@ const useSocketToast = (onRequestChanged) => {
         window.__leapSocket = null;
       }
     };
-  }, []);
+  }, [token]); // ✅ re-run if token changes (e.g. after login)
 };
 
 export default useSocketToast;

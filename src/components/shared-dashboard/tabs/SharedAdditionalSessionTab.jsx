@@ -1,14 +1,9 @@
 // src/components/shared-dashboard/tabs/SharedAdditionalSessionTab.jsx
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 import useSessions from "../../../hooks/useSessions";
 import { payAdditionalEscrow } from "../../../api/escrow.api";
 import EscrowSuccessModal from "../../mentee/dashboard/history/EscrowSuccessModal";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("token")}`,
-});
 
 const formatTime = (time) => {
   if (!time) return "";
@@ -180,7 +175,7 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
     const fetchWallet = async () => {
       try {
         setFetching(true);
-        const res = await axios.get(`${BASE_URL}/escrow/status/${connect._id}`, { headers: authHeader() });
+        const res = await axiosInstance.get(`/escrow/status/${connect._id}`);
         setWalletBalance(res.data?.wallet?.balance ?? null);
         if (res.data?.commissionRate != null) setCommissionRate(res.data.commissionRate);
       } catch (err) {
@@ -313,9 +308,8 @@ const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
     try {
       setAvailLoading(true);
       setAvailError("");
-      const res = await axios.get(
-        `${BASE_URL}/sessions/${connect._id}/mentor-availability?duration=${dur}`,
-        { headers: authHeader() },
+      const res = await axiosInstance.get(
+        `/sessions/${connect._id}/mentor-availability?duration=${dur}`,
       );
       setAvailability(res.data.slots || []);
       if (res.data.sessionDurations?.length) setSessionDurations(res.data.sessionDurations);

@@ -1,12 +1,10 @@
 // src/pages/admin/AdminEngagements.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
-import axios from "axios";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
-import StatCard    from "../../components/admin/common/StatCard";
-import StatusBadge from "../../components/admin/common/StatusBadge";
+import StatCard from "@/components/atoms/StatCard";
+import StatusBadge from "../../components/atoms/StatusBadge";
 
-const BASE_URL   = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("adminToken")}` });
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
@@ -154,7 +152,7 @@ const AdminEngagements = () => {
   // ── Fetch stats ───────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/admin/engagements/stats`, { headers: authHeader() });
+      const res = await adminAxiosInstance.get("/admin/engagements/stats");
       setStats(res.data);
     } catch { showToast("Failed to load stats."); }
   }, []);
@@ -174,7 +172,7 @@ const AdminEngagements = () => {
       if (status) params.status   = status;
       if (from)   params.dateFrom = from;
       if (to)     params.dateTo   = to;
-      const res = await axios.get(`${BASE_URL}/admin/engagements`, { headers: authHeader(), params });
+      const res = await adminAxiosInstance.get("/admin/engagements");
       setEngagements(res.data.engagements);
       setPagination(res.data.pagination);
     } catch {

@@ -2,14 +2,14 @@
 // NON FUNCTIONAL AS ITS DIVIDED INTO LOGINMENTEE AND LOGINMENTOR PAGES
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 import useGoogleAuth from "../hooks/useGoogleAuth";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import { useDispatch } from "react-redux";         // ← ADDED
+import { setUser } from "../store/slices/authSlice"; // ← ADDED
 
 const redirectByRole = (roles, navigate) => {
-  if(roles.includes("mentor") && roles.includes("mentee")) {
+  if (roles.includes("mentor") && roles.includes("mentee")) {
     navigate("/dashboard/mentor");
   } else if (roles.includes("mentor")) {
     navigate("/dashboard/mentor");
@@ -25,6 +25,7 @@ const CLERK_STRATEGY = {
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();  // ← ADDED
   const googleBtnRef = useRef(null);
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
   const { signOut } = useClerk();
@@ -39,7 +40,7 @@ const Login = () => {
     roles: [],
     onSuccess: (data) => {
       setMsg({ type: "success", text: "Google login successful! Redirecting..." });
-      setTimeout(() => redirectByRole(data?.user?.roles || [], navigate,setMsg), 700);
+      setTimeout(() => redirectByRole(data?.user?.roles || [], navigate, setMsg), 700);
     },
     onError: (text) => setMsg({ type: "error", text }),
     onLoadingChange: setLoading,
@@ -82,12 +83,15 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const res = await axios.post(`${BASE_URL}/auth/login`, {
+      const res = await axiosInstance.post("/auth/login", {
         email: form.email.trim(),
         password: form.password,
       });
 
-      if (res.data?.token) localStorage.setItem("token", res.data.token);
+      // ← FIXED: was localStorage.setItem("token") — backend now returns accessToken not token
+      if (res.data?.accessToken) {
+        dispatch(setUser({ token: res.data.accessToken, user: res.data.user || null }));
+      }
 
       setMsg({ type: "success", text: "Login successful! Redirecting..." });
       setTimeout(() => redirectByRole(res.data?.user?.roles || [], navigate), 800);
@@ -108,10 +112,10 @@ const Login = () => {
         {msg.text && (
           <div
             className={`mt-4 text-sm rounded-md p-3 ${msg.type === "success"
-                ? "bg-green-50 text-green-700"
-                : msg.type === "info"
-                  ? "bg-blue-50 text-blue-900"
-                  : "bg-red-50 text-red-700"
+              ? "bg-green-50 text-green-700"
+              : msg.type === "info"
+                ? "bg-blue-50 text-blue-900"
+                : "bg-red-50 text-red-700"
               }`}
           >
             {msg.text}

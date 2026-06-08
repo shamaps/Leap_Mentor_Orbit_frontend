@@ -1,5 +1,5 @@
 // src/components/mentee/dashboard/history/HistoryTable.jsx
-import StatusBadge from "./StatusBadge";
+import StatusBadge from "../../../atoms/StatusBadge";
 import { formatDate, getInitials } from "./constants";
 
 const DeleteIcon = ({ onClick, title }) => (
@@ -106,7 +106,7 @@ const HistoryTable = ({ requests, selected, onSelect, onDelete }) => {
 
             {/* Status */}
             <div>
-              <StatusBadge status={status} />
+              <StatusBadge status={status} variant="history" />
             </div>
 
             {/* Actions */}

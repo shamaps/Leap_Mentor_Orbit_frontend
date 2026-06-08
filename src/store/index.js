@@ -4,7 +4,7 @@ import authReducer             from "./slices/authSlice";
 import menteeOnboardingReducer from "./slices/menteeOnboardingSlice";
 import mentorOnboardingReducer from "./slices/mentorOnboardingSlice";
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
     auth:             authReducer,
     menteeOnboarding: menteeOnboardingReducer,

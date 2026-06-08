@@ -1,7 +1,9 @@
+// src/hooks/useGoogleAuth.js
 import { useEffect, useRef } from "react";
-import axios from "axios";
+import { useDispatch } from "react-redux";                        // ✅ ADDED
+import { setUser } from "../store/slices/authSlice";             // ✅ ADDED
+import axiosInstance from "../utils/axiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 // Store callbacks outside the hook so they stay fresh across re-renders
@@ -11,21 +13,20 @@ const callbackRef = {
   onError: null,
   onLoadingChange: null,
   rolesRef: null,
-  termsAcceptedRef: null, 
-  dispatch: null,
-  setUser: null,
+  termsAcceptedRef: null,
+  dispatch: null,      // ✅ ADDED
+  setUser: null,       // ✅ ADDED
 };
 
 const useGoogleAuth = ({
   btnRef,
   roles,
-  termsAcceptedRef, // ✅ FIX 1: now properly received and used
+  termsAcceptedRef,
   onSuccess,
   onError,
   onLoadingChange,
-  dispatch,
-  setUser,
 }) => {
+  const dispatch = useDispatch();                                 // ✅ ADDED — hook-level, not passed as prop
   const rolesRef = useRef(roles);
 
   useEffect(() => {
@@ -39,8 +40,8 @@ const useGoogleAuth = ({
   callbackRef.onLoadingChange = onLoadingChange;
   callbackRef.rolesRef = rolesRef;
   callbackRef.termsAcceptedRef = termsAcceptedRef;
-  callbackRef.dispatch = dispatch; 
-callbackRef.setUser = setUser;  
+  callbackRef.dispatch = dispatch;                               // ✅ kept fresh
+  callbackRef.setUser = setUser;                                 // ✅ kept fresh
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
@@ -56,10 +57,8 @@ callbackRef.setUser = setUser;
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: async (response) => {
-            //  FIX 1: Read termsAccepted from the live ref, not hardcoded true
-const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
+            const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
 
-            // FIX 2: Validate terms before hitting the backend
             if (!termsAccepted) {
               callbackRef.onError?.("Please accept the terms to continue.");
               return;
@@ -68,21 +67,22 @@ const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
             try {
               callbackRef.onLoadingChange?.(true);
 
-              const res = await axios.post(`${BASE_URL}/auth/google`, {
+              const res = await axiosInstance.post("/auth/google", {
                 credential: response.credential,
                 roles: callbackRef.rolesRef.current,
                 termsAccepted: true,
               });
 
-              // ✅ FIX 3: Store token BEFORE calling onSuccess so the
-              // dashboard never fires API calls without a token
-              if (res.data?.token) {
-                localStorage.setItem("token", res.data.token);
-
-                // ✅ Add this line — sync token into Redux so slices can read it
-callbackRef.dispatch?.(callbackRef.setUser({ token: res.data.token, user: res.data.user || null }));
-
-                await new Promise((resolve) => setTimeout(resolve, 50));
+              // ✅ FIXED: was localStorage.setItem("token", res.data.token)
+              // Backend sets HttpOnly cookie automatically.
+              // We only dispatch into Redux — never store token in localStorage.
+              if (res.data?.accessToken || res.data?.token) {
+                callbackRef.dispatch?.(
+                  callbackRef.setUser({
+                    token: res.data.accessToken || res.data.token,
+                    user: res.data.user || null,
+                  })
+                );
               }
 
               callbackRef.onSuccess?.(res.data);

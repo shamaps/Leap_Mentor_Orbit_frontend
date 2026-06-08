@@ -1,10 +1,8 @@
 // src/pages/admin/AdminSettings.jsx
 import { useState, useEffect } from "react";
-import axios from "axios";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("adminToken")}` });
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
@@ -97,8 +95,8 @@ const AdminSettings = () => {
     const fetchData = async () => {
       try {
         const [ovRes, cmRes] = await Promise.all([
-          axios.get(`${BASE_URL}/admin/settings/overview`, { headers: authHeader() }),
-          axios.get(`${BASE_URL}/admin/settings/commission`, { headers: authHeader() }),
+          adminAxiosInstance.get("/admin/settings/overview"),
+          adminAxiosInstance.get("/admin/settings/commission"),
         ]);
         setOverview({ totalUsers: ovRes.data.totalUsers, activeSessions: ovRes.data.activeSessions });
         setCommission(String(cmRes.data.commissionRate));
@@ -116,10 +114,9 @@ const AdminSettings = () => {
     try {
       setAddingAdmin(true);
       setTempPw("");
-      const res = await axios.post(
-        `${BASE_URL}/admin/settings/add-admin`,
+      const res = await adminAxiosInstance.post(
+        "/admin/settings/add-admin",
         { name: adminName.trim(), email: adminEmail.trim() },
-        { headers: authHeader() }
       );
       setTempPw(res.data.tempPassword);
       showToast(`Admin account created for ${adminEmail}`);
@@ -138,10 +135,9 @@ const AdminSettings = () => {
     }
     try {
       setSavingCommission(true);
-      await axios.put(
-        `${BASE_URL}/admin/settings/commission`,
+      await adminAxiosInstance.put(
+        "/admin/settings/commission",
         { commissionRate: rate },
-        { headers: authHeader() }
       );
       showToast(`Commission rate set to ${rate}%`);
     } catch (err) {

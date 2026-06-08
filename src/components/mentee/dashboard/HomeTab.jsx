@@ -1,12 +1,10 @@
 // src/components/mentee/dashboard/HomeTab.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+import MentorCardSkeleton from "@/components/atoms/MentorCardSkeleton";
 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = (profile) => {
@@ -26,15 +24,13 @@ const useHomeData = (profile) => {
           profile?.interestedFields?.[0] ||
           "";
 
-        const mentorRes = await axios.get(`${BASE_URL}/mentors/search`, {
-          params: { skill: skillTerm, limit: 4 },
-          headers: authHeader(),
+        const mentorRes = await axiosInstance.get("/mentors/search", {
+          params: { skill: skillTerm, limit: 4 }
         });
         setMentors(mentorRes.data.mentors || []);
 
-        const sessionRes = await axios.get(
-          `${BASE_URL}/connect-requests/my-requests`,
-          { headers: authHeader() }
+        const sessionRes = await axiosInstance.get(
+          "/connect-requests/my-requests",
         );
         const allRequests = sessionRes.data.requests || [];
         const upcoming = allRequests
@@ -46,9 +42,7 @@ const useHomeData = (profile) => {
           });
         setSessions(upcoming);
 
-        const walletRes = await axios.get(`${BASE_URL}/escrow/wallet`, {
-          headers: authHeader(),
-        });
+        const walletRes = await axiosInstance.get("/escrow/wallet");
         setBalance(walletRes.data.balance ?? 0);
         setEscrow(walletRes.data.escrow ?? 0);
       } catch (err) {
@@ -170,24 +164,6 @@ const MentorCard = ({ mentor, onViewProfile }) => {
   );
 };
 
-// ── Mentor Card Skeleton ──────────────────────────────────────
-const MentorCardSkeleton = () => (
-  <div className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col gap-3 shadow-sm animate-pulse">
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-slate-200 shrink-0" />
-      <div className="flex-1 space-y-1.5">
-        <div className="h-3 bg-slate-200 rounded w-3/4" />
-        <div className="h-2.5 bg-slate-100 rounded w-1/2" />
-      </div>
-    </div>
-    <div className="flex gap-1.5">
-      <div className="h-5 w-16 bg-slate-100 rounded-full" />
-      <div className="h-5 w-12 bg-slate-100 rounded-full" />
-    </div>
-    <div className="h-8 bg-slate-200 rounded-xl" />
-  </div>
-);
-
 // ── Session Card ──────────────────────────────────────────────
 const SessionCard = ({ request, index, navigate }) => {
   const slot = request.confirmedSlot || request.selectedSlots?.[0];
@@ -262,9 +238,7 @@ const LeapPointsPanel = ({ balance, loading }) => {
   useEffect(() => {
     const checkExistingRequest = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/leap-requests/my-request`, {
-          headers: authHeader(),
-        });
+        const res = await axiosInstance.get("/leap-requests/my-request");
         if (res.data?.status === "pending") {
           setRequestStatus("pending");
         }
@@ -284,10 +258,9 @@ const LeapPointsPanel = ({ balance, loading }) => {
   const handleUpgradeRequest = async () => {
     try {
       setRequestStatus("sending");
-      await axios.post(
-        `${BASE_URL}/leap-requests`,
-        { reason: "balance_refill" },
-        { headers: { ...authHeader(), "Content-Type": "application/json" } }
+      await axiosInstance.post(
+        "/leap-requests",
+        { reason: "balance_refill" }
       );
       setRequestStatus("sent");
     } catch (err) {
@@ -481,10 +454,10 @@ const HomeTab = ({ user, profile }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {loading ? (
               <>
-                <MentorCardSkeleton />
-                <MentorCardSkeleton />
-                <MentorCardSkeleton />
-                <MentorCardSkeleton />
+                <MentorCardSkeleton variant="compact" />
+                <MentorCardSkeleton variant="compact" />
+                <MentorCardSkeleton variant="compact" />
+                <MentorCardSkeleton variant="compact" />
               </>
             ) : mentors.length > 0 ? (
               mentors.map((mentor) => (

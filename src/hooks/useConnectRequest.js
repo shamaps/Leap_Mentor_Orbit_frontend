@@ -1,8 +1,7 @@
 // src/hooks/useConnectRequest.js
 import { useState, useRef } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";
+import getErrorMessage from "../utils/getErrorMessage";
 
 const useConnectRequest = () => {
   const [sending, setSending] = useState(false);
@@ -24,17 +23,20 @@ const useConnectRequest = () => {
     try {
       inFlightRef.current = true; // ← lock before async starts
       setSending(true);
-      const token = localStorage.getItem("token");
-      await axios.post(
-        `${BASE_URL}/connect-requests`,
-        { mentorId, message, selectedSlots, sessionRate, sessionCount },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const payload = {
+        mentorId,
+        message,
+        selectedSlots,
+        sessionRate,
+        sessionCount,
+      };
+
+      await axiosInstance.post("/connect-requests", payload);
       setSuccess(true);
       return true;
     } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Failed to send request.";
-      setError(apiMsg);
+      const apiMsg = getErrorMessage(err, "Failed to send request.");
+      setError(apiMsg); 
       return false;
     } finally {
       inFlightRef.current = false; // ← release lock

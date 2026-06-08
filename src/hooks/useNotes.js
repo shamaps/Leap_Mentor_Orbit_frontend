@@ -5,7 +5,7 @@ import {
   uploadNote      as apiUploadNote,
   deleteNote      as apiDeleteNote,
   getPrivateNotes as apiGetPrivateNotes,
-} from "../api/notes.ap.js";
+} from "../api/notes.api.js";
 
 const useNotes = (connectRequestId) => {
   const [notes,          setNotes]          = useState([]);

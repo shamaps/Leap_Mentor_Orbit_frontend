@@ -1,12 +1,7 @@
 // src/components/shared-dashboard/tabs/goals/SessionCard.jsx
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../../../utils/axiosInstance";
 import FeedbackModal from "../FeedbackModal";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("token")}`,
-});
 
 const formatSlotDate = (slot) => {
   if (!slot?.date) return "";
@@ -279,9 +274,8 @@ const RescheduleModal = ({ slot, slotIndex, connectRequestId, existingSlots, onC
     try {
       setAvailLoading(true);
       setAvailError(null);
-      const res = await axios.get(
-        `${BASE_URL}/sessions/${connectRequestId}/mentor-availability?duration=${dur}`,
-        { headers: authHeader() }
+      const res = await axiosInstance.get(
+        `/sessions/${connectRequestId}/mentor-availability?duration=${dur}`,
       );
       setAvailability(res.data.slots || []);
       if (res.data.sessionDurations?.length) setSessionDurations(res.data.sessionDurations);

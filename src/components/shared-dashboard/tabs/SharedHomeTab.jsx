@@ -114,6 +114,18 @@ const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
   const [showReport, setShowReport] = useState(false);
   const [reportDone, setReportDone] = useState(false);
 
+  // ✅ Null guard — connect is still loading or failed to fetch
+  if (!connect) {
+    return (
+      <div className="flex items-center justify-center h-40">
+        <div className="flex flex-col items-center gap-3">
+          <span className="w-6 h-6 rounded-full border-2 border-blue-200 border-t-blue-900 animate-spin" />
+          <p className="text-sm text-slate-400 font-medium">Loading session details...</p>
+        </div>
+      </div>
+    );
+  }
+
   const {
     mentor, mentee,
     mentorProfile, menteeProfile,
@@ -127,10 +139,10 @@ const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
     <>
       <div className="flex flex-col gap-6">
 
-        {/* ── Header with Report button at top right ──────── */}
+        {/* ── Header ──────────────────────────────────────── */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-[22px] font-bold text-slate-800"> Overview</h1>
+            <h1 className="text-[22px] font-bold text-slate-800">Overview</h1>
             <p className="text-[13px] text-blue-900 mt-1">
               Your active mentorship session details and participants.
             </p>
@@ -215,7 +227,7 @@ const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
           )}
         </div>
 
-        {/* Quick Actions — Report removed from here */}
+        {/* Quick Actions */}
         <div>
           <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest mb-3">
             Quick Actions
@@ -264,7 +276,8 @@ const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
             )}
           </div>
         </div>
-        {/* Report link — bottom of page */}
+
+        {/* Report link */}
         <div className="text-center pt-2 pb-1">
           <p className="text-[11px] text-slate-600">
             Something wrong with this session?{" "}

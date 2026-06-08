@@ -1,38 +1,31 @@
 // src/hooks/useMenteeDashboard.js
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";
+import { useSelector } from "react-redux";
 
 const useMenteeDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isEditPage = location.pathname.includes("/edit-profile");
 
-  const [user, setUser]       = useState(null);
+  // ✅ Moved here — top level of the hook, not inside useEffect
+  const token = useSelector((state) => state.auth.token);
+
+  const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    const authHeader = { Authorization: `Bearer ${token}` };
+    // ✅ Just use token directly — no hook call here
+    if (!token) { navigate("/login"); return; }
 
     const fetchData = async () => {
       try {
-
-        // 1) Fetch user
-        const userRes = await axios.get(`${BASE_URL}/users/me`, { headers: authHeader });
+        const userRes = await axiosInstance.get("/users/me");
         const userData = userRes.data;
 
-        // 2) Role guard
         if (!userData.roles?.includes("mentee")) {
           navigate("/dashboard/mentor");
           return;
@@ -40,10 +33,9 @@ const useMenteeDashboard = () => {
 
         setUser(userData);
 
-        // 3) Fetch mentee profile
         let profileData = null;
         try {
-          const profileRes = await axios.get(`${BASE_URL}/mentee-profile/me`, { headers: authHeader });
+          const profileRes = await axiosInstance.get("/mentee-profile/me");
           profileData = profileRes.data;
         } catch (profileErr) {
           if (profileErr?.response?.status === 404) {
@@ -51,7 +43,6 @@ const useMenteeDashboard = () => {
             return;
           }
           if (profileErr?.response?.status === 401) {
-            localStorage.removeItem("token");
             navigate("/login");
             setLoading(false);
             return;
@@ -61,18 +52,15 @@ const useMenteeDashboard = () => {
 
         setProfile(profileData);
 
-        // 4) Onboarding incomplete
         if (!profileData?.isProfileComplete && !isEditPage) {
           navigate("/onboarding/mentee");
           return;
         }
 
-        // 5) All good — show dashboard
         setLoading(false);
 
       } catch (err) {
         if (err?.response?.status === 401) {
-          localStorage.removeItem("token");
           navigate("/login");
           return;
         }
@@ -82,7 +70,7 @@ const useMenteeDashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [token]); // ✅ token added to deps array too
 
   return { user, profile, loading, error };
 };

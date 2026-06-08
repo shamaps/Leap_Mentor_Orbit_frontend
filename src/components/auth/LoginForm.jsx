@@ -1,18 +1,16 @@
 // src/components/auth/LoginForm.jsx
 import { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-
+import { loginUser, setUser } from "../../store/slices/authSlice";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
-import { setUser } from "../../store/slices/authSlice";
+
 import useGoogleAuth from "../../hooks/useGoogleAuth";
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
-import FullScreenLoader from "../FullScreenLoader";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import FullScreenLoader from "@/components/atoms/FullScreenLoader";
 
 const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",
@@ -23,31 +21,30 @@ const LoginForm = ({ placeholder, registerPath }) => {
   const googleBtnRef = useRef(null);
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
   const { signOut } = useClerk();
-const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [redirecting, setRedirecting] = useState(false);
 
-
   useEffect(() => { return () => setLoading(false); }, []);
 
   const handlePostAuth = (token, user) => {
-  if (token) localStorage.setItem("token", token);
-  const roles = user?.roles || [];
-  if (roles.includes("mentor")) {
-    localStorage.setItem("role", "mentor");  // 👈 add
-    setRedirecting(true);
-    setTimeout(() => navigate("/dashboard/mentor"), 800);
-  } else if (roles.includes("mentee")) {
-    localStorage.setItem("role", "mentee");  // 👈 add
-    setRedirecting(true);
-    setTimeout(() => navigate("/dashboard/mentee"), 800);
-  } else {
-    setMsg({ type: "error", text: "No role found. Please register first." });
-  }
-};
+    const roles = user?.roles || [];
+    if (roles.includes("mentor")) {
+      localStorage.setItem("role", "mentor");
+      setRedirecting(true);
+      setTimeout(() => navigate("/dashboard/mentor"), 800);
+    } else if (roles.includes("mentee")) {
+      localStorage.setItem("role", "mentee");
+      setRedirecting(true);
+      setTimeout(() => navigate("/dashboard/mentee"), 800);
+    } else {
+      setMsg({ type: "error", text: "No role found. Please register first." });
+    }
+  };
+
   useGoogleAuth({
     btnRef: googleBtnRef,
     roles: [],
@@ -81,31 +78,41 @@ const dispatch = useDispatch();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
+
+    if (!form.email.trim()) return setMsg({ type: "error", text: "Email is required." });
+    if (!form.password) return setMsg({ type: "error", text: "Password is required." });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email.trim()))
+      return setMsg({ type: "error", text: "Please enter a valid email address." });
+
+    setLoading(true);
     try {
-      localStorage.removeItem("token");
-      localStorage.removeItem("adminToken");
-      setLoading(true);
-      const res = await axios.post(`${BASE_URL}/auth/login`, {
-        email: form.email.trim(),
-        password: form.password,
-      });
-      handlePostAuth(res.data?.token, res.data?.user);
-      
-    }  catch (err) {
+      const res = await dispatch(loginUser({ email: form.email.trim(), password: form.password }));
+
+      if (loginUser.fulfilled.match(res)) {
+        handlePostAuth(res.payload?.accessToken, res.payload?.user);
+      } else {
+        // ✅ loginUser.rejected — payload comes from rejectWithValue, never touches interceptor
+        const errMsg = res.payload || "Invalid email or password.";
+        setMsg({ type: "error", text: errMsg });
+      }
+    } catch (err) {
+      // ✅ Catch block: read status directly, don't rely on interceptor-mutated error
       const status = err?.response?.status;
       const data = err?.response?.data;
-      const apiMsg = data?.message || err?.message || "Invalid credentials";
+
       if (status === 403 && data?.isEmailVerified === false) {
         setMsg({ type: "error", text: "Please verify your email first. Redirecting..." });
         setTimeout(() => navigate(`/verify-email?email=${encodeURIComponent(data.email)}`), 1000);
         return;
       }
-      // 👇 ONLY THIS LINE IS NEW — handles blocked account 403
-      if (status === 403) {
-        setMsg({ type: "error", text: apiMsg });
+
+      if (status === 401) {
+        setMsg({ type: "error", text: "Invalid email or password." });
         return;
       }
-      setMsg({ type: "error", text: apiMsg });
+
+      setMsg({ type: "error", text: data?.message || err?.message || "Something went wrong." });
     } finally {
       setLoading(false);
     }
@@ -113,7 +120,7 @@ const dispatch = useDispatch();
 
   return (
     <div className="w-full max-w-sm mx-auto px-4">
-            {redirecting && <FullScreenLoader message="Redirecting to dashboard..." />}  {/* 👈 add here */}
+      {redirecting && <FullScreenLoader message="Redirecting to dashboard..." />}
 
       <AuthBrand logo={<LeapMentorLogo />} />
       <div className="mb-8">
@@ -124,10 +131,10 @@ const dispatch = useDispatch();
       </div>
 
       {msg.type === "error" && msg.text && (
-  <div className="mb-5 text-sm rounded-xl px-4 py-3 border bg-red-50 text-red-600 border-red-200">
-    {msg.text}
-  </div>
-)}
+        <div className="mb-5 text-sm rounded-xl px-4 py-3 border bg-red-50 text-red-600 border-red-200">
+          {msg.text}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

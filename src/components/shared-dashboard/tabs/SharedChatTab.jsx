@@ -330,24 +330,24 @@ const SharedChatTab = ({ connect }) => {
   // ── Auto scroll on new message if near bottom ───────────
   useEffect(() => {
     if (messages.length === 0) return;
-    const c = scrollContainerRef.current;
-    if (!c) return;
-    const nearBottom = c.scrollHeight - c.scrollTop - c.clientHeight < 120;
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const nearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 120;
     if (nearBottom) scrollToBottom(true);
   }, [messages, scrollToBottom]);
 
   // ── Preserve scroll when loading older messages ─────────
   useEffect(() => {
     if (!loadingMore) {
-      const c = scrollContainerRef.current;
-      if (!c) return;
-      c.scrollTop = c.scrollHeight - prevScrollHeight.current;
+      const container = scrollContainerRef.current;
+      if (!container) return;
+      container.scrollTop = container.scrollHeight - prevScrollHeight.current;
     }
   }, [loadingMore]);
 
   const handleLoadMore = () => {
-    const c = scrollContainerRef.current;
-    if (c) prevScrollHeight.current = c.scrollHeight;
+    const container = scrollContainerRef.current;
+    if (container) prevScrollHeight.current = container.scrollHeight;
     loadMore();
   };
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axiosInstance from "../../utils/axiosInstance";
 import { useLocation } from "react-router-dom";
 
 // ─── MENTOR FAQS ─────────────────────────────────────────────────────────────
@@ -79,7 +80,6 @@ const INDIGO = "#4f46e5";
 const INDIGO_DARK = "#4338ca";
 const INDIGO_LIGHT = "#eef2ff";
 const INDIGO_BORDER = "#c7d2fe";
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // ─── FAQ ITEM ─────────────────────────────────────────────────────────────────
 
@@ -149,16 +149,7 @@ export default function HelpCenter() {
     setSubmitting(true);
     setSubmitError("");
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/support/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ ...form, role }),
-      });
-      if (!res.ok) throw new Error("Failed to send message");
+      await axiosInstance.post("/support/messages", { ...form, role });
       setSubmitted(true);
       setForm({ email: "", subject: "", message: "" });
     } catch (err) {

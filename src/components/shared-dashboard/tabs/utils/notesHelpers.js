@@ -31,15 +31,8 @@ export const formatDateSeparator = (dateStr) => {
 
 export const isSameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
 
-export const getMyId = () => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
-    return JSON.parse(atob(token.split(".")[1])).id;
-  } catch {
-    return null;
-  }
-};
+// ← REMOVED getMyId() — was reading token from localStorage which is always null now.
+// userId is now passed as a parameter from the component which reads it from Redux.
 
 export const getFileType = (fileName) => {
   if (!fileName) return "other";

@@ -1,8 +1,6 @@
 // src/hooks/useMentorSettings.js
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";
 
 const BADGES = [
   {
@@ -36,63 +34,53 @@ const BADGES = [
 ];
 
 const useMentorSettings = (initialProfile) => {
-  const [profile, setProfile]   = useState(initialProfile || null);
+  const [profile, setProfile] = useState(initialProfile || null);
   const [fetching, setFetching] = useState(!initialProfile); // skip fetch if profile passed in
-  const [saving, setSaving]     = useState(false);
-  const [msg, setMsg]           = useState({ type: "", text: "" });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState({ type: "", text: "" });
 
   // ── Local editable state ──────────────────────────────────
-  const [hourlyRate, setHourlyRate]                   = useState("");
-  const [emailNotifications, setEmailNotifications]   = useState(true);
-  const [publicProfile, setPublicProfile]             = useState(true);
+  const [hourlyRate, setHourlyRate] = useState("");
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [publicProfile, setPublicProfile] = useState(true);
 
   // ── Fetch mentor profile on mount ────────────────────────
   useEffect(() => {
-  if (initialProfile) {
-    // Profile already passed in — just pre-fill the form, no API call needed
-    setHourlyRate(initialProfile.hourlyRate ?? "");
-    setEmailNotifications(initialProfile.emailNotifications ?? true);
-    setPublicProfile(initialProfile.isProfilePublished ?? true);
-    setFetching(false);
-    return;
-  }
-
-  // No profile passed in — fetch it
-  const fetchProfile = async () => {
-    try {
-      setFetching(true);
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/mentor-profile/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const p = res.data;
-      setProfile(p);
-      setHourlyRate(p.hourlyRate ?? "");
-      setEmailNotifications(p.emailNotifications ?? true);
-      setPublicProfile(p.isProfilePublished ?? true);
-    } catch (err) {
-      setMsg({ type: "error", text: "Failed to load settings." });
-    } finally {
+    if (initialProfile) {
+      // Profile already passed in — just pre-fill the form, no API call needed
+      setHourlyRate(initialProfile.hourlyRate ?? "");
+      setEmailNotifications(initialProfile.emailNotifications ?? true);
+      setPublicProfile(initialProfile.isProfilePublished ?? true);
       setFetching(false);
+      return;
     }
-  };
 
-  fetchProfile();
-}, [initialProfile]);
+    // No profile passed in — fetch it
+    const fetchProfile = async () => {
+      try {
+        setFetching(true);
+        const res = await axiosInstance.get("/mentor-profile/me");
+        const p = res.data;
+        setProfile(p);
+        setHourlyRate(p.hourlyRate ?? "");
+        setEmailNotifications(p.emailNotifications ?? true);
+        setPublicProfile(p.isProfilePublished ?? true);
+      } catch (err) {
+        setMsg({ type: "error", text: "Failed to load settings." });
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchProfile();
+  }, [initialProfile]);
   // ── Save changes ──────────────────────────────────────────
   const handleSave = async () => {
     try {
       setSaving(true);
       setMsg({ type: "", text: "" });
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${BASE_URL}/mentor-profile/me`,
-        {
-          hourlyRate: Number(hourlyRate) || 0,
-          emailNotifications,
-          isProfilePublished: publicProfile,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await axiosInstance.put("/mentor-profile/me",
+        { hourlyRate: Number(hourlyRate) || 0, emailNotifications, isProfilePublished: publicProfile }
       );
       setMsg({ type: "success", text: "Settings saved successfully!" });
       setTimeout(() => setMsg({ type: "", text: "" }), 3000);
@@ -114,12 +102,12 @@ const useMentorSettings = (initialProfile) => {
     fetching,
     saving,
     msg,
-    hourlyRate,       setHourlyRate,
+    hourlyRate, setHourlyRate,
     emailNotifications, setEmailNotifications,
-    publicProfile,    setPublicProfile,
+    publicProfile, setPublicProfile,
     badges,
     handleSave,
-    
+
   };
 };
 

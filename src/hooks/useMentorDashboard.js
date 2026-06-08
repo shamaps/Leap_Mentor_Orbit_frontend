@@ -1,26 +1,26 @@
 // src/hooks/useMentorDashboard.js
+
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../utils/axiosInstance";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../store/slices/authSlice";
 
 const useMentorDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();                              // ✅ inside the hook
+  const token = useSelector((state) => state.auth.token);     // ✅ from Redux, not localStorage
   const isEditPage = location.pathname.includes("/edit-profile");
-
-  const [user, setUser]       = useState(null);
+ 
+  const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
 
   const refetchProfile = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${BASE_URL}/mentor-profile/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axiosInstance.get("/mentor-profile/me");
       setProfile(res.data);
     } catch (err) {
       console.error("Profile refetch failed:", err.message);
@@ -28,20 +28,12 @@ const useMentorDashboard = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    const authHeader = { Authorization: `Bearer ${token}` };
+    if (!token) { navigate("/login/mentor"); return; }  // ✅ Redux token, not localStorage
 
     const fetchData = async () => {
       try {
-
         // 1) Fetch user
-        const userRes = await axios.get(`${BASE_URL}/users/me`, { headers: authHeader });
+        const userRes = await axiosInstance.get("/users/me");
         const userData = userRes.data;
 
         // 2) Role guard
@@ -55,39 +47,37 @@ const useMentorDashboard = () => {
         // 3) Fetch mentor profile
         let profileData = null;
         try {
-          const profileRes = await axios.get(`${BASE_URL}/mentor-profile/me` , { headers: authHeader });
+          const profileRes = await axiosInstance.get("/mentor-profile/me");
           profileData = profileRes.data;
         } catch (profileErr) {
           if (profileErr?.response?.status === 404) {
-            // New mentor — no profile yet
-            if (!isEditPage) {
-              navigate("/onboarding/mentor");
-            }
+            if (!isEditPage) navigate("/onboarding/mentor");
             return;
           }
           if (profileErr?.response?.status === 401) {
-            localStorage.removeItem("token");
-            navigate("/login");
+            dispatch(logout());
+            navigate("/login/mentor");
             return;
           }
-          throw profileErr; // re-throw unexpected errors
+          throw profileErr;
         }
 
         setProfile(profileData);
 
-        // 4) Onboarding incomplete → redirect
+        // 4) Onboarding incomplete
         if (!profileData?.isProfileComplete && !isEditPage) {
           navigate("/onboarding/mentor");
           return;
         }
 
-        // 5) All good — show dashboard
+        // 5) All good
         setLoading(false);
 
       } catch (err) {
         if (err?.response?.status === 401) {
-          localStorage.removeItem("token");
-          navigate("/login");
+          console.log("401 hit — token likely expired:", err.response.data);
+          dispatch(logout());
+          navigate("/login/mentor");
           return;
         }
         setError("Something went wrong. Please try again.");
@@ -96,7 +86,7 @@ const useMentorDashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [token]);  // ✅ token in deps so it re-runs if token changes
 
   return { user, profile, loading, error, refetchProfile };
 };

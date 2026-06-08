@@ -1,11 +1,9 @@
 // src/pages/admin/AdminPayments.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
-import axios from "axios";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
-import StatCard from "../../components/admin/common/StatCard";
+import StatCard from "@/components/atoms/StatCard";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("adminToken")}` });
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
@@ -202,7 +200,7 @@ const AdminPayments = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/admin/payments/stats`, { headers: authHeader() });
+      const res = await adminAxiosInstance.get("/admin/payments/stats", );
       setStats(res.data);
     } catch { showToast("Failed to load payment stats."); }
   }, []);
@@ -210,7 +208,7 @@ const AdminPayments = () => {
   const fetchChart = useCallback(async () => {
     try {
       setLoadingChart(true);
-      const res = await axios.get(`${BASE_URL}/admin/payments/chart`, { headers: authHeader() });
+      const res = await adminAxiosInstance.get("/admin/payments/chart");
       setChartData(res.data.data || []);
     } catch { showToast("Failed to load chart."); }
     finally { setLoadingChart(false); }
@@ -222,8 +220,7 @@ const AdminPayments = () => {
       const params = { page, limit: 15 };
       if (q) params.search = q;
       if (type) params.type = type;
-      const res = await axios.get(`${BASE_URL}/admin/payments/transactions`, {
-        headers: authHeader(), params,
+      const res = await adminAxiosInstance.get("/admin/payments/transactions", {
       });
       setTransactions(res.data.transactions || []);
       setPagination(res.data.pagination);

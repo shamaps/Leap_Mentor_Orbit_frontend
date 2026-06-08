@@ -2,12 +2,9 @@
 // Add to AdminLayout NAV_ITEMS and route as /admin/leap-requests
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const adminHeader = () => ({
-  Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-});
+
 
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>
@@ -250,10 +247,7 @@ const LeapRequests = () => {
   const fetchRequests = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BASE_URL}/leap-requests/admin/all`, {
-        params: { status: tab },
-        headers: adminHeader(),
-      });
+      const res = await adminAxiosInstance.get("/leap-requests/admin/all");
       setRequests(res.data.requests || []);
     } catch (err) {
       console.error("LeapRequests fetch error:", err.message);
@@ -267,9 +261,7 @@ const LeapRequests = () => {
   const handleApprove = async (id) => {
     try {
       setProcessingId(id);
-      await axios.patch(`${BASE_URL}/leap-requests/admin/${id}/approve`, {}, {
-        headers: adminHeader(),
-      });
+      await adminAxiosInstance.patch(`/leap-requests/admin/${id}/approve`, {});
       showToast("Approved! 500 LP credited to mentee.");
       fetchRequests();
     } catch (err) {
@@ -282,9 +274,7 @@ const LeapRequests = () => {
   const handleReject = async (id, note) => {
     try {
       setProcessingId(id);
-      await axios.patch(`${BASE_URL}/leap-requests/admin/${id}/reject`, { note }, {
-        headers: adminHeader(),
-      });
+      await adminAxiosInstance.patch(`/leap-requests/admin/${id}/reject`, { note });
       showToast("Request rejected.");
       fetchRequests();
     } catch (err) {

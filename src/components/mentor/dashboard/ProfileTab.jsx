@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ProfileCard from "./ProfileCard";
 import ProfessionalInfoCard from "./ProfessionalInfoCard";
 import SkillsCard from "./SkillsCard";
-import MentorshipPrefsCard from "./MentorshipPrefsCard";
+import MentorshipPrefsCard from "@/components/molecules/MentorshipPrefsCard";
 import SocialCard from "./SocialCard";
 
 const ProfileTab = ({ user, profile }) => {
@@ -42,7 +42,7 @@ const ProfileTab = ({ user, profile }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ProfessionalInfoCard profile={profile} />
         <SkillsCard profile={profile} />
-        <MentorshipPrefsCard profile={profile} />
+        <MentorshipPrefsCard profile={profile} variant="mentor" />
         <SocialCard profile={profile} />
       </div>
 

@@ -1,9 +1,8 @@
 // src/pages/admin/AdminLogin.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -18,9 +17,9 @@ const AdminLogin = () => {
     setError("");
     setLoading(true);
     try {
-      const res = await axios.post(`${BASE_URL}/admin/auth/login`, { email, password });
-      localStorage.setItem("adminToken", res.data.token);
-      localStorage.setItem("adminUser", JSON.stringify(res.data.admin));
+      // ← UPDATED: no localStorage — token is set as httpOnly cookie by the backend
+      // res.data.admin contains the admin object, accessToken is NOT in the response body
+      await adminAxiosInstance.post("admin/auth/login", { email, password });
       navigate("/admin/users");
     } catch (err) {
       setError(err?.response?.data?.message || "Login failed. Please try again.");

@@ -1,21 +1,17 @@
 // src/store/slices/mentorOnboardingSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import axiosInstance from "../../utils/axiosInstance";
+import getErrorMessage from "../../utils/getErrorMessage";
 
 export const submitMentorOnboarding = createAsyncThunk(
   "mentorOnboarding/submit",
-  async (payload, { getState, rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      const token = getState().auth.token || localStorage.getItem("token");
-      if (!token) return rejectWithValue("No auth token found.");
-      const res = await axios.post(`${BASE_URL}/mentor-profile`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await axiosInstance.post("/mentor-profile", payload, {
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Something went wrong.");
+      return rejectWithValue(getErrorMessage(err, "Something went wrong."));
     }
   }
 );
