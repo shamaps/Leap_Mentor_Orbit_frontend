@@ -1,6 +1,7 @@
 // src/components/mentor/dashboard/NotificationsTab.jsx
 import { useState, useEffect } from "react";
 import axiosInstance from "../../../../utils/axiosInstance";
+import StatCard from "@/components/atoms/StatCard";
 
 // ── Type config ───────────────────────────────────────────────
 const TYPE_CONFIG = {
@@ -26,19 +27,6 @@ const TYPE_ICON_PATH = {
   new_review: <><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></>,
   feedback: <><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></>,
 };
-
-// ── Stats Bar ─────────────────────────────────────────────────
-const StatCard = ({ icon, label, value, accent }) => (
-  <div className={`flex items-center gap-3 bg-white rounded-2xl border px-4 py-3.5 flex-1 min-w-0 ${accent ? "border-blue-200 bg-blue-50/40" : "border-slate-100"}`}>
-    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${accent ? "bg-blue-100" : "bg-slate-100"}`}>
-      {icon}
-    </div>
-    <div className="min-w-0">
-      <p className="text-xl sm:text-2xl font-bold text-slate-800 leading-none">{value}</p>
-      <p className={`text-[10px] sm:text-xs font-semibold mt-1 leading-tight ${accent ? "text-blue-600" : "text-slate-500"}`}>{label}</p>
-    </div>
-  </div>
-);
 
 // ── Avatar helpers ────────────────────────────────────────────
 const getInitials = (name = "") => {
@@ -385,6 +373,7 @@ const NotificationsTab = ({ setActiveTab }) => {
       {/* Stats bar — 1 col on xs, 3 col on sm+ */}
       <div className="grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-4">
         <StatCard
+          variant="simple"
           label="Total Notifications"
           value={notifications.length}
           icon={
@@ -395,6 +384,7 @@ const NotificationsTab = ({ setActiveTab }) => {
           }
         />
         <StatCard
+          variant="simple"
           label="Unread"
           value={unreadCount}
           accent={unreadCount > 0}
@@ -407,6 +397,7 @@ const NotificationsTab = ({ setActiveTab }) => {
           }
         />
         <StatCard
+          variant="simple"
           label="This Week"
           value={thisWeekCount}
           icon={

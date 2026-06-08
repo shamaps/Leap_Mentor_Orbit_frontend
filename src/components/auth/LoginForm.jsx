@@ -10,7 +10,7 @@ import useGoogleAuth from "../../hooks/useGoogleAuth";
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
-import FullScreenLoader from "../FullScreenLoader";
+import FullScreenLoader from "@/components/atoms/FullScreenLoader";
 
 const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",

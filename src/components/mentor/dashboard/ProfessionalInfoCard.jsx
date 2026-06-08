@@ -29,7 +29,7 @@ const ProfessionalInfoCard = ({ profile }) => {
           value={profile?.yearsOfExperience ? `${profile.yearsOfExperience}+ Years` : "—"}
         />
         {profile?.hourlyRate > 0 && (
-          <Field label="Hourly Rate" value={`$${profile.hourlyRate}/hr`} />
+          <Field label="Session Rate" value={`${profile.hourlyRate} LP`} />
         )}
         {profile?.avgRating > 0 && (
           <Field label="Rating" value={`⭐ ${profile.avgRating.toFixed(1)} / 5`} />

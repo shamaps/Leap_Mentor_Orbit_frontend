@@ -17,9 +17,9 @@ const AdminLogin = () => {
     setError("");
     setLoading(true);
     try {
-      const res = await adminAxiosInstance.post("admin/auth/login", { email, password });
-      localStorage.setItem("adminToken", res.data.accessToken);
-      localStorage.setItem("adminUser", JSON.stringify(res.data.admin));
+      // ← UPDATED: no localStorage — token is set as httpOnly cookie by the backend
+      // res.data.admin contains the admin object, accessToken is NOT in the response body
+      await adminAxiosInstance.post("admin/auth/login", { email, password });
       navigate("/admin/users");
     } catch (err) {
       setError(err?.response?.data?.message || "Login failed. Please try again.");

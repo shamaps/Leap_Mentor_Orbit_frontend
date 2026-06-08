@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../utils/axiosInstance";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
+import MentorCardSkeleton from "@/components/atoms/MentorCardSkeleton";
 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = (profile) => {
@@ -162,24 +163,6 @@ const MentorCard = ({ mentor, onViewProfile }) => {
     </div>
   );
 };
-
-// ── Mentor Card Skeleton ──────────────────────────────────────
-const MentorCardSkeleton = () => (
-  <div className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col gap-3 shadow-sm animate-pulse">
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-slate-200 shrink-0" />
-      <div className="flex-1 space-y-1.5">
-        <div className="h-3 bg-slate-200 rounded w-3/4" />
-        <div className="h-2.5 bg-slate-100 rounded w-1/2" />
-      </div>
-    </div>
-    <div className="flex gap-1.5">
-      <div className="h-5 w-16 bg-slate-100 rounded-full" />
-      <div className="h-5 w-12 bg-slate-100 rounded-full" />
-    </div>
-    <div className="h-8 bg-slate-200 rounded-xl" />
-  </div>
-);
 
 // ── Session Card ──────────────────────────────────────────────
 const SessionCard = ({ request, index, navigate }) => {
@@ -471,10 +454,10 @@ const HomeTab = ({ user, profile }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {loading ? (
               <>
-                <MentorCardSkeleton />
-                <MentorCardSkeleton />
-                <MentorCardSkeleton />
-                <MentorCardSkeleton />
+                <MentorCardSkeleton variant="compact" />
+                <MentorCardSkeleton variant="compact" />
+                <MentorCardSkeleton variant="compact" />
+                <MentorCardSkeleton variant="compact" />
               </>
             ) : mentors.length > 0 ? (
               mentors.map((mentor) => (

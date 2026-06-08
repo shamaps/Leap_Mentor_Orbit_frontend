@@ -12,11 +12,11 @@ const PageLoader = () => (
 );
 
 const ProtectedRoute = ({ children, role }) => {
-    const { token, bootstrapped } = useSelector((state) => state.auth);
+    const { token, isBootstrapping} = useSelector((state) => state.auth);
     const storedRole = localStorage.getItem("role");
 
     // Wait for /auth/refresh to finish before deciding to redirect
-    if (bootstrapped) return <PageLoader />;
+    if (isBootstrapping) return <PageLoader />;
 
     if (!token) {
         const redirectTo = role === "mentor"

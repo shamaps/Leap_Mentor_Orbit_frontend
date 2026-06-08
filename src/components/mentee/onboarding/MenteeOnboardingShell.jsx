@@ -7,7 +7,7 @@ import InterestedFieldsSection from "./InterestedFieldsSection";
 import MentorshipPrefsSection from "./MentorshipPrefsSection";
 import SocialLinksSection from "./SocialLinksSection";
 import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
-import FullScreenLoader from "../../FullScreenLoader";
+import FullScreenLoader from "@/components/atoms/FullScreenLoader";
 
 import { MENTEE_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
 

@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
-import StatCard from "../../components/admin/common/StatCard";
+import StatCard from "@/components/atoms/StatCard";
 
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";

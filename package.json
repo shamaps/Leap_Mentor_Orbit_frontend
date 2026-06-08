@@ -12,6 +12,7 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.61.3",
     "@reduxjs/toolkit": "^2.11.2",
+    "@sentry/react": "^10.56.0",
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.5",
     "google-auth-library": "^10.5.0",

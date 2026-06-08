@@ -13,7 +13,7 @@ const SharedDashboardPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const token = useSelector((state) => state.auth.token);
-  const bootstrapping = useSelector((state) => state.auth.bootstrapping); // ✅ renamed
+  const isBootstrapping = useSelector((state) => state.auth.isBootstrapping); 
 
   const [connect, setConnect] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -47,20 +47,20 @@ const SharedDashboardPage = () => {
   }, [connectRequestId, navigate]);
 
   useEffect(() => {
-    // ✅ Token exists — fetch immediately
+    // Token exists — fetch immediately
     // (user navigated here from dashboard, token is already in Redux)
     if (token) {
       fetchConnect();
       return;
     }
 
-    // ✅ No token yet — wait for bootstrap to complete
+    //  No token yet — wait for bootstrap to complete
     // (user landed directly on this URL, App.jsx is still refreshing)
-    if (bootstrapping) return; // ✅ FIXED: was (!bootstrapped)
+    if (isBootstrapping) return; // FIXED: was (!bootstrapped)
 
-    // ✅ Bootstrap done, still no token — not logged in
+    //  Bootstrap done, still no token — not logged in
     navigate("/login");
-  }, [token, bootstrapping, fetchConnect, navigate]); // ✅ updated dependency
+  }, [token, isBootstrapping, fetchConnect, navigate]); // updated dependency
 
   const handleAllComplete = useCallback(() => {
     fetchConnect();

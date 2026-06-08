@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axiosInstance from "../../../../utils/axiosInstance";
 import { STATUS_STYLES, STATUS_LABELS, formatDate, formatTime, getInitials } from "./constants";
-import StatusBadge from "./StatusBadge";
+import StatusBadge from "../../../atoms/StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
 
@@ -426,7 +426,7 @@ const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }) => {
             <p className="font-bold text-slate-800 text-sm truncate">{mentor?.name}</p>
             <p className="text-xs text-slate-400 truncate">{mentor?.email}</p>
           </div>
-          <StatusBadge status={status} />
+          <StatusBadge status={status} variant="history" />
         </div>
 
         {/* Status banner */}

@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import getErrorMessage from "../../utils/getErrorMessage";
+import * as Sentry from '@sentry/react';
 
 export const redirectByRole = (roles = [], targetRole, navigate) => {
   if (targetRole === "mentor" && roles.includes("mentor")) return navigate("/dashboard/mentor");
@@ -148,7 +149,7 @@ const authSlice = createSlice({
     user: null,
     token: null,          // ← CHANGED: was localStorage.getItem("token") || null
     // accessToken now lives in memory only — never persisted
-    bootstrapping: true,  // true until /auth/refresh attempt completes on page load
+    isBootstrapping: true,  // true until /auth/refresh attempt completes on page load
     loading: false,
     sending: false,
     error: null,
@@ -161,8 +162,8 @@ const authSlice = createSlice({
       state.token = null;
       state.error = null;
       state.successMsg = null;
-      // ← REMOVED: localStorage.removeItem("token")  — it was never stored there anymore
       localStorage.removeItem("role");
+      Sentry.setUser(null);
     },
     setUser(state, action) {
       state.user = action.payload.user;
@@ -173,7 +174,7 @@ const authSlice = createSlice({
       state.token = action.payload;
     },
     setBootstrapped(state) {
-      state.bootstrapping= false;
+      state.isBootstrapping = false;
     },
     clearMessages(state) {
       state.error = null;

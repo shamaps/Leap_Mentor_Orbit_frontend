@@ -2,8 +2,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import AdminLayout from "../../components/admin/AdminLayout";
-import StatCard    from "../../components/admin/common/StatCard";
-import StatusBadge from "../../components/admin/common/StatusBadge";
+import StatCard from "@/components/atoms/StatCard";
+import StatusBadge from "../../components/atoms/StatusBadge";
 
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";

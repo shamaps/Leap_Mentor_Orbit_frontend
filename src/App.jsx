@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setToken, setUser, setBootstrapped } from "./store/slices/authSlice";
 import axiosInstance from "./utils/axiosInstance";
+import * as Sentry from '@sentry/react';
 
 import Home from "./components/Home";
 import NotFound from "./pages/NotFound";
@@ -74,12 +75,16 @@ const App = () => {
         } else if (data.user?.roles?.includes("mentee")) {
           localStorage.setItem("role", "mentee");
         }
+        Sentry.setUser({
+          id: data.user?._id,
+          role: data.user?.roles?.[0]
+        });
       })
       .catch(() => {
         // No valid refresh cookie — user will be redirected to login
       })
       .finally(() => {
-        dispatch(setBootstrapped()); // ✅ always fires
+        dispatch(setBootstrapped()); //  always fires
       });
   }, []);  // intentionally empty — runs once on mount only
 
