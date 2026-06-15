@@ -26,7 +26,6 @@ const ALLOWED_MEETING_DOMAINS = [
   "zoom.us",
   "teams.microsoft.com",
   "whereby.com",
-  "around.co",
   "meet.jit.si",
   "webex.com",
 ];

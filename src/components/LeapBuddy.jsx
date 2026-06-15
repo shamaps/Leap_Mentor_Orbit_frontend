@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import axiosInstance from "../utils/axiosInstance";
-
+import PropTypes from "prop-types";
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
 const INDIGO = "#4f46e5";
@@ -209,11 +209,24 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
     ? ["How do I accept a session?", "When do I get paid?", "Set availability"]
     : ["How do I book a mentor?", "Can I get a refund?", "Join my session"];
 
+  LeapBuddy.propTypes = {
+    role: PropTypes.oneOf(["mentor", "mentee"]),
+    user: PropTypes.shape({
+      name: PropTypes.string,
+      email: PropTypes.string,
+    }),
+    profile: PropTypes.shape({
+      skills: PropTypes.arrayOf(PropTypes.string),
+      interestedFields: PropTypes.arrayOf(PropTypes.string),
+      currentRole: PropTypes.string,
+      company: PropTypes.string,
+    }),
+  };
   return (
     <>
       {/* ── Greeting bubble ── */}
       {showBubble && !open && (
-        <div
+        <button
           onClick={() => { setOpen(true); setShowBubble(false); }}
           style={{
             position: "fixed", bottom: 90, right: 24, zIndex: 9999,
@@ -238,7 +251,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
             borderRight: "8px solid transparent",
             borderTop: `8px solid ${INDIGO_BORDER}`,
           }} />
-        </div>
+        </button>
       )}
 
       {/* ── Floating button ── */}
@@ -292,7 +305,7 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
               <div style={{ fontWeight: 700, fontSize: 14, color: "#fff" }}>LeapBuddy</div>
               <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: 4 }}>
                 <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", display: "inline-block" }} />
-                Online · Instant responses
+                {" "}Online · Instant responses
               </div>
             </div>
             <button

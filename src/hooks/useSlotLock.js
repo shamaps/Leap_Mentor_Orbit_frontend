@@ -30,10 +30,9 @@ const useSlotLock = (mentorId) => {
   // ─────────────────────────────────────────────
   const unlockSlot = useCallback(async (date, startTime, endTime) => {
     try {
-      await axiosInstance.post(
-        "/slot-locks/unlock",
-        { mentorId, date, startTime, endTime }
-      );
+      await axiosInstance.delete("/slot-locks/lock", {
+        data: { mentorId, date, startTime, endTime }
+      });
       lockedKeys.current.delete(`${date}-${startTime}`);
     } catch (err) {
       // Silently fail — lock will expire via TTL anyway
@@ -46,7 +45,7 @@ const useSlotLock = (mentorId) => {
   // ─────────────────────────────────────────────
   const unlockAll = useCallback(async () => {
     try {
-      await axiosInstance.post("/slot-locks/unlock-all", { mentorId });
+      await axiosInstance.delete("/slot-locks/locks", { data: { mentorId } });
       lockedKeys.current.clear();
     } catch (err) {
       console.warn("unlock-all failed silently:", err?.message);

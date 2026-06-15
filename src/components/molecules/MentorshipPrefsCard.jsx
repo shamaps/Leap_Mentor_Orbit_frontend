@@ -1,5 +1,5 @@
 // src/components/molecules/MentorshipPrefsCard.jsx
-
+import PropTypes from "prop-types";
 const COMM_ICONS = {
     "Chat": "💬",
     "Video Call": "🎥",
@@ -105,5 +105,11 @@ const MentorshipPrefsCard = ({ profile, variant = "mentee" }) => {
         </div>
     );
 };
-
+MentorshipPrefsCard.propTypes = {
+    variant: PropTypes.oneOf(["mentor", "mentee"]),
+    profile: PropTypes.shape({
+        communicationPreferences: PropTypes.arrayOf(PropTypes.string),
+        languages: PropTypes.arrayOf(PropTypes.string),
+    }).isRequired,
+};
 export default MentorshipPrefsCard;

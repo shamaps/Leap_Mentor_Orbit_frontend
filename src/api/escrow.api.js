@@ -22,10 +22,7 @@ export const payEscrow = async ({
 // Mentee confirms session complete — tokens go to mentor
 // ─────────────────────────────────────────────────────────────
 export const releaseEscrow = async (requestId) => {
-  const res = await axiosInstance.post(
-    `/escrow/release/${requestId}`,
-    {}
-  );
+  const res = await axiosInstance.patch(`/escrow/${requestId}`, { action: "release" });
   return res.data;
 };
 
@@ -34,10 +31,7 @@ export const releaseEscrow = async (requestId) => {
 // Either party cancels — tokens return to mentee
 // ─────────────────────────────────────────────────────────────
 export const refundEscrow = async (requestId) => {
-  const res = await axiosInstance.post(
-    `/escrow/refund/${requestId}`,
-    {}
-  );
+  const res = await axiosInstance.patch(`/escrow/${requestId}`, { action: "refund" });
   return res.data;
 };
 

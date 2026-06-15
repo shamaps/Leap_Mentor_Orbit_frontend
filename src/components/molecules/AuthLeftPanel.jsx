@@ -1,5 +1,5 @@
 // src/components/molecules/AuthLeftPanel.jsx
-
+import PropTypes from "prop-types";
 const AuthLeftPanel = ({ imageSrc, imageAlt, badge, heading, subtext, stats = [] }) => {
     return (
         <div className="relative hidden lg:flex lg:w-[48%] flex-col justify-end overflow-hidden bg-slate-900">
@@ -42,6 +42,19 @@ const AuthLeftPanel = ({ imageSrc, imageAlt, badge, heading, subtext, stats = []
             </div>
         </div>
     );
+};
+AuthLeftPanel.propTypes = {
+    imageSrc: PropTypes.string.isRequired,
+    imageAlt: PropTypes.string.isRequired,
+    badge: PropTypes.string,
+    heading: PropTypes.string.isRequired,
+    subtext: PropTypes.string,
+    stats: PropTypes.arrayOf(
+        PropTypes.shape({
+            value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            label: PropTypes.string,
+        })
+    ),
 };
 
 export default AuthLeftPanel;

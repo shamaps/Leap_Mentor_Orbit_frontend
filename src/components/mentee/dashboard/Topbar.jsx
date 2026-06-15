@@ -2,13 +2,15 @@
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";           
 import { logoutUser } from "../../../store/slices/authSlice"; 
+import PropTypes from "prop-types";
 
 const Topbar = ({ onMenuToggle, onLogoClick }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();                     
 
   const handleLogout = async () => {
-    await dispatch(logoutUser());   // ✅ FIXED: hits /auth/logout → clears HttpOnly cookie server-side
+    await dispatch(logoutUser());   //NOSONAR
+    //  ✅ FIXED: hits /auth/logout → clears HttpOnly cookie server-side
     navigate("/login");
   };
 
@@ -56,5 +58,8 @@ const Topbar = ({ onMenuToggle, onLogoClick }) => {
     </header>
   );
 };
-
+Topbar.propTypes = {
+  onMenuToggle: PropTypes.func.isRequired,
+  onLogoClick: PropTypes.func.isRequired,
+};
 export default Topbar;

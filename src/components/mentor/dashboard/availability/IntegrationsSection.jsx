@@ -31,7 +31,7 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
   const handleDisconnect = async () => {
     setLoading(true);
     try {
-      await axiosInstance.post("/google-calendar/disconnect");
+      await axiosInstance.delete("/google-calendar/connection");
       onConnectionChange(false);
     } catch (err) {
       console.error(err);

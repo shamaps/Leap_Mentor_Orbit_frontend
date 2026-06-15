@@ -346,7 +346,7 @@ const AdminVerifications = () => {
   const handleVerify = async (mentorProfileId) => {
     setVerifying(true);
     try {
-      const res = await adminAxiosInstance.patch(
+       await adminAxiosInstance.patch(
         `/admin/mentor-verifications/${mentorProfileId}/verify`,
         { status: "verified" }
       );

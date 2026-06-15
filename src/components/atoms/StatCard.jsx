@@ -1,5 +1,5 @@
 // src/components/atoms/StatCard.jsx
-
+import PropTypes from "prop-types";
 const StatCard = ({
     label,
     value,
@@ -118,5 +118,14 @@ const StatCard = ({
         </div>
     );
 };
-
+StatCard.propTypes = {
+    label: PropTypes.string.isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    sub: PropTypes.string,
+    subColor: PropTypes.string,
+    icon: PropTypes.node,
+    accent: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+    trend: PropTypes.number,
+    variant: PropTypes.oneOf(["admin", "simple", "home", "earnings"]),
+};
 export default StatCard;

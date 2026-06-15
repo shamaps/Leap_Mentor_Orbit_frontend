@@ -87,7 +87,7 @@ const useMenteeEditProfile = () => {
         ...form,
         yearsOfExperience: form.yearsOfExperience, // ✅ keep as string
       };
-      await axiosInstance.put("/mentee-profile/me", payload);
+      await axiosInstance.patch("/mentee-profile/me", payload);
       setMsg({ type: "success", text: "Profile updated successfully!" });
       setTimeout(() => navigate("/dashboard/mentee"), 1500);
     } catch (err) {

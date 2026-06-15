@@ -96,7 +96,7 @@ const useMentorEditProfile = () => {
           : form.languages,
       };
 
-      const { data } = await axiosInstance.put("/mentor-profile/me", payload);
+      const { data } = await axiosInstance.patch("/mentor-profile/me", payload);
 
       setMsg({ type: "success", text: "Profile updated! Redirecting to dashboard…" });
       setTimeout(() => navigate("/dashboard/mentor"), 1000);

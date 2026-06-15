@@ -42,7 +42,7 @@ axiosInstance.interceptors.response.use(
         originalRequest.url?.includes("/auth/register")
       ) {
         store.dispatch(logout());
-        return Promise.reject(error);
+        throw error;
       }
 
       if (isRefreshing) {
@@ -54,7 +54,7 @@ axiosInstance.interceptors.response.use(
             delete originalRequest.headers["Authorization"];
             return axiosInstance(originalRequest);
           })
-          .catch((err) => Promise.reject(err));
+          .catch((err) => { throw err; });
       }
 
       originalRequest._retry = true;
@@ -70,13 +70,13 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         store.dispatch(logout());
-        return Promise.reject(refreshError);
+        throw refreshError;
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(error);
+    throw error;
   }
 );
 

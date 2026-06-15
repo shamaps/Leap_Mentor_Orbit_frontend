@@ -3,7 +3,6 @@ import { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { loginUser, setUser } from "../../store/slices/authSlice";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../utils/axiosInstance";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 
 import useGoogleAuth from "../../hooks/useGoogleAuth";
@@ -87,7 +86,7 @@ const LoginForm = ({ placeholder, registerPath }) => {
 
     setLoading(true);
     try {
-      const res = await dispatch(loginUser({ email: form.email.trim(), password: form.password }));
+      const res = await dispatch(loginUser({ email: form.email.trim(), password: form.password })); 
 
       if (loginUser.fulfilled.match(res)) {
         handlePostAuth(res.payload?.accessToken, res.payload?.user);

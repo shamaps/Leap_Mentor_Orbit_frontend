@@ -129,7 +129,7 @@ function SignInEmbed() {
   return (
     <SignIn
       routing="hash"
-      afterSignInUrl="/login"
+      fallbackRedirectUrl="/login"
     />
   );
 }

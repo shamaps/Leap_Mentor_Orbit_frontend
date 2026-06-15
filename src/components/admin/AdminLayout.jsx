@@ -138,8 +138,9 @@ const AdminLayout = ({ children }) => {
       // ← UPDATED: must call backend to clear the httpOnly cookie
       // JS cannot clear an httpOnly cookie — only the server can
       await adminAxiosInstance.post("/admin/auth/logout");
-    } catch (_) {
+    } catch (err) {
       // even if request fails, redirect to login
+      console.error("[AdminLayout] Logout request failed:", err?.response?.status ?? err.message);
     }
     navigate("/admin/login");
   };

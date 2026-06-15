@@ -20,7 +20,7 @@ Sentry.init({
     }),
   ],
   tracesSampleRate: 0.2,
-  replaysOnErrorSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1,
   tracePropagationTargets: [
     "localhost",
   

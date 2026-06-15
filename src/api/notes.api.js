@@ -33,8 +33,5 @@ export const getPrivateNotes = async (connectRequestId) => {
 
 // ── Delete a note ─────────────────────────────────────────────
 export const deleteNote = async (noteId) => {
-  const res = await axiosInstance.delete(
-    `/notes/${noteId}`
-  );
-  return res.data;
+  await axiosInstance.delete(`/notes/${noteId}`);
 };

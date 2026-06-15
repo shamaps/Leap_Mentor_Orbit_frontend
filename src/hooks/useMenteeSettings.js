@@ -108,7 +108,7 @@ useEffect(() => {
 
     try {
       setChangingPw(true);
-      await axiosInstance.put("/auth/change-password", { currentPassword, newPassword });
+      await axiosInstance.patch("/auth/password", { currentPassword, newPassword });
 
       setPwMsg({ type: "success", text: "Password changed successfully!" });
       setCurrentPassword("");

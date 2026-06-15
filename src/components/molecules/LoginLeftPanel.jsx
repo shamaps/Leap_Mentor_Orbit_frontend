@@ -1,5 +1,5 @@
 // src/components/molecules/LoginLeftPanel.jsx
-
+import PropTypes from "prop-types";
 const LoginLeftPanel = ({ role }) => {
     const isMentor = role === "mentor";
 
@@ -28,5 +28,7 @@ const LoginLeftPanel = ({ role }) => {
         </div>
     );
 };
-
+LoginLeftPanel.propTypes = {
+    role: PropTypes.oneOf(["mentor", "mentee"]).isRequired,
+};
 export default LoginLeftPanel;

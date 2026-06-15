@@ -1,5 +1,5 @@
 // src/components/atoms/MentorCardSkeleton.jsx
-
+import PropTypes from "prop-types";
 const MentorCardSkeleton = ({ variant = "detailed" }) => {
 
     // ── Compact variant ─────────────────────────────────────────
@@ -51,5 +51,7 @@ const MentorCardSkeleton = ({ variant = "detailed" }) => {
         </div>
     );
 };
-
+MentorCardSkeleton.propTypes = {
+    variant: PropTypes.oneOf(["compact", "detailed"]),
+};
 export default MentorCardSkeleton;

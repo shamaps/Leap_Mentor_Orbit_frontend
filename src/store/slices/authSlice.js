@@ -134,9 +134,10 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { dispatch }) => {
     try {
-      await axiosInstance.post("/auth/logout");  // clears cookie server-side
-    } catch (_) {
-      // Always clear local state even if request fails
+      await axiosInstance.post("/auth/logout");
+    } catch (err) {
+      // Cookie clearing failed — proceed anyway, local state will still be cleared
+      console.error("[authSlice] Logout request failed:", err?.response?.status ?? err.message);
     }
     dispatch(logout());
   }

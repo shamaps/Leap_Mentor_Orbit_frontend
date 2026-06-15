@@ -114,7 +114,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSavingSlot(-1, true);
         setError(null);
         const res = await axiosInstance.post(
-          `/sessions/${connectRequestId}/add-slot`,
+          `/sessions/${connectRequestId}/slots`,
           { day, date, startTime, endTime }
         );
         applySlotUpdate(res.data);

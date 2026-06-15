@@ -1,5 +1,5 @@
 // src/components/atoms/StatusBadge.jsx
-
+import PropTypes from "prop-types";
 const STATUS_CONFIG = {
     pending: { classes: "bg-amber-50 text-amber-600 border border-amber-200", dot: "bg-amber-600", label: "Pending" },
     accepted: { classes: "bg-blue-50 text-blue-600 border border-blue-200", dot: "bg-blue-600", label: "Accepted" },
@@ -35,5 +35,11 @@ const StatusBadge = ({ status, variant = "admin" }) => {
         </span>
     );
 };
-
+StatusBadge.propTypes = {
+    status: PropTypes.oneOf([
+        "pending", "accepted", "ongoing", "completed",
+        "rejected", "referred", "paid", "unpaid", "refunded",
+    ]).isRequired,
+    variant: PropTypes.oneOf(["admin", "history"]),
+};
 export default StatusBadge;

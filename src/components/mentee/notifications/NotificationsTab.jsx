@@ -294,7 +294,7 @@ const NotificationsTab = ({ setActiveTab }) => {
     return (
       timeStr.includes("minute") || timeStr.includes("hour") ||
       timeStr.toLowerCase() === "yesterday" ||
-      (timeStr.includes("day") && parseInt(timeStr) <= 7)
+      (timeStr.includes("day") && Number.parseInt(timeStr) <= 7)
     );
   }).length;
 

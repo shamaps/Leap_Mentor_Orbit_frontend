@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "../../utils/axiosInstance";
-
+import PropTypes from "prop-types";
 
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -26,9 +26,43 @@ const AVATAR_BG = [
   "bg-rose-100 text-rose-700",
   "bg-amber-100 text-amber-800",
 ];
-const avatarColor = (name = "") =>
-  AVATAR_BG[name.charCodeAt(0) % AVATAR_BG.length];
 
+// avatarColor fix
+const avatarColor = (name = "") =>
+  AVATAR_BG[(name.codePointAt(0) ?? 0) % AVATAR_BG.length];
+
+// ActivityBar
+ActivityBar.propTypes = {
+  value: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
+};
+
+// RequestCard
+RequestCard.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    createdAt: PropTypes.string,
+    sessionCount: PropTypes.number,
+    mentee: PropTypes.shape({
+      name: PropTypes.string,
+      email: PropTypes.string,
+    }),
+    liveStats: PropTypes.shape({
+      totalSessions: PropTypes.number,
+      completedSessions: PropTypes.number,
+      ongoingSessions: PropTypes.number,
+    }),
+  }).isRequired,
+  onApprove: PropTypes.func.isRequired,
+  onReject: PropTypes.func.isRequired,
+  processing: PropTypes.bool,
+};
+
+// EmptyState
+EmptyState.propTypes = {
+  tab: PropTypes.string.isRequired,
+};
 // ── Activity Bar ──────────────────────────────────────────────
 const ActivityBar = ({ value, max, color }) => (
   <div className="flex items-center gap-2">

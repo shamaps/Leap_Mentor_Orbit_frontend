@@ -115,7 +115,7 @@ const AdminSettings = () => {
       setAddingAdmin(true);
       setTempPw("");
       const res = await adminAxiosInstance.post(
-        "/admin/settings/add-admin",
+        "/admin/settings/admins",
         { name: adminName.trim(), email: adminEmail.trim() },
       );
       setTempPw(res.data.tempPassword);
@@ -135,7 +135,7 @@ const AdminSettings = () => {
     }
     try {
       setSavingCommission(true);
-      await adminAxiosInstance.put(
+      await adminAxiosInstance.patch(
         "/admin/settings/commission",
         { commissionRate: rate },
       );
