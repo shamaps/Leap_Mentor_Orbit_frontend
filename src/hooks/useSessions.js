@@ -53,7 +53,7 @@ const useSessions = (connectRequestId, onAllComplete) => {
   // ✅ Poll every 5s — real-time sync without sockets
   useEffect(() => {
     if (!connectRequestId) return;
-    const interval = setInterval(() => fetchSlots(true), 5000);
+    const interval = setInterval(() => fetchSlots(true), 10000);
     return () => clearInterval(interval);
   }, [connectRequestId, fetchSlots]);
 
@@ -93,8 +93,8 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSavingSlot(slotIndex, true);
         setError(null);
         const res = await axiosInstance.patch(
-          `/sessions/${connectRequestId}/slots/${slotIndex}/mark-complete`,
-          {}
+          `/sessions/${connectRequestId}/slots/${slotIndex}/status`,
+          { action: "complete" }
         );
         applySlotUpdate(res.data); // ✅ replaces manual setSlots/setCompletedSlots/setProgress
         return { success: true, ...res.data };
@@ -136,8 +136,8 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSavingSlot(slotIndex, true);
         setError(null);
         const res = await axiosInstance.patch(
-          `/sessions/${connectRequestId}/slots/${slotIndex}/cancel`,
-          { reason }
+          `/sessions/${connectRequestId}/slots/${slotIndex}/status`,
+          { action: "cancel", reason }
         );
         applySlotUpdate(res.data);
         return { success: true, ...res.data };
@@ -158,8 +158,8 @@ const useSessions = (connectRequestId, onAllComplete) => {
         setSavingSlot(slotIndex, true);
         setError(null);
         const res = await axiosInstance.patch(
-          `/sessions/${connectRequestId}/slots/${slotIndex}/reschedule`,
-          { date, startTime, endTime }
+          `/sessions/${connectRequestId}/slots/${slotIndex}/status`,
+          { action: "reschedule", date, startTime, endTime }
         );
         applySlotUpdate(res.data);
         return { success: true, ...res.data };

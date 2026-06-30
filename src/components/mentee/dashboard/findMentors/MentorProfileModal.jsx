@@ -179,19 +179,21 @@ const badges = BADGES.map((badge) => ({
   const removeSlot = (index) =>
     setSelectedSlots((prev) => prev.filter((_, i) => i !== index));
 
-const handleSend = async () => {
-  if (sendingRef.current || selectedSlots.length === 0) return;
-  sendingRef.current = true;
-  const ok = await sendRequest({
-    mentorId: mentor.user._id,
-    message,
-    selectedSlots: selectedSlots.map(({ day, date, startTime, endTime }) => ({
-      day, date, startTime, endTime,
-    })),
-  });
-  sendingRef.current = false;
-  if (ok) setShowSuccess(true);
-};
+  const handleSend = async () => {
+    if (sendingRef.current || selectedSlots.length === 0) return;
+    sendingRef.current = true;
+    const ok = await sendRequest({
+      mentorId: mentor.user._id,
+      message,
+      selectedSlots: selectedSlots.map(({ day, date, startTime, endTime }) => ({
+        day, date, startTime, endTime,
+      })),
+      sessionRate: hourlyRate,
+      sessionCount: selectedSlots.length,
+    });
+    sendingRef.current = false;
+    if (ok) setShowSuccess(true);
+  };
   const totalAvailable = groupedSlots.reduce(
     (acc, g) => acc + g.slots.filter((s) => !s.isBooked).length, 0
   );
@@ -218,8 +220,7 @@ const handleSend = async () => {
             {/* Profile picture with green online dot */}
             <div className="relative shrink-0">
               {profilePicture ? (
-                <img
-                  src={profilePicture}
+                  <img src={mentor.profilePicture80 || profilePicture}
                   alt={user?.name}
                   className="w-20 h-20 rounded-full object-cover border-2 border-slate-100 shadow-sm"
                 />

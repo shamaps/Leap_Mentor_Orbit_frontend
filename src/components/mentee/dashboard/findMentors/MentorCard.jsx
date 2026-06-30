@@ -67,10 +67,7 @@ const MentorCard = ({ mentor, onViewProfile }) => {
       <div className="flex items-start gap-3">
         <div className="shrink-0">
           {profilePicture ? (
-            <img
-              src={profilePicture}
-              alt={user?.name}
-              className="w-14 h-14 rounded-full object-cover border-2 border-slate-100"
+            <img src={mentor.profilePicture56 || profilePicture} className="w-14 h-14 rounded-full object-cover border-2 border-slate-100"
             />
           ) : (
             <div className="w-14 h-14 rounded-full bg-blue-900 flex items-center justify-center text-white text-base font-bold border-2 border-blue-100">

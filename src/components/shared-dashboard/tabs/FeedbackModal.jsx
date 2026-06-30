@@ -31,7 +31,7 @@ const FeedbackModal = ({ connect, onClose, slotIndex, onFeedbackSubmitted }) => 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [done, setDone] = useState(false);
-
+  
   const { submitFeedback, submitting, error } = useReport(connect?._id);
 
   const otherName = connect?.viewerRole === "mentee"
@@ -39,6 +39,7 @@ const FeedbackModal = ({ connect, onClose, slotIndex, onFeedbackSubmitted }) => 
     : connect?.mentee?.name || "Mentee";
 
   const handleSubmit = async () => {
+    
     if (rating === 0) return;
     const result = await submitFeedback(rating, comment, slotIndex);
     if (result?.success) {
@@ -62,7 +63,6 @@ const FeedbackModal = ({ connect, onClose, slotIndex, onFeedbackSubmitted }) => 
       onClose();
     }
   };
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"

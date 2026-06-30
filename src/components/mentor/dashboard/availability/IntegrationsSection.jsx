@@ -5,28 +5,46 @@ import axiosInstance from "../../../../utils/axiosInstance";
 const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) => {
   const [loading, setLoading] = useState(false);
 
-  const handleConnect = async () => {
-    setLoading(true);
-    try {
-      const { data } = await axiosInstance.get("/google-calendar/auth-url");
-      const popup = window.open(data.url, "gcal_auth", "width=500,height=600");
-      const handler = (event) => {
-        if (event.data?.type === "GOOGLE_CALENDAR_CONNECTED") {
-          window.removeEventListener("message", handler);
-          onConnectionChange(true);
-          setLoading(false);
-        } else if (event.data?.type === "GOOGLE_CALENDAR_ERROR") {
-          window.removeEventListener("message", handler);
-          console.error("Google Calendar error:", event.data.error);
-          setLoading(false);
+ const handleConnect = async () => {
+  setLoading(true);
+  try {
+    const { data } = await axiosInstance.get("/google-calendar/auth-url");
+    const popup = window.open(data.url, "gcal_auth", "width=500,height=600");
+
+    // Poll for popup closure + backend confirmation
+    const poll = setInterval(async () => {
+      let isClosed = false;
+      try {
+        isClosed = popup.closed;
+      } catch {
+        // COOP blocks access to popup.closed — treat as closed
+        isClosed = true;
+      }
+
+      if (isClosed) {
+        clearInterval(poll);
+        try {
+          const { data: status } = await axiosInstance.get("/google-calendar/status");
+          if (status?.connected) {
+            onConnectionChange(true);
+          } else {
+            console.error("Google Calendar not connected after popup closed");
+          }
+        } catch (e) {
+          console.error("Failed to check calendar status:", e);
         }
-      };
-      window.addEventListener("message", handler);
-    } catch (err) {
-      console.error(err);
+        setLoading(false);
+      }
+    }, 800);
+    setTimeout(() => {
+      clearInterval(poll);
       setLoading(false);
-    }
-  };
+    }, 5 * 60 * 1000);
+  } catch (err) {
+    console.error(err);
+    setLoading(false);
+  }
+};
 
   const handleDisconnect = async () => {
     setLoading(true);

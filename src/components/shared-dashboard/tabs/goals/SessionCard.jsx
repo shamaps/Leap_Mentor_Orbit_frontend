@@ -551,6 +551,7 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
 };
 
 // ── Completion Section ────────────────────────────────────────
+// FIXED — add the two missing props
 const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkComplete, onSessionComplete }) => {
   const [localSaving, setLocalSaving] = useState(false);
 
@@ -565,7 +566,7 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
     setLocalSaving(true);
     const result = await onMarkComplete(slotIndex);
     setLocalSaving(false);
-    if (result?.success && onSessionComplete) onSessionComplete();
+    if (result?.success && onSessionComplete) onSessionComplete(slotIndex);
   };
 
   return (
@@ -618,6 +619,7 @@ const CompletionSection = ({ slot, viewerRole, otherName, slotIndex, onMarkCompl
         </div>
       )}
     </div>
+
   );
 };
 
@@ -634,18 +636,14 @@ const SessionCard = ({
   onRescheduleSlot,
   allSlots,
   connectRequestId,
+  onSessionComplete,
   connect,
 }) => {
   const saving = [...savingSlots].includes(slotIndex);
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
-  const [showSessionFeedback, setShowSessionFeedback] = useState(false);
-
-  const onSessionComplete = () => {
-    setTimeout(() => setShowSessionFeedback(true), 1200);
-  };
-
+  
   const cancelled = slot?.status === "cancelled";
   const bothDone = slot?.menteeMarked && slot?.mentorMarked;
 
@@ -828,13 +826,7 @@ const SessionCard = ({
         />
       )}
 
-      {showSessionFeedback && (
-        <FeedbackModal
-          connect={connect}
-          slotIndex={slotIndex}
-          onClose={() => setShowSessionFeedback(false)}
-        />
-      )}
+      
     </>
   );
 };

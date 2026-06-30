@@ -427,7 +427,7 @@ const AdminReports = () => {
       const params = { page, limit: 10 };
       if (q) params.search = q;
       if (status) params.status = status;
-      const res = await adminAxiosInstance.get("/admin/reports");
+      const res = await adminAxiosInstance.get("/admin/reports", { params });
       setReports(res.data.reports || []);
       setPagination(res.data.pagination);
     } catch { showToast("Failed to load reports.", "error"); }

@@ -12,8 +12,7 @@ const ProfileHeroCard = ({ user, profile }) => {
         <div className="shrink-0">
           <div className="w-24 h-24 rounded-full bg-blue-100 overflow-hidden border-2 border-blue-100">
             {profile?.profilePicture ? (
-              <img
-                src={profile.profilePicture}
+              <img src={profile.profilePicture160 || profile.profilePicture}
                 alt={user?.name}
                 className="w-full h-full object-cover"
               />

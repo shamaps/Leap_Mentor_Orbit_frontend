@@ -16,6 +16,7 @@ const LoadingSkeleton = () => (
   </div>
 );
 
+
 const GoalCard = ({ goal, onEdit, milestones, saving, onAdd, onToggle, onDelete }) => {
   const statusClass =
     goal.status === "completed" ? "bg-green-50 text-green-600 border-green-200"
@@ -170,7 +171,12 @@ const OverallProgress = ({ completedSlots, totalSlots, progress, onLeaveFeedback
 const SharedGoalsTab = ({ connect, onAllComplete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-
+  const [feedbackSlotIndex, setFeedbackSlotIndex] = useState(null);
+  const [showOverallFeedbackModal, setShowOverallFeedbackModal] = useState(false); 
+  const handleSessionComplete = (slotIndex) => {
+    setFeedbackSlotIndex(slotIndex);
+    setTimeout(() => setShowFeedbackModal(true), 1200);
+  };
   const viewerRole = connect?.viewerRole || "mentee";
   const connectRequestId = connect?._id;
 
@@ -194,15 +200,16 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
 
   const {
     myFeedback,
+    mySlotFeedback,    
     loading: feedbackLoading,
     refetch: refetchFeedback,        // ← destructure refetch
   } = useReport(connectRequestId);
 
   const handleCreateGoal = async (fields) => {
+    if (!connectRequestId) return;          
     const result = await createGoal(fields);
     if (result?.success) setIsEditing(false);
   };
-
   const handleUpdateGoal = async (goalId, fields) => {
     const result = await updateGoal(goalId, fields);
     if (result?.success) setIsEditing(false);
@@ -274,8 +281,8 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
           completedSlots={completedSlots}
           totalSlots={totalSlots}
           progress={progress}
-          onLeaveFeedback={() => setShowFeedbackModal(true)}
-          feedbackSubmitted={!!myFeedback}  // ← drives button state reactively
+          onLeaveFeedback={() => setShowOverallFeedbackModal(true)}
+          feedbackSubmitted={!!myFeedback}  
         />
       )}
 
@@ -301,7 +308,9 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
                 onRescheduleSlot={rescheduleSlot}
                 allSlots={slots}
                 connectRequestId={connectRequestId}
+                onSessionComplete={handleSessionComplete}
                 connect={connect}
+              
               />
             ))}
           </div>
@@ -312,8 +321,20 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
       {showFeedbackModal && (
         <FeedbackModal
           connect={connect}
+          slotIndex={feedbackSlotIndex}
           onClose={() => setShowFeedbackModal(false)}
           onFeedbackSubmitted={handleFeedbackSubmitted}  // ← passed down
+        />
+      )}
+      {showOverallFeedbackModal && (
+        <FeedbackModal
+          connect={connect}
+          slotIndex={null}        
+          onClose={() => setShowOverallFeedbackModal(false)}
+          onFeedbackSubmitted={() => {
+            refetchFeedback();
+            setShowOverallFeedbackModal(false);
+          }}
         />
       )}
 

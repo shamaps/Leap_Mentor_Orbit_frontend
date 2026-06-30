@@ -57,7 +57,7 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
         const res = await adminAxiosInstance.get("/admin/engagements", {
           params: { search: mentee.name, limit: 50 },
         });
-        const all = res.data.engagements || res.data.data || res.data || [];
+        const all = res.data.engagements || res.data|| res.data || [];
         // Filter to only this mentee's engagements
         const filtered = all.filter(
           (e) => e.mentee?._id === mentee._id || e.mentee?.email === mentee.email

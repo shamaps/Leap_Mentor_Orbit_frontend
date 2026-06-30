@@ -26,7 +26,8 @@ const useHomeData = (profile) => {
 
         const mentorRes = await axiosInstance.get("/mentors/search", {
           params: { skill: skillTerm, limit: 4 }
-        });
+        }); 
+    
         setMentors(mentorRes.data.mentors || []);
 
         const sessionRes = await axiosInstance.get(

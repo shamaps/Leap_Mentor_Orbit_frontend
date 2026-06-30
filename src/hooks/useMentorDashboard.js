@@ -1,6 +1,5 @@
 // src/hooks/useMentorDashboard.js
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,14 +8,17 @@ import { logout } from "../store/slices/authSlice";
 const useMentorDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();                              // ✅ inside the hook
-  const token = useSelector((state) => state.auth.token);     // ✅ from Redux, not localStorage
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token);
   const isEditPage = location.pathname.includes("/edit-profile");
- 
+
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Prevent double-fetch in React StrictMode (mount → unmount → remount)
+  const hasFetched = useRef(false);
 
   const refetchProfile = async () => {
     try {
@@ -28,7 +30,14 @@ const useMentorDashboard = () => {
   };
 
   useEffect(() => {
-    if (!token) { navigate("/login/mentor"); return; }  // ✅ Redux token, not localStorage
+    if (!token) {
+      navigate("/login/mentor");
+      return;
+    }
+
+    // StrictMode guard — skip the second mount
+    if (hasFetched.current) return;
+    hasFetched.current = true;
 
     const fetchData = async () => {
       try {
@@ -75,18 +84,22 @@ const useMentorDashboard = () => {
 
       } catch (err) {
         if (err?.response?.status === 401) {
-          console.log("401 hit — token likely expired:", err.response.data);
           dispatch(logout());
           navigate("/login/mentor");
           return;
         }
         setError("Something went wrong. Please try again.");
+        setLoading(false);  // ← always unblock on error
+      } finally {
+        // ← CRITICAL: guarantee loading is cleared even if navigate() was
+        // called in an early-return branch (e.g. 404 profile, role mismatch).
+        // Without this, any early return leaves loading=true → blank screen.
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [token]);  // ✅ token in deps so it re-runs if token changes
+  }, []); // ← empty dep array: run once on mount only; token is checked at top
 
   return { user, profile, loading, error, refetchProfile };
 };

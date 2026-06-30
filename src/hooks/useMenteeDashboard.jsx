@@ -1,5 +1,5 @@
-// src/hooks/useMenteeDashboard.js
-import { useEffect, useState } from "react";
+// src/hooks/useMenteeDashboard.jsx
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { useSelector } from "react-redux";
@@ -8,8 +8,6 @@ const useMenteeDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isEditPage = location.pathname.includes("/edit-profile");
-
-  // ✅ Moved here — top level of the hook, not inside useEffect
   const token = useSelector((state) => state.auth.token);
 
   const [user, setUser] = useState(null);
@@ -17,9 +15,18 @@ const useMenteeDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Prevent double-fetch in React StrictMode (mount → unmount → remount)
+  const hasFetched = useRef(false);
+
   useEffect(() => {
-    // ✅ Just use token directly — no hook call here
-    if (!token) { navigate("/login"); return; }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    // StrictMode guard — skip the second mount
+    if (hasFetched.current) return;
+    hasFetched.current = true;
 
     const fetchData = async () => {
       try {
@@ -44,7 +51,6 @@ const useMenteeDashboard = () => {
           }
           if (profileErr?.response?.status === 401) {
             navigate("/login");
-            setLoading(false);
             return;
           }
           throw profileErr;
@@ -65,12 +71,16 @@ const useMenteeDashboard = () => {
           return;
         }
         setError("Something went wrong. Please try again.");
+      } finally {
+        // CRITICAL: guarantee loading clears on every code path —
+        // early returns (404, role mismatch, onboarding redirect) were
+        // all leaving loading=true → infinite spinner
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [token]); // ✅ token added to deps array too
+  }, []); // empty — runs once on mount only; token checked at top
 
   return { user, profile, loading, error };
 };

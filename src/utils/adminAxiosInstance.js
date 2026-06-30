@@ -13,12 +13,14 @@ const adminAxiosInstance = axios.create({
 
 // ── Response interceptor: redirect to login on 401 ───────────
 adminAxiosInstance.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        if (response.data?.success === true && response.data.data !== undefined) {
+            response.data = response.data.data;
+        }
+        return response;
+    },
     (error) => {
         if (error.response?.status === 401) {
-            // ← REMOVED: localStorage.removeItem("adminToken")
-            // ← REMOVED: localStorage.removeItem("adminUser")
-            // Cookie is cleared server-side via POST /admin/auth/logout
             window.location.href = "/admin/login";
         }
         return Promise.reject(error);

@@ -133,7 +133,8 @@ const Pill = ({ label }) => (
 // ══════════════════════════════════════════════════════════
 const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
   if (!mentor) return null;
-  const { user, mentorProfile } = mentor;
+  const { user } = mentor;
+  const mentorProfile = mentor; // mentor itself is the flat MentorProfile document
   const isVerified = mentorProfile?.verificationStatus === "verified";
 
   return (
@@ -296,7 +297,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
             </div>
           ) : (
             <button
-              onClick={() => onVerify(mentorProfile._id)}
+              onClick={() => onVerify(mentor._id)}
               disabled={verifying}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white transition-all duration-150 disabled:opacity-60"
               style={{ background: verifying ? "#93c5fd" : "linear-gradient(135deg, #1e40af, #2563eb)", boxShadow: "0 4px 14px rgba(37,99,235,0.35)" }}
@@ -346,7 +347,7 @@ const AdminVerifications = () => {
   const handleVerify = async (mentorProfileId) => {
     setVerifying(true);
     try {
-       await adminAxiosInstance.patch(
+      await adminAxiosInstance.patch(
         `/admin/mentor-verifications/${mentorProfileId}/verify`,
         { status: "verified" }
       );
@@ -354,12 +355,12 @@ const AdminVerifications = () => {
 
       // Update local state
       setMentors(prev => prev.map(m =>
-        m.mentorProfile?._id === mentorProfileId
-          ? { ...m, mentorProfile: { ...m.mentorProfile, verificationStatus: "verified" } }
+        m._id === mentorProfileId
+          ? { ...m, verificationStatus: "verified" }
           : m
       ));
-      if (selected?.mentorProfile?._id === mentorProfileId) {
-        setSelected(prev => ({ ...prev, mentorProfile: { ...prev.mentorProfile, verificationStatus: "verified" } }));
+      if (selected?._id === mentorProfileId) {
+        setSelected(prev => ({ ...prev, verificationStatus: "verified" }));
       }
       showToast("✓ Mentor verified successfully!", "success");
     } catch (e) {
@@ -381,15 +382,15 @@ const AdminVerifications = () => {
       m.user?.email?.toLowerCase().includes(search.toLowerCase());
     const matchFilter =
       filter === "all" ||
-      (filter === "pending" && m.mentorProfile?.verificationStatus !== "verified") ||
-      (filter === "verified" && m.mentorProfile?.verificationStatus === "verified");
+      (filter === "pending" && m.verificationStatus !== "verified") ||
+      (filter === "verified" && m.verificationStatus === "verified");
     return matchSearch && matchFilter;
   });
 
   const counts = {
     all: mentors.length,
-    pending: mentors.filter(m => m.mentorProfile?.verificationStatus !== "verified").length,
-    verified: mentors.filter(m => m.mentorProfile?.verificationStatus === "verified").length,
+    pending: mentors.filter(m => m.verificationStatus !== "verified").length,
+    verified: mentors.filter(m => m.verificationStatus === "verified").length,
   };
 
   // ══════════════════════════════════════════════════════════
@@ -528,14 +529,14 @@ const AdminVerifications = () => {
           </div>
         ) : (
           filtered.map((m, i) => {
-            const isVerified = m.mentorProfile?.verificationStatus === "verified";
+            const isVerified = m.verificationStatus === "verified";
             const docCount =
-              (m.mentorProfile?.resumeDocument?.url ? 1 : 0) +
-              (m.mentorProfile?.workExperienceDocuments?.length || 0);
+              (m.resumeDocument?.url ? 1 : 0) +
+              (m.workExperienceDocuments?.length || 0);
 
             return (
               <div
-                key={m.user?._id || i}
+                key={m._id || m.user?._id || i}
                 className="grid items-center px-5 py-4 transition-all duration-150 hover:bg-blue-50/40 cursor-pointer"
                 style={{
                   gridTemplateColumns: "2fr 2fr 1fr 1fr 1.2fr 80px",
@@ -545,8 +546,8 @@ const AdminVerifications = () => {
               >
                 {/* Name + avatar */}
                 <div className="flex items-center gap-3 min-w-0">
-                  {m.mentorProfile?.profilePicture
-                    ? <img src={m.mentorProfile.profilePicture} alt={m.user?.name}
+                  {m.profilePicture
+                    ? <img src={m.profilePicture} alt={m.user?.name}
                       className="w-8 h-8 rounded-xl object-cover flex-shrink-0 border border-slate-100" />
                     : <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
                       style={{ background: "linear-gradient(135deg,#1e40af,#3b82f6)" }}>
@@ -567,10 +568,10 @@ const AdminVerifications = () => {
                 </div>
 
                 {/* Phone */}
-                <p className="text-xs text-slate-600">{m.mentorProfile?.phoneNumber || <span className="text-slate-300">—</span>}</p>
+                <p className="text-xs text-slate-600">{m.phoneNumber || <span className="text-slate-300">—</span>}</p>
 
                 {/* Status badge */}
-                <StatusBadge status={m.mentorProfile?.verificationStatus} />
+                <StatusBadge status={m.verificationStatus} />
 
                 {/* View button */}
                 <div className="flex justify-end">

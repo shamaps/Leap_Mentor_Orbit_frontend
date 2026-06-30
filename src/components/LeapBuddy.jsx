@@ -4,8 +4,6 @@
 import { useState, useRef, useEffect } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import PropTypes from "prop-types";
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
-
 const INDIGO = "#4f46e5";
 const INDIGO_LIGHT = "#eef2ff";
 const INDIGO_BORDER = "#c7d2fe";
@@ -166,15 +164,10 @@ export default function LeapBuddy({ role = "mentee", user = null, profile = null
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/ai/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: newHistory,
-          systemPrompt: buildSystemPrompt(role, userContext),  // ← context passed here
-        }),
+      const { data } = await axiosInstance.post("/ai/chat", {
+        messages: newHistory,
+        systemPrompt: buildSystemPrompt(role, userContext),
       });
-      const data = await res.json();
       const raw = data.content?.[0]?.text || "Sorry, I couldn't process that.";
       const needsEscalation = raw.includes("[ESCALATE]");
       const clean = raw.replace("[ESCALATE]", "").trim();

@@ -125,17 +125,17 @@ const RequestsTab = () => {
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={`flex-shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 border-b-2 whitespace-nowrap ${activeTab === tab.key
-                    ? "text-blue-900 border-blue-900 bg-blue-50/50"
-                    : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
+                  ? "text-blue-900 border-blue-900 bg-blue-50/50"
+                  : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
                   }`}
               >
                 {tab.label}
                 {counts[tab.key] > 0 && (
                   <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeTab === tab.key
-                      ? "bg-blue-900 text-white"
-                      : tab.key === "referred"
-                        ? "bg-violet-100 text-violet-600"
-                        : "bg-slate-100 text-slate-500"
+                    ? "bg-blue-900 text-white"
+                    : tab.key === "referred"
+                      ? "bg-violet-100 text-violet-600"
+                      : "bg-slate-100 text-slate-500"
                     }`}>
                     {counts[tab.key]}
                   </span>

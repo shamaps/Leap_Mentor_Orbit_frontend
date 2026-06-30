@@ -3,16 +3,16 @@ import { useEffect, useState } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 
 const STATUS_STYLES = {
-  open:     { background: "#fef9c3", color: "#854d0e", label: "Open"     },
+  open: { background: "#fef9c3", color: "#854d0e", label: "Open" },
   resolved: { background: "#dcfce7", color: "#166534", label: "Resolved" },
 };
 
 export default function AdminSupportMessages() {
-  const [messages,  setMessages]  = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState("");
-  const [filter,    setFilter]    = useState("all");
-  const [expanded,  setExpanded]  = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [expanded, setExpanded] = useState(null);
   const [resolving, setResolving] = useState(null);
 
   const fetchMessages = async () => {
@@ -20,7 +20,7 @@ export default function AdminSupportMessages() {
     setError("");
     try {
       const res = await adminAxiosInstance.get("/support/messages");
-      setMessages(res.data);  
+      setMessages(res.data.messages || []);
     } catch (err) {
       setError(err?.response?.data?.message || err.message || "Failed to load messages");
     } finally {
@@ -45,8 +45,8 @@ export default function AdminSupportMessages() {
     }
   };
 
-  const filtered      = messages.filter((m) => filter === "all" || m.status === filter);
-  const openCount     = messages.filter((m) => m.status === "open").length;
+  const filtered = messages.filter((m) => filter === "all" || m.status === filter);
+  const openCount = messages.filter((m) => m.status === "open").length;
   const resolvedCount = messages.filter((m) => m.status === "resolved").length;
 
   return (
@@ -59,9 +59,9 @@ export default function AdminSupportMessages() {
 
       <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
         {[
-          { label: "Total",    count: messages.length, bg: "#f1f5f9", color: "#334155" },
-          { label: "Open",     count: openCount,       bg: "#fef9c3", color: "#854d0e" },
-          { label: "Resolved", count: resolvedCount,   bg: "#dcfce7", color: "#166534" },
+          { label: "Total", count: messages.length, bg: "#f1f5f9", color: "#334155" },
+          { label: "Open", count: openCount, bg: "#fef9c3", color: "#854d0e" },
+          { label: "Resolved", count: resolvedCount, bg: "#dcfce7", color: "#166534" },
         ].map((s) => (
           <div key={s.label} style={{ padding: "10px 20px", borderRadius: 12, background: s.bg, display: "flex", gap: 8, alignItems: "center" }}>
             <span style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{s.count}</span>
@@ -76,8 +76,8 @@ export default function AdminSupportMessages() {
             padding: "6px 18px", borderRadius: 20, fontSize: 13, fontWeight: 500,
             cursor: "pointer", border: "1.5px solid",
             borderColor: filter === f ? "#2563eb" : "#e2e8f0",
-            background:  filter === f ? "#2563eb" : "#fff",
-            color:       filter === f ? "#fff"    : "#475569",
+            background: filter === f ? "#2563eb" : "#fff",
+            color: filter === f ? "#fff" : "#475569",
             textTransform: "capitalize", transition: "all 0.15s",
           }}>
             {f}
@@ -103,9 +103,9 @@ export default function AdminSupportMessages() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {filtered.map((msg) => {
-            const isOpen      = expanded === msg._id;
+            const isOpen = expanded === msg._id;
             const isResolving = resolving === msg._id;
-            const statusSt    = STATUS_STYLES[msg.status] || STATUS_STYLES.open;
+            const statusSt = STATUS_STYLES[msg.status] || STATUS_STYLES.open;
 
             return (
               <div key={msg._id} style={{
@@ -120,7 +120,7 @@ export default function AdminSupportMessages() {
                   <span style={{
                     fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, flexShrink: 0,
                     background: msg.role === "mentor" ? "#fef3c7" : "#eef2ff",
-                    color:      msg.role === "mentor" ? "#b45309" : "#4f46e5",
+                    color: msg.role === "mentor" ? "#b45309" : "#4f46e5",
                     textTransform: "capitalize",
                   }}>
                     {msg.role || "user"}
@@ -155,7 +155,7 @@ export default function AdminSupportMessages() {
                         disabled={isResolving}
                         style={{
                           marginTop: 14, padding: "8px 18px", borderRadius: 8,
-                          background:  isResolving ? "#86efac" : "#16a34a",
+                          background: isResolving ? "#86efac" : "#16a34a",
                           color: "#fff", border: "none",
                           cursor: isResolving ? "not-allowed" : "pointer",
                           fontSize: 13, fontWeight: 600,
@@ -172,7 +172,7 @@ export default function AdminSupportMessages() {
                               borderTopColor: "white",
                               display: "inline-block",
                               animation: "spin 0.7s linear infinite",
-                            }}/>
+                            }} />
                             Resolving...
                           </>
                         ) : "Mark as Resolved"}

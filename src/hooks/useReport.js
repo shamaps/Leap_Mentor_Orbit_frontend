@@ -9,7 +9,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-
+  const [mySlotFeedback, setMySlotFeedback] = useState([]);
   const fetchFeedback = useCallback(async () => {
     if (!connectRequestId) return;
     try {
@@ -17,6 +17,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
       setError(null);
       const res = await axiosInstance.get(`/feedback/${connectRequestId}`);
       setMyFeedback(res.data.myFeedback || null);
+      setMySlotFeedback(res.data.mySlotFeedback || []);
       setTheirFeedback(res.data.theirFeedback || null);
       setSessionStatus(res.data.sessionStatus || null);
     } catch (err) {
@@ -52,6 +53,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
 
   return {
     myFeedback,
+    mySlotFeedback,
     theirFeedback,
     sessionStatus,
     loading,

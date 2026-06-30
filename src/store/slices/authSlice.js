@@ -88,7 +88,7 @@ export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/auth/forgot-password", { email: email.trim() });
+      const res = await axiosInstance.post("/auth/password-reset", { email: email.trim() });
       return res.data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Failed to send OTP."));
@@ -100,7 +100,7 @@ export const verifyResetOtp = createAsyncThunk(
   "auth/verifyResetOtp",
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/auth/verify-reset-otp", {
+      const res = await axiosInstance.post("/auth/password-reset/verification", {
         email: email.trim(),
         otp,
       });
@@ -115,7 +115,7 @@ export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ email, otp, newPassword }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/auth/reset-password", {
+      const res = await axiosInstance.post("/auth/password-reset/confirmation", {
         email: email.trim(),
         otp,
         newPassword,
@@ -148,7 +148,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    token: null,          // ← CHANGED: was localStorage.getItem("token") || null
+    token: null,
     // accessToken now lives in memory only — never persisted
     isBootstrapping: true,  // true until /auth/refresh attempt completes on page load
     loading: false,
@@ -163,8 +163,17 @@ const authSlice = createSlice({
       state.token = null;
       state.error = null;
       state.successMsg = null;
-      localStorage.removeItem("role");
+      localStorage.clear();
+      sessionStorage.clear();
       Sentry.setUser(null);
+      if (remainingKeys.length > 0) {
+        Sentry.addBreadcrumb({
+          category: "auth",
+          message: `Logout cleared ${remainingKeys.length} localStorage key(s)`,
+          level: "info",
+          data: { keys: remainingKeys },
+        });
+      }
     },
     setUser(state, action) {
       state.user = action.payload.user;

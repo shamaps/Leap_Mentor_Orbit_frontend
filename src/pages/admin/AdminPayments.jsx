@@ -200,7 +200,7 @@ const AdminPayments = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await adminAxiosInstance.get("/admin/payments/stats", );
+      const res = await adminAxiosInstance.get("/admin/payments/stats",);
       setStats(res.data);
     } catch { showToast("Failed to load payment stats."); }
   }, []);
@@ -209,7 +209,7 @@ const AdminPayments = () => {
     try {
       setLoadingChart(true);
       const res = await adminAxiosInstance.get("/admin/payments/chart");
-      setChartData(res.data.data || []);
+      setChartData(res.data || []);
     } catch { showToast("Failed to load chart."); }
     finally { setLoadingChart(false); }
   }, []);
@@ -220,8 +220,7 @@ const AdminPayments = () => {
       const params = { page, limit: 15 };
       if (q) params.search = q;
       if (type) params.type = type;
-      const res = await adminAxiosInstance.get("/admin/payments/transactions", {
-      });
+      const res = await adminAxiosInstance.get("/admin/payments/transactions", { params });
       setTransactions(res.data.transactions || []);
       setPagination(res.data.pagination);
     } catch { showToast("Failed to load transactions."); }
@@ -252,8 +251,8 @@ const AdminPayments = () => {
       value: stats?.totalRevenue,
       accent: "#2563eb",
       icon: <span style={{ fontSize: 13, fontWeight: 800, fontFamily: MONO, color: "currentColor", letterSpacing: "-0.02em" }}>
-      LP
-    </span>,
+        LP
+      </span>,
     },
     {
       label: "Platform Commission",
@@ -261,8 +260,8 @@ const AdminPayments = () => {
       sub: stats?.commissionRate != null ? `${stats.commissionRate}% rate` : "—",
       accent: "#059669",
       icon: <span style={{ fontSize: 13, fontWeight: 800, fontFamily: MONO, color: "currentColor", letterSpacing: "-0.02em" }}>
-      LP
-    </span>,
+        LP
+      </span>,
     },
     {
       label: "Pending Payouts",
@@ -281,13 +280,13 @@ const AdminPayments = () => {
   ];
 
   const TYPE_FILTERS = [
-  { key: "",                 label: "All" },
-  { key: "commission_deduct",label: "Commission" },
-  { key: "mentor_payout",    label: "Received" },
-  { key: "debit",            label: "Payout" },
-  { key: "escrow_hold",      label: "Escrow Hold" },
-  { key: "escrow_refund",    label: "Refund" },
-];
+    { key: "", label: "All" },
+    { key: "commission_deduct", label: "Commission" },
+    { key: "mentor_payout", label: "Received" },
+    { key: "debit", label: "Payout" },
+    { key: "escrow_hold", label: "Escrow Hold" },
+    { key: "escrow_refund", label: "Refund" },
+  ];
 
   return (
     <AdminLayout>
