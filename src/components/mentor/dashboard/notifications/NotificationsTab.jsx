@@ -1,7 +1,7 @@
 // src/components/mentor/dashboard/NotificationsTab.jsx
 import { useState, useEffect } from "react";
 import axiosInstance from "../../../../utils/axiosInstance";
-import StatCard from "@/components/atoms/StatCard";
+import StatCard from "@/components/common/StatCard";
 
 // ── Type config ───────────────────────────────────────────────
 const TYPE_CONFIG = {

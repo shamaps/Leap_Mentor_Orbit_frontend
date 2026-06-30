@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPassword, verifyResetOtp, resetPassword, clearMessages } from "../store/slices/authSlice";
-import FullScreenLoader from "@/components/atoms/FullScreenLoader";
+import FullScreenLoader from "@/components/common/FullScreenLoader";
 
 
 // ── Steps: 1 = enter email, 2 = enter OTP, 3 = new password ──

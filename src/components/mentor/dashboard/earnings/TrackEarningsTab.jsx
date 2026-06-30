@@ -4,7 +4,7 @@ import {
   Tooltip, ResponsiveContainer,
 } from "recharts";
 import useTrackEarnings from "../../../../hooks/useTrackEarnings";
-import StatCard from "@/components/atoms/StatCard";
+import StatCard from "@/components/common/StatCard";
 
 // ── Helpers ───────────────────────────────────────────────────
 const fmt = (n) =>

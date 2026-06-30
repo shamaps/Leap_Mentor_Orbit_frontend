@@ -1,4 +1,4 @@
-// src/components/atoms/StatusBadge.jsx
+// src/components/common/StatusBadge.jsx
 import PropTypes from "prop-types";
 const STATUS_CONFIG = {
     pending: { classes: "bg-amber-50 text-amber-600 border border-amber-200", dot: "bg-amber-600", label: "Pending" },

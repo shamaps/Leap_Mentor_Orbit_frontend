@@ -1,4 +1,4 @@
-// src/components/atoms/MentorCardSkeleton.jsx
+// src/components/common/MentorCardSkeleton.jsx
 import PropTypes from "prop-types";
 const MentorCardSkeleton = ({ variant = "detailed" }) => {
 

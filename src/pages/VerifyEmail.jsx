@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { sendOtp, verifyEmail, verifyMagicLink, clearMessages } from "../store/slices/authSlice";
-import FullScreenLoader from "@/components/atoms/FullScreenLoader";
+import FullScreenLoader from "@/components/common/FullScreenLoader";
 
 const VerifyEmail = () => {
   const navigate = useNavigate();

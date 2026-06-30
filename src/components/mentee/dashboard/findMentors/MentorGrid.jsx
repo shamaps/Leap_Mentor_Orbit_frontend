@@ -1,6 +1,6 @@
 // src/components/mentee/dashboard/findMentors/MentorGrid.jsx
 import MentorCard from "./MentorCard";
-import MentorCardSkeleton from "@/components/atoms/MentorCardSkeleton";
+import MentorCardSkeleton from "@/components/common/MentorCardSkeleton";
 
 // ✅ Added onViewProfile prop — passed down to each MentorCard
 const MentorGrid = ({ mentors, loading, loadingMore, hasMore, hasSearched, totalCount, onLoadMore, onViewProfile }) => {

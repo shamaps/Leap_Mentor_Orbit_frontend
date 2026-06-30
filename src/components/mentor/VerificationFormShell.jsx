@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axiosInstance from "../../utils/axiosInstance";
-import FullScreenLoader from "@/components/atoms/FullScreenLoader";
+import FullScreenLoader from "@/components/common/FullScreenLoader";
 import PhoneNumberField     from "./PhoneNumberField";
 import ResumeUpload         from "./ResumeUpload";
 import WorkExperienceUpload from "./WorkExperienceUpload";

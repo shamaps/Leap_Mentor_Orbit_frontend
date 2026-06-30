@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ProfileCard from "./ProfileCard";
 import ProfessionalInfoCard from "./ProfessionalInfoCard";
 import SkillsCard from "./SkillsCard";
-import MentorshipPrefsCard from "@/components/molecules/MentorshipPrefsCard";
+import MentorshipPrefsCard from "./MentorshipPrefsCard";
 import SocialCard from "./SocialCard";
 
 const ProfileTab = ({ user, profile }) => {

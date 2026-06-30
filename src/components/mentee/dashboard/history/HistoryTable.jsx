@@ -1,5 +1,5 @@
 // src/components/mentee/dashboard/history/HistoryTable.jsx
-import StatusBadge from "../../../atoms/StatusBadge";
+import StatusBadge from "../../../common/StatusBadge";
 import { formatDate, getInitials } from "./constants";
 
 const DeleteIcon = ({ onClick, title }) => (

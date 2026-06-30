@@ -2,7 +2,7 @@
 import ProfileHeroCard from "./ProfileHeroCard";
 import ProfessionalDetailsCard from "./ProfessionalDetailsCard";
 import InterestedFieldsCard from "./InterestedFieldsCard";
-import MentorshipPrefsCard from "@/components/molecules/MentorshipPrefsCard";
+import MentorshipPrefsCard from "@/components/mentor/dashboard/MentorshipPrefsCard";
 import SocialPresenceCard from "./SocialPresenceCard";
 
 const ProfileTab = ({ user, profile }) => {

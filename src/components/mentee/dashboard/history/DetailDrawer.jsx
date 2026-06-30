@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axiosInstance from "../../../../utils/axiosInstance";
 import { STATUS_STYLES, STATUS_LABELS, formatDate, formatTime, getInitials } from "./constants";
-import StatusBadge from "../../../atoms/StatusBadge";
+import StatusBadge from "../../../common/StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
 

@@ -1,4 +1,4 @@
-// src/components/atoms/StatCard.jsx
+// src/components/common/StatCard.jsx
 import PropTypes from "prop-types";
 const StatCard = ({
     label,
