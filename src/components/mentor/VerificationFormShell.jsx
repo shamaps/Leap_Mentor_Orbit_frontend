@@ -8,10 +8,10 @@ import PhoneNumberField     from "./PhoneNumberField";
 import ResumeUpload         from "./ResumeUpload";
 import WorkExperienceUpload from "./WorkExperienceUpload";
 import VerificationInstructionsModal from "./VerificationInstructionsModal"; // ✅ 1. IMPORT
-
+import { selectAuthToken } from "../../store/selectors";
 const VerificationFormShell = () => {
   const navigate = useNavigate();
-  const token = useSelector((state) => state.auth.token);
+  const token = useSelector(selectAuthToken);
 
   // ── Form state ──
   const [phoneNumber,          setPhoneNumber]          = useState("");

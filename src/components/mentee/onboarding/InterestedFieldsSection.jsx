@@ -1,5 +1,6 @@
 // components/mentee/onboarding/InterestedFieldsSection.jsx
 import { useState, forwardRef } from "react";
+import { useMenteeOnboardingForm } from "../../../context/MenteeOnboardingFormContext";
 
 const errorClass = "border-red-400 focus:border-red-400 focus:ring-red-100 hover:border-red-400";
 
@@ -51,7 +52,8 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder, error }) => {
 // interestedFields or skills is the first validation error.
 // data-field on each sub-section lets the DOM querySelector fallback
 // land on the specific errored input if it comes up first.
-const InterestedFieldsSection = forwardRef(({ form, handleChange, errors = {} }, ref) => {
+const InterestedFieldsSection = forwardRef((_, ref) => {
+  const { form, handleChange, errors = {} } = useMenteeOnboardingForm();
   const addToArray = (field, value) => {
     handleChange({ target: { name: field, value: [...(form[field] || []), value] } });
   };

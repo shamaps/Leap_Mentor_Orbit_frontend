@@ -3,13 +3,22 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { submitMenteeOnboarding, clearOnboardingMessages } from "../store/slices/menteeOnboardingSlice";
+import { validateMenteeFields } from "../utils/onboardingValidation";
+import {
+  selectAuthToken,
+  selectMenteeOnboardingLoading,
+  selectMenteeOnboardingError,
+  selectMenteeOnboardingSuccessMsg,
+} from "../store/selectors";
 
 const useMenteeOnboarding = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { loading, error, successMsg } = useSelector((state) => state.menteeOnboarding);
-  const token = useSelector((state) => state.auth.token); // ✅ FIXED: was localStorage.getItem("token")
+  const loading = useSelector(selectMenteeOnboardingLoading);
+  const error = useSelector(selectMenteeOnboardingError);
+  const successMsg = useSelector(selectMenteeOnboardingSuccessMsg);
+  const token = useSelector(selectAuthToken);
 
   const [form, setForm] = useState(() => {
     try {
@@ -82,32 +91,12 @@ const useMenteeOnboarding = () => {
 
     if (!form.currentRole.trim())
       return setMsg({ type: "error", text: "Current Role is required." });
-    if (!form.yearsOfExperience)
-      return setMsg({ type: "error", text: "Years of Experience is required." });
-    if (!form.industry)
-      return setMsg({ type: "error", text: "Industry is required." });
-    if (!form.interestedFields.length)
-      return setMsg({ type: "error", text: "Please add at least one Field of Interest." });
-    if (!form.skills.length)
-      return setMsg({ type: "error", text: "Please add at least one Skill of Interest." });
 
-    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
-    if (isOnlyNumbers(form.currentRole))
-      return setMsg({ type: "error", text: "Current Role cannot be a number." });
-    if (isOnlyNumbers(form.company))
-      return setMsg({ type: "error", text: "Company name cannot be a number." });
+    if (!token) { navigate("/login"); return; }
 
-    const isValidUrl = (val) => {
-      if (!val) return true;
-      try { new URL(val); return true; }
-      catch { return false; }
-    };
-    if (!isValidUrl(form.linkedInUrl))
-      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
-    if (!isValidUrl(form.portfolioUrl))
-      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
-
-    if (!token) { navigate("/login"); return; } // ✅ still guards, now reads from Redux
+    //  shared util — replaces copy-pasted validation
+    const validationError = validateMenteeFields(form);
+    if (validationError) return setMsg({ type: "error", text: validationError });
 
     dispatch(submitMenteeOnboarding({ ...form }));
   };

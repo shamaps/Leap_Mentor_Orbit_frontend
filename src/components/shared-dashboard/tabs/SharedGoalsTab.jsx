@@ -7,7 +7,8 @@ import TimelineTracker from "./goals/TimelineTracker";
 import MilestoneList from "./goals/MilestoneList";
 import SessionCard from "./goals/SessionCard";
 import FeedbackModal from "./FeedbackModal";
-
+import { useSelector } from "react-redux";
+import { selectConnect } from "../../../store/selectors";
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-4">
     {[1, 2, 3].map((i) => (
@@ -168,7 +169,8 @@ const OverallProgress = ({ completedSlots, totalSlots, progress, onLeaveFeedback
 };
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedGoalsTab = ({ connect, onAllComplete }) => {
+const SharedGoalsTab = ({ onAllComplete }) => {
+  const connect = useSelector(selectConnect);
   const [isEditing, setIsEditing] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackSlotIndex, setFeedbackSlotIndex] = useState(null);
@@ -323,7 +325,7 @@ const SharedGoalsTab = ({ connect, onAllComplete }) => {
           connect={connect}
           slotIndex={feedbackSlotIndex}
           onClose={() => setShowFeedbackModal(false)}
-          onFeedbackSubmitted={handleFeedbackSubmitted}  // ← passed down
+          onFeedbackSubmitted={handleFeedbackSubmitted}  
         />
       )}
       {showOverallFeedbackModal && (

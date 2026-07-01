@@ -8,15 +8,17 @@ import SharedChatTab from "./tabs/SharedChatTab";
 import SharedGoalsTab from "./tabs/SharedGoalsTab";
 import SharedNotesTab from "./tabs/SharedNotesTab";
 import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
+import { useSelector } from "react-redux";
 import useSocketToast from "../../hooks/useSocketToast";
+import { selectConnect } from "../../store/selectors";
 
-const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
+const SharedDashboardLayout = ({ onAllComplete, activeTab: activeTabProp, setActiveTab }) => {
   const activeTab = activeTabProp || "overview";
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useSocketToast();
-
+  const connect = useSelector(selectConnect);
   const viewerRole = connect?.viewerRole || "mentee";
 
   const backPath = viewerRole === "mentor"
@@ -66,7 +68,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
-            <SharedHomeTab connect={connect} onTabChange={setActiveTab} />
+            <SharedHomeTab onTabChange={setActiveTab} />
           </div>
 
           {/* Chat — always mounted so socket stays alive */}
@@ -77,7 +79,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             padding: "24px 32px",
             boxSizing: "border-box",
           }}>
-            <SharedChatTab connect={connect} />
+            <SharedChatTab />
           </div>
 
           {/* Goals */}
@@ -87,7 +89,6 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             padding: "24px 32px",
           }}>
             <SharedGoalsTab
-              connect={connect}
               onAllComplete={onAllComplete}
             />
           </div>
@@ -98,7 +99,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
-            <SharedNotesTab connect={connect} />
+            <SharedNotesTab />
           </div>
 
           {/* Add Session */}
@@ -107,7 +108,7 @@ const SharedDashboardLayout = ({ connect, onAllComplete, activeTab: activeTabPro
             height: "100%", overflowY: "auto",
             padding: "24px 32px",
           }}>
-            <SharedAdditionalSessionTab connect={connect} onTabChange={setActiveTab} />
+            <SharedAdditionalSessionTab  onTabChange={setActiveTab} />
           </div>
 
         </main>

@@ -5,7 +5,8 @@ import axiosInstance from "../../../utils/axiosInstance";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
 import MentorCardSkeleton from "@/components/common/MentorCardSkeleton";
-
+import { useSelector } from "react-redux";
+import { selectMenteeProfile } from "../../../store/selectors"; 
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = (profile) => {
   const [mentors, setMentors] = useState([]);
@@ -385,7 +386,8 @@ const LeapPointsPanel = ({ balance, loading }) => {
 };
 
 // ── Main HomeTab ──────────────────────────────────────────────
-const HomeTab = ({ user, profile }) => {
+const HomeTab = () => {
+  const { user, profile } = useSelector(selectMenteeProfile);
   const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;

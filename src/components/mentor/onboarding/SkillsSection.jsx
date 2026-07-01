@@ -1,7 +1,9 @@
 // components/mentor/onboarding/SkillsSection.jsx
 import { useState, forwardRef } from "react";
+import { useMentorOnboardingForm } from "../../../context/MentorOnboardingFormContext";
 
-const SkillsSection = forwardRef(({ form, onChange, errors = {} }, ref) => {
+const SkillsSection = forwardRef((_, ref) => {
+  const { form, onChange, errors = {} } = useMentorOnboardingForm();
   const [input, setInput] = useState("");
   const hasError = errors.skills;
 
@@ -78,11 +80,10 @@ const SkillsSection = forwardRef(({ form, onChange, errors = {} }, ref) => {
             onKeyDown={handleKeyDown}
             onBlur={addSkill}
             placeholder="Type a skill and press enter..."
-            className={`flex-1 text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400 ${
-              hasError
+            className={`flex-1 text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400 ${hasError
                 ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100"
                 : "border-slate-300 focus:border-blue-400 focus:ring-blue-100"
-            }`}
+              }`}
           />
           <button
             type="button"

@@ -1,5 +1,6 @@
 // components/mentee/dashboard/InterestedFieldsCard.jsx
-
+import { useSelector } from "react-redux";
+import { selectMenteeProfile } from "../../../store/selectors";
 const TagChip = ({ label }) => {
   return (
     <span className={`inline-flex items-center text-sm font-m text-slate-600 px-3 py-1.5 rounded-full border `}>
@@ -8,7 +9,8 @@ const TagChip = ({ label }) => {
   );
 };
 
-const InterestedFieldsCard = ({ profile }) => {
+const InterestedFieldsCard = () => {
+  const { profile } = useSelector(selectMenteeProfile);
   const fields = profile?.interestedFields || [];
   const skills = profile?.skills || [];
 

@@ -1,6 +1,17 @@
 // src/components/mentor/dashboard/MentorHomeTab.jsx
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { refetchMentorProfile } from "../../../store/slices/mentorProfileSlice";
+import { fetchIncomingRequests } from "../../../store/slices/connectRequestsSlice";
+import { selectMentorProfile } from "../../../store/selectors";
+import {
+  selectActiveSessions,
+  selectPendingCount,
+  selectCompletedCount,
+  selectConnectRequestsLoading,
+  selectConnectRequestsInitialLoad,
+} from "../../../store/selectors";
 import axiosInstance from "../../../utils/axiosInstance";
 import LeapBuddy from "../../LeapBuddy";
 import StatCard from "@/components/common/StatCard";
@@ -65,7 +76,7 @@ const IconStar = () => (
   </svg>
 );
 
-const IconMoney = () => (<span style={{fontSize: 13,fontWeight: 800,fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",color: "currentColor",letterSpacing: "-0.02em"}}>LP
+const IconMoney = () => (<span style={{ fontSize: 13, fontWeight: 800, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: "currentColor", letterSpacing: "-0.02em" }}>LP
 </span>
 );
 
@@ -150,15 +161,30 @@ const EarningsSkeleton = () => (
   </div>
 );
 
-const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
+const MentorHomeTab = ({ setActiveTab }) => {
+  const dispatch = useDispatch();
+  const { user, profile } = useSelector(selectMentorProfile);
+  const refetchProfile = () => dispatch(refetchMentorProfile());
   const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] || "there";
   const isFirstLogin = user?.isFirstLogin ?? false;
 
-  const [sessions, setSessions] = useState([]);
-  const [loadingSessions, setLoadingSessions] = useState(true);
-  const [pendingCount, setPendingCount] = useState(0);
-  const [actualSessionCount, setActualSessionCount] = useState(null);
+  // now reads from the shared connectRequests slice instead of its own
+  // axios call — RequestsTab and this tab stay in sync without a refetch.
+  const sessions = useSelector(selectActiveSessions);
+  const pendingCount = useSelector(selectPendingCount);
+  const completedCount = useSelector(selectCompletedCount);
+  const loadingSessions = useSelector(selectConnectRequestsLoading);
+  const initialLoad = useSelector(selectConnectRequestsInitialLoad);
+
+  useEffect(() => {
+    if (initialLoad) {
+      dispatch(fetchIncomingRequests());
+    }
+  }, [dispatch, initialLoad]);
+
+  const actualSessionCount =
+    completedCount + sessions.filter((r) => r.status === "ongoing").length;
 
   const [earnings, setEarnings] = useState(null);
   const [loadingEarnings, setLoadingEarnings] = useState(true);
@@ -171,31 +197,6 @@ const MentorHomeTab = ({ user, profile, refetchProfile, setActiveTab }) => {
   };
   const badges = BADGES.map((b) => ({ ...b, unlocked: b.condition(badgeProfile) }));
   const unlockedCount = badges.filter((b) => b.unlocked).length;
-
-  useEffect(() => {
-    if (refetchProfile) refetchProfile();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    const fetchSessions = async () => {
-      try {
-        setLoadingSessions(true);
-        const res = await axiosInstance.get("/connect-requests/incoming");
-        const all = res.data.requests || [];
-        const active = all.filter((r) => r.status === "ongoing" || r.status === "accepted");
-        const pending = all.filter((r) => r.status === "pending");
-        const completed = all.filter((r) => r.status === "completed");
-        setSessions(active);
-        setPendingCount(pending.length);
-        setActualSessionCount(completed.length + active.filter((r) => r.status === "ongoing").length);
-      } catch (err) {
-        console.error("MentorHomeTab sessions error:", err.message);
-      } finally {
-        setLoadingSessions(false);
-      }
-    };
-    fetchSessions();
-  }, []);
 
   useEffect(() => {
     const fetchEarnings = async () => {

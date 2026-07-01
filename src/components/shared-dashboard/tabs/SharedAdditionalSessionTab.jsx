@@ -4,7 +4,8 @@ import axiosInstance from "../../../utils/axiosInstance";
 import useSessions from "../../../hooks/useSessions";
 import { payAdditionalEscrow } from "../../../api/escrow.api";
 import EscrowSuccessModal from "../../mentee/dashboard/history/EscrowSuccessModal";
-
+import { useSelector } from "react-redux";
+import { selectConnect } from "../../../store/selectors";
 const formatTime = (time) => {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
@@ -283,7 +284,8 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
 };
 
 // ── Main Component ────────────────────────────────────────────
-const SharedAdditionalSessionTab = ({ connect, onTabChange }) => {
+const SharedAdditionalSessionTab = ({ onTabChange }) => {
+  const connect = useSelector(selectConnect);
   const [availability, setAvailability] = useState([]);
   const [sessionDurations, setSessionDurations] = useState([30, 60]);
   const [duration, setDuration] = useState(60);

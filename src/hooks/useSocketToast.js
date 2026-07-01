@@ -1,17 +1,16 @@
 // src/hooks/useSocketToast.js
 import { useEffect, useRef } from "react";
-import { useSelector } from "react-redux"; // ✅ ADDED
+import { useSelector } from "react-redux"; 
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
 import useUnreadCount from "./useUnreadCount";
-
+import { selectAuthToken } from "../store/selectors";
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 
 const useSocketToast = (onRequestChanged) => {
   const { showToast } = useToast();
   const { incrementBadge } = useUnreadCount();
-  const token = useSelector((state) => state.auth.token); // ✅ FIXED: moved to top level (hooks must not be inside useEffect)
-
+  const token = useSelector(selectAuthToken); 
   const socketRef = useRef(null);
 
   const showToastRef = useRef(showToast);
@@ -30,9 +29,9 @@ const useSocketToast = (onRequestChanged) => {
   }, [onRequestChanged]);
 
   useEffect(() => {
-    if (!token) return; // ✅ no token = no socket (onboarding, login pages)
+    if (!token) return; //  no token = no socket (onboarding, login pages)
 
-    if (window.__leapSocket?.connected) return; // ✅ globally shared
+    if (window.__leapSocket?.connected) return; //  globally shared
 
     const socket = io(BASE_URL, {
       auth: { token },
@@ -83,7 +82,7 @@ const useSocketToast = (onRequestChanged) => {
         window.__leapSocket = null;
       }
     };
-  }, [token]); // ✅ re-run if token changes (e.g. after login)
+  }, [token]);
 };
 
 export default useSocketToast;

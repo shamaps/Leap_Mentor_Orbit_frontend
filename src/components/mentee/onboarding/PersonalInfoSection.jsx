@@ -1,8 +1,10 @@
 // components/mentee/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
 import axiosInstance from "../../../utils/axiosInstance";
+import { useMenteeOnboardingForm } from "../../../context/MenteeOnboardingFormContext";
 
-const PersonalInfoSection = ({ form, handleChange }) => {
+const PersonalInfoSection = () => {
+  const { form, handleChange } = useMenteeOnboardingForm();
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");

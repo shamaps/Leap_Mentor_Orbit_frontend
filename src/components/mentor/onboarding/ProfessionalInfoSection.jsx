@@ -1,5 +1,6 @@
 // components/mentor/onboarding/ProfessionalInfoSection.jsx
 import { forwardRef } from "react";
+import { useMentorOnboardingForm } from "../../../context/MentorOnboardingFormContext";
 
 const INDUSTRY_OPTIONS = [
   "Technology", "Finance", "Healthcare", "Education", "Design",
@@ -18,7 +19,8 @@ const selectClass = (hasError, hasValue) =>
     : `border-slate-300 focus:border-blue-400 focus:ring-blue-100 ${hasValue ? "text-slate-800" : "text-slate-400"}`
   }`;
 
-const ProfessionalInfoSection = forwardRef(({ form, onChange, errors = {} }, ref) => {
+const ProfessionalInfoSection = forwardRef((_, ref) => {
+  const { form, onChange, errors = {} } = useMentorOnboardingForm();
   return (
     <div
       ref={ref}

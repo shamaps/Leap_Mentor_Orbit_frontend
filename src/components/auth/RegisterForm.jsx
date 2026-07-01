@@ -10,14 +10,14 @@ import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthMessageBanner, AuthDivider, AuthField, AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
 import TermsAndConditionsModal from "../../ui/TermsAndConditionsModal";
-
+import { selectAuth } from "../../store/selectors";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",
   apple: "oauth_apple",
 };
-// ✅ Password validation rules
+// Password validation rules
 const validatePassword = (password) => {
   const rules = [
     { id: "length", label: "At least 8 characters", test: (p) => p.length >= 8 },
@@ -29,7 +29,7 @@ const validatePassword = (password) => {
   return { rules, passed, total: rules.length };
 };
 
-// ✅ Strength label + color based on how many rules passed
+// Strength label + color based on how many rules passed
 const getStrength = (passed) => {
   if (passed <= 1) return { label: "Weak", color: "#ef4444", width: "25%" };
   if (passed === 2) return { label: "Fair", color: "#f59e0b", width: "50%" };
@@ -46,7 +46,7 @@ const RegisterForm = ({ role }) => {
   const googleBtnRef = useRef(null);
   const termsAcceptedRef = useRef(true);
 
-  const { loading, error, successMsg } = useSelector((state) => state.auth);
+  const { loading, error, successMsg } = useSelector(selectAuth);
 
   const [form, setForm] = useState({
     name: "", email: "", password: "", termsAccepted: false,
@@ -54,7 +54,7 @@ const RegisterForm = ({ role }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [localMsg, setLocalMsg] = useState({ type: "", text: "" });
-  const [pwTouched, setPwTouched] = useState(false); // ✅ track if user typed in password
+  const [pwTouched, setPwTouched] = useState(false); // track if user typed in password
   const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
@@ -123,7 +123,7 @@ const RegisterForm = ({ role }) => {
 
     if (!form.termsAccepted) return setLocalMsg({ type: "error", text: "Please accept the terms to continue." });
 
-    // ✅ Password validation — block if not all 4 rules pass
+    // Password validation — block if not all 4 rules pass
     const { passed } = validatePassword(form.password);
     if (passed < 4) {
       setPwTouched(true);
@@ -225,7 +225,7 @@ const RegisterForm = ({ role }) => {
             </button>
           </div>
 
-          {/* ✅ Strength bar + rules checklist — appears after user starts typing */}
+          {/* Strength bar + rules checklist — appears after user starts typing */}
           {pwTouched && form.password.length > 0 && (() => {
             const { rules, passed } = validatePassword(form.password);
             const strength = getStrength(passed);

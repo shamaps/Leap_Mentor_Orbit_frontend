@@ -1,9 +1,10 @@
 // components/mentee/dashboard/ProfileHeroCard.jsx
 import { useNavigate } from "react-router-dom";
-
-const ProfileHeroCard = ({ user, profile }) => {
+import { useSelector } from "react-redux";
+import { selectMenteeProfile } from "../../../store/selectors";
+const ProfileHeroCard = () => {
   const navigate = useNavigate();
-
+  const { user, profile } = useSelector(selectMenteeProfile);
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
       <div className="flex items-start gap-5">

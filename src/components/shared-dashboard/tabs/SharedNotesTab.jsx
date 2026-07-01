@@ -1,9 +1,9 @@
 // src/components/shared-dashboard/tabs/SharedNotesTab.jsx
 import { useState, useRef } from "react";
-import { useSelector } from "react-redux";      
+import { useSelector } from "react-redux";
 import useNotes from "../../../hooks/useNotes";
 import PrivateNotesTab from "./PrivateNotesTab";
-
+import { selectConnect, selectAuthUser } from "../../../store/selectors";
 // ── Helpers ───────────────────────────────────────────────────
 const formatFileSize = (bytes) => {
   if (!bytes) return "—";
@@ -259,7 +259,8 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
 const SharedFilesSection = ({ connect }) => {
   const [showUpload, setShowUpload] = useState(false);
   const { notes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connect?._id);
-  const myId = useSelector((state) => state.auth.user?._id);   // ← FIXED: was getMyId() reading from localStorage
+  const authUser = useSelector(selectAuthUser);
+  const myId = authUser?._id;
   const isCompleted = connect?.status === "completed";
 
   const handleUpload = async (file, title) => uploadNote(file, title, false);
@@ -346,7 +347,8 @@ const SharedFilesSection = ({ connect }) => {
 };
 
 // ── Main Component ────────────────────────────────────────────
-const SharedNotesTab = ({ connect }) => {
+const SharedNotesTab = () => {
+  const connect = useSelector(selectConnect);
   const [activeView, setActiveView] = useState("shared");
 
   if (!connect?._id) {

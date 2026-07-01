@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { useSelector } from "react-redux"; // ✅ ADDED
+import { useSelector } from "react-redux"; 
 import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
-
+import { selectAuthToken } from "../store/selectors";
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
 const urlBase64ToUint8Array = (base64String) => {
@@ -14,11 +14,11 @@ const urlBase64ToUint8Array = (base64String) => {
 
 const usePushNotification = () => {
   const { showToast } = useToast();
-  const token = useSelector((state) => state.auth.token); // ✅ FIXED: top level, not inside useEffect
+  const token = useSelector(selectAuthToken); 
 
   // Register service worker + subscribe to push
   useEffect(() => {
-    if (!token) return; // ✅ guard still works, now reads from Redux
+    if (!token) return; 
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
     const setup = async () => {
@@ -41,7 +41,7 @@ const usePushNotification = () => {
     };
 
     setup();
-  }, [token]); // ✅ re-run when token appears after login
+  }, [token]); 
 
   // Listen for messages from service worker → show in-app toast
   useEffect(() => {

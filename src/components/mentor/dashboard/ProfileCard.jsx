@@ -1,10 +1,13 @@
 // components/mentor/dashboard/ProfileCard.jsx
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectMentorProfile } from "../../../store/selectors";
 
-const ProfileCard = ({ user, profile, onEditClick }) => {
+const ProfileCard = ({ onEditClick }) => {
   const navigate = useNavigate();
-  const isVerified  = profile?.verificationStatus === "verified";
-  const isPending   = profile?.verificationStatus === "pending";
+  const { user, profile } = useSelector(selectMentorProfile);
+  const isVerified = profile?.verificationStatus === "verified";
+  const isPending = profile?.verificationStatus === "pending";
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">

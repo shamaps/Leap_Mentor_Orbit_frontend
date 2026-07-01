@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPassword, verifyResetOtp, resetPassword, clearMessages } from "../store/slices/authSlice";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
-
+import { selectAuth} from "../store/selectors";
 
 // ── Steps: 1 = enter email, 2 = enter OTP, 3 = new password ──
 const STEPS = { EMAIL: 1, OTP: 2, PASSWORD: 3 };
@@ -31,7 +31,7 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
+  const { loading } = useSelector(selectAuth);
 
   const role = searchParams.get("role") || "mentor";
   const loginPath = role === "mentee" ? "/login" : "/login";

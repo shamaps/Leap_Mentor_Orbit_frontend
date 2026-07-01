@@ -91,12 +91,12 @@ const LoginForm = ({ placeholder, registerPath }) => {
       if (loginUser.fulfilled.match(res)) {
         handlePostAuth(res.payload?.accessToken, res.payload?.user);
       } else {
-        // ✅ loginUser.rejected — payload comes from rejectWithValue, never touches interceptor
+        // loginUser.rejected — payload comes from rejectWithValue, never touches interceptor
         const errMsg = res.payload || "Invalid email or password.";
         setMsg({ type: "error", text: errMsg });
       }
     } catch (err) {
-      // ✅ Catch block: read status directly, don't rely on interceptor-mutated error
+      // Catch block: read status directly, don't rely on interceptor-mutated error
       const status = err?.response?.status;
       const data = err?.response?.data;
 

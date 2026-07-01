@@ -139,6 +139,20 @@ export const logoutUser = createAsyncThunk(
       // Cookie clearing failed — proceed anyway, local state will still be cleared
       console.error("[authSlice] Logout request failed:", err?.response?.status ?? err.message);
     }
+
+    const remainingKeys = Object.keys(localStorage);
+    localStorage.clear();
+    sessionStorage.clear();
+    Sentry.setUser(null);
+    if (remainingKeys.length > 0) {
+      Sentry.addBreadcrumb({
+        category: "auth",
+        message: `Logout cleared ${remainingKeys.length} localStorage key(s)`,
+        level: "info",
+        data: { keys: remainingKeys },
+      });
+    }
+
     dispatch(logout());
   }
 );
@@ -163,17 +177,6 @@ const authSlice = createSlice({
       state.token = null;
       state.error = null;
       state.successMsg = null;
-      localStorage.clear();
-      sessionStorage.clear();
-      Sentry.setUser(null);
-      if (remainingKeys.length > 0) {
-        Sentry.addBreadcrumb({
-          category: "auth",
-          message: `Logout cleared ${remainingKeys.length} localStorage key(s)`,
-          level: "info",
-          data: { keys: remainingKeys },
-        });
-      }
     },
     setUser(state, action) {
       state.user = action.payload.user;

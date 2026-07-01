@@ -2,7 +2,7 @@
 // Add to AdminLayout NAV_ITEMS and route as /admin/leap-requests
 
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "../../utils/axiosInstance";
+import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import PropTypes from "prop-types";
 
 
@@ -92,8 +92,8 @@ const RequestCard = ({ request, onApprove, onReject, processing }) => {
     completedSessions >= 5
       ? "High"
       : completedSessions >= 2
-      ? "Medium"
-      : "Low";
+        ? "Medium"
+        : "Low";
 
   const activityConfig = {
     High: { color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-100", dot: "bg-emerald-500" },

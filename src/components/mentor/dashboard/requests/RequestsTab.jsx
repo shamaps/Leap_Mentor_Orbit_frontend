@@ -1,6 +1,13 @@
 // src/components/mentor/dashboard/requests/RequestsTab.jsx
-import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "../../../../utils/axiosInstance";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchIncomingRequests, updateRequestStatus } from "../../../../store/slices/connectRequestsSlice";
+import {
+  selectIncomingRequests,
+  selectConnectRequestsLoading,
+  selectConnectRequestsInitialLoad,
+  selectConnectRequestsError,
+} from "../../../../store/selectors";
 import RequestCard from "./RequestCard";
 import MenteeProfileModal from "./MenteeProfileModal";
 
@@ -15,29 +22,17 @@ const TABS = [
 ];
 
 const RequestsTab = () => {
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [error, setError] = useState("");
+  const dispatch = useDispatch();
+  const requests = useSelector(selectIncomingRequests);
+  const loading = useSelector(selectConnectRequestsLoading);
+  const initialLoad = useSelector(selectConnectRequestsInitialLoad);
+  const error = useSelector(selectConnectRequestsError);
   const [activeTab, setActiveTab] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState(null);
 
-  const fetchRequests = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await axiosInstance.get(`/connect-requests/incoming`, {
-      });
-      setRequests(res.data.requests || []);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load requests.");
-    } finally {
-      setLoading(false);
-      setInitialLoad(false);
-    }
-  }, []);
-  // ✅ ADD this useEffect (make sure useEffect is already imported):
+  //  socket listener now dispatches the thunk instead of calling a local fetch fn
   useEffect(() => {
-    const handleRequestChanged = () => fetchRequests();
+    const handleRequestChanged = () => dispatch(fetchIncomingRequests());
 
     const waitForSocket = setInterval(() => {
       if (window.__leapSocket?.connected) {
@@ -50,19 +45,19 @@ const RequestsTab = () => {
       clearInterval(waitForSocket);
       window.__leapSocket?.off("request_status_changed", handleRequestChanged);
     };
-  }, [fetchRequests]);
+  }, [dispatch]);
 
-  useEffect(() => { fetchRequests(); }, [fetchRequests]);
-
+  //only fetch on mount if we've never loaded this slice before —
+  // the socket listener above keeps it fresh after that, so remounting
+  // this tab (switching away and back) no longer re-hits the API.
+  useEffect(() => {
+    if (initialLoad) {
+      dispatch(fetchIncomingRequests());
+    }
+  }, [dispatch, initialLoad]);
 
   const handleUpdate = (id, newStatus) => {
-    setRequests((prev) =>
-      prev.map((r) =>
-        r._id === id
-          ? { ...r, status: newStatus, respondedAt: new Date().toISOString() }
-          : r
-      )
-    );
+    dispatch(updateRequestStatus({ id, newStatus }));
   };
 
   const filtered = activeTab === "all"

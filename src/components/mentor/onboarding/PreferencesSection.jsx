@@ -1,5 +1,6 @@
 // components/mentor/onboarding/PreferencesSection.jsx
 import { useState, useRef, useEffect } from "react";
+import { useMentorOnboardingForm } from "../../../context/MentorOnboardingFormContext";
 
 const COMMUNICATION_OPTIONS = [
   { value: "Video Call", label: "Video Meetings", icon: "🎥" },
@@ -16,7 +17,8 @@ const LANGUAGE_OPTIONS = [
   "Polish", "Indonesian", "Bengali", "Tamil", "Urdu",
 ];
 
-const PreferencesSection = ({ form, onChange }) => {
+const PreferencesSection = () => {
+  const { form, onChange } = useMentorOnboardingForm();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 

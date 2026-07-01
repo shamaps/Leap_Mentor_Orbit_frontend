@@ -1,8 +1,9 @@
 // src/components/shared-dashboard/tabs/SharedHomeTab.jsx
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import ReportModal from "./ReportModal";
 import ReportSuccessModal from "./ReportSuccessModal";
-
+import { selectConnect } from "../../../store/selectors";
 const getInitials = (name = "") =>
   name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
 
@@ -110,11 +111,12 @@ const QuickAction = ({ icon, label, onClick, color = "#2563eb" }) => (
 );
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedHomeTab = ({ connect, slots = [], onTabChange = () => { } }) => {
+const SharedHomeTab = ({ slots = [], onTabChange = () => { } }) => {
+  const connect = useSelector(selectConnect);
   const [showReport, setShowReport] = useState(false);
   const [reportDone, setReportDone] = useState(false);
 
-  // ✅ Null guard — connect is still loading or failed to fetch
+  // Null guard — connect is still loading or failed to fetch
   if (!connect) {
     return (
       <div className="flex items-center justify-center h-40">

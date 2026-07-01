@@ -1,6 +1,8 @@
 // components/mentee/dashboard/SocialPresenceCard.jsx
-
-const SocialPresenceCard = ({ profile }) => {
+import { useSelector } from "react-redux";
+import { selectMenteeProfile } from "../../../store/selectors";
+const SocialPresenceCard = () => {
+  const { profile } = useSelector(selectMenteeProfile);
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">

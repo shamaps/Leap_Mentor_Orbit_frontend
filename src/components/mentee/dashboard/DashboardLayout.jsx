@@ -1,7 +1,7 @@
 // src/components/mentee/dashboard/DashboardLayout.jsx
 import { useState, useEffect } from "react";
 import useMenteeDashboard from "../../../hooks/useMenteeDashboard";
-import useUnreadCount from "../../../hooks/useUnreadCount"; // ✅ added
+import useUnreadCount from "../../../hooks/useUnreadCount";
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 import HomeTab from "./HomeTab";
@@ -24,7 +24,7 @@ const DashboardLayout = () => {
     window.addEventListener("setDashboardTab", handler);
     return () => window.removeEventListener("setDashboardTab", handler);
   }, []);
-  // ✅ Clear badge when notifications tab is opened
+  // Clear badge when notifications tab is opened
   useEffect(() => {
     if (activeTab === "notifications") clearBadge();
   }, [activeTab, clearBadge]);
@@ -86,7 +86,7 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
+      <Topbar onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />      
       <div className="flex flex-1">
         <Sidebar
           activeTab={activeTab}
@@ -96,13 +96,13 @@ useEffect(() => {
           unreadCount={unreadCount}
         />
         <main className="flex-1 px-4 md:px-8 py-6 overflow-y-auto">
-          {activeTab === "home"          && <HomeTab user={user} profile={profile} />}
-          {activeTab === "profile"       && <ProfileTab user={user} profile={profile} />}
+          {activeTab === "home" && <HomeTab />}
+          {activeTab === "profile" && <ProfileTab />}
           {activeTab === "findMentors"   && <FindMentorsTab />}
           {activeTab === "history"       && <RequestHistoryTab />}
           {activeTab === "notifications" && <NotificationsTab setActiveTab={handleSetTab} />}
           {activeTab === "connects"      && <MenteeConnectsTab />}
-          {activeTab === "help"          && <HelpCenter />} {/* ✅ added */}
+          {activeTab === "help"          && <HelpCenter />}
           
         </main>
       </div>

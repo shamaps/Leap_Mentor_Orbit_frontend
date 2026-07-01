@@ -1,8 +1,17 @@
 // src/utils/axiosInstance.js
 import axios from "axios";
-import { store } from "../store";
-import { setToken, logout } from "../store/slices/authSlice";
-
+import { setToken, logoutUser } from "../store/slices/authSlice";
+// ── Store injection ────────────────────────────────────────
+// axiosInstance must NOT import { store } from "../store" directly:
+// store/index.js imports the slices, the slices import axiosInstance,
+// and axiosInstance importing store back would re-enter store/index.js
+// while it's still mid-evaluation (circular import → TDZ crash on the
+// reducer bindings). Instead, store/index.js calls injectStore(store)
+// once, right after it's created, and this module holds a reference.
+let store;
+export const injectStore = (_store) => {
+  store = _store;
+};
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1",
   withCredentials: true,
@@ -40,13 +49,13 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // ✅ Skip refresh for auth routes — they 401 legitimately
+      // Skip refresh for auth routes — they 401 legitimately
       if (
         originalRequest.url?.includes("/auth/refresh") ||
         originalRequest.url?.includes("/auth/login") ||
         originalRequest.url?.includes("/auth/register")
       ) {
-        store.dispatch(logout());
+        store.dispatch(logoutUser());
         throw error;
       }
 
@@ -55,7 +64,7 @@ axiosInstance.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then(() => {
-            // ✅ Let request interceptor re-attach fresh token from Redux
+            // Let request interceptor re-attach fresh token from Redux
             delete originalRequest.headers["Authorization"];
             return axiosInstance(originalRequest);
           })
@@ -69,12 +78,12 @@ axiosInstance.interceptors.response.use(
         const { data } = await axiosInstance.post("/auth/refresh");
         store.dispatch(setToken(data.accessToken));
         processQueue(null, data.accessToken);
-        // ✅ Let request interceptor re-attach fresh token from Redux
+        // Let request interceptor re-attach fresh token from Redux
         delete originalRequest.headers["Authorization"];
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        store.dispatch(logout());
+        store.dispatch(logoutUser());
         throw refreshError;
       } finally {
         isRefreshing = false;

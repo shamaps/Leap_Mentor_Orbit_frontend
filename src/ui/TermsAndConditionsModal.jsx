@@ -21,23 +21,18 @@ const TermsAndConditionsModal = ({ isOpen, onClose, onAccept, role = "mentor", r
 
     // Close on Escape key
     // Close on Escape key
-useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-}, [isOpen, onClose]);
+    useEffect(() => {
+        if (!isOpen) return;
+        const handler = (e) => { if (e.key === "Escape") onClose(); };
+        window.addEventListener("keydown", handler);
+        return () => window.removeEventListener("keydown", handler);
+    }, [isOpen, onClose]);
 
-// Prevent background scroll while open
-useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-}, [isOpen]);
-
-// ← ADD THIS: sync agreed state when modal reopens
-useEffect(() => {
-    if (isOpen) setAgreed(termsAccepted);
-}, [isOpen]);
+    // Prevent background scroll while open
+    useEffect(() => {
+        document.body.style.overflow = isOpen ? "hidden" : "";
+        return () => { document.body.style.overflow = ""; };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 

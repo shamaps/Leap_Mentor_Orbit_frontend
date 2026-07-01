@@ -4,14 +4,14 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { sendOtp, verifyEmail, verifyMagicLink, clearMessages } from "../store/slices/authSlice";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
-
+import { selectAuth } from "../store/selectors";
 const VerifyEmail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
 
-  const { loading, sending, error, successMsg } = useSelector((state) => state.auth);
+  const { loading, sending, error, successMsg } = useSelector(selectAuth);
 
   const [email, setEmail] = useState(location.state?.email || "");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);

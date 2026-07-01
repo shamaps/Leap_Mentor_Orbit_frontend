@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
+import { validateMenteeFields } from "../utils/onboardingValidation";
 
 const useMenteeEditProfile = () => {
   const navigate = useNavigate();
@@ -54,38 +55,16 @@ const useMenteeEditProfile = () => {
     setLoading(true);
     setMsg({ type: "", text: "" });
 
-    // ✅ Required field validations
-    if (!form.currentRole.trim())
-      return setMsg({ type: "error", text: "Current Role is required." });
-    if (!form.yearsOfExperience)
-      return setMsg({ type: "error", text: "Years of Experience is required." });
-    if (!form.industry)
-      return setMsg({ type: "error", text: "Industry is required." });
-    if (!form.interestedFields.length)
-      return setMsg({ type: "error", text: "Please add at least one Field of Interest." });
-    if (!form.skills.length)
-      return setMsg({ type: "error", text: "Please add at least one Skill of Interest." });
-
-    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
-    if (isOnlyNumbers(form.currentRole))
-      return setMsg({ type: "error", text: "Current Role cannot be a number." });
-    if (isOnlyNumbers(form.company))
-      return setMsg({ type: "error", text: "Company name cannot be a number." });
-
-    const isValidUrl = (val) => {
-      if (!val) return true;
-      try { new URL(val); return true; }
-      catch { return false; }
-    };
-    if (!isValidUrl(form.linkedInUrl))
-      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
-    if (!isValidUrl(form.portfolioUrl))
-      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
+    const validationError = validateMenteeFields(form);
+    if (validationError) {
+      setLoading(false);
+      return setMsg({ type: "error", text: validationError });
+    }
 
     try {
       const payload = {
         ...form,
-        yearsOfExperience: form.yearsOfExperience, // ✅ keep as string
+        yearsOfExperience: form.yearsOfExperience, 
       };
       await axiosInstance.patch("/mentee-profile/me", payload);
       setMsg({ type: "success", text: "Profile updated successfully!" });

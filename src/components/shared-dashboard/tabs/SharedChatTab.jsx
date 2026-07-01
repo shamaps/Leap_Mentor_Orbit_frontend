@@ -1,7 +1,8 @@
 // src/components/shared-dashboard/tabs/SharedChatTab.jsx
 import { useState, useEffect, useRef, useCallback } from "react";
 import useChat from "../../../hooks/useChat";
-
+import { useSelector } from "react-redux";
+import { selectConnect } from "../../../store/selectors";
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>
   name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -289,7 +290,8 @@ const ChatInput = ({ onSend, onTyping, disabled }) => {
 };
 
 // ── Main ──────────────────────────────────────────────────────
-const SharedChatTab = ({ connect }) => {
+const SharedChatTab = () => {
+  const connect = useSelector(selectConnect);
   const {
     messages, loading, loadingMore, hasMore, error,
     isTyping, otherOnline,

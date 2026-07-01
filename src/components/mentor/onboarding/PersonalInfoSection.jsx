@@ -1,8 +1,10 @@
 // components/mentor/onboarding/PersonalInfoSection.jsx
 import { useRef, useState } from "react";
 import axiosInstance from "../../../utils/axiosInstance";
+import { useMentorOnboardingForm } from "../../../context/MentorOnboardingFormContext";
 
-const PersonalInfoSection = ({ form, onChange }) => {
+const PersonalInfoSection = () => {
+  const { form, onChange } = useMentorOnboardingForm();
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState("");

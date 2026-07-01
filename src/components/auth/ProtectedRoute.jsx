@@ -1,7 +1,7 @@
 // src/components/auth/ProtectedRoute.jsx
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-
+import { selectAuth } from "../../store/selectors";
 const PageLoader = () => (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "#f0f2f7" }}>
         <div className="flex flex-col items-center gap-3">
@@ -12,7 +12,7 @@ const PageLoader = () => (
 );
 
 const ProtectedRoute = ({ children, role }) => {
-    const { token, isBootstrapping} = useSelector((state) => state.auth);
+    const { token, isBootstrapping } = useSelector(selectAuth);
     const storedRole = localStorage.getItem("role");
 
     // Wait for /auth/refresh to finish before deciding to redirect

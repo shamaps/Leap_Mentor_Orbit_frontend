@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setToken, setUser, setBootstrapped } from "./store/slices/authSlice";
 import axiosInstance from "./utils/axiosInstance";
 import * as Sentry from '@sentry/react';
-
+import { selectAuthToken } from "./store/selectors";
 import Home from "./components/Home";
 import NotFound from "./pages/NotFound";
 import AdminRoute from "./components/admin/AdminRoute";
@@ -55,10 +55,10 @@ const PageLoader = () => (
 
 const App = () => {
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.auth.token);
+  const token = useSelector(selectAuthToken);
 
   useEffect(() => {
-    // ✅ If token already in Redux (navigated from dashboard), mark bootstrapped immediately
+    // If token already in Redux (navigated from dashboard), mark bootstrapped immediately
     if (token) {
       dispatch(setBootstrapped());
       return;

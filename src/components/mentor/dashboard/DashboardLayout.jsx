@@ -48,26 +48,26 @@ const DashboardLayout = () => {
   }, [activeTab, clearBadge]);
 
   // Deep link: read ?tab= from URL on mount (e.g. from email links)
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const tab = params.get("tab");
-  const validTabs = ["home", "profile", "availability", "requests", "connects", "notifications", "earnings", "help"];
-  if (tab && validTabs.includes(tab)) {
-    setActiveTab(tab);
-  }
-}, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    const validTabs = ["home", "profile", "availability", "requests", "connects", "notifications", "earnings", "help"];
+    if (tab && validTabs.includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, []);
 
- const handleSetTab = (tab) => {
-  setActiveTab(tab);
-  setSidebarOpen(false);
-  const url = new URL(window.location.href);
-  if (tab === "home") {
-    url.searchParams.delete("tab");
-  } else {
-    url.searchParams.set("tab", tab);
-  }
-  window.history.replaceState(null, "", url.toString());
-};
+  const handleSetTab = (tab) => {
+    setActiveTab(tab);
+    setSidebarOpen(false);
+    const url = new URL(window.location.href);
+    if (tab === "home") {
+      url.searchParams.delete("tab");
+    } else {
+      url.searchParams.set("tab", tab);
+    }
+    window.history.replaceState(null, "", url.toString());
+  };
 
 
   if (error) {
@@ -96,8 +96,7 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Topbar renders immediately — user prop is optional, shows skeleton name if null */}
-      <Topbar user={user} onMenuToggle={() => setSidebarOpen(true)}  onLogoClick={() => handleSetTab("home")}/>
+      <Topbar onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
       <div className="flex flex-1">
         <Sidebar
           activeTab={activeTab}
@@ -110,8 +109,8 @@ useEffect(() => {
           {/* Suspense wraps all tabs — fallback shows a content skeleton
               while the lazy chunk downloads on first visit to that tab */}
           <Suspense fallback={<TabSkeleton />}>
-            {activeTab === "home" && <MentorHomeTab user={user} profile={profile} refetchProfile={refetchProfile} setActiveTab={handleSetTab} />}
-            {activeTab === "profile" && <ProfileTab user={user} profile={profile} />}
+            {activeTab === "home" && <MentorHomeTab setActiveTab={handleSetTab} />}            
+            {activeTab === "profile" && <ProfileTab />}
             {activeTab === "availability" && <AvailabilityTab />}
             {activeTab === "requests" && <RequestsTab />}
             {activeTab === "connects" && <MentorConnectsTab />}

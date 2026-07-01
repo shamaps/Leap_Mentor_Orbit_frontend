@@ -1,11 +1,13 @@
 // components/mentee/dashboard/ProfileTab.jsx
+import { useSelector } from "react-redux";
 import ProfileHeroCard from "./ProfileHeroCard";
 import ProfessionalDetailsCard from "./ProfessionalDetailsCard";
 import InterestedFieldsCard from "./InterestedFieldsCard";
 import MentorshipPrefsCard from "@/components/mentor/dashboard/MentorshipPrefsCard";
 import SocialPresenceCard from "./SocialPresenceCard";
-
-const ProfileTab = ({ user, profile }) => {
+import { selectMenteeProfile } from "../../../store/selectors";
+const ProfileTab = () => {
+  const { profile } = useSelector(selectMenteeProfile);
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
@@ -17,14 +19,14 @@ const ProfileTab = ({ user, profile }) => {
         </div>
       </div>
       {/* Hero Card */}
-      <ProfileHeroCard user={user} profile={profile} />
+      <ProfileHeroCard />
 
       {/* Two-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ProfessionalDetailsCard profile={profile} />
+        <ProfessionalDetailsCard />
         <MentorshipPrefsCard profile={profile} />
-        <InterestedFieldsCard profile={profile} />
-        <SocialPresenceCard profile={profile} />
+        <InterestedFieldsCard />
+        <SocialPresenceCard />
       </div>
 
       {/* Footer */}
