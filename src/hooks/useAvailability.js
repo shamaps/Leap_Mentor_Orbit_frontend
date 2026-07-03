@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import getErrorMessage from "../utils/getErrorMessage";
-
+import { HTTP_STATUS } from "../constants/httpStatus";
 const useAvailability = () => {
   const [availability, setAvailability] = useState({
     timezone: "Asia/Kolkata",
@@ -28,8 +28,8 @@ const useAvailability = () => {
           specificDates: data.specificDates || [],
         }));
       } catch (err) {
-        if (err?.response?.status !== 404) {
-          setMsg({ type: "error", text: "Failed to load availability." });
+        if (err?.response?.status !== HTTP_STATUS.NOT_FOUND) {
+          setMsg({ type: "error", text: getErrorMessage(err, "Failed to load availability.") });
         }
       } finally {
         setLoading(false);

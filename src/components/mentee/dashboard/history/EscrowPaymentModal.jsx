@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { payEscrow, getEscrowStatus } from "../../../../api/escrow.api";
 import { formatTime } from "./constants";
 import EscrowSuccessModal from "./EscrowSuccessModal";
-
+import logger from "../../../../utils/logger";
 const TokenIcon = ({ size = 13 }) => (
   <svg
     width={size}
@@ -62,10 +62,9 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
         if (data?.commissionRate != null)
           setCommissionRate(data.commissionRate);
       } catch (err) {
-        console.warn(
-          "⚠️ Could not fetch escrow status:",
-          err?.response?.data || err.message,
-        );
+        logger.warn("Could not fetch escrow status", {
+          detail: err?.response?.data || err.message,
+        });
       } finally {
         setFetching(false);
       }

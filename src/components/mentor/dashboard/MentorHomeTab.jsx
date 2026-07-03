@@ -12,6 +12,7 @@ import {
   selectConnectRequestsLoading,
   selectConnectRequestsInitialLoad,
 } from "../../../store/selectors";
+import logger from "../../../utils/logger";
 import axiosInstance from "../../../utils/axiosInstance";
 import LeapBuddy from "../../LeapBuddy";
 import StatCard from "@/components/common/StatCard";
@@ -300,7 +301,7 @@ const MentorHomeTab = ({ setActiveTab }) => {
           walletBalance: res.data.walletBalance || 0,
         });
       } catch (err) {
-        console.error("MentorHomeTab earnings error:", err.message);
+        logger.error("MentorHomeTab earnings error", { message: err.message });
         setEarnings({
           totalEarnings: 0,
           sessionsThisMonth: 0,

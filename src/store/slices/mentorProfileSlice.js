@@ -3,7 +3,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import getErrorMessage from "../../utils/getErrorMessage";
 import { logoutUser } from "./authSlice";
-
+import logger from "../../utils/logger";
+import { HTTP_STATUS } from "../../constants/httpStatus";
 // ── Thunks
 // Fetches /users/me + /mentor-profile/me together, mirrors the exact
 // sequence previously inside useMentorDashboard.js's fetchData().
@@ -24,17 +25,17 @@ export const fetchMentorDashboard = createAsyncThunk(
         const profileRes = await axiosInstance.get("/mentor-profile/me");
         return { user: userData, profile: profileRes.data };
       } catch (profileErr) {
-        if (profileErr?.response?.status === 404) {
+        if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {
           return rejectWithValue({ reason: "no-profile", user: userData });
         }
-        if (profileErr?.response?.status === 401) {
+        if (profileErr?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
           dispatch(logoutUser());
           return rejectWithValue({ reason: "unauthorized" });
         }
         throw profileErr;
       }
     } catch (err) {
-      if (err?.response?.status === 401) {
+      if (err?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
         dispatch(logoutUser());
         return rejectWithValue({ reason: "unauthorized" });
       }
@@ -56,7 +57,7 @@ export const refetchMentorProfile = createAsyncThunk(
       const res = await axiosInstance.get("/mentor-profile/me");
       return res.data;
     } catch (err) {
-      console.error("Profile refetch failed:", err.message);
+      logger.error("Profile refetch failed", { message: err.message });
       return rejectWithValue(getErrorMessage(err, "Profile refetch failed."));
     }
   },

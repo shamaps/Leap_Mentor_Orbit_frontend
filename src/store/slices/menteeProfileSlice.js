@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import getErrorMessage from "../../utils/getErrorMessage";
-
+import { HTTP_STATUS } from "../../constants/httpStatus";
 // Fetches /users/me + /mentee-profile/me, mirrors useMenteeDashboard.jsx's
 // original fetchData(). Navigation stays in the hook; this thunk only
 // fetches and reports outcome via payload.
@@ -21,16 +21,16 @@ export const fetchMenteeDashboard = createAsyncThunk(
         const profileRes = await axiosInstance.get("/mentee-profile/me");
         return { user: userData, profile: profileRes.data };
       } catch (profileErr) {
-        if (profileErr?.response?.status === 404) {
+        if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {
           return rejectWithValue({ reason: "no-profile", user: userData });
         }
-        if (profileErr?.response?.status === 401) {
+        if (profileErr?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
           return rejectWithValue({ reason: "unauthorized" });
         }
         throw profileErr;
       }
     } catch (err) {
-      if (err?.response?.status === 401) {
+      if (err?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
         return rejectWithValue({ reason: "unauthorized" });
       }
       return rejectWithValue({

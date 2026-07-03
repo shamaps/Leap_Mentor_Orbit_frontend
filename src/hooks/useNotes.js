@@ -6,7 +6,7 @@ import {
   deleteNote as apiDeleteNote,
   getPrivateNotes as apiGetPrivateNotes,
 } from "../api/notes.api.js";
-
+import logger from "../utils/logger";
 const useNotes = (connectRequestId) => {
   const [notes, setNotes] = useState([]);
   const [privateNotes, setPrivateNotes] = useState([]);
@@ -38,8 +38,10 @@ const useNotes = (connectRequestId) => {
       const data = await apiGetPrivateNotes(connectRequestId);
       setPrivateNotes(data.notes || []);
     } catch (err) {
-      // ✅ Don't set global error for private notes — just log
-      console.warn("Private notes fetch failed:", err?.response?.data?.message);
+      //  Don't set global error for private notes — just log
+      logger.warn("Private notes fetch failed", {
+        message: err?.response?.data?.message,
+      });
     } finally {
       setPrivateLoading(false);
     }

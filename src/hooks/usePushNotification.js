@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
 import { selectAuthToken } from "../store/selectors";
+import logger from "../utils/logger";
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
 const urlBase64ToUint8Array = (base64String) => {
@@ -34,9 +35,9 @@ const usePushNotification = () => {
 
         await axiosInstance.post("/push/subscribe", { subscription });
 
-        console.log("✅ Push notifications enabled");
+        logger.info("Push notifications enabled");
       } catch (err) {
-        console.warn("⚠️ Push setup failed:", err.message);
+        logger.warn("Push setup failed", { message: err.message });
       }
     };
 
@@ -48,10 +49,10 @@ const usePushNotification = () => {
     if (!("serviceWorker" in navigator)) return;
 
     const handleMessage = (event) => {
-      console.log("📩 Message from SW received:", event.data);
+      logger.debug("Message from service worker received", { data: event.data });
       if (event.data?.type === "SHOW_TOAST") {
         const { title, message, type } = event.data.payload;
-        console.log("🍞 Calling showToast:", { title, message, type });
+        logger.debug("Calling showToast", { title, message, type });
         showToast({ type: type || "info", title, message });
       }
     };

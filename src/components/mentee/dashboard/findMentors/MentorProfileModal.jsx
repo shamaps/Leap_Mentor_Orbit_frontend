@@ -4,7 +4,8 @@ import axiosInstance from "../../../../utils/axiosInstance";
 import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
-
+import getErrorMessage from "../../../../utils/getErrorMessage";
+import { HTTP_STATUS } from "../../../../constants/httpStatus";
 const BADGES = [
   {
     key: "newcomer",
@@ -220,9 +221,9 @@ const MentorProfileModal = ({ mentor, onClose }) => {
       }
     } catch (err) {
       setSlotsError(
-        err?.response?.status === 404
+        err?.response?.status === HTTP_STATUS.NOT_FOUND
           ? "This mentor hasn't set their availability yet."
-          : "Failed to load available slots.",
+          : getErrorMessage(err, "Failed to load available slots."),
       );
       setGroupedSlots([]);
     } finally {

@@ -4,6 +4,7 @@ import { payAdditionalEscrow } from "../../../../api/escrow.api";
 import { getEscrowStatus } from "../../../../api/escrow.api";
 import EscrowSuccessModal from "../../mentee/dashboard/history/EscrowSuccessModal";
 import Spinner from "../../../common/Spinner";
+import logger from "../../../utils/logger";
 const TokenIcon = ({ size = 13 }) => (
   <svg
     width={size}
@@ -64,7 +65,7 @@ const AdditionalSessionPaymentModal = ({
         if (data?.commissionRate != null)
           setCommissionRate(data.commissionRate);
       } catch (err) {
-        console.warn("Could not fetch escrow status:", err.message);
+        logger.warn("Could not fetch escrow status", { message: err.message });
       } finally {
         setFetching(false);
       }

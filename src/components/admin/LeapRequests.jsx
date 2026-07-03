@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import PropTypes from "prop-types";
 import EmptyState from "../common/EmptyState";
+import logger from "../../utils/logger";
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>
   name
@@ -328,7 +329,7 @@ const LeapRequests = () => {
       const res = await adminAxiosInstance.get("/leap-requests/admin/all");
       setRequests(res.data.requests || []);
     } catch (err) {
-      console.error("LeapRequests fetch error:", err.message);
+      logger.error("LeapRequests fetch error", { message: err.message });
     } finally {
       setLoading(false);
     }

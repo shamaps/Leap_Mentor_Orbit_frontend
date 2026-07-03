@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import { useToast } from "../../context/ToastContext";
 import EmptyState from "../../components/common/EmptyState";
+import logger from "../../utils/logger";
 const getInitials = (name = "") =>
   name
     .split(" ")
@@ -112,7 +113,7 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
         );
         setEngagements(filtered);
       } catch (err) {
-        console.error("Failed to fetch engagements:", err.message);
+        logger.error("Failed to fetch engagements", { message: err.message });
       } finally {
         setLoading(false);
       }

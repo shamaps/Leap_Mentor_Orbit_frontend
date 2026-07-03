@@ -6,6 +6,7 @@ import { payAdditionalEscrow } from "../../../api/escrow.api";
 import EscrowSuccessModal from "../../mentee/dashboard/history/EscrowSuccessModal";
 import { useSelector } from "react-redux";
 import { selectConnect } from "../../../store/selectors";
+import logger from "../../../utils/logger";
 const formatTime = (time) => {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
@@ -279,7 +280,7 @@ const AdditionalSessionPaymentModal = ({
         if (res.data?.commissionRate != null)
           setCommissionRate(res.data.commissionRate);
       } catch (err) {
-        console.warn("Could not fetch escrow status:", err.message);
+        logger.warn("Could not fetch escrow status", { message: err.message });
       } finally {
         setFetching(false);
       }

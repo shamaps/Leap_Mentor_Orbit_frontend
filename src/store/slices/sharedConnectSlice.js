@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import getErrorMessage from "../../utils/getErrorMessage";
-
+import { HTTP_STATUS } from "../../constants/httpStatus";
 // Fetches a single connect-request's detail, mirrors SharedDashboardPage's
 // original fetchConnect(). Navigation (401/403) stays in the page component.
 export const fetchSharedConnect = createAsyncThunk(
@@ -15,10 +15,10 @@ export const fetchSharedConnect = createAsyncThunk(
       return res.data.connect ?? res.data;
     } catch (err) {
       const status = err?.response?.status;
-      if (status === 401) {
+      if (status === HTTP_STATUS.UNAUTHORIZED) {
         return rejectWithValue({ reason: "unauthorized" });
       }
-      if (status === 403) {
+      if (status === HTTP_STATUS.FORBIDDEN) {
         return rejectWithValue({ reason: "forbidden" });
       }
       return rejectWithValue({

@@ -1,10 +1,11 @@
 // src/pages/SSOCallback.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux"; // ✅ ADDED
-import { setUser } from "../store/slices/authSlice"; // ✅ ADDED
+import { useDispatch } from "react-redux"; 
+import { setUser } from "../store/slices/authSlice"; 
 import { AuthenticateWithRedirectCallback, useAuth } from "@clerk/clerk-react";
 import axiosInstance from "../utils/axiosInstance";
+import logger from "../utils/logger";
 
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor")) {
@@ -20,18 +21,17 @@ const redirectByRole = (roles, navigate) => {
 const SyncWithBackend = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // ✅ ADDED
+  const dispatch = useDispatch(); 
   const [error, setError] = useState("");
 
   useEffect(() => {
     const sync = async () => {
       try {
         const clerkToken = await getToken();
-        console.log("✅ Clerk token:", clerkToken ? "YES" : "NO");
-
+        logger.debug("Clerk token retrieved", { hasToken: Boolean(clerkToken) });
         const role = localStorage.getItem("sso_role");
         const termsAccepted = localStorage.getItem("sso_terms") === "true";
-        console.log("Role:", role);
+        logger.debug("SSO role resolved", { role });
 
         const res = await axiosInstance.post("/auth/clerk-sso", {
           clerkToken,
@@ -39,7 +39,10 @@ const SyncWithBackend = () => {
           termsAccepted: role !== "existing" ? termsAccepted : true,
         });
 
-        console.log("✅ Backend response:", res.data);
+        logger.info("SSO backend sync succeeded", {
+          isNewUser: res.data?.isNewUser,
+          hasUser: Boolean(res.data?.user),
+        });
 
         // ✅ FIXED: was localStorage.setItem("token", res.data.token)
         // Token is now in the HttpOnly cookie set by the backend.
@@ -64,7 +67,10 @@ const SyncWithBackend = () => {
           redirectByRole(res.data?.user?.roles || [], navigate);
         }
       } catch (err) {
-        console.error("❌ Error:", err?.response?.data || err.message);
+        logger.error("SSO sync failed", {
+          status: err?.response?.status,
+          message: err?.response?.data?.message || err.message,
+        });
         setError(err?.response?.data?.message || err.message || "SSO failed");
         localStorage.removeItem("sso_role");
         localStorage.removeItem("sso_terms");

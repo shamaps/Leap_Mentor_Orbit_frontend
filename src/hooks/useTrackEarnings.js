@@ -1,7 +1,7 @@
 // src/hooks/useTrackEarnings.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "../utils/axiosInstance";
-
+import logger from "../utils/logger";
 const useTrackEarnings = () => {
   // ── Stats ─────────────────────────────────────────────────
   const [stats, setStats] = useState({
@@ -64,7 +64,7 @@ const useTrackEarnings = () => {
       );
       setChartData(res.data.data || []);
     } catch (err) {
-      console.error("Chart fetch error:", err.message);
+      logger.error("Chart fetch error", { message: err.message });
     } finally {
       setLoadingChart(false);
     }
@@ -88,7 +88,7 @@ const useTrackEarnings = () => {
         setHasMore(res.data.pagination?.hasMore || false);
         setTotalCount(res.data.pagination?.totalCount || 0);
       } catch (err) {
-        console.error("Payouts fetch error:", err.message);
+        logger.error("Payouts fetch error", { message: err.message });
       } finally {
         setLoadingPayouts(false);
       }

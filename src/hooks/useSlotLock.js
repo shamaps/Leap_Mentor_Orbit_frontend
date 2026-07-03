@@ -1,14 +1,15 @@
 // src/hooks/useSlotLock.js
 import { useCallback, useRef } from "react";
 import axiosInstance from "../utils/axiosInstance";
-
+import logger from "../utils/logger";
+import { useToast } from "../context/ToastContext";
 const useSlotLock = (mentorId) => {
   const lockedKeys = useRef(new Set()); // tracks keys this session locked
-
-  // ─────────────────────────────────────────────
+  const { showToast } = useToast();
+ 
   // Lock a slot — called when mentee selects
   // Returns { ok: true } or { ok: false, code, msg }
-  // ─────────────────────────────────────────────
+ 
   const lockSlot = useCallback(
     async (date, startTime, endTime) => {
       try {
@@ -29,9 +30,9 @@ const useSlotLock = (mentorId) => {
     [mentorId],
   );
 
-  // ─────────────────────────────────────────────
+ 
   // Unlock a slot — called when mentee deselects
-  // ─────────────────────────────────────────────
+ 
   const unlockSlot = useCallback(
     async (date, startTime, endTime) => {
       try {
@@ -40,22 +41,30 @@ const useSlotLock = (mentorId) => {
         });
         lockedKeys.current.delete(`${date}-${startTime}`);
       } catch (err) {
-        // Silently fail — lock will expire via TTL anyway
-        console.warn("unlock failed silently:", err?.message);
+        // Non-fatal — lock self-expires via TTL either way — but the user
+        // deliberately clicked to free this slot, so tell them it didn't
+        // go through immediately rather than leaving them guessing.
+        logger.warn("unlock failed", { message: err?.message });
+        showToast({
+          type: "info",
+          title: "Slot release delayed",
+          message: "It'll free up automatically in a few minutes.",
+        });
       }
     },
     [mentorId],
   );
 
-  // ─────────────────────────────────────────────
+
+ 
   // Unlock all — called when mentee closes modal
-  // ─────────────────────────────────────────────
+ 
   const unlockAll = useCallback(async () => {
     try {
       await axiosInstance.delete("/slot-locks/locks", { data: { mentorId } });
       lockedKeys.current.clear();
     } catch (err) {
-      console.warn("unlock-all failed silently:", err?.message);
+      logger.warn("unlock-all failed", { message: err?.message });
     }
   }, [mentorId]);
 

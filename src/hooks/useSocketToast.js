@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
 import useUnreadCount from "./useUnreadCount";
 import { selectAuthToken } from "../store/selectors";
+import logger from "../utils/logger";
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 
 const useSocketToast = (onRequestChanged) => {
@@ -45,7 +46,7 @@ const useSocketToast = (onRequestChanged) => {
     window.__leapSocket = socket;
 
     socket.on("connect_error", (err) => {
-      console.warn("⚠️ Socket error:", err.message);
+      logger.warn("Socket connection error", { message: err.message });
     });
     socket.on("reconnect", () => {
       window.__leapSocket = socket;

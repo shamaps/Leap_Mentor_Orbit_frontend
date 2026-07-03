@@ -1,6 +1,8 @@
 // src/utils/axiosInstance.js
 import axios from "axios";
 import { setToken, logoutUser } from "../store/slices/authSlice";
+import logger from "./logger";
+import { HTTP_STATUS } from "../constants/httpStatus";
 // ── Store injection ────────────────────────────────────────
 // axiosInstance must NOT import { store } from "../store" directly:
 // store/index.js imports the slices, the slices import axiosInstance,
@@ -40,6 +42,18 @@ const processQueue = (error, token = null) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
+    // Guard against a 2xx response whose body isn't JSON — e.g. an HTML
+    // error page served by a proxy/CDN/gateway with a 200 status. Without
+    // this, malformed data would silently flow downstream as `undefined`
+    // fields instead of surfacing as a real, loggable error.
+    if (response.data !== null && typeof response.data !== "object") {
+      logger.error("Non-JSON response received", {
+        url: response.config?.url,
+        contentType: response.headers?.["content-type"],
+      });
+      return Promise.reject(new Error("Unexpected response format from server."));
+    }
+
     if (response.data?.success === true && response.data.data !== undefined) {
       response.data = response.data.data;
     }
@@ -47,8 +61,17 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Centralized reporting point: every API error that reaches this
+    // interceptor gets logged here once, regardless of which component
+    // triggered it. Components can still show their own user-facing
+    // message, but they no longer need to remember to report it.
+    logger.error(
+      `API request failed: ${originalRequest?.method?.toUpperCase()} ${originalRequest?.url} → ${error.response?.status ?? "network error"}`,
+      {
+        message: error.response?.data?.message || error.message,
+      }
+    );
+    if (error.response?.status === HTTP_STATUS.UNAUTHORIZED && !originalRequest._retry) {
       // Skip refresh for auth routes — they 401 legitimately
       if (
         originalRequest.url?.includes("/auth/refresh") ||

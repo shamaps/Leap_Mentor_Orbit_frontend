@@ -1,7 +1,7 @@
 // components/mentor/dashboard/availability/IntegrationsSection.jsx
 import { useState } from "react";
 import axiosInstance from "../../../../utils/axiosInstance";
-
+import logger from "../../../../utils/logger";
 const IntegrationsSection = ({
   googleCalendarConnected,
   onConnectionChange,
@@ -33,10 +33,10 @@ const IntegrationsSection = ({
             if (status?.connected) {
               onConnectionChange(true);
             } else {
-              console.error("Google Calendar not connected after popup closed");
+              logger.error("Google Calendar not connected after popup closed");
             }
           } catch (e) {
-            console.error("Failed to check calendar status:", e);
+            logger.error("Failed to check calendar status", { err: e });
           }
           setLoading(false);
         }
@@ -49,7 +49,7 @@ const IntegrationsSection = ({
         5 * 60 * 1000,
       );
     } catch (err) {
-      console.error(err);
+      logger.error("Google Calendar connect failed", { err });
       setLoading(false);
     }
   };
@@ -60,7 +60,7 @@ const IntegrationsSection = ({
       await axiosInstance.delete("/google-calendar/connection");
       onConnectionChange(false);
     } catch (err) {
-      console.error(err);
+      logger.error("Google Calendar disconnect failed", { err });
     } finally {
       setLoading(false);
     }

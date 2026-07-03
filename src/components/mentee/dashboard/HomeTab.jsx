@@ -8,6 +8,9 @@ import MentorCardSkeleton from "@/components/common/MentorCardSkeleton";
 import { useSelector } from "react-redux";
 import StatusBadge from "@/components/common/StatusBadge";
 import { selectMenteeProfile } from "../../../store/selectors";
+import logger from "../../../utils/logger";
+import getErrorMessage from "../../../utils/getErrorMessage";
+import { HTTP_STATUS } from "../../../constants/httpStatus";
 // ── Internal hook — fetches recommended mentors + upcoming sessions ──
 const useHomeData = (profile) => {
   const [mentors, setMentors] = useState([]);
@@ -47,7 +50,7 @@ const useHomeData = (profile) => {
         setBalance(walletRes.data.balance ?? 0);
         setEscrow(walletRes.data.escrow ?? 0);
       } catch (err) {
-        console.error("HomeTab data fetch error:", err.message);
+        logger.error("HomeTab data fetch error", { message: err.message });
       } finally {
         setLoading(false);
       }
@@ -269,11 +272,10 @@ const LeapPointsPanel = ({ balance, loading }) => {
       } catch (err) {
         // 404 means no existing request — safe to ignore
         // Any other error is also non-blocking, just log it
-        if (err.response?.status !== 404) {
-          console.warn(
-            "Leap request check failed:",
-            err.response?.data || err.message,
-          );
+        if (err.response?.status !== HTTP_STATUS.NOT_FOUND) {
+          logger.warn("Leap request check failed", {
+            detail: err.response?.data || err.message,
+          });
         }
       } finally {
         setChecking(false);
@@ -291,11 +293,13 @@ const LeapPointsPanel = ({ balance, loading }) => {
       const msg = err.response?.data?.message || "";
       if (
         msg.toLowerCase().includes("pending") ||
-        err.response?.status === 409
+        err.response?.status === HTTP_STATUS.CONFLICT
       ) {
         setRequestStatus("pending");
       } else {
-        console.error("Leap request error:", err.response?.data || err.message);
+        logger.error("Leap request error", {
+          detail: getErrorMessage(err),
+        });
         setRequestStatus("error");
         setTimeout(() => setRequestStatus(null), 3000);
       }

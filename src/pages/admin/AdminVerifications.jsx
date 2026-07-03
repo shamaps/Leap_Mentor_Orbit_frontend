@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
-
+import ErrorState from "../../components/common/ErrorState";
 // ── Icons ────────────────────────────────────────────────
 const IconShield = () => (
   <svg
@@ -605,8 +605,8 @@ const AdminVerifications = () => {
     }
   };
 
-  const showToast = (msg, type) => {
-    setToast({ msg, type });
+  const showToast = ({ message, type }) => {
+    setToast({ message, type });
     setTimeout(() => setToast(null), 3500);
   };
 
@@ -644,7 +644,7 @@ const AdminVerifications = () => {
           }
         >
           {toast.type === "success" ? <IconCheck /> : <IconX />}
-          {toast.msg}
+          {toast.message}
         </div>
       )}
 
@@ -796,15 +796,7 @@ const AdminVerifications = () => {
             <p className="text-sm text-slate-400">Loading mentors…</p>
           </div>
         ) : error ? (
-          <div className="px-5 py-16 text-center">
-            <p className="text-sm text-red-500 font-medium">{error}</p>
-            <button
-              onClick={fetchMentors}
-              className="mt-3 text-xs text-blue-600 underline"
-            >
-              Retry
-            </button>
-          </div>
+          <ErrorState message={error} onAction={fetchMentors} compact />
         ) : filtered.length === 0 ? (
           <div className="px-5 py-16 text-center">
             <p className="text-sm text-slate-400">No mentors found.</p>

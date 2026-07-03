@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import getErrorMessage from "../../utils/getErrorMessage";
 import * as Sentry from "@sentry/react";
-
+import logger from "../../utils/logger";
 export const redirectByRole = (roles = [], targetRole, navigate) => {
   if (targetRole === "mentor" && roles.includes("mentor"))
     return navigate("/dashboard/mentor");
@@ -164,10 +164,10 @@ export const logoutUser = createAsyncThunk(
       await axiosInstance.post("/auth/logout"); // tells backend to clear the cookie too
     } catch (err) {
       // Cookie clearing failed — proceed anyway, local state will still be cleared
-      console.error(
-        "[authSlice] Logout request failed:",
-        err?.response?.status ?? err.message,
-      );
+      logger.error("[authSlice] Logout request failed", {
+        status: err?.response?.status,
+        message: err.message,
+      });
     }
 
     const remainingKeys = Object.keys(localStorage);

@@ -4,13 +4,13 @@ import { useDispatch } from "react-redux";
 import { loginUser, setUser } from "../../store/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
-
+import { HTTP_STATUS } from "../../constants/httpStatus";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
-
+import getErrorMessage from "../../utils/getErrorMessage";
 const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",
 };
@@ -71,7 +71,7 @@ const LoginForm = ({ placeholder, registerPath }) => {
     } catch (err) {
       localStorage.removeItem("sso_role");
       localStorage.removeItem("sso_terms");
-      setMsg({ type: "error", text: err.message || "SSO failed. Try again." });
+      setMsg({ type: "error", text: getErrorMessage(err, "SSO failed. Try again.") });
       setLoading(false);
     }
   };
@@ -109,7 +109,7 @@ const LoginForm = ({ placeholder, registerPath }) => {
       const status = err?.response?.status;
       const data = err?.response?.data;
 
-      if (status === 403 && data?.isEmailVerified === false) {
+      if (status === HTTP_STATUS.FORBIDDEN && data?.isEmailVerified === false) {
         setMsg({
           type: "error",
           text: "Please verify your email first. Redirecting...",
@@ -122,15 +122,12 @@ const LoginForm = ({ placeholder, registerPath }) => {
         return;
       }
 
-      if (status === 401) {
+      if (status === HTTP_STATUS.UNAUTHORIZED) {
         setMsg({ type: "error", text: "Invalid email or password." });
         return;
       }
 
-      setMsg({
-        type: "error",
-        text: data?.message || err?.message || "Something went wrong.",
-      });
+      setMsg({ type: "error", text: getErrorMessage(err) });
     } finally {
       setLoading(false);
     }

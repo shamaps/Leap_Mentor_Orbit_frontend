@@ -1,7 +1,7 @@
 // src/hooks/useReport.js
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "../utils/axiosInstance";
-
+import logger from "../utils/logger";
 const useReport = (connectRequestId, refreshKey = 0) => {
   const [myFeedback, setMyFeedback] = useState(null);
   const [theirFeedback, setTheirFeedback] = useState(null);
@@ -34,7 +34,7 @@ const useReport = (connectRequestId, refreshKey = 0) => {
   // slotIndex now accepted and sent to backend
   const submitFeedback = useCallback(
     async (rating, comment, slotIndex) => {
-      console.log("sending feedback:", {
+      logger.debug("Sending feedback", {
         connectRequestId,
         rating,
         comment,

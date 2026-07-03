@@ -4,6 +4,7 @@ import axiosInstance from "../../../../utils/axiosInstance";
 import RequestActionModal from "./RequestActionModal";
 import ReferModal from "./ReferModal";
 import Spinner from "../../../common/Spinner";
+import logger from "../../../../utils/logger";
 const formatTime = (time) => {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
@@ -50,7 +51,7 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
       setActionModal({ type: status, mentee: mentee?.name });
       onUpdate(request._id, status);
     } catch (err) {
-      console.error("Respond error:", err);
+      logger.error("Respond error", { err });
     } finally {
       setLoading(null);
     }

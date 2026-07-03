@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import { Outlet } from "react-router-dom";
+import logger from "../../utils/logger";
 const NAV_ITEMS = [
   {
     group: "MAIN MENU",
@@ -215,10 +216,10 @@ const AdminLayout = () => {
       await adminAxiosInstance.post("/admin/auth/logout");
     } catch (err) {
       // even if request fails, redirect to login
-      console.error(
-        "[AdminLayout] Logout request failed:",
-        err?.response?.status ?? err.message,
-      );
+      logger.error("[AdminLayout] Logout request failed", {
+        status: err?.response?.status,
+        message: err.message,
+      });
     }
     navigate("/admin/login");
   };

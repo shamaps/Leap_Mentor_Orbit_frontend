@@ -5,7 +5,7 @@ import { useUser, useAuth, SignIn } from "@clerk/clerk-react"; // ← ADDED useA
 import { useDispatch } from "react-redux"; // ← ADDED
 import { setUser } from "../store/slices/authSlice"; // ← ADDED
 import axiosInstance from "../utils/axiosInstance";
-
+import logger from "../utils/logger";
 export default function UnifiedLogin() {
   const { isSignedIn, user } = useUser();
   const { getToken } = useAuth(); // ← ADDED — to get Clerk JWT
@@ -70,7 +70,7 @@ export default function UnifiedLogin() {
         navigate("/dashboard/mentee");
       }
     } catch (err) {
-      console.error("SSO token issue failed", err);
+      logger.error("SSO token issue failed", { err });
     }
   };
 

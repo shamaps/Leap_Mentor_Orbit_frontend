@@ -1,7 +1,7 @@
 // src/components/admin/AdminSupportMessages.jsx
 import { useEffect, useState } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
-
+import ErrorState from "../common/ErrorState";
 const STATUS_STYLES = {
   open: { background: "#fef9c3", color: "#854d0e", label: "Open" },
   resolved: { background: "#dcfce7", color: "#166534", label: "Resolved" },
@@ -145,26 +145,7 @@ export default function AdminSupportMessages() {
           <p>Loading messages...</p>
         </div>
       ) : error ? (
-        <div
-          style={{ textAlign: "center", padding: "60px 0", color: "#ef4444" }}
-        >
-          <p>{error}</p>
-          <button
-            onClick={fetchMessages}
-            style={{
-              marginTop: 12,
-              padding: "8px 20px",
-              borderRadius: 8,
-              background: "#2563eb",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer",
-              fontSize: 14,
-            }}
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState message={error} onAction={fetchMessages} />
       ) : filtered.length === 0 ? (
         <div
           style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}

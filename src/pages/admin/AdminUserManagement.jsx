@@ -4,7 +4,7 @@ import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import StatCard from "@/components/common/StatCard";
 import UserGrowthChart from "../../components/admin/common/UserGrowthChart";
 import MentorIndustryChart from "../../components/admin/common/MentorIndustryChart";
-
+import logger from "../../utils/logger";
 // ── Unified Action Modal (Handles Delete, Block, Unblock) ─────
 const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }) => {
   const config = {
@@ -213,7 +213,7 @@ const AdminUserManagement = () => {
       const res = await adminAxiosInstance.get("/admin/stats");
       setStats(res.data);
     } catch (err) {
-      console.error("Error fetching stats", err);
+      logger.error("Error fetching stats", { err });
     }
   }, []);
 
@@ -222,7 +222,7 @@ const AdminUserManagement = () => {
       const res = await adminAxiosInstance.get("/admin/user-growth");
       setGrowthData(res.data);
     } catch (err) {
-      console.error("Failed to fetch growth data", err);
+      logger.error("Failed to fetch growth data", { err });
     }
   }, []);
 
@@ -233,7 +233,7 @@ const AdminUserManagement = () => {
       );
       setIndustryData(res.data);
     } catch (err) {
-      console.error("Failed to fetch industry data", err);
+      logger.error("Failed to fetch industry data", { err });
     }
   }, []);
 
