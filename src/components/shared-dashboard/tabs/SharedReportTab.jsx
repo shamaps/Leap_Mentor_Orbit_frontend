@@ -15,10 +15,14 @@ const StarRatingInput = ({ value, onChange, disabled }) => (
         disabled={disabled}
         className={`transition-all ${disabled ? "cursor-default" : "cursor-pointer hover:scale-110"}`}
       >
-        <svg width="28" height="28" viewBox="0 0 24 24"
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
           fill={star <= value ? "#f59e0b" : "none"}
           stroke={star <= value ? "#f59e0b" : "#cbd5e1"}
-          strokeWidth="1.5">
+          strokeWidth="1.5"
+        >
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>
       </button>
@@ -35,10 +39,15 @@ const StarRatingInput = ({ value, onChange, disabled }) => (
 const StarRatingDisplay = ({ value }) => (
   <div className="flex items-center gap-1">
     {[1, 2, 3, 4, 5].map((star) => (
-      <svg key={star} width="16" height="16" viewBox="0 0 24 24"
+      <svg
+        key={star}
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
         fill={star <= value ? "#f59e0b" : "none"}
         stroke={star <= value ? "#f59e0b" : "#cbd5e1"}
-        strokeWidth="1.5">
+        strokeWidth="1.5"
+      >
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
       </svg>
     ))}
@@ -48,10 +57,14 @@ const StarRatingDisplay = ({ value }) => (
 
 // ── Feedback Card ─────────────────────────────────────────────
 const FeedbackCard = ({ feedback, label, isOwn }) => (
-  <div className={`rounded-2xl p-5 border space-y-3
-    ${isOwn ? "bg-blue-50 border-blue-100" : "bg-white border-slate-200"}`}>
+  <div
+    className={`rounded-2xl p-5 border space-y-3
+    ${isOwn ? "bg-blue-50 border-blue-100" : "bg-white border-slate-200"}`}
+  >
     <div className="flex items-center justify-between">
-      <p className="text-xs font-bold text-slate-800 uppercase tracking-widest">{label}</p>
+      <p className="text-xs font-bold text-slate-800 uppercase tracking-widest">
+        {label}
+      </p>
       <StarRatingDisplay value={feedback.rating} />
     </div>
     {feedback.comment && (
@@ -61,7 +74,9 @@ const FeedbackCard = ({ feedback, label, isOwn }) => (
     )}
     <p className="text-[10px] text-blue-900">
       {new Date(feedback.createdAt).toLocaleDateString("en-US", {
-        month: "short", day: "numeric", year: "numeric",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
       })}
     </p>
   </div>
@@ -69,27 +84,23 @@ const FeedbackCard = ({ feedback, label, isOwn }) => (
 
 // ── Not Completed State ───────────────────────────────────────
 const NotCompletedState = () => (
-  <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-    <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100
-      flex items-center justify-center">
+  <EmptyState
+    icon={
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
         stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="8" x2="12" y2="12" />
         <line x1="12" y1="16" x2="12.01" y2="16" />
       </svg>
-    </div>
-    <div>
-      <p className="text-sm font-bold text-slate-800">Session not completed yet</p>
-      <p className="text-xs text-slate-400 mt-1 max-w-xs leading-relaxed">
-        Feedback can only be submitted after both parties mark all sessions as complete.
-      </p>
-    </div>
-  </div>
+    }
+    message="Session not completed yet"
+    subMessage="Feedback can only be submitted after both parties mark all sessions as complete."
+    compact
+  />
 );
-
 // ── Main ──────────────────────────────────────────────────────
-const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: reportRefreshKey
+const SharedReportTab = ({ connect, reportRefreshKey }) => {
+  // 👈 ADDED: reportRefreshKey
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [success, setSuccess] = useState(false);
@@ -97,15 +108,20 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
   const [reportDone, setReportDone] = useState(false);
 
   const {
-    myFeedback, theirFeedback, sessionStatus,
-    loading, submitting, error,
+    myFeedback,
+    theirFeedback,
+    sessionStatus,
+    loading,
+    submitting,
+    error,
     submitFeedback,
-  } = useReport(connect?._id, reportRefreshKey);  // 👈 ADDED: pass reportRefreshKey
+  } = useReport(connect?._id, reportRefreshKey); // 👈 ADDED: pass reportRefreshKey
 
   const isCompleted = sessionStatus === "completed";
-  const otherName = connect?.viewerRole === "mentee"
-    ? connect?.mentor?.name || "Mentor"
-    : connect?.mentee?.name || "Mentee";
+  const otherName =
+    connect?.viewerRole === "mentee"
+      ? connect?.mentor?.name || "Mentor"
+      : connect?.mentee?.name || "Mentee";
 
   const handleSubmit = async () => {
     if (rating === 0) return;
@@ -131,11 +147,12 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
   return (
     <>
       <div className="flex flex-col gap-6">
-
         {/* ── Header with Report button ───────────────────── */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Session Review</h1>
+            <h1 className="text-2xl font-bold text-slate-800">
+              Session Review
+            </h1>
             <p className="text-sm text-blue-900 mt-0.5">
               Share your feedback about this mentorship session.
             </p>
@@ -149,10 +166,20 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
               bg-red-50 border border-red-200 text-red-600 text-xs font-bold
               hover:bg-red-100 hover:border-red-300 transition-all shrink"
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0
-                1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path
+                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0
+                1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+              />
               <line x1="12" y1="9" x2="12" y2="13" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
@@ -166,7 +193,6 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
         {/* Session completed — show feedback UI */}
         {isCompleted && (
           <div className="flex flex-col gap-5">
-
             {/* Submit feedback form */}
             {!myFeedback && !success && (
               <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
@@ -178,13 +204,19 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
                   <label className="text-xs font-semibold text-slate-700 block mb-2">
                     Overall Rating <span className="text-red-400">*</span>
                   </label>
-                  <StarRatingInput value={rating} onChange={setRating} disabled={submitting} />
+                  <StarRatingInput
+                    value={rating}
+                    onChange={setRating}
+                    disabled={submitting}
+                  />
                 </div>
 
                 <div>
                   <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                     Your Feedback{" "}
-                    <span className="text-slate-400 font-normal normal-case">(optional)</span>
+                    <span className="text-slate-400 font-normal normal-case">
+                      (optional)
+                    </span>
                   </label>
                   <textarea
                     value={comment}
@@ -218,8 +250,16 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
                     </>
                   ) : (
                     <>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <line x1="22" y1="2" x2="11" y2="13" />
                         <polygon points="22 2 15 22 11 13 2 9 22 2" />
                       </svg>
@@ -232,10 +272,20 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
 
             {/* Success banner */}
             {success && (
-              <div className="flex items-center gap-3 px-4 py-3 bg-emerald-50
-                border border-emerald-200 rounded-2xl text-sm font-semibold text-emerald-700">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <div
+                className="flex items-center gap-3 px-4 py-3 bg-emerald-50
+                border border-emerald-200 rounded-2xl text-sm font-semibold text-emerald-700"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
@@ -245,7 +295,11 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
 
             {/* My submitted feedback */}
             {myFeedback && (
-              <FeedbackCard feedback={myFeedback} label="Your Feedback" isOwn={true} />
+              <FeedbackCard
+                feedback={myFeedback}
+                label="Your Feedback"
+                isOwn={true}
+              />
             )}
 
             {/* Their feedback */}
@@ -256,14 +310,15 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
                 isOwn={false}
               />
             ) : (
-              <div className="bg-slate-50 border border-dashed border-slate-200
-                rounded-2xl p-5 text-center">
+              <div
+                className="bg-slate-50 border border-dashed border-slate-200
+                rounded-2xl p-5 text-center"
+              >
                 <p className="text-xs font-semibold text-slate-700">
                   Waiting for {otherName} to submit their feedback
                 </p>
               </div>
             )}
-
           </div>
         )}
       </div>
@@ -273,14 +328,15 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {  // 👈 ADDED: rep
         <ReportModal
           connect={connect}
           onClose={() => setShowReport(false)}
-          onSuccess={() => { setShowReport(false); setReportDone(true); }}
+          onSuccess={() => {
+            setShowReport(false);
+            setReportDone(true);
+          }}
         />
       )}
 
       {/* ── Success Modal ─────────────────────────────────── */}
-      {reportDone && (
-        <ReportSuccessModal onBack={() => setReportDone(false)} />
-      )}
+      {reportDone && <ReportSuccessModal onBack={() => setReportDone(false)} />}
     </>
   );
 };

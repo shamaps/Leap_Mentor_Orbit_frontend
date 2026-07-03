@@ -82,7 +82,9 @@ export default function Testimonials() {
     if (animating) return;
     setAnimating(true);
     setTimeout(() => {
-      setActive((prev) => (prev + dir + testimonials.length) % testimonials.length);
+      setActive(
+        (prev) => (prev + dir + testimonials.length) % testimonials.length,
+      );
       setAnimating(false);
     }, 300);
   };
@@ -96,9 +98,14 @@ export default function Testimonials() {
   const [prev, curr, next] = getVisible();
 
   return (
-    <section className="py-24 px-6 overflow-hidden" style={{ background: "linear-gradient(135deg, #fdf4ff 0%, #eff6ff 60%, #f0fdf4 100%)" }}>
+    <section
+      className="py-24 px-6 overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(135deg, #fdf4ff 0%, #eff6ff 60%, #f0fdf4 100%)",
+      }}
+    >
       <div className="max-w-6xl mx-auto">
-
         {/* Header */}
         <div className="text-center mb-16">
           <p className="text-violet-600 text-sm font-semibold uppercase tracking-widest mb-3">
@@ -108,21 +115,44 @@ export default function Testimonials() {
             Real stories, real growth
           </h2>
           <p className="text-gray-500 mt-4 text-lg max-w-xl mx-auto">
-            Thousands of professionals have transformed their careers with LeapMentor. Here's what they say.
+            Thousands of professionals have transformed their careers with
+            LeapMentor. Here's what they say.
           </p>
         </div>
 
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-6 mb-16 max-w-2xl mx-auto">
           {[
-            { value: "5,000+", label: "Mentees Helped", from: "#ec4899", to: "#f43f5e" },
-            { value: "98%",    label: "Satisfaction Rate", from: "#8b5cf6", to: "#7c3aed" },
-            { value: "4.9★",  label: "Average Rating", from: "#10b981", to: "#0891b2" },
+            {
+              value: "5,000+",
+              label: "Mentees Helped",
+              from: "#ec4899",
+              to: "#f43f5e",
+            },
+            {
+              value: "98%",
+              label: "Satisfaction Rate",
+              from: "#8b5cf6",
+              to: "#7c3aed",
+            },
+            {
+              value: "4.9★",
+              label: "Average Rating",
+              from: "#10b981",
+              to: "#0891b2",
+            },
           ].map((stat) => (
-            <div key={stat.label} className="text-center bg-white rounded-2xl py-5 px-4 shadow-sm border border-gray-100">
+            <div
+              key={stat.label}
+              className="text-center bg-white rounded-2xl py-5 px-4 shadow-sm border border-gray-100"
+            >
               <p
                 className="text-3xl font-extrabold"
-                style={{ background: `linear-gradient(135deg, ${stat.from}, ${stat.to})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
+                style={{
+                  background: `linear-gradient(135deg, ${stat.from}, ${stat.to})`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
               >
                 {stat.value}
               </p>
@@ -133,38 +163,52 @@ export default function Testimonials() {
 
         {/* Cards Carousel */}
         <div className="relative flex items-center justify-center gap-6">
-
           {/* Prev Button */}
           <button
             onClick={() => go(-1)}
             className="hidden md:flex w-10 h-10 rounded-full border border-gray-200 bg-white shadow-sm items-center justify-center hover:bg-violet-50 hover:border-violet-200 transition-all shrink-0 z-10"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#7c3aed"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
 
           {/* Three Cards */}
           <div className="flex gap-5 items-center w-full max-w-4xl overflow-hidden">
-
             {/* Side card left */}
-            <div className="hidden md:block w-1/3 shrink-0 cursor-pointer" onClick={() => go(-1)}>
+            <div
+              className="hidden md:block w-1/3 shrink-0 cursor-pointer"
+              onClick={() => go(-1)}
+            >
               <TestimonialCard testimonial={testimonials[prev]} dimmed />
             </div>
 
             {/* Active card */}
             <div
               className="w-full md:w-1/3 shrink-0 transition-all duration-300"
-              style={{ opacity: animating ? 0 : 1, transform: animating ? "scale(0.96)" : "scale(1)" }}
+              style={{
+                opacity: animating ? 0 : 1,
+                transform: animating ? "scale(0.96)" : "scale(1)",
+              }}
             >
               <TestimonialCard testimonial={testimonials[curr]} active />
             </div>
 
             {/* Side card right */}
-            <div className="hidden md:block w-1/3 shrink-0 cursor-pointer" onClick={() => go(1)}>
+            <div
+              className="hidden md:block w-1/3 shrink-0 cursor-pointer"
+              onClick={() => go(1)}
+            >
               <TestimonialCard testimonial={testimonials[next]} dimmed />
             </div>
-
           </div>
 
           {/* Next Button */}
@@ -172,11 +216,18 @@ export default function Testimonials() {
             onClick={() => go(1)}
             className="hidden md:flex w-10 h-10 rounded-full border border-gray-200 bg-white shadow-sm items-center justify-center hover:bg-violet-50 hover:border-violet-200 transition-all shrink-0 z-10"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#7c3aed"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
               <polyline points="9 18 15 12 9 6" />
             </svg>
           </button>
-
         </div>
 
         {/* Dots */}
@@ -184,17 +235,27 @@ export default function Testimonials() {
           {testimonials.map((_, i) => (
             <button
               key={i}
-              onClick={() => { if (!animating && i !== active) { setAnimating(true); setTimeout(() => { setActive(i); setAnimating(false); }, 300); }}}
+              onClick={() => {
+                if (!animating && i !== active) {
+                  setAnimating(true);
+                  setTimeout(() => {
+                    setActive(i);
+                    setAnimating(false);
+                  }, 300);
+                }
+              }}
               className="rounded-full transition-all duration-300"
               style={{
                 width: i === active ? "24px" : "8px",
                 height: "8px",
-                background: i === active ? "linear-gradient(135deg, #8b5cf6, #ec4899)" : "#d1d5db",
+                background:
+                  i === active
+                    ? "linear-gradient(135deg, #8b5cf6, #ec4899)"
+                    : "#d1d5db",
               }}
             />
           ))}
         </div>
-
       </div>
     </section>
   );
@@ -207,8 +268,8 @@ function TestimonialCard({ testimonial, active, dimmed }) {
         active
           ? "bg-white border-violet-100 shadow-xl scale-100"
           : dimmed
-          ? "bg-white/70 border-gray-100 shadow-sm opacity-50 scale-95"
-          : "bg-white border-gray-100 shadow-sm"
+            ? "bg-white/70 border-gray-100 shadow-sm opacity-50 scale-95"
+            : "bg-white border-gray-100 shadow-sm"
       }`}
     >
       {/* Quote icon */}
@@ -227,12 +288,18 @@ function TestimonialCard({ testimonial, active, dimmed }) {
       {/* Author */}
       <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-full ${testimonial.color} flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-md`}>
+          <div
+            className={`w-10 h-10 rounded-full ${testimonial.color} flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-md`}
+          >
             {testimonial.avatar}
           </div>
           <div>
-            <p className="text-sm font-bold text-gray-900">{testimonial.name}</p>
-            <p className="text-xs text-gray-500">{testimonial.role} · {testimonial.company}</p>
+            <p className="text-sm font-bold text-gray-900">
+              {testimonial.name}
+            </p>
+            <p className="text-xs text-gray-500">
+              {testimonial.role} · {testimonial.company}
+            </p>
           </div>
         </div>
         <StarRating count={testimonial.rating} />

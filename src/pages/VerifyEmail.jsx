@@ -2,7 +2,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { sendOtp, verifyEmail, verifyMagicLink, clearMessages } from "../store/slices/authSlice";
+import {
+  sendOtp,
+  verifyEmail,
+  verifyMagicLink,
+  clearMessages,
+} from "../store/slices/authSlice";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
 import { selectAuth } from "../store/selectors";
 const VerifyEmail = () => {
@@ -47,7 +52,10 @@ const VerifyEmail = () => {
           setRedirecting(true);
           setTimeout(() => navigate(redirectPath), 1500);
         } else {
-          setMsg({ type: "error", text: action.payload || "Magic link verification failed." });
+          setMsg({
+            type: "error",
+            text: action.payload || "Magic link verification failed.",
+          });
         }
       });
     }
@@ -94,7 +102,10 @@ const VerifyEmail = () => {
   };
 
   const handleOtpPaste = (e) => {
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
     if (pasted.length === 6) {
       setOtp(pasted.split(""));
       document.getElementById("votp-5")?.focus();
@@ -110,7 +121,10 @@ const VerifyEmail = () => {
 
     const otpStr = otp.join("");
     if (!email.trim() || otpStr.length < 6) {
-      setMsg({ type: "error", text: "Email and full 6-digit OTP are required." });
+      setMsg({
+        type: "error",
+        text: "Email and full 6-digit OTP are required.",
+      });
       return;
     }
 
@@ -119,7 +133,10 @@ const VerifyEmail = () => {
       setRedirecting(true);
       setTimeout(() => navigate(loginPath), 900); // ✅ fixed: was using undefined redirectPath
     } else {
-      setMsg({ type: "error", text: action.payload || "OTP verification failed." });
+      setMsg({
+        type: "error",
+        text: action.payload || "OTP verification failed.",
+      });
     }
   };
 
@@ -127,8 +144,10 @@ const VerifyEmail = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
-      {redirecting && <FullScreenLoader message="Email verified! Redirecting..." />} {/* ✅ */}
-
+      {redirecting && (
+        <FullScreenLoader message="Email verified! Redirecting..." />
+      )}{" "}
+      {/* ✅ */}
       {/* ── Left image panel ── */}
       <div className="relative hidden lg:flex lg:w-[48%] overflow-hidden bg-slate-900">
         <img
@@ -138,18 +157,21 @@ const VerifyEmail = () => {
           fetchPriority="high"
           loading="eager"
           decoding="sync"
-          onError={(e) => { e.target.style.display = "none"; }}
+          onError={(e) => {
+            e.target.style.display = "none";
+          }}
         />
         <div className="absolute bottom-0 left-0 right-0 p-10 text-white z-10">
           <h2 className="text-3xl font-extrabold leading-tight mb-3">
-            Empowering the next<br />generation of leaders.
+            Empowering the next
+            <br />
+            generation of leaders.
           </h2>
           <p className="text-sm text-white/70 leading-relaxed max-w-xs">
             Join over 10,000+ mentors globally and start making an impact today.
           </p>
         </div>
       </div>
-
       {/* ── Right form panel ── */}
       <main className="flex flex-1 items-center justify-center px-8 overflow-hidden bg-white min-h-screen lg:min-h-0">
         <div className="w-full max-w-[400px]">
@@ -161,17 +183,25 @@ const VerifyEmail = () => {
               width={32}
               height={32}
             />
-            <span className="text-xl font-bold text-slate-800 tracking-tight">LeapMentor</span>
+            <span className="text-xl font-bold text-slate-800 tracking-tight">
+              LeapMentor
+            </span>
           </div>
 
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">
             Verify your email
           </h1>
           <p className="text-sm text-slate-600 mb-6">
-            {isMagicLinkPending
-              ? "Verifying your magic link, please wait..."
-              : <>Enter the 6-digit OTP sent to{" "}<span className="font-semibold text-slate-800">{email || "your email"}</span></>
-            }
+            {isMagicLinkPending ? (
+              "Verifying your magic link, please wait..."
+            ) : (
+              <>
+                Enter the 6-digit OTP sent to{" "}
+                <span className="font-semibold text-slate-800">
+                  {email || "your email"}
+                </span>
+              </>
+            )}
           </p>
 
           {/* ✅ Only show errors — success is handled by FullScreenLoader */}
@@ -199,7 +229,6 @@ const VerifyEmail = () => {
           {/* OTP form */}
           {!isMagicLinkPending && (
             <form onSubmit={verifyOtp} className="space-y-5">
-
               {!location.state?.email && !searchParams.get("email") && (
                 <div>
                   <label
@@ -224,7 +253,10 @@ const VerifyEmail = () => {
                 <legend className="block text-xs font-semibold text-slate-700 mb-2">
                   One-time passcode
                 </legend>
-                <div className="flex gap-2 justify-between" onPaste={handleOtpPaste}>
+                <div
+                  className="flex gap-2 justify-between"
+                  onPaste={handleOtpPaste}
+                >
                   {otp.map((digit, idx) => (
                     <input
                       key={idx}
@@ -248,9 +280,17 @@ const VerifyEmail = () => {
                 disabled={loading}
                 className="w-full py-3 rounded-xl bg-blue-900 text-white text-sm font-bold hover:bg-blue-800 disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
-                {loading
-                  ? <><span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" aria-hidden="true" />Verifying...</>
-                  : "Verify Email"}
+                {loading ? (
+                  <>
+                    <span
+                      className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"
+                      aria-hidden="true"
+                    />
+                    Verifying...
+                  </>
+                ) : (
+                  "Verify Email"
+                )}
               </button>
             </form>
           )}
@@ -275,7 +315,6 @@ const VerifyEmail = () => {
               </button>
             </div>
           )}
-
         </div>
       </main>
     </div>

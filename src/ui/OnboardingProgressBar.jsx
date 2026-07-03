@@ -8,13 +8,11 @@ const OnboardingProgressBar = ({ form, fields }) => {
 
   const percent = Math.round((filled.length / fields.length) * 100);
 
-  const bar =
-    percent < 40 ? "#3b82f6" : percent < 75 ? "#8b5cf6" : "#10b981";
+  const bar = percent < 40 ? "#3b82f6" : percent < 75 ? "#8b5cf6" : "#10b981";
 
   return (
     <div className="sticky top-14 z-10 bg-white border-b border-slate-100">
       <div className="max-w-2xl mx-auto px-6 py-2.5 flex items-center gap-4">
-
         {/* Label */}
         <span className="text-xs font-semibold text-slate-500 shrink-0">
           Profile Completion
@@ -38,7 +36,6 @@ const OnboardingProgressBar = ({ form, fields }) => {
         >
           {percent === 100 ? "✓ Complete" : `${percent}%`}
         </span>
-
       </div>
     </div>
   );

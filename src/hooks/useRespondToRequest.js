@@ -12,7 +12,10 @@ const useRespondToRequest = () => {
   const respond = async ({ requestId, status, confirmedSlot, menteeName }) => {
     try {
       setResponding(true);
-      await axiosInstance.patch(`/connect-requests/${requestId}`, { status, confirmedSlot });
+      await axiosInstance.patch(`/connect-requests/${requestId}`, {
+        status,
+        confirmedSlot,
+      });
       if (status === "accepted") {
         showToast({
           type: "success",
@@ -28,7 +31,8 @@ const useRespondToRequest = () => {
       }
       return true;
     } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to respond to request.";
+      const msg =
+        err?.response?.data?.message || "Failed to respond to request.";
       showToast({ type: "error", title: "Action failed", message: msg });
       return false;
     } finally {
@@ -37,10 +41,17 @@ const useRespondToRequest = () => {
   };
 
   // ── Refer ─────────────────────────────────────────────────
-  const refer = async ({ requestId, referToMentorId, menteeName, referredMentorName }) => {
+  const refer = async ({
+    requestId,
+    referToMentorId,
+    menteeName,
+    referredMentorName,
+  }) => {
     try {
       setReferring(true);
-      await axiosInstance.patch(`/connect-requests/${requestId}/refer`, { referToMentorId });
+      await axiosInstance.patch(`/connect-requests/${requestId}/refer`, {
+        referToMentorId,
+      });
       showToast({
         type: "info",
         title: "Request Referred",

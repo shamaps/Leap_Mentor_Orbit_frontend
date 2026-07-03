@@ -1,6 +1,6 @@
 // src/hooks/useSocketToast.js
 import { useEffect, useRef } from "react";
-import { useSelector } from "react-redux"; 
+import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { useToast } from "../context/ToastContext";
 import useUnreadCount from "./useUnreadCount";
@@ -10,7 +10,7 @@ const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 const useSocketToast = (onRequestChanged) => {
   const { showToast } = useToast();
   const { incrementBadge } = useUnreadCount();
-  const token = useSelector(selectAuthToken); 
+  const token = useSelector(selectAuthToken);
   const socketRef = useRef(null);
 
   const showToastRef = useRef(showToast);

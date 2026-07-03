@@ -6,38 +6,70 @@ const RequestActionModal = ({ type, menteeName, onBack }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center">
-
         {/* Icon */}
-        <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-5 ${
-          isAccepted ? "bg-emerald-50" : "bg-red-50"
-        }`}>
+        <div
+          className={`w-20 h-20 rounded-full flex items-center justify-center mb-5 ${
+            isAccepted ? "bg-emerald-50" : "bg-red-50"
+          }`}
+        >
           {isAccepted ? (
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-              stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#10B981"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12" />
             </svg>
           ) : (
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-              stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#EF4444"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           )}
         </div>
 
         {/* Title */}
-        <h2 className={`text-2xl font-extrabold mb-2 ${
-          isAccepted ? "text-emerald-600" : "text-red-500"
-        }`}>
+        <h2
+          className={`text-2xl font-extrabold mb-2 ${
+            isAccepted ? "text-emerald-600" : "text-red-500"
+          }`}
+        >
           {isAccepted ? "Request Accepted!" : "Request Rejected"}
         </h2>
 
         {/* Subtitle */}
         <p className="text-sm text-slate-500 leading-relaxed mb-2">
-          {isAccepted
-            ? <>You have accepted <span className="font-semibold text-slate-700">{menteeName}'s</span> mentorship request.</>
-            : <>You have rejected <span className="font-semibold text-slate-700">{menteeName}'s</span> mentorship request.</>
-          }
+          {isAccepted ? (
+            <>
+              You have accepted{" "}
+              <span className="font-semibold text-slate-700">
+                {menteeName}'s
+              </span>{" "}
+              mentorship request.
+            </>
+          ) : (
+            <>
+              You have rejected{" "}
+              <span className="font-semibold text-slate-700">
+                {menteeName}'s
+              </span>{" "}
+              mentorship request.
+            </>
+          )}
         </p>
 
         {/* Extra note for accept */}
@@ -59,7 +91,6 @@ const RequestActionModal = ({ type, menteeName, onBack }) => {
         >
           Back to Requests
         </button>
-
       </div>
     </div>
   );

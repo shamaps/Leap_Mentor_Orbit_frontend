@@ -14,7 +14,9 @@ export const AuthMessageBanner = ({ type, text }) => {
   };
 
   return (
-    <div className={`rounded-lg px-4 py-2.5 text-sm mb-4 leading-relaxed ${classes[type] || classes.error}`}>
+    <div
+      className={`rounded-lg px-4 py-2.5 text-sm mb-4 leading-relaxed ${classes[type] || classes.error}`}
+    >
       {text}
     </div>
   );
@@ -27,7 +29,9 @@ export const AuthMessageBanner = ({ type, text }) => {
 export const AuthDivider = ({ label = "Or sign up with" }) => (
   <div className="flex items-center gap-3 my-5">
     <div className="flex-1 h-px bg-slate-200" />
-    <span className="text-xs font-semibold text-slate-700 whitespace-nowrap">{label}</span>
+    <span className="text-xs font-semibold text-slate-700 whitespace-nowrap">
+      {label}
+    </span>
     <div className="flex-1 h-px bg-slate-200" />
   </div>
 );
@@ -53,6 +57,8 @@ export const AuthField = ({ label, hint, ...inputProps }) => (
 export const AuthBrand = ({ logo }) => (
   <div className="flex items-center gap-2.5 mb-7">
     {logo}
-    <span className="text-xl font-bold text-slate-900 tracking-tight">LeapMentor</span>
+    <span className="text-xl font-bold text-slate-900 tracking-tight">
+      LeapMentor
+    </span>
   </div>
 );

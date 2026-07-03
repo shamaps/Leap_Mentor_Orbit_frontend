@@ -14,7 +14,16 @@ const ProfessionalInfoCard = () => {
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="2" y="7" width="20" height="14" rx="2" />
             <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
           </svg>
@@ -28,13 +37,20 @@ const ProfessionalInfoCard = () => {
         <Field label="Company" value={profile?.company} />
         <Field
           label="Experience"
-          value={profile?.yearsOfExperience ? `${profile.yearsOfExperience}+ Years` : "—"}
+          value={
+            profile?.yearsOfExperience
+              ? `${profile.yearsOfExperience}+ Years`
+              : "—"
+          }
         />
         {profile?.hourlyRate > 0 && (
           <Field label="Session Rate" value={`${profile.hourlyRate} LP`} />
         )}
         {profile?.avgRating > 0 && (
-          <Field label="Rating" value={`⭐ ${profile.avgRating.toFixed(1)} / 5`} />
+          <Field
+            label="Rating"
+            value={`⭐ ${profile.avgRating.toFixed(1)} / 5`}
+          />
         )}
       </div>
     </div>

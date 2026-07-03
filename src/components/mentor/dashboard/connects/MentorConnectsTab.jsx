@@ -17,8 +17,9 @@ const MentorConnectsTab = () => {
       error={error}
       completedCount={completed.length}
       emptyState={{
-        message:    "No active mentees yet",
-        subMessage: "Sessions appear here once a mentee completes escrow payment for an accepted request.",
+        message: "No active mentees yet",
+        subMessage:
+          "Sessions appear here once a mentee completes escrow payment for an accepted request.",
       }}
 
       // ✅ Completed session cards

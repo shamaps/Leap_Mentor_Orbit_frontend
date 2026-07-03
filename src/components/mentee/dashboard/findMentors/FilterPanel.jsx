@@ -2,24 +2,33 @@
 import { useState, useEffect, useRef } from "react";
 
 const INDUSTRIES = [
-  "Technology", "Finance", "Healthcare", "Education", "Marketing",
-  "Design", "Engineering", "Sales", "Legal", "Consulting", "Other",
+  "Technology",
+  "Finance",
+  "Healthcare",
+  "Education",
+  "Marketing",
+  "Design",
+  "Engineering",
+  "Sales",
+  "Legal",
+  "Consulting",
+  "Other",
 ];
 
 const RATINGS = [
   { label: "4.5+", value: "4.5" },
   { label: "4.0+", value: "4.0" },
   { label: "3.5+", value: "3.5" },
-  { label: "Any",  value: "" },
+  { label: "Any", value: "" },
 ];
 
 // ✅ Experience range options
 const EXPERIENCE_RANGES = [
-  { label: "Any",      value: "" },
-  { label: "0–2 yrs",  value: "0-2" },
-  { label: "3–5 yrs",  value: "3-5" },
+  { label: "Any", value: "" },
+  { label: "0–2 yrs", value: "0-2" },
+  { label: "3–5 yrs", value: "3-5" },
   { label: "6–10 yrs", value: "6-10" },
-  { label: "10+ yrs",  value: "10+" },
+  { label: "10+ yrs", value: "10+" },
 ];
 
 const PRICE_DEBOUNCE_MS = 600;
@@ -35,8 +44,12 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
   const maxTimer = useRef(null);
 
   // ✅ Sync local state if filters are reset externally (e.g. "Clear all filters")
-  useEffect(() => { setLocalMin(filters.minPrice); }, [filters.minPrice]);
-  useEffect(() => { setLocalMax(filters.maxPrice); }, [filters.maxPrice]);
+  useEffect(() => {
+    setLocalMin(filters.minPrice);
+  }, [filters.minPrice]);
+  useEffect(() => {
+    setLocalMax(filters.maxPrice);
+  }, [filters.maxPrice]);
 
   const handleMinPrice = (value) => {
     setLocalMin(value);
@@ -74,10 +87,19 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
             : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
         } shadow-sm`}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="4" y1="6" x2="20" y2="6"/>
-          <line x1="8" y1="12" x2="16" y2="12"/>
-          <line x1="11" y1="18" x2="13" y2="18"/>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+          <line x1="11" y1="18" x2="13" y2="18" />
         </svg>
         Filters
         {activeFilterCount > 0 && (
@@ -86,18 +108,23 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
           </span>
         )}
         <svg
-          width="12" height="12" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         >
-          <polyline points="6 9 12 15 18 9"/>
+          <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
 
       {/* Filter panel — collapsible */}
       {isOpen && (
         <div className="mt-3 bg-white border border-slate-100 rounded-2xl shadow-sm p-5 grid grid-cols-1 md:grid-cols-3 gap-5">
-
           {/* Industry */}
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
@@ -110,7 +137,9 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
             >
               <option value="">All Industries</option>
               {INDUSTRIES.map((ind) => (
-                <option key={ind} value={ind}>{ind}</option>
+                <option key={ind} value={ind}>
+                  {ind}
+                </option>
               ))}
             </select>
           </div>

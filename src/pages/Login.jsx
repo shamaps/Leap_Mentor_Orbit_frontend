@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 import useGoogleAuth from "../hooks/useGoogleAuth";
-import { useDispatch } from "react-redux";         // ← ADDED
+import { useDispatch } from "react-redux"; // ← ADDED
 import { setUser } from "../store/slices/authSlice"; // ← ADDED
 
 const redirectByRole = (roles, navigate) => {
@@ -25,7 +25,7 @@ const CLERK_STRATEGY = {
 
 const Login = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();  // ← ADDED
+  const dispatch = useDispatch(); // ← ADDED
   const googleBtnRef = useRef(null);
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
   const { signOut } = useClerk();
@@ -39,8 +39,14 @@ const Login = () => {
     termsAcceptedRef: null,
     roles: [],
     onSuccess: (data) => {
-      setMsg({ type: "success", text: "Google login successful! Redirecting..." });
-      setTimeout(() => redirectByRole(data?.user?.roles || [], navigate, setMsg), 700);
+      setMsg({
+        type: "success",
+        text: "Google login successful! Redirecting...",
+      });
+      setTimeout(
+        () => redirectByRole(data?.user?.roles || [], navigate, setMsg),
+        700,
+      );
     },
     onError: (text) => setMsg({ type: "error", text }),
     onLoadingChange: setLoading,
@@ -90,13 +96,19 @@ const Login = () => {
 
       // ← FIXED: was localStorage.setItem("token") — backend now returns accessToken not token
       if (res.data?.accessToken) {
-        dispatch(setUser({ token: res.data.accessToken, user: res.data.user || null }));
+        dispatch(
+          setUser({ token: res.data.accessToken, user: res.data.user || null }),
+        );
       }
 
       setMsg({ type: "success", text: "Login successful! Redirecting..." });
-      setTimeout(() => redirectByRole(res.data?.user?.roles || [], navigate), 800);
+      setTimeout(
+        () => redirectByRole(res.data?.user?.roles || [], navigate),
+        800,
+      );
     } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Invalid credentials";
+      const apiMsg =
+        err?.response?.data?.message || err?.message || "Invalid credentials";
       setMsg({ type: "error", text: apiMsg });
     } finally {
       setLoading(false);
@@ -107,16 +119,19 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md border rounded-xl p-6">
         <h1 className="text-2xl font-semibold">Login</h1>
-        <p className="text-sm text-gray-500 mt-1">Welcome back to LeapMentor.</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Welcome back to LeapMentor.
+        </p>
 
         {msg.text && (
           <div
-            className={`mt-4 text-sm rounded-md p-3 ${msg.type === "success"
-              ? "bg-green-50 text-green-700"
-              : msg.type === "info"
-                ? "bg-blue-50 text-blue-900"
-                : "bg-red-50 text-red-700"
-              }`}
+            className={`mt-4 text-sm rounded-md p-3 ${
+              msg.type === "success"
+                ? "bg-green-50 text-green-700"
+                : msg.type === "info"
+                  ? "bg-blue-50 text-blue-900"
+                  : "bg-red-50 text-red-700"
+            }`}
           >
             {msg.text}
           </div>
@@ -187,7 +202,10 @@ const Login = () => {
 
         <p className="text-sm text-gray-600 mt-4">
           Don't have an account?{" "}
-          <span className="underline cursor-pointer" onClick={() => navigate("/register/mentee")}>
+          <span
+            className="underline cursor-pointer"
+            onClick={() => navigate("/register/mentee")}
+          >
             Register
           </span>
         </p>

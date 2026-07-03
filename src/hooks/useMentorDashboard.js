@@ -2,7 +2,10 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMentorDashboard, refetchMentorProfile } from "../store/slices/mentorProfileSlice";
+import {
+  fetchMentorDashboard,
+  refetchMentorProfile,
+} from "../store/slices/mentorProfileSlice";
 import { selectAuthToken, selectMentorProfile } from "../store/selectors";
 
 const useMentorDashboard = () => {

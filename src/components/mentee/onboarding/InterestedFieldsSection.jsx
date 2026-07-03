@@ -2,14 +2,18 @@
 import { useState, forwardRef } from "react";
 import { useMenteeOnboardingForm } from "../../../context/MenteeOnboardingFormContext";
 
-const errorClass = "border-red-400 focus:border-red-400 focus:ring-red-100 hover:border-red-400";
+const errorClass =
+  "border-red-400 focus:border-red-400 focus:ring-red-100 hover:border-red-400";
 
 const TagInput = ({ tags, onAdd, onRemove, placeholder, error }) => {
   const [input, setInput] = useState("");
 
   const add = () => {
     const trimmed = input.trim();
-    if (!trimmed || tags.includes(trimmed)) { setInput(""); return; }
+    if (!trimmed || tags.includes(trimmed)) {
+      setInput("");
+      return;
+    }
     onAdd(trimmed);
     setInput("");
   };
@@ -39,7 +43,12 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder, error }) => {
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            add();
+          }
+        }}
         onBlur={add}
         placeholder={placeholder}
         className={`w-full text-sm text-slate-800 bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-slate-400 transition-all duration-150 ${error ? errorClass : ""}`}
@@ -55,11 +64,18 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder, error }) => {
 const InterestedFieldsSection = forwardRef((_, ref) => {
   const { form, handleChange, errors = {} } = useMenteeOnboardingForm();
   const addToArray = (field, value) => {
-    handleChange({ target: { name: field, value: [...(form[field] || []), value] } });
+    handleChange({
+      target: { name: field, value: [...(form[field] || []), value] },
+    });
   };
 
   const removeFromArray = (field, value) => {
-    handleChange({ target: { name: field, value: (form[field] || []).filter((v) => v !== value) } });
+    handleChange({
+      target: {
+        name: field,
+        value: (form[field] || []).filter((v) => v !== value),
+      },
+    });
   };
 
   return (
@@ -72,7 +88,16 @@ const InterestedFieldsSection = forwardRef((_, ref) => {
     >
       <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <circle cx="12" cy="12" r="3" />
             <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
           </svg>
@@ -95,7 +120,9 @@ const InterestedFieldsSection = forwardRef((_, ref) => {
             error={errors.interestedFields}
           />
           {errors.interestedFields && (
-            <p className="text-[10px] text-red-500 mt-1">Add at least one field of interest.</p>
+            <p className="text-[10px] text-red-500 mt-1">
+              Add at least one field of interest.
+            </p>
           )}
         </div>
 
@@ -113,7 +140,9 @@ const InterestedFieldsSection = forwardRef((_, ref) => {
             error={errors.skills}
           />
           {errors.skills && (
-            <p className="text-[10px] text-red-500 mt-1">Add at least one skill of interest.</p>
+            <p className="text-[10px] text-red-500 mt-1">
+              Add at least one skill of interest.
+            </p>
           )}
         </div>
       </div>

@@ -1,21 +1,24 @@
 // components/mentee/dashboard/ProfileHeroCard.jsx
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useState } from "react";
 import { selectMenteeProfile } from "../../../store/selectors";
 const ProfileHeroCard = () => {
   const navigate = useNavigate();
   const { user, profile } = useSelector(selectMenteeProfile);
+  const [imgError, setImgError] = useState(false);
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
       <div className="flex items-start gap-5">
-
         {/* Avatar */}
         <div className="shrink-0">
           <div className="w-24 h-24 rounded-full bg-blue-100 overflow-hidden border-2 border-blue-100">
-            {profile?.profilePicture ? (
-              <img src={profile.profilePicture160 || profile.profilePicture}
+            {profile?.profilePicture && !imgError ? (
+              <img
+                src={profile.profilePicture160 || profile.profilePicture}
                 alt={user?.name}
                 className="w-full h-full object-cover"
+                onError={() => setImgError(true)}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-blue-400 text-2xl font-bold">
@@ -27,7 +30,6 @@ const ProfileHeroCard = () => {
 
         {/* Right: Name + Bio label + Bio text + Buttons */}
         <div className="flex-1 min-w-0">
-
           {/* Name */}
           <h2 className="text-xl font-bold text-slate-800 leading-tight">
             {user?.name || "—"}
@@ -65,7 +67,6 @@ const ProfileHeroCard = () => {
               Edit Profile
             </button>
           </div>
-
         </div>
       </div>
     </div>

@@ -11,11 +11,18 @@ const useMenteeEditProfile = () => {
   const [msg, setMsg] = useState({ type: "", text: "" });
 
   const [form, setForm] = useState({
-    currentRole: "", industry: "", company: "",
-    yearsOfExperience: "", bio: "", profilePicture: "",
-    linkedInUrl: "", portfolioUrl: "",
-    skills: [], interestedFields: [],
-    communicationPreferences: [], languages: [],
+    currentRole: "",
+    industry: "",
+    company: "",
+    yearsOfExperience: "",
+    bio: "",
+    profilePicture: "",
+    linkedInUrl: "",
+    portfolioUrl: "",
+    skills: [],
+    interestedFields: [],
+    communicationPreferences: [],
+    languages: [],
   });
 
   useEffect(() => {
@@ -64,7 +71,7 @@ const useMenteeEditProfile = () => {
     try {
       const payload = {
         ...form,
-        yearsOfExperience: form.yearsOfExperience, 
+        yearsOfExperience: form.yearsOfExperience,
       };
       await axiosInstance.patch("/mentee-profile/me", payload);
       setMsg({ type: "success", text: "Profile updated successfully!" });

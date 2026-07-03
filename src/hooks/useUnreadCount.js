@@ -19,11 +19,11 @@ const useUnreadCount = () => {
 
   // ✅ fetch once on mount only
   useEffect(() => {
-  const load = async () => {
-    await fetchUnreadCount();
-  };
-  load();
-}, [fetchUnreadCount]);
+    const load = async () => {
+      await fetchUnreadCount();
+    };
+    load();
+  }, [fetchUnreadCount]);
 
   // ✅ increment badge when socket/push notification arrives
   const incrementBadge = useCallback(() => {

@@ -11,7 +11,14 @@
  *  - subtext      : JSX or string for the description below heading
  *  - stats        : array of { num, label } objects for the stat pills
  */
-const AuthLeftPanel = ({ imageSrc, imageAlt, badge, heading, subtext, stats = [] }) => {
+const AuthLeftPanel = ({
+  imageSrc,
+  imageAlt,
+  badge,
+  heading,
+  subtext,
+  stats = [],
+}) => {
   return (
     <div className="relative hidden lg:flex lg:w-[48%] flex-col justify-end overflow-hidden bg-slate-900">
       {/* Background image */}
@@ -19,7 +26,9 @@ const AuthLeftPanel = ({ imageSrc, imageAlt, badge, heading, subtext, stats = []
         src={imageSrc}
         alt={imageAlt}
         className="absolute inset-0 w-full h-full object-cover object-top"
-        onError={(e) => { e.target.style.display = "none"; }}
+        onError={(e) => {
+          e.target.style.display = "none";
+        }}
       />
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/40 to-slate-900/10" />
@@ -52,7 +61,9 @@ const AuthLeftPanel = ({ imageSrc, imageAlt, badge, heading, subtext, stats = []
                 className="flex flex-col gap-0.5 px-4 py-3 rounded-xl bg-white/10 border border-white/15 backdrop-blur-sm"
               >
                 <span className="text-xl font-bold">{num}</span>
-                <span className="text-[11px] uppercase tracking-wide text-white/60">{label}</span>
+                <span className="text-[11px] uppercase tracking-wide text-white/60">
+                  {label}
+                </span>
               </div>
             ))}
           </div>

@@ -5,11 +5,15 @@ const AuthSSOButtons = ({ googleBtnRef, loading, clerkLoaded, onLinkedIn }) => {
   return (
     <div className="flex gap-2.5">
       {/* Google */}
-      <div className={`flex-1 ${loading ? "opacity-60 pointer-events-none" : ""}`}>
+      <div
+        className={`flex-1 ${loading ? "opacity-60 pointer-events-none" : ""}`}
+      >
         <div ref={googleBtnRef} className="hidden" />
         <button
           type="button"
-          onClick={() => googleBtnRef.current?.querySelector("div[role=button]")?.click()}
+          onClick={() =>
+            googleBtnRef.current?.querySelector("div[role=button]")?.click()
+          }
           className="w-full flex items-center justify-center gap-2 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 bg-white hover:bg-slate-50 transition-colors"
         >
           <GoogleIcon />

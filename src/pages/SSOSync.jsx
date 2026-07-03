@@ -4,9 +4,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
-import { useDispatch, useSelector } from "react-redux";           // ✅ ADDED useSelector
+import { useDispatch, useSelector } from "react-redux"; // ✅ ADDED useSelector
 import { setUser } from "../store/slices/authSlice";
-import axiosInstance from "../utils/axiosInstance";               // ✅ FIXED: was "../../utils/axiosInstance" (wrong path)
+import axiosInstance from "../utils/axiosInstance"; // ✅ FIXED: was "../../utils/axiosInstance" (wrong path)
 
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor")) {
@@ -22,7 +22,7 @@ const SSOSync = () => {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const reduxToken = useSelector((state) => state.auth.token);   // ✅ FIXED: replaces localStorage.getItem("token")
+  const reduxToken = useSelector((state) => state.auth.token); // ✅ FIXED: replaces localStorage.getItem("token")
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -33,7 +33,9 @@ const SSOSync = () => {
     // Clerk says the user isn't signed in, redirect them away immediately.
     if (reduxToken && !isSignedIn) {
       const role = localStorage.getItem("role");
-      navigate(role === "mentor" ? "/dashboard/mentor" : "/dashboard/mentee", { replace: true });
+      navigate(role === "mentor" ? "/dashboard/mentor" : "/dashboard/mentee", {
+        replace: true,
+      });
       return;
     }
 
@@ -64,19 +66,20 @@ const SSOSync = () => {
         // ✅ FIXED: was localStorage.setItem("token", res.data.token)
         // Dispatch into Redux only — HttpOnly cookie is set by backend automatically
         if (res.data?.accessToken || res.data?.token) {
-          dispatch(setUser({
-            token: res.data.accessToken || res.data.token,
-            user: res.data.user || null,
-          }));
+          dispatch(
+            setUser({
+              token: res.data.accessToken || res.data.token,
+              user: res.data.user || null,
+            }),
+          );
         }
 
         localStorage.removeItem("sso_role");
         localStorage.removeItem("sso_terms");
 
         if (res.data?.isNewUser) {
-          const onboardingRole = role && role !== "existing"
-            ? role
-            : res.data.user.roles[0];
+          const onboardingRole =
+            role && role !== "existing" ? role : res.data.user.roles[0];
           navigate(`/onboarding/${onboardingRole}`, { replace: true });
         } else {
           const intendedRole = role && role !== "existing" ? role : null;
@@ -91,7 +94,6 @@ const SSOSync = () => {
             redirectByRole(res.data?.user?.roles || [], navigate);
           }
         }
-
       } catch (err) {
         setError(err?.response?.data?.message || err.message || "SSO failed");
         localStorage.removeItem("sso_role");

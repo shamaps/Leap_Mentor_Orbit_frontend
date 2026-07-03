@@ -2,8 +2,8 @@
 import axios from "axios";
 
 const adminAxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1",
-    withCredentials: true,   // ← ADDED: browser sends adminAccessToken cookie automatically
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1",
+  withCredentials: true, // ← ADDED: browser sends adminAccessToken cookie automatically
 });
 
 // ── Request interceptor REMOVED ───────────────────────────────
@@ -13,18 +13,18 @@ const adminAxiosInstance = axios.create({
 
 // ── Response interceptor: redirect to login on 401 ───────────
 adminAxiosInstance.interceptors.response.use(
-    (response) => {
-        if (response.data?.success === true && response.data.data !== undefined) {
-            response.data = response.data.data;
-        }
-        return response;
-    },
-    (error) => {
-        if (error.response?.status === 401) {
-            window.location.href = "/admin/login";
-        }
-        return Promise.reject(error);
+  (response) => {
+    if (response.data?.success === true && response.data.data !== undefined) {
+      response.data = response.data.data;
     }
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      window.location.href = "/admin/login";
+    }
+    return Promise.reject(error);
+  },
 );
 
 export default adminAxiosInstance;

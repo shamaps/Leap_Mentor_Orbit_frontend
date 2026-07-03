@@ -1,50 +1,58 @@
 // components/mentor/dashboard/availability/IntegrationsSection.jsx
 import { useState } from "react";
-import axiosInstance from "../../../../utils/axiosInstance"; 
+import axiosInstance from "../../../../utils/axiosInstance";
 
-const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) => {
+const IntegrationsSection = ({
+  googleCalendarConnected,
+  onConnectionChange,
+}) => {
   const [loading, setLoading] = useState(false);
 
- const handleConnect = async () => {
-  setLoading(true);
-  try {
-    const { data } = await axiosInstance.get("/google-calendar/auth-url");
-    const popup = window.open(data.url, "gcal_auth", "width=500,height=600");
+  const handleConnect = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axiosInstance.get("/google-calendar/auth-url");
+      const popup = window.open(data.url, "gcal_auth", "width=500,height=600");
 
-    // Poll for popup closure + backend confirmation
-    const poll = setInterval(async () => {
-      let isClosed = false;
-      try {
-        isClosed = popup.closed;
-      } catch {
-        // COOP blocks access to popup.closed — treat as closed
-        isClosed = true;
-      }
-
-      if (isClosed) {
-        clearInterval(poll);
+      // Poll for popup closure + backend confirmation
+      const poll = setInterval(async () => {
+        let isClosed = false;
         try {
-          const { data: status } = await axiosInstance.get("/google-calendar/status");
-          if (status?.connected) {
-            onConnectionChange(true);
-          } else {
-            console.error("Google Calendar not connected after popup closed");
-          }
-        } catch (e) {
-          console.error("Failed to check calendar status:", e);
+          isClosed = popup.closed;
+        } catch {
+          // COOP blocks access to popup.closed — treat as closed
+          isClosed = true;
         }
-        setLoading(false);
-      }
-    }, 800);
-    setTimeout(() => {
-      clearInterval(poll);
+
+        if (isClosed) {
+          clearInterval(poll);
+          try {
+            const { data: status } = await axiosInstance.get(
+              "/google-calendar/status",
+            );
+            if (status?.connected) {
+              onConnectionChange(true);
+            } else {
+              console.error("Google Calendar not connected after popup closed");
+            }
+          } catch (e) {
+            console.error("Failed to check calendar status:", e);
+          }
+          setLoading(false);
+        }
+      }, 800);
+      setTimeout(
+        () => {
+          clearInterval(poll);
+          setLoading(false);
+        },
+        5 * 60 * 1000,
+      );
+    } catch (err) {
+      console.error(err);
       setLoading(false);
-    }, 5 * 60 * 1000);
-  } catch (err) {
-    console.error(err);
-    setLoading(false);
-  }
-};
+    }
+  };
 
   const handleDisconnect = async () => {
     setLoading(true);
@@ -63,7 +71,16 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="17 1 21 5 17 9" />
             <path d="M3 11V9a4 4 0 0 1 4-4h14" />
             <polyline points="7 23 3 19 7 15" />
@@ -81,19 +98,49 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="4" width="18" height="18" rx="2" fill="#4285F4" />
               <rect x="3" y="4" width="18" height="5" rx="1" fill="#1967D2" />
-              <text x="12" y="17" textAnchor="middle" fill="white" fontSize="7" fontWeight="bold" fontFamily="sans-serif">
+              <text
+                x="12"
+                y="17"
+                textAnchor="middle"
+                fill="white"
+                fontSize="7"
+                fontWeight="bold"
+                fontFamily="sans-serif"
+              >
                 CAL
               </text>
-              <line x1="8" y1="2" x2="8" y2="6" stroke="#1967D2" strokeWidth="2" strokeLinecap="round" />
-              <line x1="16" y1="2" x2="16" y2="6" stroke="#1967D2" strokeWidth="2" strokeLinecap="round" />
+              <line
+                x1="8"
+                y1="2"
+                x2="8"
+                y2="6"
+                stroke="#1967D2"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <line
+                x1="16"
+                y1="2"
+                x2="16"
+                y2="6"
+                stroke="#1967D2"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-slate-800">Google Calendar</p>
+            <p className="text-sm font-semibold text-slate-800">
+              Google Calendar
+            </p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-2 h-2 rounded-full shrink-0 ${googleCalendarConnected ? "bg-green-500" : "bg-red-400"}`} />
-              <span className={`text-xs font-semibold ${googleCalendarConnected ? "text-green-700" : "text-red-600"}`}>
+              <span
+                className={`w-2 h-2 rounded-full shrink-0 ${googleCalendarConnected ? "bg-green-500" : "bg-red-400"}`}
+              />
+              <span
+                className={`text-xs font-semibold ${googleCalendarConnected ? "text-green-700" : "text-red-600"}`}
+              >
                 {googleCalendarConnected ? "Connected" : "Not Connected"}
               </span>
             </div>
@@ -123,8 +170,8 @@ const IntegrationsSection = ({ googleCalendarConnected, onConnectionChange }) =>
       </div>
 
       <p className="text-xs font-medium text-slate-800 mt-3 leading-relaxed">
-        Syncing your calendar prevents bookings on times you are busy and automatically adds
-        sessions to your schedule.
+        Syncing your calendar prevents bookings on times you are busy and
+        automatically adds sessions to your schedule.
       </p>
     </div>
   );

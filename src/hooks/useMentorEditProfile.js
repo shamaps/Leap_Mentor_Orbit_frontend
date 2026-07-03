@@ -1,7 +1,7 @@
 // src/hooks/useMentorEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux"; 
+import { useSelector } from "react-redux";
 import axiosInstance from "../utils/axiosInstance";
 import getErrorMessage from "../utils/getErrorMessage";
 import { validateCommonFields } from "../utils/onboardingValidation";
@@ -43,7 +43,9 @@ const useMentorEditProfile = () => {
           hourlyRate: data.hourlyRate || "",
           skills: data.skills || [],
           communicationPreferences: data.communicationPreferences || [],
-          languages: Array.isArray(data.languages) ? data.languages.join(", ") : data.languages || "",
+          languages: Array.isArray(data.languages)
+            ? data.languages.join(", ")
+            : data.languages || "",
           linkedInUrl: data.linkedInUrl || "",
           portfolioUrl: data.portfolioUrl || "",
         });
@@ -66,9 +68,13 @@ const useMentorEditProfile = () => {
     setMsg({ type: "", text: "" });
 
     const validationError = validateCommonFields(form);
-    if (validationError) return setMsg({ type: "error", text: validationError });
+    if (validationError)
+      return setMsg({ type: "error", text: validationError });
 
-    if (!token) { navigate("/login"); return; }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -77,14 +83,21 @@ const useMentorEditProfile = () => {
         ...form,
         yearsOfExperience: Number(form.yearsOfExperience) || 0,
         hourlyRate: Number(form.hourlyRate) || 0,
-        languages: typeof form.languages === "string"
-          ? form.languages.split(",").map((s) => s.trim()).filter(Boolean)
-          : form.languages,
+        languages:
+          typeof form.languages === "string"
+            ? form.languages
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : form.languages,
       };
 
       const { data } = await axiosInstance.patch("/mentor-profile/me", payload);
 
-      setMsg({ type: "success", text: "Profile updated! Redirecting to dashboard…" });
+      setMsg({
+        type: "success",
+        text: "Profile updated! Redirecting to dashboard…",
+      });
       setTimeout(() => navigate("/dashboard/mentor"), 1000);
     } catch (err) {
       const apiMsg = getErrorMessage(err);

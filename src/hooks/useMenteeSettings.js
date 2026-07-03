@@ -3,23 +3,23 @@ import { useState, useEffect } from "react";
 import axiosInstance from "../utils/axiosInstance";
 
 const useMenteeSettings = (initialProfile) => {
-  const [fetching, setFetching]   = useState(!initialProfile);
-  const [saving, setSaving]       = useState(false);
+  const [fetching, setFetching] = useState(!initialProfile);
+  const [saving, setSaving] = useState(false);
   const [changingPw, setChangingPw] = useState(false);
-  const [msg, setMsg]             = useState({ type: "", text: "" });
-  const [pwMsg, setPwMsg]         = useState({ type: "", text: "" });
+  const [msg, setMsg] = useState({ type: "", text: "" });
+  const [pwMsg, setPwMsg] = useState({ type: "", text: "" });
 
   const [balance, setBalance] = useState(0);
-  const [escrow, setEscrow]   = useState(0);
+  const [escrow, setEscrow] = useState(0);
 
   // ── Preferences state ─────────────────────────────────────
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [marketingPreferences, setMarketingPreferences] = useState(false);
 
   // ── Change password state ─────────────────────────────────
-  const [currentPassword, setCurrentPassword]   = useState("");
-  const [newPassword, setNewPassword]           = useState("");
-  const [confirmPassword, setConfirmPassword]   = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordChangedAt, setPasswordChangedAt] = useState(null);
 
   // ── Pre-fill from profile ─────────────────────────────────
@@ -38,7 +38,8 @@ const useMenteeSettings = (initialProfile) => {
         const p = res.data;
         setEmailNotifications(p.emailNotifications ?? true);
         setMarketingPreferences(p.marketingPreferences ?? false);
-      } catch (err) { // eslint-disable-line no-unused-vars
+      } catch (err) {
+        // eslint-disable-line no-unused-vars
         setMsg({ type: "error", text: "Failed to load settings." });
       } finally {
         setFetching(false);
@@ -48,44 +49,48 @@ const useMenteeSettings = (initialProfile) => {
     fetchProfile();
   }, [initialProfile]);
 
-
   // ── Fetch passwordChangedAt from user ─────────────────────
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await axiosInstance.get("/users/me");
         setPasswordChangedAt(res.data.passwordChangedAt || null);
-      } catch (err) { // eslint-disable-line no-unused-vars
+      } catch (err) {
+        // eslint-disable-line no-unused-vars
         // silent fail — not critical
       }
     };
     fetchUser();
   }, []);
 
-
-   // Add this after the passwordChangedAt useEffect:
-useEffect(() => {
-  const fetchWallet = async () => {
-    try {
-      const res = await axiosInstance.get("/escrow/wallet");
-      setBalance(res.data.balance);
-      setEscrow(res.data.escrow);
-    } catch (err) { // eslint-disable-line no-unused-vars
-      // silent fail
-    }
-  };
-  fetchWallet();
-}, []);
+  // Add this after the passwordChangedAt useEffect:
+  useEffect(() => {
+    const fetchWallet = async () => {
+      try {
+        const res = await axiosInstance.get("/escrow/wallet");
+        setBalance(res.data.balance);
+        setEscrow(res.data.escrow);
+      } catch (err) {
+        // eslint-disable-line no-unused-vars
+        // silent fail
+      }
+    };
+    fetchWallet();
+  }, []);
 
   // ── Save preferences ──────────────────────────────────────
   const handleSave = async () => {
     try {
       setSaving(true);
       setMsg({ type: "", text: "" });
-      await axiosInstance.put("/mentee-profile/me", { emailNotifications, marketingPreferences });
+      await axiosInstance.put("/mentee-profile/me", {
+        emailNotifications,
+        marketingPreferences,
+      });
       setMsg({ type: "success", text: "Preferences saved successfully!" });
       setTimeout(() => setMsg({ type: "", text: "" }), 3000);
-    } catch (err) { // eslint-disable-line no-unused-vars
+    } catch (err) {
+      // eslint-disable-line no-unused-vars
       setMsg({ type: "error", text: "Failed to save preferences." });
     } finally {
       setSaving(false);
@@ -100,7 +105,10 @@ useEffect(() => {
       return setPwMsg({ type: "error", text: "All fields are required." });
     }
     if (newPassword.length < 6) {
-      return setPwMsg({ type: "error", text: "New password must be at least 6 characters." });
+      return setPwMsg({
+        type: "error",
+        text: "New password must be at least 6 characters.",
+      });
     }
     if (newPassword !== confirmPassword) {
       return setPwMsg({ type: "error", text: "New passwords do not match." });
@@ -108,7 +116,10 @@ useEffect(() => {
 
     try {
       setChangingPw(true);
-      await axiosInstance.patch("/auth/password", { currentPassword, newPassword });
+      await axiosInstance.patch("/auth/password", {
+        currentPassword,
+        newPassword,
+      });
 
       setPwMsg({ type: "success", text: "Password changed successfully!" });
       setCurrentPassword("");
@@ -117,7 +128,10 @@ useEffect(() => {
       setPasswordChangedAt(new Date().toISOString());
       setTimeout(() => setPwMsg({ type: "", text: "" }), 3000);
     } catch (err) {
-      setPwMsg({ type: "error", text: err?.response?.data?.message || "Failed to change password." });
+      setPwMsg({
+        type: "error",
+        text: err?.response?.data?.message || "Failed to change password.",
+      });
     } finally {
       setChangingPw(false);
     }
@@ -142,11 +156,16 @@ useEffect(() => {
     pwMsg,
     balance,
     escrow,
-    emailNotifications,   setEmailNotifications,
-    marketingPreferences, setMarketingPreferences,
-    currentPassword,      setCurrentPassword,
-    newPassword,          setNewPassword,
-    confirmPassword,      setConfirmPassword,
+    emailNotifications,
+    setEmailNotifications,
+    marketingPreferences,
+    setMarketingPreferences,
+    currentPassword,
+    setCurrentPassword,
+    newPassword,
+    setNewPassword,
+    confirmPassword,
+    setConfirmPassword,
     passwordChangedAt,
     formatPasswordAge,
     handleSave,

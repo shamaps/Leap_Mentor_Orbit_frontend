@@ -2,8 +2,16 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { submitMentorOnboarding, clearMentorOnboardingMessages } from "../../../store/slices/mentorOnboardingSlice";
-import { getMentorFieldErrors, validateCommonFields, isOnlyNumbers, isValidUrl } from "../../../utils/onboardingValidation";
+import {
+  submitMentorOnboarding,
+  clearMentorOnboardingMessages,
+} from "../../../store/slices/mentorOnboardingSlice";
+import {
+  getMentorFieldErrors,
+  validateCommonFields,
+  isOnlyNumbers,
+  isValidUrl,
+} from "../../../utils/onboardingValidation";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
 import { MentorOnboardingFormContext } from "../../../context/MentorOnboardingFormContext";
 import {
@@ -34,20 +42,22 @@ const OnboardingFormShell = () => {
   const [form, setForm] = useState(() => {
     try {
       const saved = sessionStorage.getItem("mentorOnboardingForm");
-      return saved ? JSON.parse(saved) : {
-        profilePicture: "",
-        bio: "",
-        currentRole: "",
-        industry: "",
-        company: "",
-        yearsOfExperience: "",
-        hourlyRate: "",
-        skills: [],
-        communicationPreferences: [],
-        languages: "",
-        linkedInUrl: "",
-        portfolioUrl: "",
-      };
+      return saved
+        ? JSON.parse(saved)
+        : {
+            profilePicture: "",
+            bio: "",
+            currentRole: "",
+            industry: "",
+            company: "",
+            yearsOfExperience: "",
+            hourlyRate: "",
+            skills: [],
+            communicationPreferences: [],
+            languages: "",
+            linkedInUrl: "",
+            portfolioUrl: "",
+          };
     } catch {
       return {
         profilePicture: "",
@@ -80,12 +90,14 @@ const OnboardingFormShell = () => {
       sessionStorage.removeItem("mentorOnboardingForm");
       dispatch(clearMentorOnboardingMessages());
       setRedirecting(true);
-      setTimeout(() => navigate("/verify-documents"), 1500); 
+      setTimeout(() => navigate("/onboarding/mentor/verify-documents"), 1500);
     }
   }, [error, successMsg]);
 
   useEffect(() => {
-    return () => { dispatch(clearMentorOnboardingMessages()); };
+    return () => {
+      dispatch(clearMentorOnboardingMessages());
+    };
   }, []);
 
   useEffect(() => {
@@ -136,21 +148,34 @@ const OnboardingFormShell = () => {
     }
     setErrors({});
 
-    if (form.hourlyRate && (Number(form.hourlyRate) < 1 || Number(form.hourlyRate) > 100))
-      return setMsg({ type: "error", text: "Session rate must be between ₹1 and ₹100." });
+    if (
+      form.hourlyRate &&
+      (Number(form.hourlyRate) < 1 || Number(form.hourlyRate) > 100)
+    )
+      return setMsg({
+        type: "error",
+        text: "Session rate must be between ₹1 and ₹100.",
+      });
 
     const commonError = validateCommonFields(form);
     if (commonError) return setMsg({ type: "error", text: commonError });
 
-    if (!token) { navigate("/login/mentor"); return; }
+    if (!token) {
+      navigate("/login/mentor");
+      return;
+    }
 
     const payload = {
       ...form,
       yearsOfExperience: Number(form.yearsOfExperience) || 0,
       hourlyRate: Number(form.hourlyRate) || 0,
-      languages: typeof form.languages === "string"
-        ? form.languages.split(",").map((s) => s.trim()).filter(Boolean)
-        : form.languages,
+      languages:
+        typeof form.languages === "string"
+          ? form.languages
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : form.languages,
     };
 
     dispatch(submitMentorOnboarding(payload));
@@ -161,8 +186,13 @@ const OnboardingFormShell = () => {
 
   return (
     <MentorOnboardingFormContext.Provider value={ctxValue}>
-      <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-        {redirecting && <FullScreenLoader message="Setting up your profile..." />}
+      <div
+        className="min-h-screen bg-[#f0f4ff]"
+        style={{ fontFamily: "'DM Sans', sans-serif" }}
+      >
+        {redirecting && (
+          <FullScreenLoader message="Setting up your profile..." />
+        )}
 
         <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');`}</style>
 
@@ -176,7 +206,9 @@ const OnboardingFormShell = () => {
                 alt="Leapmentor logo"
                 className="h-8 w-auto"
               />
-              <span className="text-sm font-bold text-[#0f172a]">Mentor Onboarding</span>
+              <span className="text-sm font-bold text-[#0f172a]">
+                Mentor Onboarding
+              </span>
             </div>
           </div>
         </header>
@@ -184,7 +216,9 @@ const OnboardingFormShell = () => {
         <OnboardingProgressBar form={form} fields={MENTOR_ONBOARDING_FIELDS} />
 
         <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
-          <h1 className="text-2xl font-bold text-[#0f172a]">Mentor Onboarding</h1>
+          <h1 className="text-2xl font-bold text-[#0f172a]">
+            Mentor Onboarding
+          </h1>
           <p className="text-sm text-slate-600 mt-1">
             Complete your profile setup and help mentees find you.
           </p>
@@ -192,22 +226,22 @@ const OnboardingFormShell = () => {
 
         <main className="max-w-2xl mx-auto px-6 py-6">
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
-
             <PersonalInfoSection />
             <ProfessionalInfoSection />
 
-            <SkillsSection
-              ref={sectionRefs.skills}
-            />
+            <SkillsSection ref={sectionRefs.skills} />
 
             <PreferencesSection />
             <SocialLinksSection />
 
             {msg.text && (
-              <div className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
-                ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
-                : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
-                }`}>
+              <div
+                className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${
+                  msg.type === "success"
+                    ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
+                    : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
+                }`}
+              >
                 <span>{msg.type === "success" ? "✓" : "⚠"}</span>
                 {msg.text}
               </div>

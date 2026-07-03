@@ -2,7 +2,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { submitMenteeOnboarding, clearOnboardingMessages } from "../store/slices/menteeOnboardingSlice";
+import {
+  submitMenteeOnboarding,
+  clearOnboardingMessages,
+} from "../store/slices/menteeOnboardingSlice";
 import { validateMenteeFields } from "../utils/onboardingValidation";
 import {
   selectAuthToken,
@@ -23,20 +26,22 @@ const useMenteeOnboarding = () => {
   const [form, setForm] = useState(() => {
     try {
       const saved = sessionStorage.getItem("menteeOnboardingForm");
-      return saved ? JSON.parse(saved) : {
-        profilePicture: "",
-        bio: "",
-        currentRole: "",
-        company: "",
-        industry: "",
-        yearsOfExperience: "",
-        interestedFields: [],
-        skills: [],
-        communicationPreferences: [],
-        languages: [],
-        linkedInUrl: "",
-        portfolioUrl: "",
-      };
+      return saved
+        ? JSON.parse(saved)
+        : {
+            profilePicture: "",
+            bio: "",
+            currentRole: "",
+            company: "",
+            industry: "",
+            yearsOfExperience: "",
+            interestedFields: [],
+            skills: [],
+            communicationPreferences: [],
+            languages: [],
+            linkedInUrl: "",
+            portfolioUrl: "",
+          };
     } catch {
       return {
         profilePicture: "",
@@ -72,7 +77,9 @@ const useMenteeOnboarding = () => {
   }, [error, successMsg]);
 
   useEffect(() => {
-    return () => { dispatch(clearOnboardingMessages()); };
+    return () => {
+      dispatch(clearOnboardingMessages());
+    };
   }, []);
 
   useEffect(() => {
@@ -92,11 +99,15 @@ const useMenteeOnboarding = () => {
     if (!form.currentRole.trim())
       return setMsg({ type: "error", text: "Current Role is required." });
 
-    if (!token) { navigate("/login"); return; }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     //  shared util — replaces copy-pasted validation
     const validationError = validateMenteeFields(form);
-    if (validationError) return setMsg({ type: "error", text: validationError });
+    if (validationError)
+      return setMsg({ type: "error", text: validationError });
 
     dispatch(submitMenteeOnboarding({ ...form }));
   };

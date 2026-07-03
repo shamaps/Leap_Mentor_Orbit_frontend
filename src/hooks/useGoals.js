@@ -32,7 +32,9 @@ const useGoals = (connectRequestId) => {
       setGoal(data.goal);
       setMilestones(data.milestones || []);
     } catch (err) {
-      setError(err?.response?.data?.message || err.message || "Failed to load goal");
+      setError(
+        err?.response?.data?.message || err.message || "Failed to load goal",
+      );
     } finally {
       setLoading(false);
     }
@@ -96,7 +98,9 @@ const useGoals = (connectRequestId) => {
       );
       showToastRef.current({
         type: milestone.isCompleted ? "success" : "warning",
-        title: milestone.isCompleted ? "Milestone Completed!" : "Milestone Reopened",
+        title: milestone.isCompleted
+          ? "Milestone Completed!"
+          : "Milestone Reopened",
         message: `"${milestone.title}"`,
       });
     };
@@ -155,7 +159,10 @@ const useGoals = (connectRequestId) => {
         return { success: true };
       } catch (err) {
         pendingOwnGoalCreate.current -= 1;
-        const msg = err?.response?.data?.message || err.message || "Failed to create goal";
+        const msg =
+          err?.response?.data?.message ||
+          err.message ||
+          "Failed to create goal";
         setError(msg);
         return { success: false, error: msg };
       } finally {
@@ -176,7 +183,8 @@ const useGoals = (connectRequestId) => {
       return { success: true };
     } catch (err) {
       pendingOwnGoalUpdate.current -= 1;
-      const msg = err?.response?.data?.message || err.message || "Failed to update goal";
+      const msg =
+        err?.response?.data?.message || err.message || "Failed to update goal";
       setError(msg);
       return { success: false, error: msg };
     } finally {
@@ -198,7 +206,10 @@ const useGoals = (connectRequestId) => {
       return { success: true };
     } catch (err) {
       pendingOwnMilestoneAdd.current -= 1;
-      const msg = err?.response?.data?.message || err.message || "Failed to add milestone";
+      const msg =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to add milestone";
       setError(msg);
       return { success: false, error: msg };
     } finally {
@@ -227,7 +238,11 @@ const useGoals = (connectRequestId) => {
           m._id === milestoneId ? { ...m, isCompleted: !isCompleted } : m,
         ),
       );
-      setError(err?.response?.data?.message || err.message || "Failed to update milestone");
+      setError(
+        err?.response?.data?.message ||
+          err.message ||
+          "Failed to update milestone",
+      );
     }
   }, []);
 
@@ -245,7 +260,10 @@ const useGoals = (connectRequestId) => {
     } catch (err) {
       pendingOwnMilestoneDelete.current.delete(milestoneId);
       setMilestones(prevMilestones);
-      const msg = err?.response?.data?.message || err.message || "Failed to delete milestone";
+      const msg =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to delete milestone";
       setError(msg);
       return { success: false, error: msg };
     }

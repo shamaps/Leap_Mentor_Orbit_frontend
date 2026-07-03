@@ -174,7 +174,7 @@ const SharedGoalsTab = ({ onAllComplete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackSlotIndex, setFeedbackSlotIndex] = useState(null);
-  const [showOverallFeedbackModal, setShowOverallFeedbackModal] = useState(false); 
+  const [showOverallFeedbackModal, setShowOverallFeedbackModal] = useState(false);
   const handleSessionComplete = (slotIndex) => {
     setFeedbackSlotIndex(slotIndex);
     setTimeout(() => setShowFeedbackModal(true), 1200);
@@ -202,13 +202,13 @@ const SharedGoalsTab = ({ onAllComplete }) => {
 
   const {
     myFeedback,
-    mySlotFeedback,    
+    mySlotFeedback,
     loading: feedbackLoading,
     refetch: refetchFeedback,        // ← destructure refetch
   } = useReport(connectRequestId);
 
   const handleCreateGoal = async (fields) => {
-    if (!connectRequestId) return;          
+    if (!connectRequestId) return;
     const result = await createGoal(fields);
     if (result?.success) setIsEditing(false);
   };
@@ -284,7 +284,7 @@ const SharedGoalsTab = ({ onAllComplete }) => {
           totalSlots={totalSlots}
           progress={progress}
           onLeaveFeedback={() => setShowOverallFeedbackModal(true)}
-          feedbackSubmitted={!!myFeedback}  
+          feedbackSubmitted={!!myFeedback}
         />
       )}
 
@@ -298,7 +298,7 @@ const SharedGoalsTab = ({ onAllComplete }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {slots.map((slot, index) => (
               <SessionCard
-                key={index}
+                key={`${slot.date}-${slot.startTime}`}
                 slot={slot}
                 slotIndex={index}
                 viewerRole={viewerRole}
@@ -312,7 +312,7 @@ const SharedGoalsTab = ({ onAllComplete }) => {
                 connectRequestId={connectRequestId}
                 onSessionComplete={handleSessionComplete}
                 connect={connect}
-              
+
               />
             ))}
           </div>
@@ -325,13 +325,13 @@ const SharedGoalsTab = ({ onAllComplete }) => {
           connect={connect}
           slotIndex={feedbackSlotIndex}
           onClose={() => setShowFeedbackModal(false)}
-          onFeedbackSubmitted={handleFeedbackSubmitted}  
+          onFeedbackSubmitted={handleFeedbackSubmitted}
         />
       )}
       {showOverallFeedbackModal && (
         <FeedbackModal
           connect={connect}
-          slotIndex={null}        
+          slotIndex={null}
           onClose={() => setShowOverallFeedbackModal(false)}
           onFeedbackSubmitted={() => {
             refetchFeedback();

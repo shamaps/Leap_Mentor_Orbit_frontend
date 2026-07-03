@@ -1,19 +1,19 @@
 // src/hooks/useNotes.js
 import { useState, useEffect, useCallback } from "react";
 import {
-  getNotes        as apiGetNotes,
-  uploadNote      as apiUploadNote,
-  deleteNote      as apiDeleteNote,
+  getNotes as apiGetNotes,
+  uploadNote as apiUploadNote,
+  deleteNote as apiDeleteNote,
   getPrivateNotes as apiGetPrivateNotes,
 } from "../api/notes.api.js";
 
 const useNotes = (connectRequestId) => {
-  const [notes,          setNotes]          = useState([]);
-  const [privateNotes,   setPrivateNotes]   = useState([]);
-  const [loading,        setLoading]        = useState(true);
+  const [notes, setNotes] = useState([]);
+  const [privateNotes, setPrivateNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [privateLoading, setPrivateLoading] = useState(true);
-  const [uploading,      setUploading]      = useState(false);
-  const [error,          setError]          = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
 
   // ── Fetch shared notes ────────────────────────────────────
   const fetchNotes = useCallback(async () => {
@@ -51,26 +51,35 @@ const useNotes = (connectRequestId) => {
   }, [fetchNotes, fetchPrivateNotes]);
 
   // ── Upload a note ─────────────────────────────────────────
-  const uploadNote = useCallback(async (file, title = "", isPrivate = false) => {
-    if (!file || !connectRequestId) return;
-    try {
-      setUploading(true);
-      setError(null);
-      const data = await apiUploadNote(connectRequestId, file, title, isPrivate);
-      if (isPrivate) {
-        setPrivateNotes((prev) => [data.note, ...prev]);
-      } else {
-        setNotes((prev) => [data.note, ...prev]);
+  const uploadNote = useCallback(
+    async (file, title = "", isPrivate = false) => {
+      if (!file || !connectRequestId) return;
+      try {
+        setUploading(true);
+        setError(null);
+        const data = await apiUploadNote(
+          connectRequestId,
+          file,
+          title,
+          isPrivate,
+        );
+        if (isPrivate) {
+          setPrivateNotes((prev) => [data.note, ...prev]);
+        } else {
+          setNotes((prev) => [data.note, ...prev]);
+        }
+        return { success: true };
+      } catch (err) {
+        const msg =
+          err?.response?.data?.message || "Upload failed. Please try again.";
+        setError(msg);
+        return { success: false, message: msg };
+      } finally {
+        setUploading(false);
       }
-      return { success: true };
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Upload failed. Please try again.";
-      setError(msg);
-      return { success: false, message: msg };
-    } finally {
-      setUploading(false);
-    }
-  }, [connectRequestId]);
+    },
+    [connectRequestId],
+  );
 
   // ── Delete a note ─────────────────────────────────────────
   const deleteNote = useCallback(async (noteId, isPrivate = false) => {
@@ -84,7 +93,8 @@ const useNotes = (connectRequestId) => {
       }
       return { success: true };
     } catch (err) {
-      const msg = err?.response?.data?.message || "Delete failed. Please try again.";
+      const msg =
+        err?.response?.data?.message || "Delete failed. Please try again.";
       setError(msg);
       return { success: false, message: msg };
     }
@@ -99,7 +109,7 @@ const useNotes = (connectRequestId) => {
     error,
     uploadNote,
     deleteNote,
-    refetch:        fetchNotes,
+    refetch: fetchNotes,
     refetchPrivate: fetchPrivateNotes,
   };
 };

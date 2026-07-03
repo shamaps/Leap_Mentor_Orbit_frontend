@@ -11,7 +11,10 @@ const SkillsSection = forwardRef((_, ref) => {
     const trimmed = input.trim();
     if (!trimmed) return;
     const current = form.skills || [];
-    if (current.includes(trimmed)) { setInput(""); return; }
+    if (current.includes(trimmed)) {
+      setInput("");
+      return;
+    }
     onChange({ target: { name: "skills", value: [...current, trimmed] } });
     setInput("");
   };
@@ -26,7 +29,10 @@ const SkillsSection = forwardRef((_, ref) => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") { e.preventDefault(); addSkill(); }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addSkill();
+    }
   };
 
   return (
@@ -40,7 +46,16 @@ const SkillsSection = forwardRef((_, ref) => {
       {/* Header */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
         <div className="w-8 h-8 rounded-xl bg-blue-900 flex items-center justify-center shrink-0">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
         </div>
@@ -80,10 +95,11 @@ const SkillsSection = forwardRef((_, ref) => {
             onKeyDown={handleKeyDown}
             onBlur={addSkill}
             placeholder="Type a skill and press enter..."
-            className={`flex-1 text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400 ${hasError
+            className={`flex-1 text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400 ${
+              hasError
                 ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100"
                 : "border-slate-300 focus:border-blue-400 focus:ring-blue-100"
-              }`}
+            }`}
           />
           <button
             type="button"
@@ -94,10 +110,15 @@ const SkillsSection = forwardRef((_, ref) => {
           </button>
         </div>
 
-        {hasError
-          ? <p className="text-xs text-red-400 mt-1.5">Please add at least one skill.</p>
-          : <p className="text-xs text-slate-500 mt-1.5">Press Enter or click Add to add a skill</p>
-        }
+        {hasError ? (
+          <p className="text-xs text-red-400 mt-1.5">
+            Please add at least one skill.
+          </p>
+        ) : (
+          <p className="text-xs text-slate-500 mt-1.5">
+            Press Enter or click Add to add a skill
+          </p>
+        )}
       </div>
     </div>
   );

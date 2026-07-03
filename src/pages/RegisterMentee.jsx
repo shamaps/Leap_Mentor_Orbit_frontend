@@ -15,8 +15,20 @@ const RegisterMentee = () => {
         imageSrc="/images/mentee-bg.jpg"
         imageAlt="Mentees learning"
         badge="🚀 Start your growth journey today"
-        heading={<>Find the mentor who<br />unlocks your potential.</>}
-        subtext={<>Connect with world-class mentors and accelerate<br />your career like never before.</>}
+        heading={
+          <>
+            Find the mentor who
+            <br />
+            unlocks your potential.
+          </>
+        }
+        subtext={
+          <>
+            Connect with world-class mentors and accelerate
+            <br />
+            your career like never before.
+          </>
+        }
         stats={MENTEE_STATS}
       />
       <div className="flex flex-1 items-center justify-center px-6 py-10 overflow-y-auto">

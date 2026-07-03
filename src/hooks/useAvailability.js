@@ -12,8 +12,8 @@ const useAvailability = () => {
   });
 
   const [loading, setLoading] = useState(true);
-  const [saving,  setSaving]  = useState(false);
-  const [msg,     setMsg]     = useState({ type: "", text: "" });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState({ type: "", text: "" });
 
   // Fetch existing availability on mount
   useEffect(() => {
@@ -59,9 +59,8 @@ const useAvailability = () => {
   const setSpecificDates = (updater) => {
     setAvailability((prev) => ({
       ...prev,
-      specificDates: typeof updater === "function"
-        ? updater(prev.specificDates)
-        : updater,
+      specificDates:
+        typeof updater === "function" ? updater(prev.specificDates) : updater,
     }));
   };
 
@@ -70,12 +69,11 @@ const useAvailability = () => {
     setMsg({ type: "", text: "" });
     try {
       setSaving(true);
-      await axiosInstance.patch("/availability/me",
-        {
-          timezone:         availability.timezone,
-          sessionDurations: availability.sessionDurations,
-          specificDates:    availability.specificDates,
-        });
+      await axiosInstance.patch("/availability/me", {
+        timezone: availability.timezone,
+        sessionDurations: availability.sessionDurations,
+        specificDates: availability.specificDates,
+      });
       setMsg({ type: "success", text: "Availability saved successfully!" });
     } catch (err) {
       const apiMsg = getErrorMessage(err, "Failed to save.");

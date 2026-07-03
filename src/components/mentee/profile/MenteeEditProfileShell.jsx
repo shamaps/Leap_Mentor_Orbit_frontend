@@ -41,7 +41,9 @@ const MenteeEditProfileShell = () => {
                 width={32}
                 height={32}
               />
-              <span className="text-sm font-bold text-slate-800">Edit Profile</span>
+              <span className="text-sm font-bold text-slate-800">
+                Edit Profile
+              </span>
             </div>
             <button
               type="button"
@@ -54,7 +56,9 @@ const MenteeEditProfileShell = () => {
         </header>
 
         <div className="max-w-2xl mx-auto px-6 pt-8 pb-2 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">Update Your Profile</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Update Your Profile
+          </h1>
           <p className="text-sm text-slate-400 mt-1">
             Make changes to your profile and save when done.
           </p>
@@ -69,10 +73,13 @@ const MenteeEditProfileShell = () => {
             <SocialLinksSection />
 
             {msg.text && (
-              <div className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
-                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                : "bg-red-50 border-red-200 text-red-600"
-                }`}>
+              <div
+                className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${
+                  msg.type === "success"
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                    : "bg-red-50 border-red-200 text-red-600"
+                }`}
+              >
                 <span>{msg.type === "success" ? "✓" : "⚠"}</span>
                 {msg.text}
               </div>

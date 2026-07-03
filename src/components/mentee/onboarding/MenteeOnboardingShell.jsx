@@ -14,7 +14,8 @@ import FullScreenLoader from "@/components/common/FullScreenLoader";
 import { MENTEE_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
 
 const MenteeOnboardingShell = () => {
-  const { form, loading, msg, redirecting, handleChange, handleSubmit } = useMenteeOnboarding();
+  const { form, loading, msg, redirecting, handleChange, handleSubmit } =
+    useMenteeOnboarding();
   const [errors, setErrors] = useState({});
 
   // ── Refs for custom tag-input sections that have no real name= in the DOM ──
@@ -67,7 +68,9 @@ const MenteeOnboardingShell = () => {
   return (
     <MenteeOnboardingFormContext.Provider value={ctxValue}>
       <div className="min-h-screen bg-[#f0f4ff]">
-        {redirecting && <FullScreenLoader message="Setting up your profile..." />}
+        {redirecting && (
+          <FullScreenLoader message="Setting up your profile..." />
+        )}
 
         {/* Top accent */}
         <div className="h-1 w-full bg-blue-900" />
@@ -81,7 +84,9 @@ const MenteeOnboardingShell = () => {
                 alt="Leapmentor logo"
                 className="h-8 w-auto"
               />
-              <span className="text-sm font-bold text-slate-800">Leapmentor</span>
+              <span className="text-sm font-bold text-slate-800">
+                Leapmentor
+              </span>
             </div>
           </div>
         </header>
@@ -91,32 +96,35 @@ const MenteeOnboardingShell = () => {
 
         {/* Page title */}
         <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
-          <h1 className="text-2xl font-bold text-slate-900">Mentee Onboarding</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Mentee Onboarding
+          </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Complete your profile and find the perfect mentor to accelerate your career.
+            Complete your profile and find the perfect mentor to accelerate your
+            career.
           </p>
         </div>
 
         {/* Form */}
         <main className="max-w-2xl mx-auto px-6 py-6">
           <form onSubmit={onSubmit} noValidate className="space-y-4">
-
             <PersonalInfoSection />
             <ProfessionalDetailsSection />
 
-            <InterestedFieldsSection
-              ref={sectionRefs.interestedFields}
-            />
+            <InterestedFieldsSection ref={sectionRefs.interestedFields} />
 
             <MentorshipPrefsSection />
             <SocialLinksSection />
 
             {/* Status message */}
             {msg.text && (
-              <div className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
-                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                  : "bg-red-50 border-red-200 text-red-600"
-                }`}>
+              <div
+                className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${
+                  msg.type === "success"
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                    : "bg-red-50 border-red-200 text-red-600"
+                }`}
+              >
                 <span>{msg.type === "success" ? "✓" : "⚠️"}</span>
                 {msg.text}
               </div>

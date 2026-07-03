@@ -17,12 +17,14 @@ const MenteeConnectsTab = () => {
       error={error}
       completedCount={completed.length}
       emptyState={{
-        message:     "No active connections yet",
-        subMessage:  "Once a mentor accepts your request and you complete escrow payment, your active sessions will appear here.",
+        message: "No active connections yet",
+        subMessage:
+          "Once a mentor accepts your request and you complete escrow payment, your active sessions will appear here.",
         actionLabel: "Find Mentors",
-        onAction:    () => window.dispatchEvent(
-          new CustomEvent("setDashboardTab", { detail: "findMentors" })
-        ),
+        onAction: () =>
+          window.dispatchEvent(
+            new CustomEvent("setDashboardTab", { detail: "findMentors" }),
+          ),
       }}
 
       // ✅ Active session cards

@@ -15,8 +15,20 @@ const RegisterMentor = () => {
         imageSrc="/images/mentor-bg.jpg"
         imageAlt="Mentors collaborating"
         badge="🌍 Trusted by 10,000+ mentors globally"
-        heading={<>Empowering the next<br />generation of leaders.</>}
-        subtext={<>Join over 10,000+ mentors globally and start making<br />an impact today.</>}
+        heading={
+          <>
+            Empowering the next
+            <br />
+            generation of leaders.
+          </>
+        }
+        subtext={
+          <>
+            Join over 10,000+ mentors globally and start making
+            <br />
+            an impact today.
+          </>
+        }
         stats={MENTOR_STATS}
       />
       <main className="flex flex-1 items-center justify-center px-6 py-10 overflow-y-auto">

@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axiosInstance from "../../utils/axiosInstance";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
-import PhoneNumberField     from "./PhoneNumberField";
-import ResumeUpload         from "./ResumeUpload";
+import PhoneNumberField from "./PhoneNumberField";
+import ResumeUpload from "./ResumeUpload";
 import WorkExperienceUpload from "./WorkExperienceUpload";
 import VerificationInstructionsModal from "./VerificationInstructionsModal"; // ✅ 1. IMPORT
 import { selectAuthToken } from "../../store/selectors";
@@ -14,22 +14,22 @@ const VerificationFormShell = () => {
   const token = useSelector(selectAuthToken);
 
   // ── Form state ──
-  const [phoneNumber,          setPhoneNumber]          = useState("");
-  const [resumeFile,           setResumeFile]           = useState(null);
-  const [workExperienceFiles,  setWorkExperienceFiles]  = useState([]);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [resumeFile, setResumeFile] = useState(null);
+  const [workExperienceFiles, setWorkExperienceFiles] = useState([]);
   const [redirecting, setRedirecting] = useState(false);
   const [showModal, setShowModal] = useState(true); // ✅ 2. MODAL STATE
 
   // ── Error state — per field ──
   const [errors, setErrors] = useState({
-    phoneNumber:         "",
-    resumeFile:          "",
+    phoneNumber: "",
+    resumeFile: "",
     workExperienceFiles: "",
   });
 
   // ── Submission state ──
   const [loading, setLoading] = useState(false);
-  const [msg,     setMsg]     = useState({ type: "", text: "" });
+  const [msg, setMsg] = useState({ type: "", text: "" });
 
   // ── Handlers ──
   const handlePhoneChange = (e) => {
@@ -50,8 +50,8 @@ const VerificationFormShell = () => {
   // ── Validation ──
   const validate = () => {
     const newErrors = {};
-    if (!phoneNumber.trim())  newErrors.phoneNumber = "Phone number is required";
-    if (!resumeFile)          newErrors.resumeFile  = "Resume is required";
+    if (!phoneNumber.trim()) newErrors.phoneNumber = "Phone number is required";
+    if (!resumeFile) newErrors.resumeFile = "Resume is required";
     return newErrors;
   };
 
@@ -77,16 +77,17 @@ const VerificationFormShell = () => {
       });
 
       await axiosInstance.post("/upload/verification-documents", formData, {
-          "Content-Type": "multipart/form-data",
-        },
-      );
+        "Content-Type": "multipart/form-data",
+      });
 
       setRedirecting(true);
       setTimeout(() => navigate("/dashboard/mentor"), 1500);
     } catch (err) {
       setMsg({
         type: "error",
-        text: err?.response?.data?.message || "Failed to submit documents. Please try again.",
+        text:
+          err?.response?.data?.message ||
+          "Failed to submit documents. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -94,10 +95,14 @@ const VerificationFormShell = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f4ff]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-
+    <div
+      className="min-h-screen bg-[#f0f4ff]"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+    >
       {/* ✅ 3. MODAL — right here, first thing inside the root div */}
-      {showModal && <VerificationInstructionsModal onClose={() => setShowModal(false)} />}
+      {showModal && (
+        <VerificationInstructionsModal onClose={() => setShowModal(false)} />
+      )}
 
       {redirecting && <FullScreenLoader message="Submitting documents..." />}
 
@@ -115,28 +120,48 @@ const VerificationFormShell = () => {
               alt="Leapmentor logo"
               className="h-8 w-auto"
             />
-            <span className="text-sm font-bold text-[#0f172a]">Mentor Verification</span>
+            <span className="text-sm font-bold text-[#0f172a]">
+              Mentor Verification
+            </span>
           </div>
-          <span className="text-xs text-slate-400 font-medium">Step 2 of 2</span>
+          <span className="text-xs text-slate-400 font-medium">
+            Step 2 of 2
+          </span>
         </div>
       </header>
 
       {/* Page title */}
       <div className="max-w-2xl mx-auto px-6 pt-8 pb-2">
-        <h1 className="text-2xl font-bold text-[#0f172a]">Verify Your Profile</h1>
+        <h1 className="text-2xl font-bold text-[#0f172a]">
+          Verify Your Profile
+        </h1>
         <p className="text-sm text-slate-600 mt-1">
-          Submit your documents so our team can verify your credentials. This usually takes 1–2 business days.
+          Submit your documents so our team can verify your credentials. This
+          usually takes 1–2 business days.
         </p>
       </div>
 
       {/* Info banner */}
       <div className="max-w-2xl mx-auto px-6 pt-4">
         <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
-          <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+          <svg
+            className="shrink-0 mt-0.5"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#2563eb"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
           <p className="text-xs text-blue-700 leading-relaxed">
-            Your documents are stored securely and only reviewed by the LeapMentor admin team. They will not be shared with mentees.
+            Your documents are stored securely and only reviewed by the
+            LeapMentor admin team. They will not be shared with mentees.
           </p>
         </div>
       </div>
@@ -144,7 +169,6 @@ const VerificationFormShell = () => {
       {/* Form */}
       <main className="max-w-2xl mx-auto px-6 py-6">
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
-
           <PhoneNumberField
             value={phoneNumber}
             onChange={handlePhoneChange}
@@ -184,7 +208,6 @@ const VerificationFormShell = () => {
               "Submit for Verification →"
             )}
           </button>
-
         </form>
       </main>
     </div>

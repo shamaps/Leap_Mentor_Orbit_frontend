@@ -12,7 +12,9 @@ const ProfileTab = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Mentee Dashboard</h1>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Mentee Dashboard
+          </h1>
           <p className="text-sm text-blue-900 mt-0.5">
             Manage your professional identity and preferences.
           </p>
@@ -35,11 +37,12 @@ const ProfileTab = () => {
           Last profile update:{" "}
           {profile?.updatedAt
             ? new Date(profile.updatedAt).toLocaleDateString("en-US", {
-              month: "short", day: "numeric", year: "numeric",
-            })
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
             : "—"}
         </p>
-
       </div>
     </div>
   );

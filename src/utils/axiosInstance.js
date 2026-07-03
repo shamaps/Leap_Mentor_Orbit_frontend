@@ -68,7 +68,9 @@ axiosInstance.interceptors.response.use(
             delete originalRequest.headers["Authorization"];
             return axiosInstance(originalRequest);
           })
-          .catch((err) => { throw err; });
+          .catch((err) => {
+            throw err;
+          });
       }
 
       originalRequest._retry = true;
@@ -91,7 +93,7 @@ axiosInstance.interceptors.response.use(
     }
 
     throw error;
-  }
+  },
 );
 
 export default axiosInstance;

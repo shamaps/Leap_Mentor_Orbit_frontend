@@ -1,10 +1,9 @@
 // src/pages/admin/AdminEngagements.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
-import AdminLayout from "../../components/admin/AdminLayout";
 import StatCard from "@/components/common/StatCard";
 import StatusBadge from "../../components/common/StatusBadge";
-
+import { useToast } from "../../context/ToastContext";
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
@@ -78,8 +77,8 @@ const ExpandedDetail = ({ eng }) => (
           <p className="text-[10px] font-700 uppercase tracking-widest text-slate-400 mb-2"
             style={{ fontWeight: 700, letterSpacing: "0.1em" }}>Proposed Slots</p>
           <div className="flex flex-col gap-1.5">
-            {eng.selectedSlots?.map((s, i) => (
-              <SlotPill key={i} slot={s} />
+            {eng.selectedSlots?.map((s) => (
+              <SlotPill key={`${s.date}-${s.startTime}`} slot={s} />
             ))}
           </div>
         </div>
@@ -110,26 +109,6 @@ const ExpandedDetail = ({ eng }) => (
   </tr>
 );
 
-// ── Toast ─────────────────────────────────────────────────────
-const Toast = ({ toast }) => {
-  if (!toast) return null;
-  return (
-    <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg text-sm"
-      style={{
-        fontWeight: 600, fontFamily: FONT,
-        background: toast.type === "success" ? "#f0fdf4" : "#fef2f2",
-        border: `1px solid ${toast.type === "success" ? "#bbf7d0" : "#fecaca"}`,
-        color: toast.type === "success" ? "#15803d" : "#dc2626",
-      }}>
-      {toast.type === "success"
-        ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-        : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-      }
-      {toast.msg}
-    </div>
-  );
-};
-
 // ══════════════════════════════════════════════════════════════
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════════
@@ -143,20 +122,15 @@ const AdminEngagements = () => {
   const [dateTo, setDateTo] = useState("");
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
-  const [toast, setToast] = useState(null);
   const searchTimer = useRef(null);
-
-  const showToast = (msg, type = "error") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3500);
-  };
+  const { showToast } = useToast();
 
   // ── Fetch stats ───────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     try {
       const res = await adminAxiosInstance.get("/admin/engagements/stats");
       setStats(res.data);
-    } catch { showToast("Failed to load stats."); }
+    } catch { showToast({ message: "Failed to load stats.", type: "error" }); }
   }, []);
 
   // ── Fetch engagements ─────────────────────────────────────
@@ -178,7 +152,7 @@ const AdminEngagements = () => {
       setEngagements(res.data.engagements);
       setPagination(res.data.pagination);
     } catch {
-      showToast("Failed to load engagements.");
+      showToast({ type: "error", message: "Failed to load engagements." });
     } finally {
       setLoading(false);
     }
@@ -229,11 +203,8 @@ const AdminEngagements = () => {
   ];
 
   return (
-    <AdminLayout>
+  <>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
-
-      <Toast toast={toast} />
-
       <div className="space-y-6">
 
         {/* ── Header ───────────────────────────────────────── */}
@@ -410,7 +381,7 @@ const AdminEngagements = () => {
           )}
         </div>
       </div>
-    </AdminLayout>
+  </>
   );
 };
 

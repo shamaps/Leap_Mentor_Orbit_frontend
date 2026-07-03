@@ -1,7 +1,10 @@
 // src/components/mentor/dashboard/requests/RequestsTab.jsx
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchIncomingRequests, updateRequestStatus } from "../../../../store/slices/connectRequestsSlice";
+import {
+  fetchIncomingRequests,
+  updateRequestStatus,
+} from "../../../../store/slices/connectRequestsSlice";
 import {
   selectIncomingRequests,
   selectConnectRequestsLoading,
@@ -9,6 +12,7 @@ import {
   selectConnectRequestsError,
 } from "../../../../store/selectors";
 import RequestCard from "./RequestCard";
+import EmptyState from "../../../common/EmptyState";
 import MenteeProfileModal from "./MenteeProfileModal";
 
 const TABS = [
@@ -60,9 +64,10 @@ const RequestsTab = () => {
     dispatch(updateRequestStatus({ id, newStatus }));
   };
 
-  const filtered = activeTab === "all"
-    ? requests
-    : requests.filter((r) => r.status === activeTab);
+  const filtered =
+    activeTab === "all"
+      ? requests
+      : requests.filter((r) => r.status === activeTab);
 
   const counts = {
     all: requests.length,
@@ -79,7 +84,9 @@ const RequestsTab = () => {
       <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
-          <p className="text-sm text-slate-400 font-medium">Loading requests...</p>
+          <p className="text-sm text-slate-400 font-medium">
+            Loading requests...
+          </p>
         </div>
       </div>
     );
@@ -88,11 +95,12 @@ const RequestsTab = () => {
   return (
     <>
       <div className="w-full space-y-5">
-
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Mentee Requests</h1>
+            <h1 className="text-2xl font-bold text-slate-800">
+              Mentee Requests
+            </h1>
             <p className="text-sm text-blue-900 mt-0.5">
               Manage your incoming and active mentorship connections.
             </p>
@@ -119,19 +127,23 @@ const RequestsTab = () => {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 border-b-2 whitespace-nowrap ${activeTab === tab.key
-                  ? "text-blue-900 border-blue-900 bg-blue-50/50"
-                  : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
-                  }`}
+                className={`flex-shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 border-b-2 whitespace-nowrap ${
+                  activeTab === tab.key
+                    ? "text-blue-900 border-blue-900 bg-blue-50/50"
+                    : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
+                }`}
               >
                 {tab.label}
                 {counts[tab.key] > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeTab === tab.key
-                    ? "bg-blue-900 text-white"
-                    : tab.key === "referred"
-                      ? "bg-violet-100 text-violet-600"
-                      : "bg-slate-100 text-slate-500"
-                    }`}>
+                  <span
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      activeTab === tab.key
+                        ? "bg-blue-900 text-white"
+                        : tab.key === "referred"
+                          ? "bg-violet-100 text-violet-600"
+                          : "bg-slate-100 text-slate-500"
+                    }`}
+                  >
                     {counts[tab.key]}
                   </span>
                 )}
@@ -142,25 +154,23 @@ const RequestsTab = () => {
 
         {/* ── Cards ── */}
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+          <EmptyState
+            icon={
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
-            </div>
-            <p className="text-sm font-bold text-slate-700">
-              {activeTab === "all" ? "No requests yet" : `No ${activeTab} requests`}
-            </p>
-            <p className="text-xs text-slate-400 mt-1 max-w-xs leading-relaxed">
-              {activeTab === "pending"
+            }
+            message={activeTab === "all" ? "No requests yet" : `No ${activeTab} requests`}
+            subMessage={
+              activeTab === "pending"
                 ? "You'll see new requests here when mentees reach out."
                 : activeTab === "referred"
                   ? "Requests you've referred to other mentors will appear here."
                   : activeTab === "all"
                     ? "When mentees send you connect requests, they'll appear here."
-                    : `No requests have been ${activeTab} yet.`}
-            </p>
-          </div>
+                    : `No requests have been ${activeTab} yet.`
+            }
+          />
         ) : (
           // ✅ 1 col mobile → 2 col md+ with min card width enforced
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -173,7 +183,6 @@ const RequestsTab = () => {
             ))}
           </div>
         )}
-
       </div>
 
       {selectedRequest && (

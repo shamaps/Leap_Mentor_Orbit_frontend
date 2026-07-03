@@ -2,7 +2,7 @@
 import VerificationFormShell from "../components/mentor/VerificationFormShell";
 
 const MentorVerification = () => {
-  return <VerificationFormShell/>;
+  return <VerificationFormShell />;
 };
 
 export default MentorVerification;

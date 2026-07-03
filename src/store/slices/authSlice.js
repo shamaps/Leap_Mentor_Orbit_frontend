@@ -2,11 +2,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import getErrorMessage from "../../utils/getErrorMessage";
-import * as Sentry from '@sentry/react';
+import * as Sentry from "@sentry/react";
 
 export const redirectByRole = (roles = [], targetRole, navigate) => {
-  if (targetRole === "mentor" && roles.includes("mentor")) return navigate("/dashboard/mentor");
-  if (targetRole === "mentee" && roles.includes("mentee")) return navigate("/dashboard/mentee");
+  if (targetRole === "mentor" && roles.includes("mentor"))
+    return navigate("/dashboard/mentor");
+  if (targetRole === "mentee" && roles.includes("mentee"))
+    return navigate("/dashboard/mentee");
   if (roles.includes("mentor")) return navigate("/dashboard/mentor");
   if (roles.includes("mentee")) return navigate("/dashboard/mentee");
   navigate("/");
@@ -16,10 +18,17 @@ export const redirectByRole = (roles = [], targetRole, navigate) => {
 
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
-  async ({ name, email, password, roles, termsAccepted }, { rejectWithValue }) => {
+  async (
+    { name, email, password, roles, termsAccepted },
+    { rejectWithValue },
+  ) => {
     try {
       const res = await axiosInstance.post("/auth/register", {
-        name, email, password, roles, termsAccepted,
+        name,
+        email,
+        password,
+        roles,
+        termsAccepted,
       });
       // ← REMOVED: if (res.data?.token) localStorage.setItem("token", res.data.token);
       // Cookie is set automatically by the backend. accessToken goes to Redux memory.
@@ -27,7 +36,7 @@ export const registerUser = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Registration failed."));
     }
-  }
+  },
 );
 
 export const loginUser = createAsyncThunk(
@@ -40,19 +49,21 @@ export const loginUser = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Login failed."));
     }
-  }
+  },
 );
 
 export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/verification/send", { email: email.trim() });
+      const res = await axiosInstance.post("/verification/send", {
+        email: email.trim(),
+      });
       return res.data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Failed to send OTP."));
     }
-  }
+  },
 );
 
 export const verifyEmail = createAsyncThunk(
@@ -67,7 +78,7 @@ export const verifyEmail = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "OTP verification failed."));
     }
-  }
+  },
 );
 
 export const verifyMagicLink = createAsyncThunk(
@@ -75,56 +86,72 @@ export const verifyMagicLink = createAsyncThunk(
   async ({ token, email }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(
-        `/verification/verify/${token}?email=${encodeURIComponent(email)}`
+        `/verification/verify/${token}?email=${encodeURIComponent(email)}`,
       );
       return res.data;
     } catch (err) {
-      return rejectWithValue(getErrorMessage(err, "Magic link verification failed."));
+      return rejectWithValue(
+        getErrorMessage(err, "Magic link verification failed."),
+      );
     }
-  }
+  },
 );
 
 export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/auth/password-reset", { email: email.trim() });
+      const res = await axiosInstance.post("/auth/password-reset", {
+        email: email.trim(),
+      });
       return res.data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Failed to send OTP."));
     }
-  }
+  },
 );
 
 export const verifyResetOtp = createAsyncThunk(
   "auth/verifyResetOtp",
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/auth/password-reset/verification", {
-        email: email.trim(),
-        otp,
-      });
+      const res = await axiosInstance.post(
+        "/auth/password-reset/verification",
+        {
+          email: email.trim(),
+          otp,
+        },
+      );
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Invalid OTP.");
+      return rejectWithValue(
+        err?.response?.data?.message || err?.message || "Invalid OTP.",
+      );
     }
-  }
+  },
 );
 
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ email, otp, newPassword }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/auth/password-reset/confirmation", {
-        email: email.trim(),
-        otp,
-        newPassword,
-      });
+      const res = await axiosInstance.post(
+        "/auth/password-reset/confirmation",
+        {
+          email: email.trim(),
+          otp,
+          newPassword,
+        },
+      );
       return res.data;
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || err?.message || "Failed to reset password.");
+      return rejectWithValue(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Failed to reset password.",
+      );
     }
-  }
+  },
 );
 
 // ── ADD: Logout thunk — must hit backend to clear the HttpOnly cookie ──
@@ -134,10 +161,13 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { dispatch }) => {
     try {
-      await axiosInstance.post("/auth/logout");
+      await axiosInstance.post("/auth/logout"); // tells backend to clear the cookie too
     } catch (err) {
       // Cookie clearing failed — proceed anyway, local state will still be cleared
-      console.error("[authSlice] Logout request failed:", err?.response?.status ?? err.message);
+      console.error(
+        "[authSlice] Logout request failed:",
+        err?.response?.status ?? err.message,
+      );
     }
 
     const remainingKeys = Object.keys(localStorage);
@@ -154,7 +184,7 @@ export const logoutUser = createAsyncThunk(
     }
 
     dispatch(logout());
-  }
+  },
 );
 
 // ── Slice ────────────────────────────────────────────────────
@@ -164,7 +194,7 @@ const authSlice = createSlice({
     user: null,
     token: null,
     // accessToken now lives in memory only — never persisted
-    isBootstrapping: true,  // true until /auth/refresh attempt completes on page load
+    isBootstrapping: true, // true until /auth/refresh attempt completes on page load
     loading: false,
     sending: false,
     error: null,
@@ -174,7 +204,7 @@ const authSlice = createSlice({
   reducers: {
     logout(state) {
       state.user = null;
-      state.token = null;
+      state.token = null;//matters for redirect 
       state.error = null;
       state.successMsg = null;
     },
@@ -204,7 +234,7 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.accessToken || null;  // ← CHANGED: was .token
+        state.token = action.payload.accessToken || null; // ← CHANGED: was .token
         state.user = action.payload.user || null;
         state.successMsg = "Account created! Please verify your email.";
       })
@@ -222,7 +252,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.accessToken || null;  // ← CHANGED: was .token
+        state.token = action.payload.accessToken || null; // ← CHANGED: was .token
         state.user = action.payload.user || null;
         state.successMsg = "Login successful!";
       })
@@ -329,15 +359,15 @@ const authSlice = createSlice({
       });
 
     // ── Logout ── (ADD)
-    builder
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.user = null;
-        state.token = null;
-        state.error = null;
-        state.successMsg = null;
-      });
+    builder.addCase(logoutUser.fulfilled, (state) => {
+      state.user = null;
+      state.token = null;
+      state.error = null;
+      state.successMsg = null;
+    });
   },
 });
 
-export const { logout, setUser, setToken, setBootstrapped, clearMessages } = authSlice.actions;
+export const { logout, setUser, setToken, setBootstrapped, clearMessages } =
+  authSlice.actions;
 export default authSlice.reducer;

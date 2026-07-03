@@ -26,7 +26,6 @@ const PersonalInfoSection = () => {
     setUploading(true);
 
     try {
-
       const formData = new FormData();
       formData.append("profilePicture", file);
 
@@ -37,7 +36,7 @@ const PersonalInfoSection = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       handleChange({
@@ -48,7 +47,8 @@ const PersonalInfoSection = () => {
       });
     } catch (err) {
       setUploadErr(
-        err?.response?.data?.message || "Failed to upload image. Please try again."
+        err?.response?.data?.message ||
+          "Failed to upload image. Please try again.",
       );
     } finally {
       setUploading(false);
@@ -60,17 +60,26 @@ const PersonalInfoSection = () => {
     <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
       <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e8edf5] bg-[#f8faff]">
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />
           </svg>
         </div>
-        <h2 className="text-sm font-bold text-slate-800">Profile Picture & Bio</h2>
+        <h2 className="text-sm font-bold text-slate-800">
+          Profile Picture & Bio
+        </h2>
       </div>
 
       <div className="px-6 py-5 flex items-start gap-6">
-
         {/* Photo upload */}
         <div className="flex flex-col items-center gap-2 shrink-0">
           <button
@@ -90,8 +99,16 @@ const PersonalInfoSection = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                stroke="#93c5fd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#93c5fd"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
@@ -125,7 +142,9 @@ const PersonalInfoSection = () => {
 
         {/* Bio */}
         <div className="flex-1">
-          <label className="block text-xs font-semibold text-[#475569] mb-2">Bio</label>
+          <label className="block text-xs font-semibold text-[#475569] mb-2">
+            Bio
+          </label>
           <textarea
             name="bio"
             value={form.bio}

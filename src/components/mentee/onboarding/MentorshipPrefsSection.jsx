@@ -1,22 +1,8 @@
 // components/mentee/onboarding/MentorshipPrefsSection.jsx
 import { useMenteeOnboardingForm } from "../../../context/MenteeOnboardingFormContext";
 import { useState, useRef, useEffect } from "react";
-
-const COMM_OPTIONS = [
-  { value: "Chat", label: "Chat", icon: "💬" },
-  { value: "Video Call", label: "Video Call", icon: "🎥" },
-  { value: "Email", label: "Email", icon: "✉️" },
-  { value: "Phone Call", label: "Phone Call", icon: "📞" },
-  { value: "In-Person", label: "In-Person", icon: "🤝" },
-];
-
-//  20 professional languages — no free text allowed
-const LANGUAGE_OPTIONS = [
-  "English", "Hindi", "Spanish", "French", "German",
-  "Mandarin", "Arabic", "Portuguese", "Japanese", "Korean",
-  "Italian", "Russian", "Dutch", "Turkish", "Swedish",
-  "Polish", "Indonesian", "Bengali", "Tamil", "Urdu",
-];
+import { COMM_OPTIONS, LANGUAGE_OPTIONS } from "../../../constants/mentorshipPrefs";
+import PrefsCardHeader from "../../common/PrefsCardHeader";
 
 const MentorshipPrefsSection = () => {
   const { form, handleChange } = useMenteeOnboardingForm();
@@ -41,7 +27,9 @@ const MentorshipPrefsSection = () => {
     const updated = selected.includes(value)
       ? selected.filter((v) => v !== value)
       : [...selected, value];
-    handleChange({ target: { name: "communicationPreferences", value: updated } });
+    handleChange({
+      target: { name: "communicationPreferences", value: updated },
+    });
   };
 
   const toggleLanguage = (lang) => {
@@ -52,24 +40,16 @@ const MentorshipPrefsSection = () => {
   };
 
   const removeLanguage = (lang) => {
-    handleChange({ target: { name: "languages", value: languages.filter((l) => l !== lang) } });
+    handleChange({
+      target: { name: "languages", value: languages.filter((l) => l !== lang) },
+    });
   };
 
   return (
     <div className="bg-white rounded-2xl border border-blue-100 shadow-sm">
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
-        <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
-        </div>
-        <h2 className="text-sm font-bold text-slate-800">Mentorship Preferences</h2>
-      </div>
-
+      <PrefsCardHeader variant="section" />
       <div className="px-6 py-5">
         <div className="grid grid-cols-2 gap-6">
-
           {/* Communication */}
           <div>
             <label className="block text-xs font-semibold text-slate-500 mb-3">
@@ -79,21 +59,39 @@ const MentorshipPrefsSection = () => {
               {COMM_OPTIONS.map(({ value, label, icon }) => {
                 const isChecked = selected.includes(value);
                 return (
-                  <label key={value} className="flex items-center gap-3 cursor-pointer group">
+                  <label
+                    key={value}
+                    className="flex items-center gap-3 cursor-pointer group"
+                  >
                     <div
                       onClick={() => toggleComm(value)}
-                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-150 cursor-pointer shrink-0 ${isChecked
+                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-150 cursor-pointer shrink-0 ${
+                        isChecked
                           ? "bg-blue-900 border-blue-900"
                           : "border-slate-300 bg-white group-hover:border-blue-400"
-                        }`}
+                      }`}
                     >
                       {isChecked && (
-                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                          <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                        >
+                          <path
+                            d="M2 6l3 3 5-5"
+                            stroke="white"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
                         </svg>
                       )}
                     </div>
-                    <span onClick={() => toggleComm(value)} className="text-sm text-slate-600 select-none">
+                    <span
+                      onClick={() => toggleComm(value)}
+                      className="text-sm text-slate-600 select-none"
+                    >
                       {icon} {label}
                     </span>
                   </label>
@@ -136,11 +134,29 @@ const MentorshipPrefsSection = () => {
                 onClick={() => setDropdownOpen((prev) => !prev)}
                 className="w-full text-sm text-left bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-slate-400 transition-all duration-150 flex items-center justify-between"
               >
-                <span className={languages.length === 0 ? "text-slate-300" : "text-slate-700"}>
-                  {languages.length === 0 ? "Select languages..." : `${languages.length} selected`}
+                <span
+                  className={
+                    languages.length === 0 ? "text-slate-300" : "text-slate-700"
+                  }
+                >
+                  {languages.length === 0
+                    ? "Select languages..."
+                    : `${languages.length} selected`}
                 </span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                  style={{ transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#94a3b8"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    transform: dropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 0.2s",
+                  }}
+                >
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </button>
@@ -155,15 +171,27 @@ const MentorshipPrefsSection = () => {
                         key={lang}
                         type="button"
                         onClick={() => toggleLanguage(lang)}
-                        className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors ${isSelected
+                        className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors ${
+                          isSelected
                             ? "bg-blue-50 text-blue-700 font-semibold"
                             : "text-slate-700 hover:bg-slate-50"
-                          }`}
+                        }`}
                       >
                         {lang}
                         {isSelected && (
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M2 6l3 3 5-5" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                          >
+                            <path
+                              d="M2 6l3 3 5-5"
+                              stroke="#2563eb"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
                           </svg>
                         )}
                       </button>
@@ -173,7 +201,6 @@ const MentorshipPrefsSection = () => {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>

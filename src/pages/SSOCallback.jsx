@@ -1,8 +1,8 @@
 // src/pages/SSOCallback.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";                          // ✅ ADDED
-import { setUser } from "../store/slices/authSlice";               // ✅ ADDED
+import { useDispatch } from "react-redux"; // ✅ ADDED
+import { setUser } from "../store/slices/authSlice"; // ✅ ADDED
 import { AuthenticateWithRedirectCallback, useAuth } from "@clerk/clerk-react";
 import axiosInstance from "../utils/axiosInstance";
 
@@ -20,7 +20,7 @@ const redirectByRole = (roles, navigate) => {
 const SyncWithBackend = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
-  const dispatch = useDispatch();                                   // ✅ ADDED
+  const dispatch = useDispatch(); // ✅ ADDED
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -45,22 +45,24 @@ const SyncWithBackend = () => {
         // Token is now in the HttpOnly cookie set by the backend.
         // We only dispatch into Redux memory — never store in localStorage.
         if (res.data?.accessToken || res.data?.token) {
-          dispatch(setUser({
-            token: res.data.accessToken || res.data.token,
-            user: res.data.user || null,
-          }));
+          dispatch(
+            setUser({
+              token: res.data.accessToken || res.data.token,
+              user: res.data.user || null,
+            }),
+          );
         }
 
         localStorage.removeItem("sso_role");
         localStorage.removeItem("sso_terms");
 
         if (res.data?.isNewUser) {
-          const onboardingRole = role && role !== "existing" ? role : res.data.user.roles[0];
+          const onboardingRole =
+            role && role !== "existing" ? role : res.data.user.roles[0];
           navigate(`/onboarding/${onboardingRole}`);
         } else {
           redirectByRole(res.data?.user?.roles || [], navigate);
         }
-
       } catch (err) {
         console.error("❌ Error:", err?.response?.data || err.message);
         setError(err?.response?.data?.message || err.message || "SSO failed");

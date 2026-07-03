@@ -1,6 +1,6 @@
 // src/hooks/useRequestHistory.js
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "../utils/axiosInstance"
+import axiosInstance from "../utils/axiosInstance";
 
 const useRequestHistory = () => {
   const [requests, setRequests] = useState([]);
@@ -35,22 +35,26 @@ const useRequestHistory = () => {
       setRequests((prev) => prev.filter((r) => r._id !== id));
       setSelected((prev) => (prev?._id === id ? null : prev));
     } catch (err) {
-      console.error("Delete error:", err?.response?.data?.message || err.message);
+      console.error(
+        "Delete error:",
+        err?.response?.data?.message || err.message,
+      );
     }
   }, []);
 
   // ── Update a single request in place ───────────────────────
   const updateRequest = useCallback((id, patch) => {
     setRequests((prev) =>
-      prev.map((r) => (r._id === id ? { ...r, ...patch } : r))
+      prev.map((r) => (r._id === id ? { ...r, ...patch } : r)),
     );
     setSelected((prev) => (prev?._id === id ? { ...prev, ...patch } : prev));
   }, []);
 
   // ── Filtered list ───────────────────────────────────────────
-  const filtered = activeTab === "all"
-    ? requests
-    : requests.filter((r) => r.status === activeTab);
+  const filtered =
+    activeTab === "all"
+      ? requests
+      : requests.filter((r) => r.status === activeTab);
 
   // ── Tab counts ──────────────────────────────────────────────
   const counts = {

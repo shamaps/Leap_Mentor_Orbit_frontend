@@ -20,18 +20,34 @@ const TIMEZONES = [
 
 const DURATION_OPTIONS = [30, 45, 60];
 
-const TimezoneDurationSection = ({ timezone, sessionDurations, updateTimezone, toggleDuration }) => {
+const TimezoneDurationSection = ({
+  timezone,
+  sessionDurations,
+  updateTimezone,
+  toggleDuration,
+}) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-7 h-7 rounded-lg bg-blue-900 flex items-center justify-center shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
           </svg>
         </div>
-        <h3 className="text-sm font-bold text-slate-800">Timezone & Duration</h3>
+        <h3 className="text-sm font-bold text-slate-800">
+          Timezone & Duration
+        </h3>
       </div>
 
       {/* Timezone */}

@@ -1,16 +1,16 @@
 // src/pages/UnifiedLogin.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser, useAuth, SignIn } from "@clerk/clerk-react";   // ← ADDED useAuth, SignIn
-import { useDispatch } from "react-redux";                        // ← ADDED
-import { setUser } from "../store/slices/authSlice";              // ← ADDED
+import { useUser, useAuth, SignIn } from "@clerk/clerk-react"; // ← ADDED useAuth, SignIn
+import { useDispatch } from "react-redux"; // ← ADDED
+import { setUser } from "../store/slices/authSlice"; // ← ADDED
 import axiosInstance from "../utils/axiosInstance";
 
 export default function UnifiedLogin() {
   const { isSignedIn, user } = useUser();
-  const { getToken } = useAuth();                                 // ← ADDED — to get Clerk JWT
+  const { getToken } = useAuth(); // ← ADDED — to get Clerk JWT
   const navigate = useNavigate();
-  const dispatch = useDispatch();                                 // ← ADDED
+  const dispatch = useDispatch(); // ← ADDED
   const [roles, setRoles] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,15 +49,17 @@ export default function UnifiedLogin() {
 
       const res = await axiosInstance.post("/auth/clerk-sso", {
         clerkToken,
-        roles: undefined,       // existing user — no new roles
-        termsAccepted: true,    // existing user — already accepted
+        roles: undefined, // existing user — no new roles
+        termsAccepted: true, // existing user — already accepted
       });
 
       if (res.data?.accessToken || res.data?.token) {
-        dispatch(setUser({
-          token: res.data.accessToken || res.data.token,
-          user: res.data.user || null,
-        }));
+        dispatch(
+          setUser({
+            token: res.data.accessToken || res.data.token,
+            user: res.data.user || null,
+          }),
+        );
       }
 
       if (role === "mentor") {
@@ -104,7 +106,8 @@ export default function UnifiedLogin() {
           Welcome , {user.firstName}!
         </h2>
         <p className="text-gray-500 mb-8">
-          You're registered as both a Mentor and Mentee. How would you like to continue?
+          You're registered as both a Mentor and Mentee. How would you like to
+          continue?
         </p>
         <div className="flex flex-col gap-4">
           <button
@@ -126,10 +129,5 @@ export default function UnifiedLogin() {
 }
 
 function SignInEmbed() {
-  return (
-    <SignIn
-      routing="hash"
-      fallbackRedirectUrl="/login"
-    />
-  );
+  return <SignIn routing="hash" fallbackRedirectUrl="/login" />;
 }

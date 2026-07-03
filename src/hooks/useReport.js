@@ -27,29 +27,42 @@ const useReport = (connectRequestId, refreshKey = 0) => {
     }
   }, [connectRequestId]);
 
-  useEffect(() => { fetchFeedback(); }, [fetchFeedback, refreshKey]);
+  useEffect(() => {
+    fetchFeedback();
+  }, [fetchFeedback, refreshKey]);
 
   // slotIndex now accepted and sent to backend
-  const submitFeedback = useCallback(async (rating, comment, slotIndex) => {
-    console.log("sending feedback:", { connectRequestId, rating, comment, slotIndex })
-    if (!connectRequestId) return { success: false };
-    try {
-      setSubmitting(true);
-      setError(null);
-      const res = await axiosInstance.post(
-        "/feedback",
-        { connectRequestId, rating, comment, slotIndex }
-      );
-      setMyFeedback(res.data.feedback);
-      return { success: true };
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to submit feedback.";
-      setError(msg);
-      return { success: false, message: msg };
-    } finally {
-      setSubmitting(false);
-    }
-  }, [connectRequestId]);
+  const submitFeedback = useCallback(
+    async (rating, comment, slotIndex) => {
+      console.log("sending feedback:", {
+        connectRequestId,
+        rating,
+        comment,
+        slotIndex,
+      });
+      if (!connectRequestId) return { success: false };
+      try {
+        setSubmitting(true);
+        setError(null);
+        const res = await axiosInstance.post("/feedback", {
+          connectRequestId,
+          rating,
+          comment,
+          slotIndex,
+        });
+        setMyFeedback(res.data.feedback);
+        return { success: true };
+      } catch (err) {
+        const msg =
+          err?.response?.data?.message || "Failed to submit feedback.";
+        setError(msg);
+        return { success: false, message: msg };
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [connectRequestId],
+  );
 
   return {
     myFeedback,

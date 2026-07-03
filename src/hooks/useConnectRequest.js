@@ -9,7 +9,13 @@ const useConnectRequest = () => {
   const [error, setError] = useState("");
   const inFlightRef = useRef(false); // ← synchronous in-flight guard
 
-  const sendRequest = async ({ mentorId, message, selectedSlots, sessionRate, sessionCount }) => {
+  const sendRequest = async ({
+    mentorId,
+    message,
+    selectedSlots,
+    sessionRate,
+    sessionCount,
+  }) => {
     if (inFlightRef.current) return false; // ← blocks any concurrent call immediately
 
     setError("");
@@ -36,7 +42,7 @@ const useConnectRequest = () => {
       return true;
     } catch (err) {
       const apiMsg = getErrorMessage(err, "Failed to send request.");
-      setError(apiMsg); 
+      setError(apiMsg);
       return false;
     } finally {
       inFlightRef.current = false; // ← release lock

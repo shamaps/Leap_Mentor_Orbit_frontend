@@ -79,13 +79,18 @@ const useMentorSettings = (initialProfile) => {
     try {
       setSaving(true);
       setMsg({ type: "", text: "" });
-      await axiosInstance.put("/mentor-profile/me",
-        { hourlyRate: Number(hourlyRate) || 0, emailNotifications, isProfilePublished: publicProfile }
-      );
+      await axiosInstance.put("/mentor-profile/me", {
+        hourlyRate: Number(hourlyRate) || 0,
+        emailNotifications,
+        isProfilePublished: publicProfile,
+      });
       setMsg({ type: "success", text: "Settings saved successfully!" });
       setTimeout(() => setMsg({ type: "", text: "" }), 3000);
     } catch (err) {
-      setMsg({ type: "error", text: err?.response?.data?.message || "Failed to save settings." });
+      setMsg({
+        type: "error",
+        text: err?.response?.data?.message || "Failed to save settings.",
+      });
     } finally {
       setSaving(false);
     }
@@ -102,12 +107,14 @@ const useMentorSettings = (initialProfile) => {
     fetching,
     saving,
     msg,
-    hourlyRate, setHourlyRate,
-    emailNotifications, setEmailNotifications,
-    publicProfile, setPublicProfile,
+    hourlyRate,
+    setHourlyRate,
+    emailNotifications,
+    setEmailNotifications,
+    publicProfile,
+    setPublicProfile,
     badges,
     handleSave,
-
   };
 };
 

@@ -8,98 +8,107 @@ import MentorProfileModal from "./MentorProfileModal";
 import { getPlatformCommissionRate } from "../../../../api/escrow.api";
 
 const FindMentorsTab = () => {
-    const {
-        skill, filters, mentors, loading, loadingMore, error,
-        hasSearched, hasMore, totalCount,
-        setSkill, updateFilter, resetFilters, loadMore,
-    } = useMentorSearch();
+  const {
+    skill,
+    filters,
+    mentors,
+    loading,
+    loadingMore,
+    error,
+    hasSearched,
+    hasMore,
+    totalCount,
+    setSkill,
+    updateFilter,
+    resetFilters,
+    loadMore,
+  } = useMentorSearch();
 
-    const [selectedMentor, setSelectedMentor] = useState(null);
-    const [commissionRate, setCommissionRate] = useState(null);
-    const [feeLoading, setFeeLoading] = useState(true);
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [commissionRate, setCommissionRate] = useState(null);
+  const [feeLoading, setFeeLoading] = useState(true);
 
-    useEffect(() => {
-        getPlatformCommissionRate()
-            .then((data) => setCommissionRate(data.commissionRate))
-            .catch(() => setCommissionRate(null))
-            .finally(() => setFeeLoading(false));
-    }, []);
+  useEffect(() => {
+    getPlatformCommissionRate()
+      .then((data) => setCommissionRate(data.commissionRate))
+      .catch(() => setCommissionRate(null))
+      .finally(() => setFeeLoading(false));
+  }, []);
 
-    return (
-        <div className="space-y-5">
-
-            {/* ── Header + Fee Card row ── */}
-            <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Find Mentors</h1>
-                    <p className="text-sm text-blue-900 mt-0.5">
-                        Search by skill or name to find the right mentor for your goals.
-                    </p>
-                </div>
-
-                {/* Platform Fee Card — top right */}
-                <div className="bg-white border border-slate-100 rounded-2xl shadow-sm p-3 flex flex-col gap-1.5 w-44 shrink-0">
-                    <div className="flex items-center gap-2">
-                       
-                        <p className="text-xs font-bold text-slate-800">Platform Fee</p>
-                    </div>
-
-                    <p className="text-[10px] text-blue-900 font-medium">Current Rate</p>
-
-                    {feeLoading ? (
-                        <div className="h-7 w-16 bg-slate-200 rounded-lg animate-pulse" />
-                    ) : commissionRate != null ? (
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-extrabold text-slate-800 leading-none">{commissionRate}</span>
-                            <span className="text-sm font-bold text-amber-500">%</span>
-                        </div>
-                    ) : null}
-                </div>
-                
-            </div>
-
-            {/* Search + Filter */}
-            <div className="flex flex-col gap-3">
-                <SearchBar
-                    skill={skill}
-                    setSkill={setSkill}
-                    totalCount={totalCount}
-                    hasSearched={hasSearched}
-                />
-                <FilterPanel
-                    filters={filters}
-                    updateFilter={updateFilter}
-                    resetFilters={resetFilters}
-                />
-            </div>
-
-            {/* Error */}
-            {error && (
-                <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
-                    <span>⚠</span> {error}
-                </div>
-            )}
-
-            {/* Results */}
-            <MentorGrid
-                mentors={mentors}
-                loading={loading}
-                loadingMore={loadingMore}
-                hasMore={hasMore}
-                hasSearched={hasSearched}
-                totalCount={totalCount}
-                onLoadMore={loadMore}
-                onViewProfile={setSelectedMentor}
-            />
-
-            {selectedMentor && (
-                <MentorProfileModal
-                    mentor={selectedMentor}
-                    onClose={() => setSelectedMentor(null)}
-                />
-            )}
+  return (
+    <div className="space-y-5">
+      {/* ── Header + Fee Card row ── */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Find Mentors</h1>
+          <p className="text-sm text-blue-900 mt-0.5">
+            Search by skill or name to find the right mentor for your goals.
+          </p>
         </div>
-    );
+
+        {/* Platform Fee Card — top right */}
+        <div className="bg-white border border-slate-100 rounded-2xl shadow-sm p-3 flex flex-col gap-1.5 w-44 shrink-0">
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-bold text-slate-800">Platform Fee</p>
+          </div>
+
+          <p className="text-[10px] text-blue-900 font-medium">Current Rate</p>
+
+          {feeLoading ? (
+            <div className="h-7 w-16 bg-slate-200 rounded-lg animate-pulse" />
+          ) : commissionRate != null ? (
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-extrabold text-slate-800 leading-none">
+                {commissionRate}
+              </span>
+              <span className="text-sm font-bold text-amber-500">%</span>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Search + Filter */}
+      <div className="flex flex-col gap-3">
+        <SearchBar
+          skill={skill}
+          setSkill={setSkill}
+          totalCount={totalCount}
+          hasSearched={hasSearched}
+        />
+        <FilterPanel
+          filters={filters}
+          updateFilter={updateFilter}
+          resetFilters={resetFilters}
+        />
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
+          <span>⚠</span> {error}
+        </div>
+      )}
+
+      {/* Results */}
+      <MentorGrid
+        mentors={mentors}
+        loading={loading}
+        loadingMore={loadingMore}
+        hasMore={hasMore}
+        hasSearched={hasSearched}
+        totalCount={totalCount}
+        onLoadMore={loadMore}
+        onViewProfile={setSelectedMentor}
+      />
+
+      {selectedMentor && (
+        <MentorProfileModal
+          mentor={selectedMentor}
+          onClose={() => setSelectedMentor(null)}
+        />
+      )}
+    </div>
+  );
 };
 
 export default FindMentorsTab;

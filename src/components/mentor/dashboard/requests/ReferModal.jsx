@@ -1,7 +1,7 @@
 // src/components/mentor/dashboard/requests/ReferModal.jsx
 import { useState, useEffect } from "react";
 import axiosInstance from "../../../../utils/axiosInstance";
-
+import EmptyState from "../../../common/EmptyState";
 const ReferModal = ({ request, onClose, onReferred }) => {
   const [mentors, setMentors] = useState([]);
   const [mySkills, setMySkills] = useState([]);
@@ -11,18 +11,20 @@ const ReferModal = ({ request, onClose, onReferred }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // ✅ Fetch similar mentors on mount
+  //  Fetch similar mentors on mount
   useEffect(() => {
     const fetchSimilarMentors = async () => {
       try {
         setLoading(true);
         const res = await axiosInstance.get(
-          `/connect-requests/${request._id}/similar-mentors`
+          `/connect-requests/${request._id}/similar-mentors`,
         );
         setMentors(res.data.mentors || []);
         setMySkills(res.data.mySkills || []);
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to load similar mentors.");
+        setError(
+          err?.response?.data?.message || "Failed to load similar mentors.",
+        );
       } finally {
         setLoading(false);
       }
@@ -36,10 +38,9 @@ const ReferModal = ({ request, onClose, onReferred }) => {
     try {
       setReferring(true);
       setError("");
-      await axiosInstance.patch(
-        `/connect-requests/${request._id}/refer`,
-        { referToMentorId: selected.user._id }
-      );
+      await axiosInstance.patch(`/connect-requests/${request._id}/refer`, {
+        referToMentorId: selected.user._id,
+      });
       setSuccess(true);
       onReferred(request._id, "referred");
     } catch (err) {
@@ -51,7 +52,12 @@ const ReferModal = ({ request, onClose, onReferred }) => {
 
   const mentee = request.mentee;
   const initials = mentee?.name
-    ? mentee.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    ? mentee.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
     : "?";
 
   // ── Success screen ────────────────────────────────────────
@@ -60,21 +66,37 @@ const ReferModal = ({ request, onClose, onReferred }) => {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
         <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center">
           <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-5">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-              stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#10B981"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <h2 className="text-2xl font-extrabold text-emerald-600 mb-2">Request Referred!</h2>
+          <h2 className="text-2xl font-extrabold text-emerald-600 mb-2">
+            Request Referred!
+          </h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-2">
             You've referred{" "}
-            <span className="font-semibold text-slate-700">{mentee?.name}'s</span>{" "}
+            <span className="font-semibold text-slate-700">
+              {mentee?.name}'s
+            </span>{" "}
             request to{" "}
-            <span className="font-semibold text-slate-700">{selected?.user?.name}</span>.
+            <span className="font-semibold text-slate-700">
+              {selected?.user?.name}
+            </span>
+            .
           </p>
           <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 mb-6 mt-1">
             <p className="text-xs text-blue-900 font-medium leading-relaxed">
-              📨 The request now appears in {selected?.user?.name}'s incoming requests tab.
+              📨 The request now appears in {selected?.user?.name}'s incoming
+              requests tab.
             </p>
           </div>
           <button
@@ -92,35 +114,51 @@ const ReferModal = ({ request, onClose, onReferred }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 py-6">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-
         {/* ── Header ── */}
         <div className="flex items-start justify-between p-6 pb-4">
           <div>
-            <h2 className="text-lg font-bold text-slate-800">Refer to Another Mentor</h2>
+            <h2 className="text-lg font-bold text-slate-800">
+              Refer to Another Mentor
+            </h2>
             <p className="text-xs text-slate-400 mt-0.5">
               Select a mentor with similar skills to forward this request
             </p>
           </div>
-          <button type="button" onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center shrink-0 transition-colors">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center shrink-0 transition-colors"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#64748B"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
 
         <div className="px-6 pb-6 space-y-4">
-
           {/* ── Mentee info pill ── */}
           <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3">
             <div className="w-9 h-9 rounded-full bg-blue-900 flex items-center justify-center text-white text-xs font-bold shrink-0">
               {initials}
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-700">{mentee?.name}</p>
+              <p className="text-sm font-semibold text-slate-700">
+                {mentee?.name}
+              </p>
               <p className="text-xs text-slate-400">{mentee?.email}</p>
             </div>
-            <span className="ml-auto text-xs text-slate-400 font-medium">Mentee</span>
+            <span className="ml-auto text-xs text-slate-400 font-medium">
+              Mentee
+            </span>
           </div>
 
           {/* ── Error ── */}
@@ -134,38 +172,47 @@ const ReferModal = ({ request, onClose, onReferred }) => {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
               <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
-              <p className="text-sm text-slate-400 font-medium">Finding similar mentors...</p>
-            </div>
-          ) : mentors.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-              </div>
-              <p className="text-sm font-bold text-slate-700">No similar mentors found</p>
-              <p className="text-xs text-slate-400 mt-1">
-                No other published mentors share your skills yet.
+              <p className="text-sm text-slate-400 font-medium">
+                Finding similar mentors...
               </p>
             </div>
+          ) : mentors.length === 0 ? (
+              <EmptyState
+                icon={
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                }
+                message="No similar mentors found"
+                subMessage="No other published mentors share your skills yet."
+                compact
+              />
           ) : (
             <>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">
-                {mentors.length} mentor{mentors.length > 1 ? "s" : ""} with similar skills
+                {mentors.length} mentor{mentors.length > 1 ? "s" : ""} with
+                similar skills
               </p>
 
               {/* ── Mentor list ── */}
               <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                 {mentors.map((mentor) => {
                   const mInitials = mentor.user?.name
-                    ? mentor.user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+                    ? mentor.user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2)
                     : "?";
                   const isSelected = selected?._id === mentor._id;
                   const matchingSkills = mentor.skills.filter((s) =>
-                    mySkills.map((ms) => ms.toLowerCase()).includes(s.toLowerCase())
+                    mySkills
+                      .map((ms) => ms.toLowerCase())
+                      .includes(s.toLowerCase()),
                   );
 
                   return (
@@ -173,10 +220,11 @@ const ReferModal = ({ request, onClose, onReferred }) => {
                       key={mentor._id}
                       type="button"
                       onClick={() => setSelected(mentor)}
-                      className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all duration-150 ${isSelected
+                      className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all duration-150 ${
+                        isSelected
                           ? "border-blue-500 bg-blue-50"
                           : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
-                        }`}
+                      }`}
                     >
                       <div className="flex items-center gap-3">
                         {/* Avatar */}
@@ -205,14 +253,17 @@ const ReferModal = ({ request, onClose, onReferred }) => {
                             )}
                           </div>
                           <p className="text-xs text-slate-400 truncate">
-                            {mentor.currentRole}{mentor.company ? ` · ${mentor.company}` : ""}
+                            {mentor.currentRole}
+                            {mentor.company ? ` · ${mentor.company}` : ""}
                           </p>
                           {/* Matching skills */}
                           {matchingSkills.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-1.5">
                               {matchingSkills.slice(0, 4).map((skill) => (
-                                <span key={skill}
-                                  className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-semibold">
+                                <span
+                                  key={skill}
+                                  className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-semibold"
+                                >
                                   {skill}
                                 </span>
                               ))}
@@ -226,11 +277,24 @@ const ReferModal = ({ request, onClose, onReferred }) => {
                         </div>
 
                         {/* Selected indicator */}
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${isSelected ? "border-blue-500 bg-blue-500" : "border-slate-300"
-                          }`}>
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                            isSelected
+                              ? "border-blue-500 bg-blue-500"
+                              : "border-slate-300"
+                          }`}
+                        >
                           {isSelected && (
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
-                              stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <svg
+                              width="10"
+                              height="10"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="white"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
                               <polyline points="20 6 9 17 4 12" />
                             </svg>
                           )}
@@ -243,8 +307,11 @@ const ReferModal = ({ request, onClose, onReferred }) => {
 
               {/* ── Action buttons ── */}
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={onClose}
-                  className="flex-1 py-3 rounded-2xl border-2 border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all duration-150">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 py-3 rounded-2xl border-2 border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all duration-150"
+                >
                   Cancel
                 </button>
                 <button
@@ -258,7 +325,9 @@ const ReferModal = ({ request, onClose, onReferred }) => {
                       <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                       Referring...
                     </span>
-                  ) : "Refer Request"}
+                  ) : (
+                    "Refer Request"
+                  )}
                 </button>
               </div>
             </>

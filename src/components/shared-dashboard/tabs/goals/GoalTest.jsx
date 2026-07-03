@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const goal = () => {
-  return (
-    <div>goal</div>
-  )
-}
+  return <div>goal</div>;
+};
 
-export default goal
+export default goal;

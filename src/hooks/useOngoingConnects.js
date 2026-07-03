@@ -32,7 +32,7 @@ const useOngoingConnects = () => {
 
   // Keep connects for backward compat (ongoing only)
   return {
-    connects: ongoing,   // backward compat
+    connects: ongoing, // backward compat
     ongoing,
     completed,
     loading,

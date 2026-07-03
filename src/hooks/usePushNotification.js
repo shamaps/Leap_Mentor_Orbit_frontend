@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useSelector } from "react-redux"; 
+import { useSelector } from "react-redux";
 import axiosInstance from "../utils/axiosInstance";
 import { useToast } from "../context/ToastContext";
 import { selectAuthToken } from "../store/selectors";
@@ -14,11 +14,11 @@ const urlBase64ToUint8Array = (base64String) => {
 
 const usePushNotification = () => {
   const { showToast } = useToast();
-  const token = useSelector(selectAuthToken); 
+  const token = useSelector(selectAuthToken);
 
   // Register service worker + subscribe to push
   useEffect(() => {
-    if (!token) return; 
+    if (!token) return;
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
     const setup = async () => {
@@ -41,7 +41,7 @@ const usePushNotification = () => {
     };
 
     setup();
-  }, [token]); 
+  }, [token]);
 
   // Listen for messages from service worker → show in-app toast
   useEffect(() => {
