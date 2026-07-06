@@ -7,7 +7,7 @@ import { useSignIn, useClerk } from "@clerk/clerk-react";
 import useGoogleAuth from "../hooks/useGoogleAuth";
 import { useDispatch } from "react-redux"; // ← ADDED
 import { setUser } from "../store/slices/authSlice"; // ← ADDED
-
+import { ssoFlags } from "../utils/storage";
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor") && roles.includes("mentee")) {
     navigate("/dashboard/mentor");
@@ -67,8 +67,7 @@ const Login = () => {
       // ✅ Force sign out and wait fully before proceeding
       await signOut({ redirectUrl: window.location.href });
 
-      localStorage.setItem("sso_role", "existing");
-      localStorage.setItem("sso_terms", "true");
+      ssoFlags.set("existing", true);
 
       await signIn.authenticateWithRedirect({
         strategy: CLERK_STRATEGY[provider],
@@ -76,8 +75,7 @@ const Login = () => {
         redirectUrlComplete: `${window.location.origin}/sso-callback-sync`,
       });
     } catch (err) {
-      localStorage.removeItem("sso_role");
-      localStorage.removeItem("sso_terms");
+      ssoFlags.clear();
       setMsg({ type: "error", text: err.message || "SSO failed. Try again." });
       setLoading(false);
     }

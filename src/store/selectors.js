@@ -57,6 +57,9 @@ export const selectReferenceDataLoading = (state) =>
   state.referenceData.loading;
 export const selectReferenceDataError = (state) => state.referenceData.error;
 
+
+export const selectGlobalError = (state) => state.ui.globalError;
+
 // ── Connect Requests ────────────────────────────────────────
 import { selectIncomingRequests } from "./slices/connectRequestsSlice";
 

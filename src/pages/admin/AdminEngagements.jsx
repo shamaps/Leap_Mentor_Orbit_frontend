@@ -4,6 +4,7 @@ import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import StatCard from "@/components/common/StatCard";
 import StatusBadge from "../../components/common/StatusBadge";
 import { useToast } from "../../context/ToastContext";
+import PropTypes from "prop-types";
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
@@ -19,6 +20,9 @@ const Avatar = ({ name }) => {
     </div>
   );
 };
+Avatar.propTypes = {
+  name: PropTypes.string,
+};
 
 // ── User Cell ─────────────────────────────────────────────────
 const UserCell = ({ user }) => (
@@ -30,7 +34,9 @@ const UserCell = ({ user }) => (
     </div>
   </div>
 );
-
+UserCell.propTypes = {
+  user: PropTypes.shape({ name: PropTypes.string, email: PropTypes.string }),
+};
 // ── Slot Pill ─────────────────────────────────────────────────
 const SlotPill = ({ slot }) => {
   const isCancelled = slot.status === "cancelled";
@@ -65,7 +71,14 @@ const SlotPill = ({ slot }) => {
     </div>
   );
 };
-
+SlotPill.propTypes = {
+  slot: PropTypes.shape({
+    status: PropTypes.string,
+    date: PropTypes.string,
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+  }).isRequired,
+};
 // ── Expanded Detail Row ───────────────────────────────────────
 const ExpandedDetail = ({ eng }) => (
   <tr>
@@ -108,7 +121,17 @@ const ExpandedDetail = ({ eng }) => (
     </td>
   </tr>
 );
-
+ExpandedDetail.propTypes = {
+  eng: PropTypes.shape({
+    selectedSlots: PropTypes.array,
+    sessionRate: PropTypes.number,
+    sessionCount: PropTypes.number,
+    paymentStatus: PropTypes.string,
+    requestedAt: PropTypes.string,
+    respondedAt: PropTypes.string,
+    completedAt: PropTypes.string,
+  }).isRequired,
+};
 // ══════════════════════════════════════════════════════════════
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════════

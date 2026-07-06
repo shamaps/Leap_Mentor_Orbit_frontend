@@ -1,68 +1,15 @@
 // components/mentor/onboarding/PersonalInfoSection.jsx
-import { useRef, useState } from "react";
-import axiosInstance from "../../../utils/axiosInstance";
+import { useProfilePhotoUpload } from "../../../hooks/useProfilePhotoUpload";
 import { useMentorOnboardingForm } from "../../../context/MentorOnboardingFormContext";
 import Spinner from "../../common/Spinner";
+import FormField from "../../common/FormField";
 const PersonalInfoSection = () => {
-  const { form, onChange } = useMentorOnboardingForm();
-  const fileInputRef = useRef(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadErr, setUploadErr] = useState("");
+  const { form, onChange, onBlur } = useMentorOnboardingForm();
 
-  const handlePhotoClick = () => {
-    if (!uploading) fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Client-side validation before uploading
-    if (!file.type.startsWith("image/")) {
-      setUploadErr("Only image files are allowed.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadErr("Image must be under 5MB.");
-      return;
-    }
-
-    setUploadErr("");
-    setUploading(true);
-
-    try {
-      // Send as multipart/form-data — NOT Base64
-      const formData = new FormData();
-      formData.append("profilePicture", file);
-
-      const res = await axiosInstance.post(
-        "/upload/profile-picture",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
-
-      // ✅ Store Cloudinary URL in form state
-      onChange({
-        target: {
-          name: "profilePicture",
-          value: res.data.url,
-        },
-      });
-    } catch (err) {
-      setUploadErr(
-        err?.response?.data?.message ||
-          "Failed to upload image. Please try again.",
-      );
-    } finally {
-      setUploading(false);
-      // ✅ Reset so same file can be re-selected
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
+  const { fileInputRef, uploading, uploadErr, handlePhotoClick, handleFileChange } =
+    useProfilePhotoUpload((url) =>
+      onChange({ target: { name: "profilePicture", value: url } }),
+    );
 
   return (
     <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
@@ -156,19 +103,15 @@ const PersonalInfoSection = () => {
 
           {/* Bio */}
           <div className="flex-1">
-            <label className="block text-xs font-semibold text-[#475569] mb-1.5">
-              Professional Bio
-            </label>
-            <textarea
+            <FormField
+              as="textarea"
+              label="Professional Bio"
               name="bio"
               value={form.bio}
               onChange={onChange}
+              onBlur={onBlur}
               rows={4}
               placeholder="Share your journey, achievements, and what drives you to mentor others..."
-              className="w-full text-sm text-[#0f172a] bg-[#f8faff] border border-[#e2e8f0]
-                rounded-xl px-3.5 py-2.5 outline-none placeholder:text-[#94a3b8]
-                focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb20]
-                resize-none transition-all duration-150"
             />
           </div>
         </div>

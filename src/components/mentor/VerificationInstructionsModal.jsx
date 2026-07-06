@@ -1,7 +1,7 @@
 // components/mentor/verification/VerificationInstructionsModal.jsx
 
 import { useState } from "react";
-
+import PropTypes from "prop-types";
 const steps = [
   {
     icon: (
@@ -264,5 +264,7 @@ const VerificationInstructionsModal = ({ onClose }) => {
     </div>
   );
 };
-
+VerificationInstructionsModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+};
 export default VerificationInstructionsModal;

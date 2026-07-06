@@ -2,6 +2,7 @@
 import StatusBadge from "../../../common/StatusBadge";
 import { formatDate, getInitials } from "./constants";
 import EmptyState from "../../../common/EmptyState";
+import PropTypes from "prop-types";
 const DeleteIcon = ({ onClick, title }) => (
   <button
     type="button"
@@ -27,7 +28,10 @@ const DeleteIcon = ({ onClick, title }) => (
     </svg>
   </button>
 );
-
+DeleteIcon.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  title: PropTypes.string,
+};
 const ViewButton = ({ onClick, isSelected }) => (
   <button
     type="button"
@@ -54,7 +58,10 @@ const ViewButton = ({ onClick, isSelected }) => (
     </svg>
   </button>
 );
-
+ViewButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  isSelected: PropTypes.bool,
+};
 // Avatar color based on name
 const AVATAR_GRADIENTS = [
   "from-blue-500 to-blue-700",
@@ -167,5 +174,10 @@ const HistoryTable = ({ requests, selected, onSelect, onDelete }) => {
     </div>
   );
 };
-
+HistoryTable.propTypes = {
+  requests: PropTypes.array.isRequired,
+  selected: PropTypes.shape({ _id: PropTypes.string }),
+  onSelect: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
 export default HistoryTable;

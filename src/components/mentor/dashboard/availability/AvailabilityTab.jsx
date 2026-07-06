@@ -4,7 +4,7 @@ import useAvailability from "../../../../hooks/useAvailability";
 import CalendarAvailabilitySection from "./CalendarAvailabilitySection";
 import TimezoneDurationSection from "./TimezoneDurationSection";
 import IntegrationsSection from "./IntegrationsSection";
-
+import PropTypes from "prop-types";
 // ─── Helper: convert "HH:MM" 24h to "h:MM AM/PM" ─────────────────────────────
 const formatSlotTime = (timeStr) => {
   if (!timeStr) return "";
@@ -137,7 +137,13 @@ const collectBusyConflicts = (specificDates, busySlots) => {
 
   return conflicts;
 };
-
+BusyConflictModal.propTypes = {
+  conflicts: PropTypes.arrayOf(
+    PropTypes.shape({ date: PropTypes.string, startTime: PropTypes.string, endTime: PropTypes.string }),
+  ).isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
 // ─── AvailabilityTab ──────────────────────────────────────────────────────────
 const AvailabilityTab = () => {
   const {

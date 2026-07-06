@@ -8,10 +8,12 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import ErrorState from "../../../common/ErrorState";
 import StatusBadge from "@/components/common/StatusBadge";
 import useTrackEarnings from "../../../../hooks/useTrackEarnings";
 import StatCard from "@/components/common/StatCard";
 import EmptyState from "../../../common/EmptyState";
+import PropTypes from "prop-types";
 // ── Helpers ───────────────────────────────────────────────────
 const fmt = (n) =>
   Number(n || 0).toLocaleString("en-US", {
@@ -33,13 +35,18 @@ const CustomTooltip = ({ active, payload, label }) => {
   }
   return null;
 };
-
-
+CustomTooltip.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.array,
+  label: PropTypes.string,
+};
 // ── Loading Skeleton ──────────────────────────────────────────
 const Skeleton = ({ className }) => (
   <div className={`bg-slate-100 animate-pulse rounded-xl ${className}`} />
 );
-
+Skeleton.propTypes = {
+  className: PropTypes.string,
+};
 // ── Main Component ────────────────────────────────────────────
 const TrackEarningsTab = () => {
   const {
@@ -77,11 +84,7 @@ const TrackEarningsTab = () => {
         </div>
 
         {/* ── Error ── */}
-        {error && (
-          <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
-            <span>⚠</span> {error}
-          </div>
-        )}
+        {error && <ErrorState message={error} onAction={fetchStats} compact />}
 
         {/* ── Stat Cards — 2 cols mobile, 4 cols large ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

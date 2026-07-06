@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
-
+import { IMAGES } from "../../constants/images";
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -73,7 +73,7 @@ const AdminLogin = () => {
         <div className="flex flex-col items-center mb-8">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4">
             <img
-              src="/images/logo.webp"
+              src={IMAGES.logo}
               alt="LeapMentor logo"
               className="h-12 w-12"
               width={32}

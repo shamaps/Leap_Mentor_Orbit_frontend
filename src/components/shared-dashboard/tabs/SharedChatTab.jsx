@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import useChat from "../../../hooks/useChat";
 import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
 import { selectConnect } from "../../../store/selectors";
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>
@@ -85,7 +86,11 @@ const Avatar = ({ name, picture, size = 32 }) => {
     </div>
   );
 };
-
+Avatar.propTypes = {
+  name: PropTypes.string,
+  picture: PropTypes.string,
+  size: PropTypes.number,
+};
 // ── Chat Header ───────────────────────────────────────────────
 const ChatHeader = ({ name, picture, otherOnline }) => (
   <div
@@ -130,7 +135,11 @@ const ChatHeader = ({ name, picture, otherOnline }) => (
     </div>
   </div>
 );
-
+ChatHeader.propTypes = {
+  name: PropTypes.string,
+  picture: PropTypes.string,
+  otherOnline: PropTypes.bool,
+};
 // ── Date Separator ────────────────────────────────────────────
 const DateSeparator = ({ dateStr }) => (
   <div
@@ -159,7 +168,9 @@ const DateSeparator = ({ dateStr }) => (
     <div style={{ flex: 1, height: "1px", backgroundColor: "#f1f5f9" }} />
   </div>
 );
-
+DateSeparator.propTypes = {
+  dateStr: PropTypes.string.isRequired,
+};
 // ── Read Receipt ──────────────────────────────────────────────
 const ReadReceipt = ({ readAt }) => (
   <span style={{ marginLeft: "4px", color: readAt ? "#2563eb" : "#94a3b8" }}>
@@ -193,7 +204,9 @@ const ReadReceipt = ({ readAt }) => (
     )}
   </span>
 );
-
+ReadReceipt.propTypes = {
+  readAt: PropTypes.string,
+};
 // ── Message Bubble ────────────────────────────────────────────
 const MessageBubble = ({ message, isOwn, otherName, otherPicture }) => (
   <div
@@ -245,7 +258,16 @@ const MessageBubble = ({ message, isOwn, otherName, otherPicture }) => (
     </div>
   </div>
 );
-
+MessageBubble.propTypes = {
+  message: PropTypes.shape({
+    content: PropTypes.string,
+    createdAt: PropTypes.string,
+    readAt: PropTypes.string,
+  }).isRequired,
+  isOwn: PropTypes.bool,
+  otherName: PropTypes.string,
+  otherPicture: PropTypes.string,
+};
 // ── Typing Indicator ──────────────────────────────────────────
 const TypingIndicator = ({ name }) => (
   <div
@@ -292,7 +314,9 @@ const TypingIndicator = ({ name }) => (
     `}</style>
   </div>
 );
-
+TypingIndicator.propTypes = {
+  name: PropTypes.string,
+};
 // ── Load More ─────────────────────────────────────────────────
 const LoadMoreButton = ({ onClick, loading }) => (
   <div
@@ -318,7 +342,10 @@ const LoadMoreButton = ({ onClick, loading }) => (
     </button>
   </div>
 );
-
+LoadMoreButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+};
 // ── Empty State ───────────────────────────────────────────────
 const EmptyState = ({ otherName }) => (
   <div
@@ -373,7 +400,9 @@ const EmptyState = ({ otherName }) => (
     </p>
   </div>
 );
-
+EmptyState.propTypes = {
+  otherName: PropTypes.string,
+};
 // ── Chat Input ────────────────────────────────────────────────
 const ChatInput = ({ onSend, onTyping, disabled }) => {
   const [value, setValue] = useState("");
@@ -475,7 +504,11 @@ const ChatInput = ({ onSend, onTyping, disabled }) => {
     </div>
   );
 };
-
+ChatInput.propTypes = {
+  onSend: PropTypes.func.isRequired,
+  onTyping: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
 // ── Main ──────────────────────────────────────────────────────
 const SharedChatTab = () => {
   const connect = useSelector(selectConnect);

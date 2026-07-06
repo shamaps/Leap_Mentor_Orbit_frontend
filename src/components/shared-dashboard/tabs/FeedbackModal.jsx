@@ -1,5 +1,6 @@
 import { useState } from "react";
 import useReport from "../../../hooks/useReport";
+import PropTypes from "prop-types";
 import Spinner from "../../common/Spinner";
 const StarRatingInput = ({ value, onChange, disabled }) => (
   <div className="flex items-center gap-1.5">
@@ -30,7 +31,11 @@ const StarRatingInput = ({ value, onChange, disabled }) => (
     )}
   </div>
 );
-
+StarRatingInput.propTypes = {
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
 const FeedbackModal = ({
   connect,
   onClose,
@@ -260,5 +265,15 @@ const FeedbackModal = ({
     </div>
   );
 };
-
+FeedbackModal.propTypes = {
+  connect: PropTypes.shape({
+    _id: PropTypes.string,
+    viewerRole: PropTypes.oneOf(["mentor", "mentee"]),
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    mentee: PropTypes.shape({ name: PropTypes.string }),
+  }),
+  onClose: PropTypes.func.isRequired,
+  slotIndex: PropTypes.number,
+  onFeedbackSubmitted: PropTypes.func,
+};
 export default FeedbackModal;

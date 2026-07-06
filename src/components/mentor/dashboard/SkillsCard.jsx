@@ -1,8 +1,6 @@
 // components/mentor/dashboard/SkillsCard.jsx
-import { useSelector } from "react-redux";
-import { selectMentorProfile } from "../../../store/selectors";
-const SkillsCard = () => {
-  const { profile } = useSelector(selectMentorProfile);
+import PropTypes from "prop-types";
+const SkillsCard = ({profile}) => {
   const skills = profile?.skills || [];
 
   return (
@@ -45,5 +43,9 @@ const SkillsCard = () => {
     </div>
   );
 };
-
+SkillsCard.propTypes = {
+  profile: PropTypes.shape({
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }),
+};
 export default SkillsCard;

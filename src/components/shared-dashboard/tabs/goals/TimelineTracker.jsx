@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import PropTypes from "prop-types";
 const formatDate = (d) =>
   d
     ? new Date(d + "T00:00:00").toLocaleDateString("en-US", {
@@ -56,14 +56,14 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5">
-            {/* Header */}
-            
+      {/* Header */}
+      
       <div className="flex items-center justify-between mb-4">
-                
+        
         <div className="flex items-center gap-2">
-                    
+          
           <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
-                        
+            
             <svg
               width="13"
               height="13"
@@ -74,23 +74,23 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-                            
+              
               <rect x="3" y="4" width="18" height="18" rx="2" />
-                            
+              
               <line x1="16" y1="2" x2="16" y2="6" />
-                            
+              
               <line x1="8" y1="2" x2="8" y2="6" />
-                            
+              
               <line x1="3" y1="10" x2="21" y2="10" />
-                          
+              
             </svg>
-                      
+            
           </div>
-                    <p className="text-sm font-bold text-slate-800">Timeline</p>
-                  
+          <p className="text-sm font-bold text-slate-800">Timeline</p>
+          
         </div>
-                {/* Both roles can set/edit timeline */}
-                
+        {/* Both roles can set/edit timeline */}
+        
         {!editing && (
           <button
             onClick={() => {
@@ -100,7 +100,7 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
             }}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 cursor-pointer hover:border-blue-300 hover:text-blue-900 hover:bg-blue-50 transition-all"
           >
-                        
+            
             <svg
               width="11"
               height="11"
@@ -111,31 +111,31 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-                            
+              
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                            
+              
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                          
+              
             </svg>
-                        {hasTimeline ? "Edit" : "Set Timeline"}
-                      
+            {hasTimeline ? "Edit" : "Set Timeline"}
+            
           </button>
         )}
-              
+        
       </div>
-            {/* Edit form */}
-            
+      {/* Edit form */}
+      
       {editing ? (
         <div className="flex flex-col gap-3">
-                    
+          
           <div className="flex gap-3">
-                        
+            
             <div className="flex-1">
-                            
+              
               <label className="text-xs font-semibold text-slate-500 block mb-1.5">
                 Start Date
               </label>
-                            
+              
               <input
                 type="date"
                 value={startDate}
@@ -143,15 +143,15 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
                 onChange={(e) => setStartDate(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:border-blue-300 transition-colors"
               />
-                          
+              
             </div>
-                        
+            
             <div className="flex-1">
-                            
+              
               <label className="text-xs font-semibold text-slate-500 block mb-1.5">
                 End Date
               </label>
-                            
+              
               <input
                 type="date"
                 value={endDate}
@@ -159,14 +159,13 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
                 onChange={(e) => setEndDate(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:border-blue-300 transition-colors"
               />
-                          
+              
             </div>
-                      
+            
           </div>
-                    {err && <p className="text-xs text-red-500">{err}</p>}
-                    
-          <div className="flex gap-2">
-                        
+          {err && <p className="text-xs text-red-500">{err}</p>}
+                  <div className="flex gap-2">
+            
             <button
               onClick={() => {
                 setEditing(false);
@@ -174,83 +173,92 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
               }}
               className="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors"
             >
-                            Cancel             
+              Cancel 
             </button>
-                        
+            
             <button
               onClick={handleSave}
               disabled={saving}
               className="flex-1 py-2 rounded-lg bg-blue-600 border-none text-xs font-bold text-white cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-                            {saving ? "Saving..." : "Save"}
-                          
+              {saving ? "Saving..." : "Save"}
+              
             </button>
-                      
+            
           </div>
-                  
+          
         </div>
       ) : hasTimeline ? (
         <div className="flex flex-col gap-3">
-                    {/* Date labels */}
-                    
+          {/* Date labels */}
+          
           <div className="flex justify-between items-center">
-                        
+            
             <span className="text-xs font-semibold text-slate-500">
               {formatDate(goal.startDate)}
             </span>
-                        
+            
             <span className="text-xs font-semibold text-slate-500">
               {formatDate(goal.endDate)}
             </span>
-                      
+            
           </div>
-                    {/* Progress bar */}
-                    
+          {/* Progress bar */}
+          
           <div>
-                        
+            
             <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                            
+              
               <div
                 className={`h-full rounded-full transition-all duration-500 ${progress >= 100 ? "bg-green-500" : "bg-blue-600"}`}
                 style={{ width: `${progress}%` }}
               />
-                          
+              
             </div>
-                        
+            
             <p className="text-xs text-slate-400 mt-1.5 text-right">
               {progress}% through engagement
             </p>
-                      
+            
           </div>
-                    {/* Days remaining */}
-                    
+          {/* Days remaining */}
+          
           {daysLeft !== null && (
             <div className="flex justify-center">
-                            
+              
               <span
                 className={`text-xs font-bold px-3.5 py-1 rounded-full border ${daysLeftColor}`}
               >
-                                
+                
                 {daysLeft < 0
                   ? `Ended ${Math.abs(daysLeft)} days ago`
                   : daysLeft === 0
                     ? "Ends today"
                     : `${daysLeft} days remaining`}
-                              
+                
               </span>
-                          
+              
             </div>
           )}
-                  
+          
         </div>
       ) : (
         <p className="text-sm text-slate-400 text-center py-4">
-                    No timeline set. Click 'Set Timeline' to add dates.         
+          No timeline set. Click 'Set Timeline' to add dates. 
         </p>
       )}
-          
+      
     </div>
   );
 };
-
+TimelineTracker.propTypes = {
+  goal: PropTypes.shape({
+    _id: PropTypes.string,
+    startDate: PropTypes.string,
+    endDate: PropTypes.string,
+  }),
+  viewerRole: PropTypes.oneOf(["mentor", "mentee"]),
+  onUpdate: PropTypes.func.isRequired,
+  saving: PropTypes.bool,
+};
 export default TimelineTracker;

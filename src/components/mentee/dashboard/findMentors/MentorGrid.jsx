@@ -2,7 +2,7 @@
 import MentorCard from "./MentorCard";
 import MentorCardSkeleton from "@/components/common/MentorCardSkeleton";
 import EmptyState from "../../../common/EmptyState";
-
+import PropTypes from "prop-types";
 // Added onViewProfile prop — passed down to each MentorCard
 const MentorGrid = ({
   mentors,
@@ -127,5 +127,14 @@ const MentorGrid = ({
     </div>
   );
 };
-
+MentorGrid.propTypes = {
+  mentors: PropTypes.array.isRequired,
+  loading: PropTypes.bool,
+  loadingMore: PropTypes.bool,
+  hasMore: PropTypes.bool,
+  hasSearched: PropTypes.bool,
+  totalCount: PropTypes.number,
+  onLoadMore: PropTypes.func.isRequired,
+  onViewProfile: PropTypes.func.isRequired,
+};
 export default MentorGrid;

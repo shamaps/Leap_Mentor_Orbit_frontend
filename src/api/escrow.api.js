@@ -70,3 +70,8 @@ export const getPlatformCommissionRate = async () => {
   const res = await axiosInstance.get("/escrow/commission-rate");
   return res.data;
 };
+// GET /escrow/wallet
+export const getWallet = async () => {
+  const res = await axiosInstance.get("/escrow/wallet");
+  return res.data;
+};

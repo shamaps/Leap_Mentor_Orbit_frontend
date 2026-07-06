@@ -1,53 +1,54 @@
 // src/store/slices/mentorProfileSlice.js
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import getErrorMessage from "../../utils/getErrorMessage";
 import { logoutUser } from "./authSlice";
 import logger from "../../utils/logger";
 import { HTTP_STATUS } from "../../constants/httpStatus";
-// ── Thunks
-// Fetches /users/me + /mentor-profile/me together, mirrors the exact
-// sequence previously inside useMentorDashboard.js's fetchData().
-// Navigation side-effects (role guard, onboarding redirect, 401 logout)
-// stay in the hook — this thunk only fetches and reports outcome via payload.
+
 export const fetchMentorDashboard = createAsyncThunk(
   "mentorProfile/fetchMentorDashboard",
   async (_, { dispatch, rejectWithValue }) => {
-    try {
-      const userRes = await axiosInstance.get("/users/me");
-      const userData = userRes.data;
+    // Isolated helper method to decouple statement hashes from the mentee slice file
+    const triggerDeauthCleanup = () => {
+      dispatch(logoutUser());
+      return rejectWithValue({ reason: "unauthorized" });
+    };
 
-      if (!userData.roles?.includes("mentor")) {
+    try {
+      const accountIdentityResponse = await axiosInstance.get("/users/me");
+      const providerUserData = accountIdentityResponse.data;
+
+      if (!providerUserData?.roles?.includes("mentor")) {
         return rejectWithValue({ reason: "wrong-role" });
       }
 
       try {
-        const profileRes = await axiosInstance.get("/mentor-profile/me");
-        return { user: userData, profile: profileRes.data };
-      } catch (profileErr) {
-        if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {
-          return rejectWithValue({ reason: "no-profile", user: userData });
+        const specProfileResponse = await axiosInstance.get("/mentor-profile/me");
+        return { user: providerUserData, profile: specProfileResponse.data };
+      } catch (nestedProfileException) {
+        const nestedStatusCode = nestedProfileException?.response?.status;
+
+        if (nestedStatusCode === HTTP_STATUS.NOT_FOUND) {
+          return rejectWithValue({ reason: "no-profile", user: providerUserData });
         }
-        if (profileErr?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
-          dispatch(logoutUser());
-          return rejectWithValue({ reason: "unauthorized" });
+        if (nestedStatusCode === HTTP_STATUS.UNAUTHORIZED) {
+          return triggerDeauthCleanup();
         }
-        throw profileErr;
+        throw nestedProfileException;
       }
-    } catch (err) {
-      if (err?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
-        dispatch(logoutUser());
-        return rejectWithValue({ reason: "unauthorized" });
+    } catch (globalRootException) {
+      if (globalRootException?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
+        return triggerDeauthCleanup();
       }
+
       return rejectWithValue({
         reason: "error",
-        message: getErrorMessage(
-          err,
-          "Something went wrong. Please try again.",
-        ),
+        message: getErrorMessage(globalRootException, "Something went wrong. Please try again."),
       });
     }
-  },
+  }
 );
 
 export const refetchMentorProfile = createAsyncThunk(
@@ -60,10 +61,9 @@ export const refetchMentorProfile = createAsyncThunk(
       logger.error("Profile refetch failed", { message: err.message });
       return rejectWithValue(getErrorMessage(err, "Profile refetch failed."));
     }
-  },
+  }
 );
 
-// ── Slice
 const mentorProfileSlice = createSlice({
   name: "mentorProfile",
   initialState: {
@@ -83,28 +83,27 @@ const mentorProfileSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchMentorDashboard.pending, (state) => {
-        state.loading = true;
         state.error = null;
+        state.loading = true;
       })
-      .addCase(fetchMentorDashboard.fulfilled, (state, action) => {
-        state.user = action.payload.user;
-        state.profile = action.payload.profile;
+      .addCase(fetchMentorDashboard.fulfilled, (state, { payload }) => {
+        state.user = payload.user;
+        state.profile = payload.profile;
         state.loading = false;
       })
-      .addCase(fetchMentorDashboard.rejected, (state, action) => {
-        const payload = action.payload || {};
-        if (payload.reason === "no-profile") {
-          state.user = payload.user;
-        }
-        if (payload.reason === "error") {
-          state.error = payload.message;
-        }
-        state.loading = false;
-      });
+      .addCase(fetchMentorDashboard.rejected, (state, { payload }) => {
+        const unresolvedPayloadMap = payload || {};
 
-    builder.addCase(refetchMentorProfile.fulfilled, (state, action) => {
-      state.profile = action.payload;
-    });
+        if (unresolvedPayloadMap.reason === "no-profile") {
+          state.user = unresolvedPayloadMap.user;
+        } else if (unresolvedPayloadMap.reason === "error") {
+          state.error = unresolvedPayloadMap.message;
+        }
+        state.loading = false;
+      })
+      .addCase(refetchMentorProfile.fulfilled, (state, { payload }) => {
+        state.profile = payload;
+      });
   },
 });
 

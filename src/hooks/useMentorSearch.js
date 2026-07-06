@@ -1,7 +1,6 @@
 // src/hooks/useMentorSearch.js
 import { useState, useEffect, useCallback, useRef } from "react";
-import axiosInstance from "../utils/axiosInstance";
-
+import { searchMentors as searchMentorsApi } from "../api/mentorSearch.api";
 const DEBOUNCE_MS = 300;
 const LIMIT = 6;
 
@@ -70,12 +69,10 @@ const useMentorSearch = () => {
         params.set("page", currentPage);
         params.set("limit", LIMIT);
 
-        const res = await axiosInstance.get(
-          `/mentors/search?${params.toString()}`,
-        );
+        const data = await searchMentorsApi(params);
 
-        const newMentors = res.data.mentors;
-        const pagination = res.data.pagination;
+        const newMentors = data.mentors;
+        const pagination = data.pagination;
 
         setMentors(append ? (prev) => [...prev, ...newMentors] : newMentors);
         setHasMore(pagination.hasMore);

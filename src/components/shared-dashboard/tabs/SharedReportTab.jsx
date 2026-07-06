@@ -3,7 +3,7 @@ import { useState } from "react";
 import useReport from "../../../hooks/useReport";
 import ReportModal from "./ReportModal";
 import ReportSuccessModal from "./ReportSuccessModal";
-
+import PropTypes from "prop-types";
 // ── Star Rating Input ─────────────────────────────────────────
 const StarRatingInput = ({ value, onChange, disabled }) => (
   <div className="flex items-center gap-1.5">
@@ -34,7 +34,11 @@ const StarRatingInput = ({ value, onChange, disabled }) => (
     )}
   </div>
 );
-
+StarRatingInput.propTypes = {
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
 // ── Star Rating Display (read-only) ──────────────────────────
 const StarRatingDisplay = ({ value }) => (
   <div className="flex items-center gap-1">
@@ -54,7 +58,9 @@ const StarRatingDisplay = ({ value }) => (
     <span className="text-xs font-bold text-slate-600 ml-1">{value}/5</span>
   </div>
 );
-
+StarRatingDisplay.propTypes = {
+  value: PropTypes.number.isRequired,
+};
 // ── Feedback Card ─────────────────────────────────────────────
 const FeedbackCard = ({ feedback, label, isOwn }) => (
   <div
@@ -81,7 +87,14 @@ const FeedbackCard = ({ feedback, label, isOwn }) => (
     </p>
   </div>
 );
-
+FeedbackCard.propTypes = {
+  feedback: PropTypes.shape({
+    rating: PropTypes.number,
+    comment: PropTypes.string,
+  }),
+  label: PropTypes.string.isRequired,
+  isOwn: PropTypes.bool,
+};
 // ── Not Completed State ───────────────────────────────────────
 const NotCompletedState = () => (
   <EmptyState
@@ -339,6 +352,10 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {
       {reportDone && <ReportSuccessModal onBack={() => setReportDone(false)} />}
     </>
   );
+};
+SharedReportTab.propTypes = {
+  connect: PropTypes.shape({ _id: PropTypes.string }),
+  reportRefreshKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default SharedReportTab;

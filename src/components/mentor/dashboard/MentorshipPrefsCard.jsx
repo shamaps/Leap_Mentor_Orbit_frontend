@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { selectMentorProfile } from "../../../store/selectors";
 import { COMM_ICONS } from "../../../constants/mentorshipPrefs";
 import PrefsCardHeader from "../../common/PrefsCardHeader";
-
+import PropTypes from "prop-types";
 // `profile` prop is an optional override — used by the mentee ProfileTab
 // (chain #4) which hasn't been migrated to Redux yet. When omitted (mentor
 // ProfileTab, already migrated), falls back to the mentor Redux slice.
@@ -50,5 +50,11 @@ const MentorshipPrefsCard = ({ profile: profileProp, variant }) => {
     </div>
   );
 };
-
+MentorshipPrefsCard.propTypes = {
+  profile: PropTypes.shape({
+    communicationPreferences: PropTypes.arrayOf(PropTypes.string),
+    languages: PropTypes.arrayOf(PropTypes.string),
+  }),
+  variant: PropTypes.string,
+};
 export default MentorshipPrefsCard;

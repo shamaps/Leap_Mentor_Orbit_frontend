@@ -1,6 +1,6 @@
 // src/hooks/useMentorSettings.js
 import { useState, useEffect } from "react";
-import axiosInstance from "../utils/axiosInstance";
+import * as mentorProfileApi from "../api/mentorProfile.api";
 
 const BADGES = [
   {
@@ -59,8 +59,7 @@ const useMentorSettings = (initialProfile) => {
     const fetchProfile = async () => {
       try {
         setFetching(true);
-        const res = await axiosInstance.get("/mentor-profile/me");
-        const p = res.data;
+        const p = await mentorProfileApi.getMentorProfile();
         setProfile(p);
         setHourlyRate(p.hourlyRate ?? "");
         setEmailNotifications(p.emailNotifications ?? true);
@@ -79,7 +78,7 @@ const useMentorSettings = (initialProfile) => {
     try {
       setSaving(true);
       setMsg({ type: "", text: "" });
-      await axiosInstance.put("/mentor-profile/me", {
+      await mentorProfileApi.updateMentorProfile({
         hourlyRate: Number(hourlyRate) || 0,
         emailNotifications,
         isProfilePublished: publicProfile,

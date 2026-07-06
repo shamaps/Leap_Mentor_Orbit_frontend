@@ -6,6 +6,7 @@ import {
   submitMentorOnboarding,
   clearMentorOnboardingMessages,
 } from "../../../store/slices/mentorOnboardingSlice";
+import { IMAGES } from "../../../constants/images";
 import {
   getMentorFieldErrors,
   validateCommonFields,
@@ -27,7 +28,7 @@ import PreferencesSection from "./PreferencesSection";
 import SocialLinksSection from "./SocialLinksSection";
 import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
 import { MENTOR_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
-
+import { sessionStore } from "../../../utils/storage"; 
 const OnboardingFormShell = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -39,41 +40,24 @@ const OnboardingFormShell = () => {
   const successMsg = useSelector(selectMentorOnboardingSuccessMsg);
   const token = useSelector(selectAuthToken);
 
+  const EMPTY_MENTOR_FORM = {
+    profilePicture: "",
+    bio: "",
+    currentRole: "",
+    industry: "",
+    company: "",
+    yearsOfExperience: "",
+    hourlyRate: "",
+    skills: [],
+    communicationPreferences: [],
+    languages: "",
+    linkedInUrl: "",
+    portfolioUrl: "",
+  };
+
   const [form, setForm] = useState(() => {
-    try {
-      const saved = sessionStorage.getItem("mentorOnboardingForm");
-      return saved
-        ? JSON.parse(saved)
-        : {
-            profilePicture: "",
-            bio: "",
-            currentRole: "",
-            industry: "",
-            company: "",
-            yearsOfExperience: "",
-            hourlyRate: "",
-            skills: [],
-            communicationPreferences: [],
-            languages: "",
-            linkedInUrl: "",
-            portfolioUrl: "",
-          };
-    } catch {
-      return {
-        profilePicture: "",
-        bio: "",
-        currentRole: "",
-        industry: "",
-        company: "",
-        yearsOfExperience: "",
-        hourlyRate: "",
-        skills: [],
-        communicationPreferences: [],
-        languages: "",
-        linkedInUrl: "",
-        portfolioUrl: "",
-      };
-    }
+    const saved = sessionStore.getJSON("mentorOnboardingForm");
+    return saved || EMPTY_MENTOR_FORM;
   });
 
   const [errors, setErrors] = useState({});
@@ -87,7 +71,7 @@ const OnboardingFormShell = () => {
   useEffect(() => {
     if (error) setMsg({ type: "error", text: error });
     if (successMsg) {
-      sessionStorage.removeItem("mentorOnboardingForm");
+      sessionStore.remove("mentorOnboardingForm");
       dispatch(clearMentorOnboardingMessages());
       setRedirecting(true);
       setTimeout(() => navigate("/onboarding/mentor/verify-documents"), 1500);
@@ -101,7 +85,7 @@ const OnboardingFormShell = () => {
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem("mentorOnboardingForm", JSON.stringify(form));
+    sessionStore.setJSON("mentorOnboardingForm", form);
   }, [form]);
 
   // uses shared util instead of copy-pasted field checks
@@ -134,7 +118,13 @@ const OnboardingFormShell = () => {
     }
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    const fieldErrors = getMentorFieldErrors(form);
+    if (fieldErrors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: true }));
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
@@ -182,7 +172,7 @@ const OnboardingFormShell = () => {
   };
 
   //  context value — onChange matches what mentor sections expect
-  const ctxValue = { form, errors, onChange: handleChange };
+  const ctxValue = { form, errors, onChange: handleChange, onBlur: handleBlur };
 
   return (
     <MentorOnboardingFormContext.Provider value={ctxValue}>
@@ -202,7 +192,7 @@ const OnboardingFormShell = () => {
           <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <img
-                src="/images/logo.png"
+                src={IMAGES.logo}
                 alt="Leapmentor logo"
                 className="h-8 w-auto"
               />

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import { useToast } from "../../context/ToastContext";
+import PropTypes from "prop-types";
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
@@ -41,7 +42,13 @@ const SectionCard = ({
     <div className="p-6">{children}</div>
   </div>
 );
-
+SectionCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+  icon: PropTypes.node,
+  children: PropTypes.node,
+  accent: PropTypes.string,
+};
 const SubmitBtn = ({ loading, label, onClick, accent = "#2563eb" }) => (
   <button
     type="button"
@@ -61,7 +68,12 @@ const SubmitBtn = ({ loading, label, onClick, accent = "#2563eb" }) => (
     {loading ? "Saving..." : label}
   </button>
 );
-
+SubmitBtn.propTypes = {
+  loading: PropTypes.bool,
+  label: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+  accent: PropTypes.string,
+};
 const OverviewCard = ({ label, value, icon, accent, sub }) => (
   <div
     className="rounded-2xl p-5 flex flex-col gap-2 relative overflow-hidden"
@@ -91,7 +103,13 @@ const OverviewCard = ({ label, value, icon, accent, sub }) => (
     </div>
   </div>
 );
-
+OverviewCard.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  icon: PropTypes.node,
+  accent: PropTypes.string,
+  sub: PropTypes.string,
+};
 const AdminSettings = () => {
   const [overview, setOverview] = useState({
     totalUsers: 0,

@@ -1,9 +1,10 @@
 // src/components/shared-dashboard/tabs/goals/SessionCard.jsx
 import { useState, useEffect } from "react";
-import axiosInstance from "../../../../utils/axiosInstance";
 import FeedbackModal from "../FeedbackModal";
 import StatusBadge from "../../../common/StatusBadge";
 import Spinner from "../../../common/Spinner";
+import PropTypes from "prop-types";
+import { useRescheduleAvailability } from "../../../../hooks/useRescheduleAvailability";
 const formatSlotDate = (slot) => {
   if (!slot?.date) return "";
   return new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
@@ -23,7 +24,18 @@ const formatTime = (t) => {
 };
 
 const isActive = (slot) => !slot?.status || slot?.status !== "cancelled";
-
+const slotShape = PropTypes.shape({
+  date: PropTypes.string,
+  startTime: PropTypes.string,
+  endTime: PropTypes.string,
+  status: PropTypes.string,
+  meetingLink: PropTypes.string,
+  menteeMarked: PropTypes.bool,
+  mentorMarked: PropTypes.bool,
+  isRescheduled: PropTypes.bool,
+  cancelledBy: PropTypes.string,
+  cancellationReason: PropTypes.string,
+});
 // ── Meeting link validator ─────────────────────────────────────
 const ALLOWED_MEETING_DOMAINS = [
   "meet.google.com",
@@ -131,6 +143,13 @@ const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }) => {
     </div>
   );
 };
+CancelModal.propTypes = {
+  slot: slotShape,
+  slotIndex: PropTypes.number.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  saving: PropTypes.bool,
+};
 
 // ── Slot Picker ───────────────────────────────────────────────
 const formatTimeShort = (t) => {
@@ -191,7 +210,13 @@ const SlotPill = ({ slot, group, selected, onSelect, booked }) => (
     </span>
   </button>
 );
-
+SlotPill.propTypes = {
+  slot: PropTypes.shape({ startTime: PropTypes.string, endTime: PropTypes.string }).isRequired,
+  group: PropTypes.shape({ day: PropTypes.string, date: PropTypes.string }).isRequired,
+  selected: PropTypes.bool,
+  onSelect: PropTypes.func.isRequired,
+  booked: PropTypes.bool,
+};
 // ── Slot Tab Picker ───────────────────────────────────────────
 const SlotTabPicker = ({
   availability,
@@ -333,7 +358,14 @@ const SlotTabPicker = ({
     </div>
   );
 };
-
+SlotTabPicker.propTypes = {
+  availability: PropTypes.arrayOf(
+    PropTypes.shape({ date: PropTypes.string, slots: PropTypes.array }),
+  ).isRequired,
+  selectedSlot: PropTypes.shape({ date: PropTypes.string, startTime: PropTypes.string }),
+  onSelect: PropTypes.func.isRequired,
+  bookedSlots: PropTypes.array.isRequired,
+};
 // ── Reschedule Modal ──────────────────────────────────────────
 const RescheduleModal = ({
   slot,
@@ -345,38 +377,14 @@ const RescheduleModal = ({
   saving,
 }) => {
   const [duration, setDuration] = useState(60);
-  const [availability, setAvailability] = useState([]);
-  const [sessionDurations, setSessionDurations] = useState([30, 60]);
-  const [availLoading, setAvailLoading] = useState(true);
-  const [availError, setAvailError] = useState(null);
   const [selectedNewSlot, setSelectedNewSlot] = useState(null);
+
+  const { availability, sessionDurations, availLoading, availError } =
+    useRescheduleAvailability(connectRequestId, duration);
 
   const bookedSlots = existingSlots
     .filter((s, i) => i !== slotIndex && isActive(s))
     .map((s) => ({ date: s.date, startTime: s.startTime, endTime: s.endTime }));
-
-  const fetchAvailability = async (dur) => {
-    try {
-      setAvailLoading(true);
-      setAvailError(null);
-      const res = await axiosInstance.get(
-        `/sessions/${connectRequestId}/mentor-availability?duration=${dur}`,
-      );
-      setAvailability(res.data.slots || []);
-      if (res.data.sessionDurations?.length)
-        setSessionDurations(res.data.sessionDurations);
-    } catch (err) {
-      setAvailError(
-        err?.response?.data?.message || "Failed to load availability.",
-      );
-    } finally {
-      setAvailLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAvailability(duration);
-  }, [duration]);
 
   return (
     <div
@@ -592,6 +600,15 @@ const RescheduleModal = ({
     </div>
   );
 };
+RescheduleModal.propTypes = {
+  slot: slotShape,
+  slotIndex: PropTypes.number.isRequired,
+  connectRequestId: PropTypes.string.isRequired,
+  existingSlots: PropTypes.arrayOf(slotShape).isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  saving: PropTypes.bool,
+};
 
 // ── Meeting Link Section ──────────────────────────────────────
 const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
@@ -743,9 +760,14 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
     </div>
   );
 };
+MeetingLinkSection.propTypes = {
+  slot: slotShape,
+  viewerRole: PropTypes.oneOf(["mentor", "mentee"]).isRequired,
+  onSetLink: PropTypes.func.isRequired,
+  saving: PropTypes.bool,
+};
 
 // ── Completion Section ────────────────────────────────────────
-// FIXED — add the two missing props
 const CompletionSection = ({
   slot,
   viewerRole,
@@ -853,7 +875,14 @@ const CompletionSection = ({
     </div>
   );
 };
-
+CompletionSection.propTypes = {
+  slot: slotShape,
+  viewerRole: PropTypes.oneOf(["mentor", "mentee"]).isRequired,
+  otherName: PropTypes.string,
+  slotIndex: PropTypes.number.isRequired,
+  onMarkComplete: PropTypes.func.isRequired,
+  onSessionComplete: PropTypes.func,
+};
 // ── Main SessionCard ──────────────────────────────────────────
 const SessionCard = ({
   slot,
@@ -1095,5 +1124,19 @@ const SessionCard = ({
     </>
   );
 };
-
+SessionCard.propTypes = {
+  slot: slotShape,
+  slotIndex: PropTypes.number.isRequired,
+  viewerRole: PropTypes.oneOf(["mentor", "mentee"]).isRequired,
+  otherName: PropTypes.string,
+  savingSlots: PropTypes.instanceOf(Set).isRequired,
+  onSetLink: PropTypes.func.isRequired,
+  onMarkComplete: PropTypes.func.isRequired,
+  onCancelSlot: PropTypes.func.isRequired,
+  onRescheduleSlot: PropTypes.func.isRequired,
+  allSlots: PropTypes.arrayOf(slotShape).isRequired,
+  connectRequestId: PropTypes.string.isRequired,
+  onSessionComplete: PropTypes.func,
+  connect: PropTypes.object,
+};
 export default SessionCard;

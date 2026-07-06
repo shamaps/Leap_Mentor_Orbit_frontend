@@ -1,8 +1,6 @@
 // components/mentor/dashboard/SocialCard.jsx
-import { useSelector } from "react-redux";
-import { selectMentorProfile } from "../../../store/selectors";
-const SocialCard = () => {
-  const { profile } = useSelector(selectMentorProfile);
+import PropTypes from "prop-types";
+const SocialCard = ({ profile }) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
@@ -100,5 +98,10 @@ const SocialCard = () => {
     </div>
   );
 };
-
+SocialCard.propTypes = {
+  profile: PropTypes.shape({
+    portfolioUrl: PropTypes.string,
+    linkedInUrl: PropTypes.string,
+  }),
+};
 export default SocialCard;

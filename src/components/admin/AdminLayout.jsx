@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import { Outlet } from "react-router-dom";
+import { IMAGES } from "../../constants/images";
 import logger from "../../utils/logger";
 const NAV_ITEMS = [
   {
@@ -184,10 +185,15 @@ const AdminLayout = () => {
 
   // ← UPDATED: fetch admin info from API since we no longer store in localStorage
   useEffect(() => {
-    adminAxiosInstance
-      .get("/admin/auth/me")
-      .then((res) => setAdminUser(res.data.admin || { name: "Admin" }))
-      .catch(() => {}); // silent — name just shows as "Admin" if fails
+    const fetchAdminUser = async () => {
+      try {
+        const res = await adminAxiosInstance.get("/admin/auth/me");
+        setAdminUser(res.data.admin || { name: "Admin" });
+      } catch {
+        // silent — name just shows as "Admin" if fails
+      }
+    };
+    fetchAdminUser();
   }, []);
 
   // ── Fetch pending wallet request count for sidebar badge ──
@@ -265,7 +271,7 @@ const AdminLayout = () => {
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
               <img
-                src="/images/logo.webp"
+                src={IMAGES.logo}
                 alt="LeapMentor logo"
                 width={32}
                 height={32}

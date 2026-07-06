@@ -7,7 +7,7 @@ import useSocketToast from "../../../hooks/useSocketToast";
 import { useSearchParams } from "react-router-dom";
 import { Home, User, Calendar, Bell, MessageSquare, Users, DollarSign } from "lucide-react";
 import DashboardSidebar from "../../common/DashboardSidebar";
-
+import ErrorState from "../../common/ErrorState";
 // LCP FIX: lazy-load every tab so only the active tab's JS is loaded.
 // MentorHomeTab is also lazy — its chunk was 120 KiB and is the first thing
 // the user sees, but it still loads faster than blocking the entire shell.
@@ -89,10 +89,7 @@ const DashboardLayout = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
-          <span className="text-red-500">⚠</span>
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
+        <ErrorState message={error} onAction={refetchProfile} />
       </div>
     );
   }

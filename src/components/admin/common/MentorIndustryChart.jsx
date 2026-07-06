@@ -10,7 +10,7 @@ import {
   Cell,
   LabelList,
 } from "recharts";
-
+import PropTypes from "prop-types";
 const PALETTE = [
   "#2563eb",
   "#7c3aed",
@@ -82,7 +82,10 @@ const CustomTooltip = ({ active, payload }) => {
     </div>
   );
 };
-
+CustomTooltip.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.array,
+};
 // ── Custom X-Axis Tick (rotated to prevent overlap) ───────────
 const CustomXTick = ({ x, y, payload }) => {
   return (
@@ -103,7 +106,11 @@ const CustomXTick = ({ x, y, payload }) => {
     </g>
   );
 };
-
+CustomXTick.propTypes = {
+  x: PropTypes.number,
+  y: PropTypes.number,
+  payload: PropTypes.shape({ value: PropTypes.string }),
+};
 // ══════════════════════════════════════════════════════════════
 const MentorIndustryChart = ({ data = [] }) => {
   if (!data.length) {
@@ -230,5 +237,12 @@ const MentorIndustryChart = ({ data = [] }) => {
     </div>
   );
 };
-
+MentorIndustryChart.propTypes = {
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      industry: PropTypes.string,
+      count: PropTypes.number,
+    }),
+  ),
+};
 export default MentorIndustryChart;

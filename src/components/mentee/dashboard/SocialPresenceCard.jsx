@@ -1,14 +1,11 @@
 // components/mentee/dashboard/SocialPresenceCard.jsx
-import { useSelector } from "react-redux";
-import { selectMenteeProfile } from "../../../store/selectors";
-const SocialPresenceCard = () => {
-  const { profile } = useSelector(selectMenteeProfile);
+import PropTypes from "prop-types";
+const SocialPresenceCard = ({profile}) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
         <h3 className="text-m font-bold text-slate-800">Social Presence</h3>
       </div>
-
       <div className="space-y-3">
         {/* LinkedIn */}
         <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50">
@@ -132,5 +129,10 @@ const SocialPresenceCard = () => {
     </div>
   );
 };
-
+SocialPresenceCard.propTypes = {
+  profile: PropTypes.shape({
+    linkedInUrl: PropTypes.string,
+    portfolioUrl: PropTypes.string,
+  }),
+};
 export default SocialPresenceCard;

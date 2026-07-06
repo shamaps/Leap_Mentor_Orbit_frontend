@@ -1,7 +1,7 @@
 // components/mentee/onboarding/InterestedFieldsSection.jsx
 import { useState, forwardRef } from "react";
 import { useMenteeOnboardingForm } from "../../../context/MenteeOnboardingFormContext";
-
+import PropTypes from "prop-types";
 const errorClass =
   "border-red-400 focus:border-red-400 focus:ring-red-100 hover:border-red-400";
 
@@ -55,6 +55,14 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder, error }) => {
       />
     </div>
   );
+}; 
+
+TagInput.propTypes = {
+  tags: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onAdd: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
+  error: PropTypes.bool,
 };
 
 // forwardRef so MenteeOnboardingShell can scroll to this section when
@@ -62,7 +70,7 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder, error }) => {
 // data-field on each sub-section lets the DOM querySelector fallback
 // land on the specific errored input if it comes up first.
 const InterestedFieldsSection = forwardRef((_, ref) => {
-  const { form, handleChange, errors = {} } = useMenteeOnboardingForm();
+  const { form, handleChange, onBlur, errors = {} } = useMenteeOnboardingForm();
   const addToArray = (field, value) => {
     handleChange({
       target: { name: field, value: [...(form[field] || []), value] },

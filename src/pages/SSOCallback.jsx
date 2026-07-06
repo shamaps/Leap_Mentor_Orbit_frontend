@@ -1,18 +1,17 @@
 // src/pages/SSOCallback.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux"; 
-import { setUser } from "../store/slices/authSlice"; 
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/slices/authSlice";
 import { AuthenticateWithRedirectCallback, useAuth } from "@clerk/clerk-react";
 import axiosInstance from "../utils/axiosInstance";
 import logger from "../utils/logger";
+import { ssoFlags } from "../utils/storage";
 
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor")) {
-    localStorage.setItem("role", "mentor");
     navigate("/dashboard/mentor");
   } else {
-    localStorage.setItem("role", "mentee");
     navigate("/dashboard/mentee");
   }
 };
@@ -21,7 +20,7 @@ const redirectByRole = (roles, navigate) => {
 const SyncWithBackend = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -29,8 +28,9 @@ const SyncWithBackend = () => {
       try {
         const clerkToken = await getToken();
         logger.debug("Clerk token retrieved", { hasToken: Boolean(clerkToken) });
-        const role = localStorage.getItem("sso_role");
-        const termsAccepted = localStorage.getItem("sso_terms") === "true";
+        const flow = ssoFlags.get();
+        const role = flow?.role || null;
+        const termsAccepted = flow?.termsAccepted ?? false;
         logger.debug("SSO role resolved", { role });
 
         const res = await axiosInstance.post("/auth/clerk-sso", {
@@ -44,8 +44,7 @@ const SyncWithBackend = () => {
           hasUser: Boolean(res.data?.user),
         });
 
-        // ✅ FIXED: was localStorage.setItem("token", res.data.token)
-        // Token is now in the HttpOnly cookie set by the backend.
+        // Token is in the HttpOnly cookie set by the backend.
         // We only dispatch into Redux memory — never store in localStorage.
         if (res.data?.accessToken || res.data?.token) {
           dispatch(
@@ -56,8 +55,7 @@ const SyncWithBackend = () => {
           );
         }
 
-        localStorage.removeItem("sso_role");
-        localStorage.removeItem("sso_terms");
+        ssoFlags.clear();
 
         if (res.data?.isNewUser) {
           const onboardingRole =
@@ -72,8 +70,7 @@ const SyncWithBackend = () => {
           message: err?.response?.data?.message || err.message,
         });
         setError(err?.response?.data?.message || err.message || "SSO failed");
-        localStorage.removeItem("sso_role");
-        localStorage.removeItem("sso_terms");
+        ssoFlags.clear();
       }
     };
 

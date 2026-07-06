@@ -1,5 +1,5 @@
 // components/mentor/dashboard/availability/TimezoneDurationSection.jsx
-
+import PropTypes from "prop-types";
 const TIMEZONES = [
   "Asia/Kolkata",
   "Asia/Dubai",
@@ -99,5 +99,10 @@ const TimezoneDurationSection = ({
     </div>
   );
 };
-
+TimezoneDurationSection.propTypes = {
+  timezone: PropTypes.string.isRequired,
+  sessionDurations: PropTypes.arrayOf(PropTypes.number).isRequired,
+  updateTimezone: PropTypes.func.isRequired,
+  toggleDuration: PropTypes.func.isRequired,
+};
 export default TimezoneDurationSection;

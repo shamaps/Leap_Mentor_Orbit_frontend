@@ -1,5 +1,5 @@
 // src/components/auth/AuthLeftPanel.jsx
-
+import PropTypes from "prop-types";
 /**
  * Reusable left panel for auth pages (Register/Login).
  *
@@ -72,5 +72,17 @@ const AuthLeftPanel = ({
     </div>
   );
 };
-
+AuthLeftPanel.propTypes = {
+  imageSrc: PropTypes.string.isRequired,
+  imageAlt: PropTypes.string,
+  badge: PropTypes.string,
+  heading: PropTypes.node,
+  subtext: PropTypes.node,
+  stats: PropTypes.arrayOf(
+    PropTypes.shape({
+      num: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      label: PropTypes.string,
+    }),
+  ),
+};
 export default AuthLeftPanel;

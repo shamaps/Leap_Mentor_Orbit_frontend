@@ -1,6 +1,5 @@
 // components/mentee/dashboard/InterestedFieldsCard.jsx
-import { useSelector } from "react-redux";
-import { selectMenteeProfile } from "../../../store/selectors";
+import PropTypes from "prop-types";
 const TagChip = ({ label }) => {
   return (
     <span
@@ -10,9 +9,10 @@ const TagChip = ({ label }) => {
     </span>
   );
 };
-
-const InterestedFieldsCard = () => {
-  const { profile } = useSelector(selectMenteeProfile);
+TagChip.propTypes = {
+  label: PropTypes.string.isRequired,
+};
+const InterestedFieldsCard = ({ profile }) => {
   const fields = profile?.interestedFields || [];
   const skills = profile?.skills || [];
 
@@ -53,5 +53,10 @@ const InterestedFieldsCard = () => {
     </div>
   );
 };
-
+InterestedFieldsCard.propTypes = {
+  profile: PropTypes.shape({
+    interestedFields: PropTypes.arrayOf(PropTypes.string),
+    skills: PropTypes.arrayOf(PropTypes.string),
+  }),
+};
 export default InterestedFieldsCard;

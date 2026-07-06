@@ -1,5 +1,5 @@
 // components/mentor/verification/PhoneNumberField.jsx
-
+import PropTypes from "prop-types";
 import { useState } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -177,5 +177,9 @@ const PhoneNumberField = ({ value, onChange, error }) => {
     </div>
   );
 };
-
+PhoneNumberField.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  error: PropTypes.string,
+};
 export default PhoneNumberField;

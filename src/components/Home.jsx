@@ -7,11 +7,16 @@ import Hero from "../ui/Hero";
 import Missions from "../ui/Missions";
 import Testimonials from "../ui/Testimonials";
 import Footer from "../ui/Footer";
-import { selectAuthToken } from "../store/selectors";
+import { selectAuthToken, selectAuthUser } from "../store/selectors";
 export default function Home() {
   const navigate = useNavigate();
   const token = useSelector(selectAuthToken);
-  const role = localStorage.getItem("role");
+  const user = useSelector(selectAuthUser);
+  const role = user?.roles?.includes("mentor")
+    ? "mentor"
+    : user?.roles?.includes("mentee")
+      ? "mentee"
+      : null;
 
   useEffect(() => {
     //  token now comes from Redux (was always null after new auth flow)

@@ -1,8 +1,6 @@
 // components/mentor/onboarding/SocialLinksSection.jsx
 import { useMentorOnboardingForm } from "../../../context/MentorOnboardingFormContext";
-
-const inputClass =
-  "w-full text-sm text-slate-800 bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 pl-10 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-slate-400 transition-all duration-150";
+import FormField from "@/components/common/FormField";
 
 const GlobeIcon = () => (
   <svg
@@ -39,7 +37,7 @@ const LinkedInIcon = () => (
 );
 
 const SocialLinksSection = () => {
-  const { form, onChange } = useMentorOnboardingForm();
+  const { form, onChange,onBlur } = useMentorOnboardingForm();
   return (
     <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
       {/* Header */}
@@ -64,45 +62,31 @@ const SocialLinksSection = () => {
 
       <div className="px-6 py-5 space-y-4">
         {/* Portfolio URL */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 mb-1.5">
-            Portfolio or Personal Website URL
-          </label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2">
-              <GlobeIcon />
-            </span>
-            <input
-              name="portfolioUrl"
-              value={form.portfolioUrl}
-              onChange={onChange}
-              className={inputClass}
-              placeholder="https://yourportfolio.com"
-            />
-          </div>
-        </div>
+        <FormField
+          label="Portfolio or Personal Website URL"
+          name="portfolioUrl"
+          value={form.portfolioUrl}
+          onChange={onChange}
+          onBlur={onBlur}
+          placeholder="https://yourportfolio.com"
+          icon={<GlobeIcon />}
+        />
 
         {/* LinkedIn URL */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 mb-1.5">
-            LinkedIn Profile URL
-          </label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2">
-              <LinkedInIcon />
-            </span>
-            <input
-              name="linkedInUrl"
-              value={form.linkedInUrl}
-              onChange={onChange}
-              className={inputClass}
-              placeholder="https://linkedin.com/in/yourname"
-            />
-          </div>
-        </div>
+        <FormField
+          label="LinkedIn Profile URL"
+          name="linkedInUrl"
+          value={form.linkedInUrl}
+          onChange={onChange}
+          onBlur={onBlur}
+          placeholder="https://linkedin.com/in/yourname"
+          icon={<LinkedInIcon />}
+        />
       </div>
     </div>
   );
 };
 
 export default SocialLinksSection;
+
+

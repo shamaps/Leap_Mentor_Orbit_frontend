@@ -1,4 +1,5 @@
 // src/components/mentee/dashboard/history/EscrowSuccessModal.jsx
+import PropTypes from "prop-types";
 
 const LockIcon = ({ size = 14 }) => (
   <svg
@@ -15,7 +16,9 @@ const LockIcon = ({ size = 14 }) => (
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </svg>
 );
-
+LockIcon.propTypes = {
+  size: PropTypes.number,
+};
 const CheckIcon = () => (
   <svg
     width="40"
@@ -123,5 +126,9 @@ const EscrowSuccessModal = ({ totalAmount, mentorName, onDone }) => {
     </>
   );
 };
-
+EscrowSuccessModal.propTypes = {
+  totalAmount: PropTypes.number.isRequired,
+  mentorName: PropTypes.string,
+  onDone: PropTypes.func.isRequired,
+};
 export default EscrowSuccessModal;

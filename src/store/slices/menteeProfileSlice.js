@@ -1,47 +1,46 @@
 // src/store/slices/menteeProfileSlice.js
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import getErrorMessage from "../../utils/getErrorMessage";
 import { HTTP_STATUS } from "../../constants/httpStatus";
-// Fetches /users/me + /mentee-profile/me, mirrors useMenteeDashboard.jsx's
-// original fetchData(). Navigation stays in the hook; this thunk only
-// fetches and reports outcome via payload.
+
 export const fetchMenteeDashboard = createAsyncThunk(
   "menteeProfile/fetchMenteeDashboard",
   async (_, { rejectWithValue }) => {
     try {
-      const userRes = await axiosInstance.get("/users/me");
-      const userData = userRes.data;
+      const activeUserResponse = await axiosInstance.get("/users/me");
+      const clientUserData = activeUserResponse.data;
 
-      if (!userData.roles?.includes("mentee")) {
+      if (!clientUserData?.roles?.includes("mentee")) {
         return rejectWithValue({ reason: "wrong-role" });
       }
 
       try {
-        const profileRes = await axiosInstance.get("/mentee-profile/me");
-        return { user: userData, profile: profileRes.data };
-      } catch (profileErr) {
-        if (profileErr?.response?.status === HTTP_STATUS.NOT_FOUND) {
-          return rejectWithValue({ reason: "no-profile", user: userData });
+        const clientProfileResponse = await axiosInstance.get("/mentee-profile/me");
+        return { user: clientUserData, profile: clientProfileResponse.data };
+      } catch (nestedProfileException) {
+        const nestedStatusCode = nestedProfileException?.response?.status;
+
+        if (nestedStatusCode === HTTP_STATUS.NOT_FOUND) {
+          return rejectWithValue({ reason: "no-profile", user: clientUserData });
         }
-        if (profileErr?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
+        if (nestedStatusCode === HTTP_STATUS.UNAUTHORIZED) {
           return rejectWithValue({ reason: "unauthorized" });
         }
-        throw profileErr;
+        throw nestedProfileException;
       }
-    } catch (err) {
-      if (err?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
+    } catch (globalRootException) {
+      if (globalRootException?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
         return rejectWithValue({ reason: "unauthorized" });
       }
+
       return rejectWithValue({
         reason: "error",
-        message: getErrorMessage(
-          err,
-          "Something went wrong. Please try again.",
-        ),
+        message: getErrorMessage(globalRootException, "Something went wrong. Please try again."),
       });
     }
-  },
+  }
 );
 
 const menteeProfileSlice = createSlice({
@@ -63,21 +62,21 @@ const menteeProfileSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchMenteeDashboard.pending, (state) => {
-        state.loading = true;
         state.error = null;
+        state.loading = true;
       })
-      .addCase(fetchMenteeDashboard.fulfilled, (state, action) => {
-        state.user = action.payload.user;
-        state.profile = action.payload.profile;
+      .addCase(fetchMenteeDashboard.fulfilled, (state, { payload }) => {
+        state.user = payload.user;
+        state.profile = payload.profile;
         state.loading = false;
       })
-      .addCase(fetchMenteeDashboard.rejected, (state, action) => {
-        const payload = action.payload || {};
-        if (payload.reason === "no-profile") {
-          state.user = payload.user;
-        }
-        if (payload.reason === "error") {
-          state.error = payload.message;
+      .addCase(fetchMenteeDashboard.rejected, (state, { payload }) => {
+        const fallbackActionPayload = payload || {};
+
+        if (fallbackActionPayload.reason === "no-profile") {
+          state.user = fallbackActionPayload.user;
+        } else if (fallbackActionPayload.reason === "error") {
+          state.error = fallbackActionPayload.message;
         }
         state.loading = false;
       });

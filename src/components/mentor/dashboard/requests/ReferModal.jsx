@@ -1,6 +1,7 @@
 // src/components/mentor/dashboard/requests/ReferModal.jsx
 import { useState, useEffect } from "react";
-import axiosInstance from "../../../../utils/axiosInstance";
+import PropTypes from "prop-types";
+import { getSimilarMentors, referRequest } from "../../../../api/connectRequests.api";
 import EmptyState from "../../../common/EmptyState";
 const ReferModal = ({ request, onClose, onReferred }) => {
   const [mentors, setMentors] = useState([]);
@@ -16,11 +17,9 @@ const ReferModal = ({ request, onClose, onReferred }) => {
     const fetchSimilarMentors = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get(
-          `/connect-requests/${request._id}/similar-mentors`,
-        );
-        setMentors(res.data.mentors || []);
-        setMySkills(res.data.mySkills || []);
+        const data = await getSimilarMentors(request._id);
+        setMentors(data.mentors || []);
+        setMySkills(data.mySkills || []);
       } catch (err) {
         setError(
           err?.response?.data?.message || "Failed to load similar mentors.",
@@ -38,9 +37,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
     try {
       setReferring(true);
       setError("");
-      await axiosInstance.patch(`/connect-requests/${request._id}/refer`, {
-        referToMentorId: selected.user._id,
-      });
+      await referRequest(request._id, selected.user._id);
       setSuccess(true);
       onReferred(request._id, "referred");
     } catch (err) {
@@ -337,5 +334,12 @@ const ReferModal = ({ request, onClose, onReferred }) => {
     </div>
   );
 };
-
+ReferModal.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    mentee: PropTypes.shape({ name: PropTypes.string, email: PropTypes.string }),
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onReferred: PropTypes.func.isRequired,
+};
 export default ReferModal;

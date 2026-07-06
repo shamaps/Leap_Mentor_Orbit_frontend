@@ -6,7 +6,7 @@ import FilterPanel from "./FilterPanel";
 import MentorGrid from "./MentorGrid";
 import MentorProfileModal from "./MentorProfileModal";
 import { getPlatformCommissionRate } from "../../../../api/escrow.api";
-
+import ErrorState from "../../../common/ErrorState";
 const FindMentorsTab = () => {
   const {
     skill,
@@ -29,10 +29,17 @@ const FindMentorsTab = () => {
   const [feeLoading, setFeeLoading] = useState(true);
 
   useEffect(() => {
-    getPlatformCommissionRate()
-      .then((data) => setCommissionRate(data.commissionRate))
-      .catch(() => setCommissionRate(null))
-      .finally(() => setFeeLoading(false));
+    const fetchCommissionRate = async () => {
+      try {
+        const data = await getPlatformCommissionRate();
+        setCommissionRate(data.commissionRate);
+      } catch {
+        setCommissionRate(null);
+      } finally {
+        setFeeLoading(false);
+      }
+    };
+    fetchCommissionRate();
   }, []);
 
   return (
@@ -83,11 +90,7 @@ const FindMentorsTab = () => {
       </div>
 
       {/* Error */}
-      {error && (
-        <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
-          <span>⚠</span> {error}
-        </div>
-      )}
+      {error && <ErrorState message={error} fullWidth compact />}
 
       {/* Results */}
       <MentorGrid

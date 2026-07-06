@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import axiosInstance from "../utils/axiosInstance";
-import { useToast } from "../context/ToastContext";
+import * as notificationsApi from "../api/notifications.api"; import { useToast } from "../context/ToastContext";
 import { selectAuthToken } from "../store/selectors";
 import logger from "../utils/logger";
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
@@ -33,7 +32,7 @@ const usePushNotification = () => {
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
         });
 
-        await axiosInstance.post("/push/subscribe", { subscription });
+        await notificationsApi.subscribeToPush(subscription);
 
         logger.info("Push notifications enabled");
       } catch (err) {

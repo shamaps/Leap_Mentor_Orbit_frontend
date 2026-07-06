@@ -1,6 +1,7 @@
 // src/pages/admin/AdminVerifications.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import ErrorState from "../../components/common/ErrorState";
 // ── Icons ────────────────────────────────────────────────
@@ -32,6 +33,9 @@ const IconCheck = ({ size = 16 }) => (
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
+IconCheck.propTypes = {
+  size: PropTypes.number,
+};
 const IconX = ({ size = 16 }) => (
   <svg
     width={size}
@@ -47,6 +51,9 @@ const IconX = ({ size = 16 }) => (
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
+IconX.propTypes = {
+  size: PropTypes.number,
+};
 const IconDoc = () => (
   <svg
     width="16"
@@ -216,7 +223,9 @@ const StatusBadge = ({ status }) => {
     </span>
   );
 };
-
+StatusBadge.propTypes = {
+  status: PropTypes.string,
+};
 // ── Doc Preview Card ─────────────────────────────────────
 const DocCard = ({ label, url, icon }) => {
   if (!url) return null;
@@ -258,7 +267,11 @@ const DocCard = ({ label, url, icon }) => {
     </a>
   );
 };
-
+DocCard.propTypes = {
+  label: PropTypes.string.isRequired,
+  url: PropTypes.string,
+  icon: PropTypes.node,
+};
 // ── Skill pill ───────────────────────────────────────────
 const Pill = ({ label }) => (
   <span
@@ -268,7 +281,9 @@ const Pill = ({ label }) => (
     {label}
   </span>
 );
-
+Pill.propTypes = {
+  label: PropTypes.string.isRequired,
+};
 // ══════════════════════════════════════════════════════════
 // DETAIL DRAWER (Updated)
 // ══════════════════════════════════════════════════════════
@@ -544,6 +559,22 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
       </div>
     </>
   );
+};
+DetailDrawer.propTypes = {
+  mentor: PropTypes.shape({
+    _id: PropTypes.string,
+    user: PropTypes.shape({ name: PropTypes.string, email: PropTypes.string }),
+    verificationStatus: PropTypes.string,
+    phoneNumber: PropTypes.string,
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    skills: PropTypes.arrayOf(PropTypes.string),
+    resumeUrl: PropTypes.string,
+    workExperienceUrls: PropTypes.array,
+  }),
+  onClose: PropTypes.func.isRequired,
+  onVerify: PropTypes.func.isRequired,
+  verifying: PropTypes.bool,
 };
 // ══════════════════════════════════════════════════════════
 // MAIN PAGE

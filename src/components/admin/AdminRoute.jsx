@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
-
+import PropTypes from "prop-types";
 const PageLoader = () => (
   <div
     className="min-h-screen flex items-center justify-center"
@@ -26,15 +26,22 @@ const AdminRoute = ({ children }) => {
   const [status, setStatus] = useState("checking"); // "checking" | "allowed" | "denied"
 
   useEffect(() => {
-    adminAxiosInstance
-      .get("/admin/auth/me")
-      .then(() => setStatus("allowed"))
-      .catch(() => setStatus("denied"));
+    const verifySession = async () => {
+      try {
+        await adminAxiosInstance.get("/admin/auth/me");
+        setStatus("allowed");
+      } catch {
+        setStatus("denied");
+      }
+    };
+    verifySession();
   }, []);
 
   if (status === "checking") return <PageLoader />;
   if (status === "denied") return <Navigate to="/admin/login" replace />;
   return children;
 };
-
+AdminRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 export default AdminRoute;

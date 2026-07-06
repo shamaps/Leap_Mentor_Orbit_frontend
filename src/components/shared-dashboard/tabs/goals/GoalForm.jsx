@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Spinner from "../../../common/Spinner";
+import PropTypes from "prop-types";
 const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
   const [title, setTitle] = useState(initial.title || "");
   const [description, setDescription] = useState(initial.description || "");
@@ -113,5 +114,15 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
     </div>
   );
 };
-
+GoalForm.propTypes = {
+  initial: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
+    startDate: PropTypes.string,
+    endDate: PropTypes.string,
+  }),
+  onSave: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  saving: PropTypes.bool,
+};
 export default GoalForm;

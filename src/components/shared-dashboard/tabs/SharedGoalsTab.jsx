@@ -8,6 +8,7 @@ import MilestoneList from "./goals/MilestoneList";
 import SessionCard from "./goals/SessionCard";
 import FeedbackModal from "./FeedbackModal";
 import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
 import { selectConnect } from "../../../store/selectors";
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-4">
@@ -70,7 +71,19 @@ const GoalCard = ({ goal, onEdit, milestones, saving, onAdd, onToggle, onDelete 
     </div>
   );
 };
-
+GoalCard.propTypes = {
+  goal: PropTypes.shape({
+    title: PropTypes.string,
+    description: PropTypes.string,
+    status: PropTypes.oneOf(["active", "completed", "abandoned"]),
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  milestones: PropTypes.array,
+  saving: PropTypes.bool,
+  onAdd: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
 const NoGoalState = ({ onSetGoal }) => (
   <div className="bg-white border border-dashed border-violet-200 rounded-2xl p-10
     flex flex-col items-center text-center gap-3">
@@ -104,7 +117,9 @@ const NoGoalState = ({ onSetGoal }) => (
     </button>
   </div>
 );
-
+NoGoalState.propTypes = {
+  onSetGoal: PropTypes.func.isRequired,
+};
 const OverallProgress = ({ completedSlots, totalSlots, progress, onLeaveFeedback, feedbackSubmitted }) => {
   const [showMessage, setShowMessage] = useState(false);
 
@@ -167,7 +182,13 @@ const OverallProgress = ({ completedSlots, totalSlots, progress, onLeaveFeedback
     </div>
   );
 };
-
+OverallProgress.propTypes = {
+  completedSlots: PropTypes.number.isRequired,
+  totalSlots: PropTypes.number.isRequired,
+  progress: PropTypes.number.isRequired,
+  onLeaveFeedback: PropTypes.func.isRequired,
+  feedbackSubmitted: PropTypes.bool,
+};
 // ── Main ──────────────────────────────────────────────────────
 const SharedGoalsTab = ({ onAllComplete }) => {
   const connect = useSelector(selectConnect);
@@ -343,5 +364,7 @@ const SharedGoalsTab = ({ onAllComplete }) => {
     </div>
   );
 };
-
+SharedGoalsTab.propTypes = {
+  onAllComplete: PropTypes.func,
+};
 export default SharedGoalsTab;

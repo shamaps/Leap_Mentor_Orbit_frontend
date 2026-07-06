@@ -1,7 +1,7 @@
 // src/hooks/useMenteeEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../utils/axiosInstance";
+import * as menteeProfileApi from "../api/menteeProfile.api";
 import { validateMenteeFields } from "../utils/onboardingValidation";
 
 const useMenteeEditProfile = () => {
@@ -27,8 +27,9 @@ const useMenteeEditProfile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setFetchLoading(true);
       try {
-        const { data } = await axiosInstance.get("/mentee-profile/me");
+        const data = await menteeProfileApi.getMenteeProfile();
         setForm({
           currentRole: data.currentRole || "",
           industry: data.industry || "",
@@ -44,12 +45,16 @@ const useMenteeEditProfile = () => {
           languages: data.languages || [],
         });
       } catch (err) {
-        setMsg({ type: "error", text: "Failed to load profile data." });
+        if (err.name !== "CanceledError" && err.name !== "AbortError") {
+          setMsg({ type: "error", text: "Failed to load profile data." });
+        }
       } finally {
-        setFetchLoading(false);
+        if (!controller.signal.aborted) setFetchLoading(false);
       }
     };
-    fetchProfile();
+    const controller = new AbortController();
+    fetchProfile(controller.signal);
+    return () => controller.abort();
   }, []);
 
   const handleChange = (e) => {
@@ -73,7 +78,7 @@ const useMenteeEditProfile = () => {
         ...form,
         yearsOfExperience: form.yearsOfExperience,
       };
-      await axiosInstance.patch("/mentee-profile/me", payload);
+      await menteeProfileApi.updateMenteeProfile(payload);
       setMsg({ type: "success", text: "Profile updated successfully!" });
       setTimeout(() => navigate("/dashboard/mentee"), 1500);
     } catch (err) {

@@ -1,16 +1,16 @@
 // src/pages/UnifiedLogin.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser, useAuth, SignIn } from "@clerk/clerk-react"; // ← ADDED useAuth, SignIn
-import { useDispatch } from "react-redux"; // ← ADDED
-import { setUser } from "../store/slices/authSlice"; // ← ADDED
+import { useUser, useAuth, SignIn } from "@clerk/clerk-react"; 
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/slices/authSlice"; 
 import axiosInstance from "../utils/axiosInstance";
 import logger from "../utils/logger";
 export default function UnifiedLogin() {
   const { isSignedIn, user } = useUser();
-  const { getToken } = useAuth(); // ← ADDED — to get Clerk JWT
+  const { getToken } = useAuth(); 
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // ← ADDED
+  const dispatch = useDispatch();
   const [roles, setRoles] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -21,9 +21,9 @@ export default function UnifiedLogin() {
     if (!email) return;
 
     setLoading(true);
-    axiosInstance
-      .get("/auth/my-roles", { params: { email } })
-      .then((res) => {
+    const fetchRoles = async () => {
+      try {
+        const res = await axiosInstance.get("/auth/my-roles", { params: { email } });
         const { roles } = res.data;
 
         if (roles.length === 0) {
@@ -34,10 +34,11 @@ export default function UnifiedLogin() {
           setRoles(roles);
           setLoading(false);
         }
-      })
-      .catch(() => {
+      } catch {
         navigate("/select-role");
-      });
+      }
+    };
+    fetchRoles();
   }, [isSignedIn, user]);
 
   // ← FIXED: was calling /auth/issue-token (doesn't exist) and storing in localStorage
@@ -62,13 +63,7 @@ export default function UnifiedLogin() {
         );
       }
 
-      if (role === "mentor") {
-        localStorage.setItem("role", "mentor");
-        navigate("/dashboard/mentor");
-      } else {
-        localStorage.setItem("role", "mentee");
-        navigate("/dashboard/mentee");
-      }
+      navigate(role === "mentor" ? "/dashboard/mentor" : "/dashboard/mentee");
     } catch (err) {
       logger.error("SSO token issue failed", { err });
     }

@@ -1,60 +1,14 @@
 // components/mentee/onboarding/PersonalInfoSection.jsx
-import { useRef, useState } from "react";
-import axiosInstance from "../../../utils/axiosInstance";
+import { useProfilePhotoUpload } from "../../../hooks/useProfilePhotoUpload";
 import { useMenteeOnboardingForm } from "../../../context/MenteeOnboardingFormContext";
 
 const PersonalInfoSection = () => {
   const { form, handleChange } = useMenteeOnboardingForm();
-  const fileInputRef = useRef(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadErr, setUploadErr] = useState("");
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setUploadErr("Only image files are allowed.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadErr("Image must be under 5MB.");
-      return;
-    }
-
-    setUploadErr("");
-    setUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("profilePicture", file);
-
-      const res = await axiosInstance.post(
-        "/upload/profile-picture",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
-
-      handleChange({
-        target: {
-          name: "profilePicture",
-          value: res.data.url,
-        },
-      });
-    } catch (err) {
-      setUploadErr(
-        err?.response?.data?.message ||
-          "Failed to upload image. Please try again.",
-      );
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
+  const { fileInputRef, uploading, uploadErr, handlePhotoClick, handleFileChange } =
+    useProfilePhotoUpload((url) =>
+      handleChange({ target: { name: "profilePicture", value: url } }),
+    );
 
   return (
     <div className="bg-white rounded-2xl border border-[#e8edf5] shadow-sm overflow-hidden">
@@ -84,7 +38,7 @@ const PersonalInfoSection = () => {
         <div className="flex flex-col items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={() => !uploading && fileInputRef.current?.click()}
+            onClick={handlePhotoClick}
             disabled={uploading}
             className="w-20 h-20 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50
               flex items-center justify-center hover:border-blue-400 hover:bg-blue-100
@@ -118,7 +72,7 @@ const PersonalInfoSection = () => {
           <span
             className={`text-xs font-semibold text-blue-900
               ${uploading ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:underline"}`}
-            onClick={() => !uploading && fileInputRef.current?.click()}
+            onClick={handlePhotoClick}
           >
             {uploading ? "Uploading..." : "Upload Photo"}
           </span>

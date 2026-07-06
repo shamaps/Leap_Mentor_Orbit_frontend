@@ -5,7 +5,7 @@ import ProfessionalInfoCard from "./ProfessionalInfoCard";
 import SkillsCard from "./SkillsCard";
 import MentorshipPrefsCard from "./MentorshipPrefsCard";
 import SocialCard from "./SocialCard";
-
+import PropTypes from "prop-types";
 const ProfileTab = ({ user, profile }) => {
   const navigate = useNavigate();
 
@@ -73,5 +73,10 @@ const ProfileTab = ({ user, profile }) => {
     </div>
   );
 };
-
+ProfileTab.propTypes = {
+  user: PropTypes.object,
+  profile: PropTypes.shape({
+    updatedAt: PropTypes.string,
+  }),
+};
 export default ProfileTab;

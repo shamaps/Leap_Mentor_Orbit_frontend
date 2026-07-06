@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TermsAndConditionsModal from "./TermsAndConditionsModal";
-
+import { IMAGES } from "../constants/images";
 const footerLinks = {
   "For Mentees": ["Find a Mentor"],
   "For Mentors": ["Become a Mentor"],
@@ -66,7 +66,7 @@ export default function Footer() {
             <div className="col-span-1">
               <div className="flex items-center gap-2 mb-2">
                 <img
-                  src="/images/logo.webp"
+                  src={IMAGES.logo}
                   alt="LeapMentor logo"
                   className="h-8 w-8"
                   width={32}

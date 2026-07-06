@@ -1,8 +1,9 @@
 // src/components/mentor/dashboard/NotificationsTab.jsx
 import { useState, useEffect } from "react";
-import axiosInstance from "../../../../utils/axiosInstance";
+import { useNotifications } from "../../../../hooks/useNotifications";
 import StatCard from "@/components/common/StatCard";
-
+import ErrorState from "../../../common/ErrorState";
+import PropTypes from "prop-types";
 // ── Type config ───────────────────────────────────────────────
 const TYPE_CONFIG = {
   connect_request_received: {
@@ -436,33 +437,33 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
     </div>
   );
 };
-
+NotifCard.propTypes = {
+  notif: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    type: PropTypes.string,
+    read: PropTypes.bool,
+    time: PropTypes.string,
+    title: PropTypes.string,
+    senderName: PropTypes.string,
+    body: PropTypes.string,
+    actions: PropTypes.array,
+  }).isRequired,
+  onMarkRead: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  setActiveTab: PropTypes.func,
+};
 // ── Main Component ────────────────────────────────────────────
 const NotificationsTab = ({ setActiveTab }) => {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [useStatic, setUseStatic] = useState(false);
-
-  const fetchNotifications = async () => {
-    try {
-      setLoading(true);
-      const res = await axiosInstance.get("/notifications");
-      const apiNotifs = (res.data.notifications || []).map(normalizeApiNotif);
-      setNotifications(apiNotifs);
-      setUseStatic(false);
-    } catch {
-      setNotifications(INITIAL_NOTIFICATIONS);
-      setUseStatic(true);
-      setError("Could not load live notifications. Showing sample data.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+  const {
+    notifications,
+    loading,
+    error,
+    fetchNotifications,
+    markAllRead,
+    clearAll,
+    markRead,
+    deleteOne,
+  } = useNotifications(INITIAL_NOTIFICATIONS);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const thisWeekCount = notifications.filter((n) => {
@@ -475,30 +476,6 @@ const NotificationsTab = ({ setActiveTab }) => {
       (t.includes("day") && parseInt(t) <= 7)
     );
   }).length;
-
-  const markAllRead = async () => {
-    if (!useStatic)
-      await axiosInstance.patch("/notifications/mark-all-read", {});
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const clearAll = async () => {
-    if (!useStatic) await axiosInstance.delete("/notifications/clear-all");
-    setNotifications([]);
-  };
-
-  const markRead = async (id) => {
-    if (!useStatic) await axiosInstance.patch(`/notifications/${id}/read`, {});
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
-    );
-  };
-
-  const deleteOne = async (id) => {
-    if (!useStatic) await axiosInstance.delete(`/notifications/${id}`);
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col gap-3">
@@ -643,11 +620,7 @@ const NotificationsTab = ({ setActiveTab }) => {
       </div>
 
       {/* Error banner */}
-      {error && (
-        <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
-          <span>⚠</span> {error}
-        </div>
-      )}
+      {error && <ErrorState message={error} onAction={fetchNotifications} compact />}
 
       {/* Empty state */}
       {notifications.length === 0 ? (
@@ -689,5 +662,7 @@ const NotificationsTab = ({ setActiveTab }) => {
     </div>
   );
 };
-
+NotificationsTab.propTypes = {
+  setActiveTab: PropTypes.func,
+};
 export default NotificationsTab;

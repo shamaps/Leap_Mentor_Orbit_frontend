@@ -8,7 +8,7 @@ import menteeProfileReducer from "./slices/menteeProfileSlice";
 import sharedConnectReducer from "./slices/sharedConnectSlice";
 import connectRequestsReducer from "./slices/connectRequestsSlice";
 import { injectStore } from "../utils/axiosInstance";
-
+import uiReducer from "./slices/uiSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -18,6 +18,7 @@ export const store = configureStore({
     menteeProfile: menteeProfileReducer,
     sharedConnect: sharedConnectReducer,
     connectRequests: connectRequestsReducer,
+    ui: uiReducer,
   },
 });
 // Give axiosInstance a live reference now that the store exists,

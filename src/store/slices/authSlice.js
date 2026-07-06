@@ -1,9 +1,10 @@
 // src/store/slices/authSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "../../utils/axiosInstance";
+import * as authApi from "../../api/auth.api";
 import getErrorMessage from "../../utils/getErrorMessage";
 import * as Sentry from "@sentry/react";
 import logger from "../../utils/logger";
+import { localStore, sessionStore } from "../../utils/storage"; 
 export const redirectByRole = (roles = [], targetRole, navigate) => {
   if (targetRole === "mentor" && roles.includes("mentor"))
     return navigate("/dashboard/mentor");
@@ -23,16 +24,9 @@ export const registerUser = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const res = await axiosInstance.post("/auth/register", {
-        name,
-        email,
-        password,
-        roles,
-        termsAccepted,
-      });
-      // ← REMOVED: if (res.data?.token) localStorage.setItem("token", res.data.token);
+      const data = await authApi.registerUser({ name, email, password, roles, termsAccepted });
       // Cookie is set automatically by the backend. accessToken goes to Redux memory.
-      return res.data;
+      return data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Registration failed."));
     }
@@ -43,9 +37,8 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/auth/login", { email, password });
-      // ← REMOVED: if (res.data?.token) localStorage.setItem("token", res.data.token);
-      return res.data;
+      const data = await authApi.loginUser({ email, password });
+      return data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Login failed."));
     }
@@ -56,10 +49,8 @@ export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/verification/send", {
-        email: email.trim(),
-      });
-      return res.data;
+      const data = await authApi.sendOtp(email);
+      return data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Failed to send OTP."));
     }
@@ -70,11 +61,8 @@ export const verifyEmail = createAsyncThunk(
   "auth/verifyEmail",
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/verification/verify-otp", {
-        email: email.trim(),
-        otp,
-      });
-      return res.data;
+      const data = await authApi.verifyEmailOtp(email, otp);
+      return data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "OTP verification failed."));
     }
@@ -101,10 +89,8 @@ export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/auth/password-reset", {
-        email: email.trim(),
-      });
-      return res.data;
+      const data = await authApi.forgotPassword(email);
+      return data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Failed to send OTP."));
     }
@@ -115,14 +101,8 @@ export const verifyResetOtp = createAsyncThunk(
   "auth/verifyResetOtp",
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post(
-        "/auth/password-reset/verification",
-        {
-          email: email.trim(),
-          otp,
-        },
-      );
-      return res.data;
+      const data = await authApi.verifyResetOtp(email, otp);
+      return data;
     } catch (err) {
       return rejectWithValue(
         err?.response?.data?.message || err?.message || "Invalid OTP.",
@@ -135,15 +115,8 @@ export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ email, otp, newPassword }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post(
-        "/auth/password-reset/confirmation",
-        {
-          email: email.trim(),
-          otp,
-          newPassword,
-        },
-      );
-      return res.data;
+      const data = await authApi.resetPassword(email, otp, newPassword);
+      return data;
     } catch (err) {
       return rejectWithValue(
         err?.response?.data?.message ||
@@ -161,7 +134,7 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { dispatch }) => {
     try {
-      await axiosInstance.post("/auth/logout"); // tells backend to clear the cookie too
+      await authApi.logoutRequest(); // tells backend to clear the cookie too
     } catch (err) {
       // Cookie clearing failed — proceed anyway, local state will still be cleared
       logger.error("[authSlice] Logout request failed", {
@@ -170,9 +143,9 @@ export const logoutUser = createAsyncThunk(
       });
     }
 
-    const remainingKeys = Object.keys(localStorage);
-    localStorage.clear();
-    sessionStorage.clear();
+    const remainingKeys = localStore.keys();
+    localStore.clear();
+    sessionStore.clear();
     Sentry.setUser(null);
     if (remainingKeys.length > 0) {
       Sentry.addBreadcrumb({

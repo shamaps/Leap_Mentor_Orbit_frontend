@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { payEscrow, getEscrowStatus } from "../../../../api/escrow.api";
 import { formatTime } from "./constants";
+import PropTypes from "prop-types";
 import EscrowSuccessModal from "./EscrowSuccessModal";
 import logger from "../../../../utils/logger";
 const TokenIcon = ({ size = 13 }) => (
@@ -19,7 +20,9 @@ const TokenIcon = ({ size = 13 }) => (
     <path d="M12 6v12M9 9h4.5a2.5 2.5 0 0 1 0 5H9" />
   </svg>
 );
-
+TokenIcon.propTypes = {
+  size: PropTypes.number,
+};
 const LockIcon = ({ size = 13 }) => (
   <svg
     width={size}
@@ -35,7 +38,9 @@ const LockIcon = ({ size = 13 }) => (
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </svg>
 );
-
+LockIcon.propTypes = {
+  size: PropTypes.number,
+};
 const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -350,6 +355,22 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
       </div>
     </>
   );
+};
+EscrowPaymentModal.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    selectedSlots: PropTypes.array,
+    mentorProfile: PropTypes.shape({ hourlyRate: PropTypes.number }),
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    confirmedSlot: PropTypes.shape({
+      day: PropTypes.string,
+      date: PropTypes.string,
+      startTime: PropTypes.string,
+      endTime: PropTypes.string,
+    }),
+  }).isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
 };
 
 export default EscrowPaymentModal;

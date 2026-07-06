@@ -1,6 +1,6 @@
 // src/components/mentee/dashboard/findMentors/FilterPanel.jsx
 import { useState, useEffect, useRef } from "react";
-
+import PropTypes from "prop-types";
 const INDUSTRIES = [
   "Technology",
   "Finance",
@@ -234,5 +234,15 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
     </div>
   );
 };
-
+FilterPanel.propTypes = {
+  filters: PropTypes.shape({
+    industry: PropTypes.string,
+    minPrice: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    maxPrice: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    minRating: PropTypes.string,
+    experience: PropTypes.string,
+  }).isRequired,
+  updateFilter: PropTypes.func.isRequired,
+  resetFilters: PropTypes.func.isRequired,
+};
 export default FilterPanel;

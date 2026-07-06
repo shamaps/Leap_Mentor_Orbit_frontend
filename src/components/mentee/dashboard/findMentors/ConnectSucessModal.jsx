@@ -1,5 +1,5 @@
 // src/components/mentee/dashboard/findMentors/ConnectSuccessModal.jsx
-
+import PropTypes from "prop-types";
 const ConnectSuccessModal = ({ mentorName, onBackToDashboard }) => {
   return (
     // ── Overlay ──────────────────────────────────────────────
@@ -45,5 +45,8 @@ const ConnectSuccessModal = ({ mentorName, onBackToDashboard }) => {
     </div>
   );
 };
-
+ConnectSuccessModal.propTypes = {
+  mentorName: PropTypes.string,
+  onBackToDashboard: PropTypes.func.isRequired,
+};
 export default ConnectSuccessModal;

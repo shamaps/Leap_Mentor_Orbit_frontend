@@ -3,7 +3,7 @@ import { useState, forwardRef } from "react";
 import { useMentorOnboardingForm } from "../../../context/MentorOnboardingFormContext";
 
 const SkillsSection = forwardRef((_, ref) => {
-  const { form, onChange, errors = {} } = useMentorOnboardingForm();
+  const { form, onChange, onBlur, errors = {} } = useMentorOnboardingForm();
   const [input, setInput] = useState("");
   const hasError = errors.skills;
 

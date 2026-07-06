@@ -14,6 +14,7 @@ import useSocketToast from "../../../hooks/useSocketToast";
 import { Home, User, Search, Bell, History, Users } from "lucide-react";
 import DashboardSidebar from "../../common/DashboardSidebar";
 import { useSearchParams } from "react-router-dom";
+import ErrorState from "../../common/ErrorState";
 const MENTEE_NAV_ITEMS = [
   { key: "home", label: "Home", icon: <Home size={16} /> },
   { key: "profile", label: "Profile", icon: <User size={16} /> },
@@ -71,10 +72,7 @@ const DashboardLayout = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
-          <span className="text-red-500">⚠</span>
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
+        <ErrorState message={error} onAction={() => window.location.reload()} />
       </div>
     );
   }

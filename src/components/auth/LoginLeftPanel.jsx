@@ -1,5 +1,6 @@
 // src/components/auth/LoginLeftPanel.jsx
-
+import { IMAGES } from "../../constants/images";
+import PropTypes from "prop-types";
 const LoginLeftPanel = ({ role }) => {
   const isMentor = role === "mentor";
 
@@ -7,7 +8,7 @@ const LoginLeftPanel = ({ role }) => {
     <div className="relative w-full h-full min-h-screen overflow-hidden">
       {/* Background image */}
       <img
-        src="/images/login.webp"
+        src={IMAGES.loginHero} 
         alt="Login visual"
         className="absolute inset-0 w-full h-full object-cover"
       />
@@ -44,5 +45,7 @@ const LoginLeftPanel = ({ role }) => {
     </div>
   );
 };
-
+LoginLeftPanel.propTypes = {
+  role: PropTypes.oneOf(["mentor", "mentee"]),
+};
 export default LoginLeftPanel;

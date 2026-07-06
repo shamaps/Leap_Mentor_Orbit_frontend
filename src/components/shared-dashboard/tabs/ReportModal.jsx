@@ -1,7 +1,7 @@
 // src/components/shared-dashboard/tabs/ReportModal.jsx
 import { useState, useRef, useEffect } from "react";
 import useReportComplaint from "../../../hooks/useReportComplaint";
-
+import PropTypes from "prop-types";
 const COMPLAINT_ICONS = {
   inappropriate_behavior: "🚫",
   session_misconduct: "📅",
@@ -428,5 +428,14 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
     </div>
   );
 };
-
+ReportModal.propTypes = {
+  connect: PropTypes.shape({
+    _id: PropTypes.string,
+    viewerRole: PropTypes.oneOf(["mentor", "mentee"]),
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    mentee: PropTypes.shape({ name: PropTypes.string }),
+  }),
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+};
 export default ReportModal;

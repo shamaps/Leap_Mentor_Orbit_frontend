@@ -14,7 +14,7 @@ import {
 import RequestCard from "./RequestCard";
 import EmptyState from "../../../common/EmptyState";
 import MenteeProfileModal from "./MenteeProfileModal";
-
+import ErrorState from "../../../common/ErrorState";
 const TABS = [
   { key: "all", label: "All Requests" },
   { key: "pending", label: "Pending" },
@@ -114,9 +114,7 @@ const RequestsTab = () => {
 
         {/* ── Error ── */}
         {error && (
-          <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3">
-            <span>⚠</span> {error}
-          </div>
+          <ErrorState message={error} onAction={() => dispatch(fetchIncomingRequests())} compact />
         )}
 
         {/* ── Tabs ── */}

@@ -1,6 +1,6 @@
 // src/context/ToastContext.jsx
 import { createContext, useContext, useState, useCallback } from "react";
-
+import PropTypes from "prop-types";
 const ToastContext = createContext(null);
 
 export const useToast = () => {
@@ -46,6 +46,9 @@ export const ToastProvider = ({ children }) => {
       </div>
     </ToastContext.Provider>
   );
+};
+ToastProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 // ── Toast styles per type ─────────────────────────────────────
@@ -236,4 +239,13 @@ const Toast = ({ toast, onRemove }) => {
       </button>
     </div>
   );
+};
+Toast.propTypes = {
+  toast: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    type: PropTypes.oneOf(["success", "error", "info", "warning"]),
+    title: PropTypes.string,
+    message: PropTypes.string,
+  }).isRequired,
+  onRemove: PropTypes.func.isRequired,
 };

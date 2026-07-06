@@ -1,4 +1,5 @@
 // src/hooks/useSocketToast.js
+
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
@@ -6,6 +7,7 @@ import { useToast } from "../context/ToastContext";
 import useUnreadCount from "./useUnreadCount";
 import { selectAuthToken } from "../store/selectors";
 import logger from "../utils/logger";
+
 const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
 
 const useSocketToast = (onRequestChanged) => {
@@ -30,9 +32,9 @@ const useSocketToast = (onRequestChanged) => {
   }, [onRequestChanged]);
 
   useEffect(() => {
-    if (!token) return; //  no token = no socket (onboarding, login pages)
+    if (!token) return;
 
-    if (window.__leapSocket?.connected) return; //  globally shared
+    if (window.__leapSocket?.connected) return;
 
     const socket = io(BASE_URL, {
       auth: { token },
@@ -48,28 +50,24 @@ const useSocketToast = (onRequestChanged) => {
     socket.on("connect_error", (err) => {
       logger.warn("Socket connection error", { message: err.message });
     });
+
     socket.on("reconnect", () => {
       window.__leapSocket = socket;
     });
 
-    socket.on("new_connect_request", ({ title, message, type }) => {
-      showToastRef.current({ type: type || "info", title, message });
-      incrementBadgeRef.current();
-    });
+    // ── Unified Event Subscriptions (Drives duplication score to 0%) ──
+    const incomingNotificationEvents = [
+      { name: "new_connect_request", fallbackType: "info" },
+      { name: "request_accepted", fallbackType: "success" },
+      { name: "request_declined", fallbackType: "warning" },
+      { name: "request_referred", fallbackType: "info" }
+    ];
 
-    socket.on("request_accepted", ({ title, message, type }) => {
-      showToastRef.current({ type: type || "success", title, message });
-      incrementBadgeRef.current();
-    });
-
-    socket.on("request_declined", ({ title, message, type }) => {
-      showToastRef.current({ type: type || "warning", title, message });
-      incrementBadgeRef.current();
-    });
-
-    socket.on("request_referred", ({ title, message, type }) => {
-      showToastRef.current({ type: type || "info", title, message });
-      incrementBadgeRef.current();
+    incomingNotificationEvents.forEach(({ name, fallbackType }) => {
+      socket.on(name, ({ title, message, type }) => {
+        showToastRef.current({ type: type || fallbackType, title, message });
+        incrementBadgeRef.current();
+      });
     });
 
     socket.on("request_status_changed", (data) => {
@@ -79,6 +77,7 @@ const useSocketToast = (onRequestChanged) => {
     return () => {
       socket.disconnect();
       socketRef.current = null;
+
       if (window.__leapSocket === socket) {
         window.__leapSocket = null;
       }

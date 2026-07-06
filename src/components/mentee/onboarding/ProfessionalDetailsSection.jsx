@@ -1,6 +1,6 @@
 // components/mentee/onboarding/ProfessionalDetailsSection.jsx
 import { useMenteeOnboardingForm } from "../../../context/MenteeOnboardingFormContext";
-
+import FormField from "@/components/common/FormField";
 const EXPERIENCE_OPTIONS = [
   "Student / Aspiring",
   "0-1 Years",
@@ -24,33 +24,8 @@ const INDUSTRY_OPTIONS = [
   "Other",
 ];
 
-// Removed text-slate-800 from base class so selects can control their own text color
-const inputClass =
-  "w-full text-sm text-slate-800 bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-slate-400 transition-all duration-150";
-const selectBaseClass =
-  "w-full text-sm bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-slate-400 transition-all duration-150 appearance-none pr-8";
-const errorClass =
-  "border-red-400 focus:border-red-400 focus:ring-red-100 hover:border-red-400";
-
-const ChevronDown = () => (
-  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#94a3b8"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  </span>
-);
-
 const ProfessionalDetailsSection = () => {
-  const { form, handleChange, errors = {} } = useMenteeOnboardingForm();
+  const { form, handleChange, onBlur, errors = {} } = useMenteeOnboardingForm();
   return (
     <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
       <div className="flex items-center gap-3 px-6 py-4 border-b border-blue-50 bg-blue-50">
@@ -77,100 +52,67 @@ const ProfessionalDetailsSection = () => {
       <div className="px-6 py-5">
         <div className="grid grid-cols-2 gap-4">
           {/* Current Role */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-2">
-              Current Role <span className="text-blue-900">*</span>
-            </label>
-            <input
-              name="currentRole"
-              value={form.currentRole}
-              onChange={handleChange}
-              className={`${inputClass} ${errors.currentRole ? errorClass : ""}`}
-              placeholder="e.g. Junior Product Designer"
-            />
-            {errors.currentRole && (
-              <p className="text-[10px] text-red-500 mt-1">
-                Current role is required.
-              </p>
-            )}
-          </div>
+          <FormField
+            label="Current Role"
+            required
+            name="currentRole"
+            value={form.currentRole}
+            onChange={handleChange}
+            onBlur={onBlur}
+            placeholder="e.g. Junior Product Designer"
+            error={errors.currentRole && "Current role is required."}
+          />
 
           {/* Years of Experience */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-2">
-              Years of Experience <span className="text-blue-900">*</span>
-            </label>
-            <div className="relative">
-              <select
-                name="yearsOfExperience"
-                value={form.yearsOfExperience ?? ""}
-                onChange={handleChange}
-                className={`${selectBaseClass} ${form.yearsOfExperience ? "text-slate-800" : "text-slate-400"} ${errors.yearsOfExperience ? errorClass : ""}`}
-              >
-                <option value="" className="text-slate-400">
-                  Select Experience
-                </option>
-                {EXPERIENCE_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt} className="text-slate-800">
-                    {opt}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown />
-            </div>
-            {errors.yearsOfExperience && (
-              <p className="text-[10px] text-red-500 mt-1">
-                Please select your experience.
-              </p>
-            )}
-          </div>
+          <FormField
+            as="select"
+            label="Years of Experience"
+            required
+            name="yearsOfExperience"
+            value={form.yearsOfExperience ?? ""}
+            onChange={handleChange}
+            onBlur={onBlur}
+            error={errors.yearsOfExperience && "Please select your experience."}
+          >
+            <option value="">Select Experience</option>
+            {EXPERIENCE_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </FormField>
 
           {/* Company */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-2">
-              Company / Organization
-            </label>
-            <input
-              name="company"
-              value={form.company}
-              onChange={handleChange}
-              className={inputClass}
-              placeholder="Company Name / Organization"
-            />
-          </div>
+          <FormField
+            label="Company / Organization"
+            name="company"
+            value={form.company}
+            onChange={handleChange}
+            onBlur={onBlur}
+            placeholder="Company Name / Organization"
+          />
 
           {/* Industry */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-2">
-              Industry <span className="text-blue-900">*</span>
-            </label>
-            <div className="relative">
-              <select
-                name="industry"
-                value={form.industry ?? ""}
-                onChange={handleChange}
-                className={`${selectBaseClass} ${form.industry ? "text-slate-800" : "text-slate-400"} ${errors.industry ? errorClass : ""}`}
-              >
-                <option value="" className="text-slate-400">
-                  e.g. Fintech, Healthcare
-                </option>
-                {INDUSTRY_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt} className="text-slate-800">
-                    {opt}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown />
-            </div>
-            {errors.industry && (
-              <p className="text-[10px] text-red-500 mt-1">
-                Please select an industry.
-              </p>
-            )}
-          </div>
-        </div>
+          <FormField
+            as="select"
+            label="Industry"
+            required
+            name="industry"
+            value={form.industry ?? ""}
+            onChange={handleChange}
+            onBlur={onBlur}
+            error={errors.industry && "Please select an industry."}
+          >
+            <option value="">Select Industry</option>
+            {INDUSTRY_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </FormField>
       </div>
     </div>
+  </div>
   );
 };
 

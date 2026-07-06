@@ -2,6 +2,7 @@
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../store/selectors";
+import PropTypes from "prop-types";
 const PageLoader = () => (
   <div
     className="min-h-screen flex items-center justify-center"
@@ -15,9 +16,12 @@ const PageLoader = () => (
 );
 
 const ProtectedRoute = ({ children, role }) => {
-  const { token, isBootstrapping } = useSelector(selectAuth);
-  const storedRole = localStorage.getItem("role");
-
+  const { token, isBootstrapping, user } = useSelector(selectAuth);
+  const storedRole = user?.roles?.includes("mentor")
+    ? "mentor"
+    : user?.roles?.includes("mentee")
+      ? "mentee"
+      : null;
   // Wait for /auth/refresh to finish before deciding to redirect
   if (isBootstrapping) return <PageLoader />;
 
@@ -37,5 +41,8 @@ const ProtectedRoute = ({ children, role }) => {
 
   return children;
 };
-
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+  role: PropTypes.oneOf(["mentor", "mentee"]),
+};
 export default ProtectedRoute;

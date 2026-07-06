@@ -5,6 +5,7 @@ import StatCard from "@/components/common/StatCard";
 import UserGrowthChart from "../../components/admin/common/UserGrowthChart";
 import MentorIndustryChart from "../../components/admin/common/MentorIndustryChart";
 import logger from "../../utils/logger";
+import PropTypes from "prop-types";
 // ── Unified Action Modal (Handles Delete, Block, Unblock) ─────
 const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }) => {
   const config = {
@@ -128,7 +129,13 @@ const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }) => {
     </div>
   );
 };
-
+ConfirmActionModal.propTypes = {
+  user: PropTypes.shape({ name: PropTypes.string }),
+  mode: PropTypes.oneOf(["delete", "block", "unblock"]).isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+};
 // ── Role Badge ────────────────────────────────────────────────
 const RoleBadge = ({ roles }) => {
   const isMentor = roles?.includes("mentor");
@@ -146,7 +153,9 @@ const RoleBadge = ({ roles }) => {
     </span>
   );
 };
-
+RoleBadge.propTypes = {
+  roles: PropTypes.arrayOf(PropTypes.string),
+};
 // ── Avatar ────────────────────────────────────────────────────
 const Avatar = ({ name, picture }) => {
   if (picture)
@@ -175,7 +184,10 @@ const Avatar = ({ name, picture }) => {
     </div>
   );
 };
-
+Avatar.propTypes = {
+  name: PropTypes.string,
+  picture: PropTypes.string,
+};
 // ══════════════════════════════════════════════════════════════
 // MAIN PAGE
 // ══════════════════════════════════════════════════════════════

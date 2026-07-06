@@ -10,7 +10,7 @@ import MentorshipPrefsSection from "./MentorshipPrefsSection";
 import SocialLinksSection from "./SocialLinksSection";
 import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
-
+import { IMAGES } from "../../../constants/images";
 import { MENTEE_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
 
 const MenteeOnboardingShell = () => {
@@ -49,7 +49,13 @@ const MenteeOnboardingShell = () => {
     }
     handleChange(e);
   };
-
+  const onBlur = (e) => {
+    const { name } = e.target;
+    const fieldErrors = getMenteeFieldErrors(form);
+    if (fieldErrors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: true }));
+    }
+  };
   const onSubmit = (e) => {
     e.preventDefault();
     const newErrors = validate();
@@ -63,8 +69,7 @@ const MenteeOnboardingShell = () => {
   };
 
   //  context value — only form/errors/onChange; loading/msg/submit stay local
-  const ctxValue = { form, errors, handleChange: onChange };
-
+  const ctxValue = { form, errors, handleChange: onChange, onBlur };
   return (
     <MenteeOnboardingFormContext.Provider value={ctxValue}>
       <div className="min-h-screen bg-[#f0f4ff]">
@@ -80,7 +85,7 @@ const MenteeOnboardingShell = () => {
           <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <img
-                src="/images/logo.png"
+                src={IMAGES.logo}
                 alt="Leapmentor logo"
                 className="h-8 w-auto"
               />

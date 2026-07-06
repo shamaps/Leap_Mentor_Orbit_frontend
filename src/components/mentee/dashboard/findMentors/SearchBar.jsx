@@ -1,3 +1,4 @@
+import PropTypes from "prop-types"; 
 const SearchBar = ({ skill, setSkill, totalCount, hasSearched }) => {
   const handleChange = (e) => {
     setSkill(e.target.value);
@@ -51,5 +52,11 @@ const SearchBar = ({ skill, setSkill, totalCount, hasSearched }) => {
       )}
     </div>
   );
+};
+SearchBar.propTypes = {
+  skill: PropTypes.string.isRequired,
+  setSkill: PropTypes.func.isRequired,
+  totalCount: PropTypes.number,
+  hasSearched: PropTypes.bool,
 };
 export default SearchBar;

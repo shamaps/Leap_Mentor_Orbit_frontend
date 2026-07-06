@@ -1,7 +1,8 @@
 // src/hooks/useMenteeSettings.js
 import { useState, useEffect } from "react";
-import axiosInstance from "../utils/axiosInstance";
-
+import * as menteeProfileApi from "../api/menteeProfile.api";
+import * as authApi from "../api/auth.api";
+import * as escrowApi from "../api/escrow.api";
 const useMenteeSettings = (initialProfile) => {
   const [fetching, setFetching] = useState(!initialProfile);
   const [saving, setSaving] = useState(false);
@@ -34,8 +35,7 @@ const useMenteeSettings = (initialProfile) => {
     const fetchProfile = async () => {
       try {
         setFetching(true);
-        const res = await axiosInstance.get("/mentee-profile/me");
-        const p = res.data;
+        const p = await menteeProfileApi.getMenteeProfile();
         setEmailNotifications(p.emailNotifications ?? true);
         setMarketingPreferences(p.marketingPreferences ?? false);
       } catch (err) {
@@ -53,8 +53,8 @@ const useMenteeSettings = (initialProfile) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axiosInstance.get("/users/me");
-        setPasswordChangedAt(res.data.passwordChangedAt || null);
+        const data = await authApi.getCurrentUser();
+        setPasswordChangedAt(data.passwordChangedAt || null);
       } catch (err) {
         // eslint-disable-line no-unused-vars
         // silent fail — not critical
@@ -67,9 +67,9 @@ const useMenteeSettings = (initialProfile) => {
   useEffect(() => {
     const fetchWallet = async () => {
       try {
-        const res = await axiosInstance.get("/escrow/wallet");
-        setBalance(res.data.balance);
-        setEscrow(res.data.escrow);
+        const data = await escrowApi.getWallet();
+        setBalance(data.balance);
+        setEscrow(data.escrow);
       } catch (err) {
         // eslint-disable-line no-unused-vars
         // silent fail
@@ -83,7 +83,7 @@ const useMenteeSettings = (initialProfile) => {
     try {
       setSaving(true);
       setMsg({ type: "", text: "" });
-      await axiosInstance.put("/mentee-profile/me", {
+      await menteeProfileApi.updateMenteeProfile({
         emailNotifications,
         marketingPreferences,
       });
@@ -116,10 +116,7 @@ const useMenteeSettings = (initialProfile) => {
 
     try {
       setChangingPw(true);
-      await axiosInstance.patch("/auth/password", {
-        currentPassword,
-        newPassword,
-      });
+      await authApi.changePassword(currentPassword, newPassword);
 
       setPwMsg({ type: "success", text: "Password changed successfully!" });
       setCurrentPassword("");

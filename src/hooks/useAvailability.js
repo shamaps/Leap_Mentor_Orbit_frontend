@@ -1,6 +1,6 @@
 // src/hooks/useAvailability.js
 import { useState, useEffect } from "react";
-import axiosInstance from "../utils/axiosInstance";
+import * as availabilityApi from "../api/availability.api";
 import getErrorMessage from "../utils/getErrorMessage";
 import { HTTP_STATUS } from "../constants/httpStatus";
 const useAvailability = () => {
@@ -20,8 +20,7 @@ const useAvailability = () => {
     const fetchAvailability = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get("/availability/me");
-        const { ...data } = res.data;
+        const data = await availabilityApi.getMyAvailability();
         setAvailability((prev) => ({
           ...prev,
           ...data,
@@ -69,7 +68,7 @@ const useAvailability = () => {
     setMsg({ type: "", text: "" });
     try {
       setSaving(true);
-      await axiosInstance.patch("/availability/me", {
+      await availabilityApi.saveMyAvailability({
         timezone: availability.timezone,
         sessionDurations: availability.sessionDurations,
         specificDates: availability.specificDates,
@@ -87,8 +86,7 @@ const useAvailability = () => {
   const cancelChanges = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get("/availability/me");
-      const { ...data } = res.data;
+      const data = await availabilityApi.getMyAvailability();
       setAvailability((prev) => ({
         ...prev,
         ...data,

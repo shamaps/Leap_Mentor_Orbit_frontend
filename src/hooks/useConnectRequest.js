@@ -1,6 +1,6 @@
 // src/hooks/useConnectRequest.js
 import { useState, useRef } from "react";
-import axiosInstance from "../utils/axiosInstance";
+import { sendConnectRequest } from "../api/connectRequests.api";
 import getErrorMessage from "../utils/getErrorMessage";
 
 const useConnectRequest = () => {
@@ -37,7 +37,7 @@ const useConnectRequest = () => {
         sessionCount,
       };
 
-      await axiosInstance.post("/connect-requests", payload);
+       await sendConnectRequest(payload);
       setSuccess(true);
       return true;
     } catch (err) {

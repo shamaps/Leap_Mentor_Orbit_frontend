@@ -1,6 +1,6 @@
 // src/hooks/useSlotLock.js
 import { useCallback, useRef } from "react";
-import axiosInstance from "../utils/axiosInstance";
+import * as sessionsApi from "../api/sessions.api";
 import logger from "../utils/logger";
 import { useToast } from "../context/ToastContext";
 const useSlotLock = (mentorId) => {
@@ -13,14 +13,9 @@ const useSlotLock = (mentorId) => {
   const lockSlot = useCallback(
     async (date, startTime, endTime) => {
       try {
-        const res = await axiosInstance.post("/slot-locks/lock", {
-          mentorId,
-          date,
-          startTime,
-          endTime,
-        });
+        const data = await sessionsApi.lockSlot({ mentorId, date, startTime, endTime });
         lockedKeys.current.add(`${date}-${startTime}`);
-        return { ok: true, expiresAt: res.data.expiresAt };
+        return { ok: true, expiresAt: data.expiresAt };
       } catch (err) {
         const code = err?.response?.data?.code;
         const msg = err?.response?.data?.message || "Could not lock slot";
@@ -36,9 +31,7 @@ const useSlotLock = (mentorId) => {
   const unlockSlot = useCallback(
     async (date, startTime, endTime) => {
       try {
-        await axiosInstance.delete("/slot-locks/lock", {
-          data: { mentorId, date, startTime, endTime },
-        });
+        await sessionsApi.unlockSlot({ mentorId, date, startTime, endTime });
         lockedKeys.current.delete(`${date}-${startTime}`);
       } catch (err) {
         // Non-fatal — lock self-expires via TTL either way — but the user
@@ -61,7 +54,7 @@ const useSlotLock = (mentorId) => {
  
   const unlockAll = useCallback(async () => {
     try {
-      await axiosInstance.delete("/slot-locks/locks", { data: { mentorId } });
+      await sessionsApi.unlockAllSlots(mentorId);
       lockedKeys.current.clear();
     } catch (err) {
       logger.warn("unlock-all failed", { message: err?.message });

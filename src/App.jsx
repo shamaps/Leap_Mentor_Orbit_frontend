@@ -6,6 +6,7 @@ import axiosInstance from "./utils/axiosInstance";
 import * as Sentry from "@sentry/react";
 import { selectAuthToken } from "./store/selectors";
 import Home from "./components/Home";
+import GlobalErrorBanner from "./components/common/GlobalErrorBanner";
 import NotFound from "./pages/NotFound";
 import AdminRoute from "./components/admin/AdminRoute";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -87,11 +88,6 @@ const App = () => {
       .then(({ data }) => {
         dispatch(setToken(data.accessToken));
         dispatch(setUser({ user: data.user, token: data.accessToken }));
-        if (data.user?.roles?.includes("mentor")) {
-          localStorage.setItem("role", "mentor");
-        } else if (data.user?.roles?.includes("mentee")) {
-          localStorage.setItem("role", "mentee");
-        }
         Sentry.setUser({
           id: data.user?._id,
           role: data.user?.roles?.[0],
@@ -108,6 +104,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
+        <GlobalErrorBanner />
         <Routes>
           <Route path="/" element={<Home />} />
 

@@ -7,7 +7,7 @@ import ProfessionalInfoSection from "../onboarding/ProfessionalInfoSection";
 import SkillsSection from "../onboarding/SkillsSection";
 import PreferencesSection from "../onboarding/PreferencesSection";
 import SocialLinksSection from "../onboarding/SocialLinksSection";
-
+import { IMAGES } from "../../../constants/images";
 const MentorEditProfileShell = () => {
   const navigate = useNavigate();
   const { form, loading, fetchLoading, msg, handleChange, handleSubmit } =
@@ -38,7 +38,7 @@ const MentorEditProfileShell = () => {
           <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <img
-                src="/images/logo.webp"
+                src={IMAGES.logo}
                 alt="LeapMentor logo"
                 className="h-8 w-8"
                 width={32}

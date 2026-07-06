@@ -2,13 +2,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axiosInstance from "../../utils/axiosInstance";
+import { useVerificationSubmit } from "../../hooks/useVerificationSubmit";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
 import PhoneNumberField from "./PhoneNumberField";
 import ResumeUpload from "./ResumeUpload";
 import WorkExperienceUpload from "./WorkExperienceUpload";
 import VerificationInstructionsModal from "./VerificationInstructionsModal"; // ✅ 1. IMPORT
 import { selectAuthToken } from "../../store/selectors";
+import { IMAGES } from "../../constants/images";
 const VerificationFormShell = () => {
   const navigate = useNavigate();
   const token = useSelector(selectAuthToken);
@@ -28,8 +29,7 @@ const VerificationFormShell = () => {
   });
 
   // ── Submission state ──
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState({ type: "", text: "" });
+  const { loading, msg, submitVerification } = useVerificationSubmit();
 
   // ── Handlers ──
   const handlePhoneChange = (e) => {
@@ -58,7 +58,6 @@ const VerificationFormShell = () => {
   // ── Submit ──
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMsg({ type: "", text: "" });
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -66,31 +65,15 @@ const VerificationFormShell = () => {
       return;
     }
 
-    setLoading(true);
+    const result = await submitVerification({
+      phoneNumber,
+      resumeFile,
+      workExperienceFiles,
+    });
 
-    try {
-      const formData = new FormData();
-      formData.append("phoneNumber", phoneNumber.trim());
-      formData.append("resume", resumeFile);
-      workExperienceFiles.forEach((file) => {
-        formData.append("workExperienceDocs", file);
-      });
-
-      await axiosInstance.post("/upload/verification-documents", formData, {
-        "Content-Type": "multipart/form-data",
-      });
-
+    if (result.success) {
       setRedirecting(true);
       setTimeout(() => navigate("/dashboard/mentor"), 1500);
-    } catch (err) {
-      setMsg({
-        type: "error",
-        text:
-          err?.response?.data?.message ||
-          "Failed to submit documents. Please try again.",
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -116,7 +99,7 @@ const VerificationFormShell = () => {
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
-              src="/images/logo.png"
+              src={IMAGES.logo} 
               alt="Leapmentor logo"
               className="h-8 w-auto"
             />

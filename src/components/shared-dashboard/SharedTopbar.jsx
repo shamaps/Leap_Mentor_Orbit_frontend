@@ -1,6 +1,7 @@
 // src/components/shared-dashboard/SharedTopbar.jsx
 import { useNavigate } from "react-router-dom";
-
+import { IMAGES } from "../../constants/images";
+import PropTypes from "prop-types";
 const SharedTopbar = ({ viewerRole, onMenuToggle, onLogoClick }) => {
   const navigate = useNavigate();
 
@@ -69,7 +70,7 @@ const SharedTopbar = ({ viewerRole, onMenuToggle, onLogoClick }) => {
           onClick={onLogoClick}
         >
           <img
-            src="/images/logo.webp"
+            src={IMAGES.logo}
             alt="LeapMentor logo"
             className="h-8 w-8"
             width={32}
@@ -186,5 +187,9 @@ const SharedTopbar = ({ viewerRole, onMenuToggle, onLogoClick }) => {
     </header>
   );
 };
-
+SharedTopbar.propTypes = {
+  viewerRole: PropTypes.oneOf(["mentor", "mentee"]).isRequired,
+  onMenuToggle: PropTypes.func.isRequired,
+  onLogoClick: PropTypes.func.isRequired,
+};
 export default SharedTopbar;

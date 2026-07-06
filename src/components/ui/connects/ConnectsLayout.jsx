@@ -1,5 +1,6 @@
 // src/components/ui/connects/ConnectsLayout.jsx
 import EmptyState from "../../common/EmptyState";
+import PropTypes from "prop-types";
 // ── Skeleton card ─────────────────────────────────────────────
 const SkeletonCard = () => (
   <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 animate-pulse">
@@ -35,7 +36,10 @@ const SectionDivider = ({ label, count }) => (
     <div className="flex-1 h-px bg-slate-100" />
   </div>
 );
-
+SectionDivider.propTypes = {
+  label: PropTypes.string.isRequired,
+  count: PropTypes.number,
+};
 // ── Main Layout ───────────────────────────────────────────────
 const ConnectsLayout = ({
   title,
@@ -112,5 +116,15 @@ const ConnectsLayout = ({
     </div>
   );
 };
-
+ConnectsLayout.propTypes = {
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+  count: PropTypes.number,
+  loading: PropTypes.bool,
+  error: PropTypes.string,
+  emptyState: PropTypes.object,
+  children: PropTypes.node,
+  completedChildren: PropTypes.node,
+  completedCount: PropTypes.number,
+};
 export default ConnectsLayout;

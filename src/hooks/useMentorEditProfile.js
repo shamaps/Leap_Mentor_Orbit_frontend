@@ -2,12 +2,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axiosInstance from "../utils/axiosInstance";
+import * as mentorProfileApi from "../api/mentorProfile.api";
 import getErrorMessage from "../utils/getErrorMessage";
 import { validateCommonFields } from "../utils/onboardingValidation";
 import { selectAuthToken } from "../store/selectors";
+import { useDispatch } from "react-redux";
+import { refetchMentorProfile } from "../store/slices/mentorProfileSlice";
 const useMentorEditProfile = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const token = useSelector(selectAuthToken);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
@@ -32,7 +35,7 @@ const useMentorEditProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data } = await axiosInstance.get("/mentor-profile/me");
+        const data = await mentorProfileApi.getMentorProfile();
         setForm({
           profilePicture: data.profilePicture || "",
           bio: data.bio || "",
@@ -92,7 +95,8 @@ const useMentorEditProfile = () => {
             : form.languages,
       };
 
-      const { data } = await axiosInstance.patch("/mentor-profile/me", payload);
+      await mentorProfileApi.updateMentorProfile(payload);
+      await dispatch(refetchMentorProfile());
 
       setMsg({
         type: "success",

@@ -1,67 +1,15 @@
 // src/components/mentee/dashboard/HomeTab.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../../utils/axiosInstance";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
 import MentorCardSkeleton from "@/components/common/MentorCardSkeleton";
 import { useSelector } from "react-redux";
 import StatusBadge from "@/components/common/StatusBadge";
-import { selectMenteeProfile } from "../../../store/selectors";
-import logger from "../../../utils/logger";
-import getErrorMessage from "../../../utils/getErrorMessage";
-import { HTTP_STATUS } from "../../../constants/httpStatus";
-// ── Internal hook — fetches recommended mentors + upcoming sessions ──
-const useHomeData = (profile) => {
-  const [mentors, setMentors] = useState([]);
-  const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [balance, setBalance] = useState(0);
-  const [escrow, setEscrow] = useState(0);
-
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        setLoading(true);
-
-        const skillTerm =
-          profile?.skills?.[0] || profile?.interestedFields?.[0] || "";
-
-        const mentorRes = await axiosInstance.get("/mentors/search", {
-          params: { skill: skillTerm, limit: 4 },
-        });
-
-        setMentors(mentorRes.data.mentors || []);
-
-        const sessionRes = await axiosInstance.get(
-          "/connect-requests/my-requests",
-        );
-        const allRequests = sessionRes.data.requests || [];
-        const upcoming = allRequests
-          .filter((r) => r.status === "accepted" || r.status === "ongoing")
-          .sort((a, b) => {
-            if (a.status === "ongoing" && b.status !== "ongoing") return -1;
-            if (a.status !== "ongoing" && b.status === "ongoing") return 1;
-            return 0;
-          });
-        setSessions(upcoming);
-
-        const walletRes = await axiosInstance.get("/escrow/wallet");
-        setBalance(walletRes.data.balance ?? 0);
-        setEscrow(walletRes.data.escrow ?? 0);
-      } catch (err) {
-        logger.error("HomeTab data fetch error", { message: err.message });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (profile !== null) fetchAll();
-  }, [profile]);
-
-  return { mentors, sessions, loading, balance, escrow };
-};
-
+import { selectMenteeProfile } from "../../../store/selectors"; 
+import { useMenteeHomeData } from "../../../hooks/useMenteeHomeData";
+import { useLeapPointsRequest } from "../../../hooks/useLeapPointsRequest";
+import PropTypes from "prop-types";
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>
   name
@@ -189,7 +137,10 @@ const MentorCard = ({ mentor, onViewProfile }) => {
     </div>
   );
 };
-
+MentorCard.propTypes = {
+  mentor: PropTypes.object.isRequired,
+  onViewProfile: PropTypes.func.isRequired,
+};
 // ── Session Card ──────────────────────────────────────────────
 const SessionCard = ({ request, index, navigate }) => {
   const slot = request.confirmedSlot || request.selectedSlots?.[0];
@@ -243,7 +194,17 @@ const SessionCard = ({ request, index, navigate }) => {
     </div>
   );
 };
-
+SessionCard.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    status: PropTypes.string,
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    confirmedSlot: PropTypes.object,
+    selectedSlots: PropTypes.array,
+  }).isRequired,
+  index: PropTypes.number.isRequired,
+  navigate: PropTypes.func.isRequired,
+};
 // ── Session Skeleton ──────────────────────────────────────────
 const SessionSkeleton = () => (
   <div className="bg-white rounded-2xl border border-slate-100 px-3 py-2.5 flex items-center gap-3 shadow-sm animate-pulse">
@@ -257,54 +218,8 @@ const SessionSkeleton = () => (
 
 // ── Leap Points Panel ─────────────────────────────────────────
 const LeapPointsPanel = ({ balance, loading }) => {
-  const [requestStatus, setRequestStatus] = useState(null); // null | "pending" | "sent" | "sending" | "error"
-  const [checking, setChecking] = useState(true);
+  const { requestStatus, checking, handleUpgradeRequest } = useLeapPointsRequest();
   const isBalanceEmpty = !loading && balance < 500;
-
-  // Check if there's already a pending request
-  useEffect(() => {
-    const checkExistingRequest = async () => {
-      try {
-        const res = await axiosInstance.get("/leap-requests/my-request");
-        if (res.data?.status === "pending") {
-          setRequestStatus("pending");
-        }
-      } catch (err) {
-        // 404 means no existing request — safe to ignore
-        // Any other error is also non-blocking, just log it
-        if (err.response?.status !== HTTP_STATUS.NOT_FOUND) {
-          logger.warn("Leap request check failed", {
-            detail: err.response?.data || err.message,
-          });
-        }
-      } finally {
-        setChecking(false);
-      }
-    };
-    checkExistingRequest();
-  }, []);
-
-  const handleUpgradeRequest = async () => {
-    try {
-      setRequestStatus("sending");
-      await axiosInstance.post("/leap-requests", { reason: "balance_refill" });
-      setRequestStatus("sent");
-    } catch (err) {
-      const msg = err.response?.data?.message || "";
-      if (
-        msg.toLowerCase().includes("pending") ||
-        err.response?.status === HTTP_STATUS.CONFLICT
-      ) {
-        setRequestStatus("pending");
-      } else {
-        logger.error("Leap request error", {
-          detail: getErrorMessage(err),
-        });
-        setRequestStatus("error");
-        setTimeout(() => setRequestStatus(null), 3000);
-      }
-    }
-  };
 
   const isAlreadyRequested =
     requestStatus === "pending" || requestStatus === "sent";
@@ -468,6 +383,10 @@ const LeapPointsPanel = ({ balance, loading }) => {
     </div>
   );
 };
+LeapPointsPanel.propTypes = {
+  balance: PropTypes.number,
+  loading: PropTypes.bool,
+};
 
 // ── Main HomeTab ──────────────────────────────────────────────
 const HomeTab = () => {
@@ -478,7 +397,7 @@ const HomeTab = () => {
   const completionPct = calculateProfileCompletion(profile);
   const [selectedMentor, setSelectedMentor] = useState(null);
 
-  const { mentors, sessions, loading, balance } = useHomeData(profile);
+  const { mentors, sessions, loading, balance } = useMenteeHomeData(profile);
 
   return (
     <>

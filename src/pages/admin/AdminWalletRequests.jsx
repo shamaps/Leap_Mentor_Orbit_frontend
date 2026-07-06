@@ -4,6 +4,7 @@ import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import { useToast } from "../../context/ToastContext";
 import EmptyState from "../../components/common/EmptyState";
 import logger from "../../utils/logger";
+import PropTypes from "prop-types";
 const getInitials = (name = "") =>
   name
     .split(" ")
@@ -91,7 +92,9 @@ const StatusBadge = ({ status }) => {
     </span>
   );
 };
-
+StatusBadge.propTypes = {
+  status: PropTypes.string,
+};
 // ── Mentee History Modal ──────────────────────────────────────
 const MenteeHistoryModal = ({ mentee, onClose }) => {
   const [engagements, setEngagements] = useState([]);
@@ -412,7 +415,14 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
     </div>
   );
 };
-
+MenteeHistoryModal.propTypes = {
+  mentee: PropTypes.shape({
+    _id: PropTypes.string,
+    name: PropTypes.string,
+    email: PropTypes.string,
+  }),
+  onClose: PropTypes.func.isRequired,
+};
 // ── Request Row ───────────────────────────────────────────────
 const RequestRow = ({
   req,
@@ -538,7 +548,22 @@ const TABS = [
   { key: "rejected", label: "Rejected" },
   { key: "all", label: "All" },
 ];
-
+RequestRow.propTypes = {
+  req: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    mentee: PropTypes.shape({
+      name: PropTypes.string,
+      email: PropTypes.string,
+      profilePicture: PropTypes.string,
+    }),
+    currentBalance: PropTypes.number,
+    status: PropTypes.string,
+  }).isRequired,
+  onApprove: PropTypes.func.isRequired,
+  onReject: PropTypes.func.isRequired,
+  actionLoading: PropTypes.string,
+  onViewHistory: PropTypes.func.isRequired,
+};
 // ── Main Page ─────────────────────────────────────────────────
 const AdminWalletRequests = () => {
   const [requests, setRequests] = useState([]);

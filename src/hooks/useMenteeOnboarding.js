@@ -13,7 +13,7 @@ import {
   selectMenteeOnboardingError,
   selectMenteeOnboardingSuccessMsg,
 } from "../store/selectors";
-
+import {  sessionStore } from "../utils/storage";
 const useMenteeOnboarding = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -23,42 +23,26 @@ const useMenteeOnboarding = () => {
   const successMsg = useSelector(selectMenteeOnboardingSuccessMsg);
   const token = useSelector(selectAuthToken);
 
+  const EMPTY_MENTEE_FORM = {
+    profilePicture: "",
+    bio: "",
+    currentRole: "",
+    company: "",
+    industry: "",
+    yearsOfExperience: "",
+    interestedFields: [],
+    skills: [],
+    communicationPreferences: [],
+    languages: [],
+    linkedInUrl: "",
+    portfolioUrl: "",
+  };
+
   const [form, setForm] = useState(() => {
-    try {
-      const saved = sessionStorage.getItem("menteeOnboardingForm");
-      return saved
-        ? JSON.parse(saved)
-        : {
-            profilePicture: "",
-            bio: "",
-            currentRole: "",
-            company: "",
-            industry: "",
-            yearsOfExperience: "",
-            interestedFields: [],
-            skills: [],
-            communicationPreferences: [],
-            languages: [],
-            linkedInUrl: "",
-            portfolioUrl: "",
-          };
-    } catch {
-      return {
-        profilePicture: "",
-        bio: "",
-        currentRole: "",
-        company: "",
-        industry: "",
-        yearsOfExperience: "",
-        interestedFields: [],
-        skills: [],
-        communicationPreferences: [],
-        languages: [],
-        linkedInUrl: "",
-        portfolioUrl: "",
-      };
-    }
+    const saved = sessionStore.getJSON("menteeOnboardingForm");
+    return saved || EMPTY_MENTEE_FORM;
   });
+
 
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [redirecting, setRedirecting] = useState(false);
@@ -69,7 +53,7 @@ const useMenteeOnboarding = () => {
     }
 
     if (successMsg) {
-      sessionStorage.removeItem("menteeOnboardingForm");
+      sessionStore.remove("menteeOnboardingForm");
       dispatch(clearOnboardingMessages());
       setRedirecting(true);
       setTimeout(() => navigate("/dashboard/mentee"), 1500);
@@ -83,7 +67,7 @@ const useMenteeOnboarding = () => {
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem("menteeOnboardingForm", JSON.stringify(form));
+    sessionStore.setJSON("menteeOnboardingForm", form);
   }, [form]);
 
   const handleChange = (e) => {

@@ -7,7 +7,7 @@ import MentorshipPrefsCard from "@/components/mentor/dashboard/MentorshipPrefsCa
 import SocialPresenceCard from "./SocialPresenceCard";
 import { selectMenteeProfile } from "../../../store/selectors";
 const ProfileTab = () => {
-  const { profile } = useSelector(selectMenteeProfile);
+  const { user, profile } = useSelector(selectMenteeProfile);
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
@@ -21,16 +21,16 @@ const ProfileTab = () => {
         </div>
       </div>
       {/* Hero Card */}
-      <ProfileHeroCard />
+      <ProfileHeroCard user={user} profile={profile} />
 
       {/* Two-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ProfessionalDetailsCard />
+        <ProfessionalDetailsCard profile={profile} />
         <MentorshipPrefsCard profile={profile} />
-        <InterestedFieldsCard />
-        <SocialPresenceCard />
+        <InterestedFieldsCard profile={profile} />
+        <SocialPresenceCard profile={profile} />
       </div>
-
+      
       {/* Footer */}
       <div className="flex items-center justify-between pt-1 pb-4">
         <p className="text-xs text-slate-400">

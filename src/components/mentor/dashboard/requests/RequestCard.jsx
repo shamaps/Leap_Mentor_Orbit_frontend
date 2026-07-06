@@ -1,6 +1,7 @@
 // src/components/mentor/dashboard/requests/RequestCard.jsx
 import { useState } from "react";
 import ReferredByProfileModal from "./ReferredByProfileModal";
+import PropTypes from "prop-types";
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "—";
@@ -58,6 +59,23 @@ const STATUS_CONFIG = {
 
 const getCfg = (s) => STATUS_CONFIG[s] || STATUS_CONFIG.pending;
 
+const slotShape = PropTypes.shape({
+  day: PropTypes.string,
+  date: PropTypes.string,
+  startTime: PropTypes.string,
+  endTime: PropTypes.string,
+});
+
+const requestShape = PropTypes.shape({
+  mentee: PropTypes.shape({ name: PropTypes.string, email: PropTypes.string }),
+  message: PropTypes.string,
+  selectedSlots: PropTypes.arrayOf(slotShape),
+  confirmedSlot: slotShape,
+  status: PropTypes.string,
+  requestedAt: PropTypes.string,
+  referredBy: PropTypes.shape({ name: PropTypes.string, email: PropTypes.string }),
+  referredByProfile: PropTypes.object,
+});
 // ── Slots Detail Modal ────────────────────────────────────────
 const SlotsModal = ({ request, onClose }) => {
   const {
@@ -217,7 +235,10 @@ const SlotsModal = ({ request, onClose }) => {
     </div>
   );
 };
-
+SlotsModal.propTypes = {
+  request: requestShape.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
 // ── Main Request Card ─────────────────────────────────────────
 const RequestCard = ({ request, onViewProfile }) => {
   const [showSlots, setShowSlots] = useState(false);
@@ -478,5 +499,8 @@ const RequestCard = ({ request, onViewProfile }) => {
     </>
   );
 };
-
+RequestCard.propTypes = {
+  request: requestShape.isRequired,
+  onViewProfile: PropTypes.func.isRequired,
+};
 export default RequestCard;

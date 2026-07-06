@@ -1,5 +1,5 @@
 // src/components/shared-dashboard/tabs/ReportSuccessModal.jsx
-
+import PropTypes from "prop-types";
 const ReportSuccessModal = ({ onBack }) => (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -95,5 +95,7 @@ const ReportSuccessModal = ({ onBack }) => (
     </div>
   </div>
 );
-
+ReportSuccessModal.propTypes = {
+  onBack: PropTypes.func.isRequired,
+};
 export default ReportSuccessModal;

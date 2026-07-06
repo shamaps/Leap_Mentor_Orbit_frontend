@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../../store/slices/authSlice";
 import PropTypes from "prop-types";
-
+import { IMAGES } from "../../constants/images";
 const DashboardTopbar = ({ onMenuToggle, onLogoClick }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -38,7 +38,7 @@ const DashboardTopbar = ({ onMenuToggle, onLogoClick }) => {
                     aria-label="Go to Home"
                 >
                     <img
-                        src="/images/logo.webp"
+                        src={IMAGES.logo}
                         alt="LeapMentor logo"
                         className="h-8 w-8"
                         width={32}

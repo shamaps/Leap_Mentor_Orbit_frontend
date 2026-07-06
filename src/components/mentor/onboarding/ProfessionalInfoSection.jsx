@@ -31,7 +31,7 @@ const selectClass = (hasError, hasValue) =>
   }`;
 
 const ProfessionalInfoSection = forwardRef((_, ref) => {
-  const { form, onChange, errors = {} } = useMentorOnboardingForm();
+  const { form, onChange, onBlur, errors = {} } = useMentorOnboardingForm();
   return (
     <div
       ref={ref}

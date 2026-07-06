@@ -1,5 +1,5 @@
 // src/components/ui/connects/ConnectCard.jsx
-
+import PropTypes from "prop-types";
 const getInitials = (name = "") =>
   name
     .split(" ")
@@ -57,7 +57,9 @@ const SkillTag = ({ label }) => (
     {label}
   </span>
 );
-
+SkillTag.propTypes = {
+  label: PropTypes.string.isRequired,
+};
 const Avatar = ({ name, picture, isCompleted }) => {
   if (picture) {
     return (
@@ -79,7 +81,11 @@ const Avatar = ({ name, picture, isCompleted }) => {
     </div>
   );
 };
-
+Avatar.propTypes = {
+  name: PropTypes.string,
+  picture: PropTypes.string,
+  isCompleted: PropTypes.bool,
+};
 const ConnectCard = ({
   name,
   person,
@@ -314,6 +320,24 @@ const ConnectCard = ({
       </button>
     </div>
   );
+};
+ConnectCard.propTypes = {
+  name: PropTypes.string.isRequired,
+  person: PropTypes.shape({
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    skills: PropTypes.arrayOf(PropTypes.string),
+    profilePicture: PropTypes.string,
+  }),
+  session: PropTypes.shape({
+    confirmedSlot: PropTypes.object,
+    paidAt: PropTypes.string,
+    completedAt: PropTypes.string,
+    totalAmount: PropTypes.number,
+  }),
+  tokenLabel: PropTypes.node,
+  onDashboardClick: PropTypes.func.isRequired,
+  isCompleted: PropTypes.bool,
 };
 
 export default ConnectCard;

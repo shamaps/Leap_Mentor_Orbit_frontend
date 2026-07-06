@@ -1,5 +1,6 @@
 // components/mentor/dashboard/ProfessionalInfoCard.jsx
 import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
 import { selectMentorProfile } from "../../../store/selectors";
 const Field = ({ label, value }) => (
   <div>
@@ -7,7 +8,10 @@ const Field = ({ label, value }) => (
     <p className="text-sm font-semibold text-slate-700">{value || "—"}</p>
   </div>
 );
-
+Field.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.node,
+};
 const ProfessionalInfoCard = () => {
   const { profile } = useSelector(selectMentorProfile);
   return (

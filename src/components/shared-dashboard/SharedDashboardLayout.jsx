@@ -11,7 +11,7 @@ import SharedAdditionalSessionTab from "./tabs/SharedAdditionalSessionTab";
 import { useSelector } from "react-redux";
 import useSocketToast from "../../hooks/useSocketToast";
 import { selectConnect } from "../../store/selectors";
-
+import PropTypes from "prop-types";
 const SharedDashboardLayout = ({
   onAllComplete,
   activeTab: activeTabProp,
@@ -131,5 +131,9 @@ const SharedDashboardLayout = ({
     </div>
   );
 };
-
+SharedDashboardLayout.propTypes = {
+  onAllComplete: PropTypes.func,
+  activeTab: PropTypes.string,
+  setActiveTab: PropTypes.func.isRequired,
+};
 export default SharedDashboardLayout;

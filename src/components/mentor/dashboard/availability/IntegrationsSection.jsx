@@ -1,7 +1,8 @@
 // components/mentor/dashboard/availability/IntegrationsSection.jsx
 import { useState } from "react";
-import axiosInstance from "../../../../utils/axiosInstance";
+import * as availabilityApi from "../../../../api/availability.api";
 import logger from "../../../../utils/logger";
+import PropTypes from "prop-types";
 const IntegrationsSection = ({
   googleCalendarConnected,
   onConnectionChange,
@@ -11,7 +12,7 @@ const IntegrationsSection = ({
   const handleConnect = async () => {
     setLoading(true);
     try {
-      const { data } = await axiosInstance.get("/google-calendar/auth-url");
+      const data = await availabilityApi.getGoogleCalendarAuthUrl();
       const popup = window.open(data.url, "gcal_auth", "width=500,height=600");
 
       // Poll for popup closure + backend confirmation
@@ -27,9 +28,7 @@ const IntegrationsSection = ({
         if (isClosed) {
           clearInterval(poll);
           try {
-            const { data: status } = await axiosInstance.get(
-              "/google-calendar/status",
-            );
+            const status = await availabilityApi.getGoogleCalendarStatus();
             if (status?.connected) {
               onConnectionChange(true);
             } else {
@@ -57,7 +56,7 @@ const IntegrationsSection = ({
   const handleDisconnect = async () => {
     setLoading(true);
     try {
-      await axiosInstance.delete("/google-calendar/connection");
+      await availabilityApi.disconnectGoogleCalendar();
       onConnectionChange(false);
     } catch (err) {
       logger.error("Google Calendar disconnect failed", { err });
@@ -176,5 +175,8 @@ const IntegrationsSection = ({
     </div>
   );
 };
-
+IntegrationsSection.propTypes = {
+  googleCalendarConnected: PropTypes.bool,
+  onConnectionChange: PropTypes.func.isRequired,
+};
 export default IntegrationsSection;

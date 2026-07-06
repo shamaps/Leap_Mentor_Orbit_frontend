@@ -1,6 +1,6 @@
 // src/components/shared-dashboard/tabs/goals/MilestoneList.jsx
 import { useState } from "react";
-
+import PropTypes from "prop-types";
 const isOverdue = (dueDate) => dueDate && new Date(dueDate) < new Date();
 const formatDate = (d) =>
   d
@@ -57,7 +57,10 @@ const MilestoneProgress = ({ completed, total }) => {
     </div>
   );
 };
-
+MilestoneProgress.propTypes = {
+  completed: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
+};
 // ── Add Milestone Form ────────────────────────────────────────
 const AddMilestoneForm = ({ onAdd, onCancel, saving }) => {
   const [title, setTitle] = useState("");
@@ -105,7 +108,11 @@ const AddMilestoneForm = ({ onAdd, onCancel, saving }) => {
     </div>
   );
 };
-
+AddMilestoneForm.propTypes = {
+  onAdd: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  saving: PropTypes.bool,
+};
 // ── Delete Confirmation Modal ─────────────────────────────────
 const DeleteMilestoneModal = ({ milestone, onConfirm, onCancel }) => (
   <div
@@ -144,7 +151,11 @@ const DeleteMilestoneModal = ({ milestone, onConfirm, onCancel }) => (
     </div>
   </div>
 );
-
+DeleteMilestoneModal.propTypes = {
+  milestone: PropTypes.shape({ title: PropTypes.string }).isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
 // ── Milestone Row ─────────────────────────────────────────────
 const MilestoneRow = ({ milestone, onToggle, onRequestDelete }) => {
   const overdue = !milestone.isCompleted && isOverdue(milestone.dueDate);
@@ -226,7 +237,16 @@ const MilestoneRow = ({ milestone, onToggle, onRequestDelete }) => {
     </div>
   );
 };
-
+MilestoneRow.propTypes = {
+  milestone: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    isCompleted: PropTypes.bool,
+    dueDate: PropTypes.string,
+  }).isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onRequestDelete: PropTypes.func.isRequired,
+};
 // ── Main ──────────────────────────────────────────────────────
 const MilestoneList = ({
   goal,
@@ -347,5 +367,19 @@ const MilestoneList = ({
     </>
   );
 };
-
+MilestoneList.propTypes = {
+  goal: PropTypes.shape({ _id: PropTypes.string.isRequired }).isRequired,
+  milestones: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string,
+      title: PropTypes.string,
+      isCompleted: PropTypes.bool,
+      dueDate: PropTypes.string,
+    }),
+  ).isRequired,
+  saving: PropTypes.bool,
+  onAdd: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
 export default MilestoneList;

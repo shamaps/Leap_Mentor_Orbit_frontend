@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { IMAGES } from "../constants/images";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false); // 👈 new
@@ -33,7 +33,7 @@ export default function Navbar() {
           }}
         >
           <img
-            src="/images/logo.webp"
+            src={IMAGES.logo}
             alt="LeapMentor logo"
             className="h-8 w-8"
             width={32}

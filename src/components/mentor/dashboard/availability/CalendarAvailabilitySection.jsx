@@ -1,9 +1,9 @@
 // components/mentor/dashboard/availability/CalendarAvailabilitySection.jsx
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import axiosInstance from "../../../../utils/axiosInstance";
+import * as availabilityApi from "../../../../api/availability.api";
 import logger from "../../../../utils/logger";
-
+import PropTypes from "prop-types";
 const MONTHS = [
   "January",
   "February",
@@ -163,7 +163,9 @@ const XIcon = ({ size = 10 }) => (
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
-
+XIcon.propTypes = {
+  size: PropTypes.number,
+};
 const TrashIcon = () => (
   <svg
     width="11"
@@ -445,7 +447,11 @@ const TimePicker = ({ value, onChange, hasError = false }) => {
     </>
   );
 };
-
+TimePicker.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  hasError: PropTypes.bool,
+};
 // ─── EventTooltip ─────────────────────────────────────────────────────────────
 const EventTooltip = ({ events, isBusyOnly }) => (
   <div className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-slate-900 rounded-xl shadow-2xl p-3 pointer-events-none border border-slate-700">
@@ -480,7 +486,10 @@ const EventTooltip = ({ events, isBusyOnly }) => (
     <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-slate-900" />
   </div>
 );
-
+EventTooltip.propTypes = {
+  events: PropTypes.array,
+  isBusyOnly: PropTypes.bool,
+};
 // ─── CalendarGrid ─────────────────────────────────────────────────────────────
 const CalendarGrid = ({
   year,
@@ -631,7 +640,16 @@ const CalendarGrid = ({
     </div>
   );
 };
-
+CalendarGrid.propTypes = {
+  year: PropTypes.number.isRequired,
+  month: PropTypes.number.isRequired,
+  specificDates: PropTypes.array.isRequired,
+  onToggleDate: PropTypes.func.isRequired,
+  onNavPrev: PropTypes.func.isRequired,
+  onNavNext: PropTypes.func.isRequired,
+  calendarEvents: PropTypes.array,
+  busySlots: PropTypes.array,
+};
 // ─── BusyBadge ────────────────────────────────────────────────────────────────
 const BusyBadge = ({ overlaps }) => {
   if (!overlaps?.length) return null;
@@ -648,6 +666,11 @@ const BusyBadge = ({ overlaps }) => {
       ))}
     </div>
   );
+};
+BusyBadge.propTypes = {
+  overlaps: PropTypes.arrayOf(
+    PropTypes.shape({ start: PropTypes.string, end: PropTypes.string }),
+  ),
 };
 
 // ─── DateSlotEditor ───────────────────────────────────────────────────────────
@@ -775,6 +798,18 @@ const DateSlotEditor = ({
     </div>
   );
 };
+DateSlotEditor.propTypes = {
+  dateEntry: PropTypes.shape({
+    date: PropTypes.string.isRequired,
+    slots: PropTypes.array.isRequired,
+  }).isRequired,
+  onAddSlot: PropTypes.func.isRequired,
+  onRemoveSlot: PropTypes.func.isRequired,
+  onUpdateSlot: PropTypes.func.isRequired,
+  onRemoveDate: PropTypes.func.isRequired,
+  busySlots: PropTypes.array,
+  minDuration: PropTypes.number,
+};
 
 // ─── CalendarAvailabilitySection ──────────────────────────────────────────────
 const CalendarAvailabilitySection = ({
@@ -820,15 +855,25 @@ const CalendarAvailabilitySection = ({
     const lastDay = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${new Date(calYear, calMonth + 1, 0).getDate()}`;
     const params = { startDate: firstDay, endDate: lastDay };
 
-    axiosInstance
-      .get("/google-calendar/busy", { params })
-      .then(({ data }) => updateBusySlots(data.busy || []))
-      .catch((err) => logger.error("Failed to fetch busy slots:", { err }));
+    const fetchBusySlots = async () => {
+      try {
+        const { data } = await axiosInstance.get("/google-calendar/busy", { params });
+        updateBusySlots(data.busy || []);
+      } catch (err) {
+        logger.error("Failed to fetch busy slots:", { err });
+      }
+    };
+    fetchBusySlots();
 
-    axiosInstance
-      .get("/google-calendar/events", { params })
-      .then(({ data }) => setCalendarEvents(data.events || []))
-      .catch((err) => logger.error("Failed to fetch events:", { err }));
+    const fetchCalendarEvents = async () => {
+      try {
+        const { data } = await axiosInstance.get("/google-calendar/events", { params });
+        setCalendarEvents(data.events || []);
+      } catch (err) {
+        logger.error("Failed to fetch events:", { err });
+      }
+    };
+    fetchCalendarEvents();
   }, [googleCalendarConnected, calYear, calMonth]);
 
   const handleToggleDate = (dateStr) => {
@@ -1026,5 +1071,12 @@ const CalendarAvailabilitySection = ({
     </div>
   );
 };
-
+CalendarAvailabilitySection.propTypes = {
+  specificDates: PropTypes.array.isRequired,
+  setSpecificDates: PropTypes.func.isRequired,
+  googleCalendarConnected: PropTypes.bool,
+  onBusySlotsChange: PropTypes.func,
+  sessionDurations: PropTypes.arrayOf(PropTypes.number),
+  onValidationChange: PropTypes.func,
+};
 export default CalendarAvailabilitySection;

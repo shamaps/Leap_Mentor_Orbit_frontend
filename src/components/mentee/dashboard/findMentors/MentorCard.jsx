@@ -1,5 +1,6 @@
 // src/components/mentee/dashboard/findMentors/MentorCard.jsx
 import { useState } from "react";
+import PropTypes from "prop-types";
 const MAX_SKILLS_SHOWN = 3;
 
 const StarRating = ({ rating }) => {
@@ -24,6 +25,9 @@ const StarRating = ({ rating }) => {
       </span>
     </div>
   );
+};
+StarRating.propTypes = {
+  rating: PropTypes.number,
 };
 
 // ── Verification Badge ──
@@ -66,6 +70,10 @@ const VerificationBadge = ({ status }) => {
       Unverified
     </span>
   );
+};
+
+VerificationBadge.propTypes = {
+  status: PropTypes.string,
 };
 
 const MentorCard = ({ mentor, onViewProfile }) => {
@@ -203,6 +211,23 @@ const MentorCard = ({ mentor, onViewProfile }) => {
       </button>
     </div>
   );
+};
+
+MentorCard.propTypes = {
+  mentor: PropTypes.shape({
+    user: PropTypes.shape({ name: PropTypes.string }),
+    currentRole: PropTypes.string,
+    company: PropTypes.string,
+    industry: PropTypes.string,
+    skills: PropTypes.arrayOf(PropTypes.string),
+    hourlyRate: PropTypes.number,
+    avgRating: PropTypes.number,
+    profilePicture: PropTypes.string,
+    profilePicture56: PropTypes.string,
+    verificationStatus: PropTypes.string,
+    yearsOfExperience: PropTypes.number,
+  }).isRequired,
+  onViewProfile: PropTypes.func.isRequired,
 };
 
 export default MentorCard;

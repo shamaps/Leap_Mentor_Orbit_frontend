@@ -1,11 +1,9 @@
 // components/mentee/dashboard/ProfileHeroCard.jsx
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { useState } from "react";
-import { selectMenteeProfile } from "../../../store/selectors";
-const ProfileHeroCard = () => {
+import PropTypes from "prop-types";
+const ProfileHeroCard = ({ user, profile }) => {
   const navigate = useNavigate();
-  const { user, profile } = useSelector(selectMenteeProfile);
   const [imgError, setImgError] = useState(false);
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
@@ -72,5 +70,12 @@ const ProfileHeroCard = () => {
     </div>
   );
 };
-
+ProfileHeroCard.propTypes = {
+  user: PropTypes.shape({ name: PropTypes.string }),
+  profile: PropTypes.shape({
+    profilePicture: PropTypes.string,
+    profilePicture160: PropTypes.string,
+    bio: PropTypes.string,
+  }),
+};
 export default ProfileHeroCard;

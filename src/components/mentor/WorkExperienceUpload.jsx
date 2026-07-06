@@ -1,5 +1,5 @@
 // components/mentor/verification/WorkExperienceUpload.jsx
-
+import PropTypes from "prop-types";
 const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILES = 3;
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB per file
@@ -154,6 +154,11 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
       </div>
     </div>
   );
+};
+WorkExperienceUpload.propTypes = {
+  files: PropTypes.arrayOf(PropTypes.instanceOf(File)).isRequired,
+  onChange: PropTypes.func.isRequired,
+  error: PropTypes.string,
 };
 
 export default WorkExperienceUpload;

@@ -1,8 +1,7 @@
 // src/hooks/useGoals.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useToast } from "../context/ToastContext";
-import axiosInstance from "../utils/axiosInstance";
-
+import * as goalsApi from "../api/goals.api";
 const useGoals = (connectRequestId) => {
   const [goal, setGoal] = useState(null);
   const [milestones, setMilestones] = useState([]);
@@ -28,7 +27,7 @@ const useGoals = (connectRequestId) => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await axiosInstance.get(`/goals/${connectRequestId}`);
+      const data = await goalsApi.getGoal(connectRequestId);
       setGoal(data.goal);
       setMilestones(data.milestones || []);
     } catch (err) {
@@ -147,13 +146,7 @@ const useGoals = (connectRequestId) => {
       setError(null);
       pendingOwnGoalCreate.current += 1;
       try {
-        const { data } = await axiosInstance.post("/goals", {
-          connectRequestId,
-          title,
-          description,
-          startDate,
-          endDate,
-        });
+        const data = await goalsApi.createGoal({ connectRequestId, title, description, startDate, endDate });
         setGoal(data.goal);
         setMilestones([]);
         return { success: true };
@@ -178,7 +171,7 @@ const useGoals = (connectRequestId) => {
     setError(null);
     pendingOwnGoalUpdate.current += 1;
     try {
-      const { data } = await axiosInstance.patch(`/goals/${goalId}`, fields);
+      const data = await goalsApi.updateGoal(goalId, fields);
       setGoal(data.goal);
       return { success: true };
     } catch (err) {
@@ -198,10 +191,7 @@ const useGoals = (connectRequestId) => {
     setError(null);
     pendingOwnMilestoneAdd.current += 1;
     try {
-      const { data } = await axiosInstance.post(`/goals/${goalId}/milestones`, {
-        title,
-        dueDate,
-      });
+      const data = await goalsApi.addMilestone(goalId, { title, dueDate });
       setMilestones((prev) => [...prev, data.milestone]);
       return { success: true };
     } catch (err) {
@@ -224,10 +214,7 @@ const useGoals = (connectRequestId) => {
       prev.map((m) => (m._id === milestoneId ? { ...m, isCompleted } : m)),
     );
     try {
-      const { data } = await axiosInstance.patch(
-        `/goals/milestones/${milestoneId}`,
-        { isCompleted },
-      );
+      const data = await goalsApi.toggleMilestone(milestoneId, isCompleted);
       setMilestones((prev) =>
         prev.map((m) => (m._id === milestoneId ? data.milestone : m)),
       );
@@ -255,7 +242,7 @@ const useGoals = (connectRequestId) => {
       return prev.filter((m) => m._id !== milestoneId);
     });
     try {
-      await axiosInstance.delete(`/goals/milestones/${milestoneId}`);
+      await goalsApi.deleteMilestone(milestoneId);
       return { success: true };
     } catch (err) {
       pendingOwnMilestoneDelete.current.delete(milestoneId);
