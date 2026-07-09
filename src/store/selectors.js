@@ -69,7 +69,7 @@ export const selectConnectRequestsInitialLoad = (state) =>
   state.connectRequests.initialLoad;
 export const selectConnectRequestsError = (state) =>
   state.connectRequests.error;
-export { selectIncomingRequests };
+export { selectIncomingRequests } from "./slices/connectRequestsSlice";
 
 export const selectActiveSessions = createSelector(
   [selectIncomingRequests],

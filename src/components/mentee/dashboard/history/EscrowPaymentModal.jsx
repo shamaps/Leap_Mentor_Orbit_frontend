@@ -125,7 +125,22 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
       />
     );
   }
-
+  let walletBalanceContent;
+  if (fetching) {
+    walletBalanceContent = (
+      <span className="text-xs text-blue-400 animate-pulse">Loading...</span>
+    );
+  } else if (walletBalance === null) {
+    walletBalanceContent = <span className="text-xs text-blue-400">—</span>;
+  } else {
+    walletBalanceContent = (
+      <span
+        className={`text-xs font-bold ${insufficient ? "text-red-500" : "text-blue-900"}`}
+      >
+        {walletBalance} tokens
+      </span>
+    );
+  }
   return (
     <>
       <div className="fixed inset-0 z-60 bg-black/40 backdrop-blur-sm" />
@@ -256,19 +271,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }) => {
               <span className="text-xs font-semibold text-blue-900">
                 Your balance
               </span>
-              {fetching ? (
-                <span className="text-xs text-blue-400 animate-pulse">
-                  Loading...
-                </span>
-              ) : walletBalance !== null ? (
-                <span
-                  className={`text-xs font-bold ${insufficient ? "text-red-500" : "text-blue-900"}`}
-                >
-                  {walletBalance} tokens
-                </span>
-              ) : (
-                <span className="text-xs text-blue-400">—</span>
-              )}
+              {walletBalanceContent}
             </div>
 
             {/* Insufficient warning */}

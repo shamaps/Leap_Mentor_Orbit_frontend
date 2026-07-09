@@ -91,6 +91,7 @@ FeedbackCard.propTypes = {
   feedback: PropTypes.shape({
     rating: PropTypes.number,
     comment: PropTypes.string,
+    createdAt: PropTypes.string,
   }),
   label: PropTypes.string.isRequired,
   isOwn: PropTypes.bool,
@@ -214,16 +215,16 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {
                 </p>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 block mb-2">
+                  <span id="overall-rating-label" className="text-xs font-semibold text-slate-700 block mb-2">
                     Overall Rating <span className="text-red-400">*</span>
-                  </label>
+                  </span>
                   <StarRatingInput
                     value={rating}
                     onChange={setRating}
                     disabled={submitting}
+                    labelledBy="overall-rating-label"
                   />
                 </div>
-
                 <div>
                   <label className="text-xs font-semibold text-slate-700 block mb-1.5">
                     Your Feedback{" "}
@@ -258,7 +259,7 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {
                 >
                   {submitting ? (
                     <>
-                      <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />{" "}
                       Submitting...
                     </>
                   ) : (
@@ -354,7 +355,12 @@ const SharedReportTab = ({ connect, reportRefreshKey }) => {
   );
 };
 SharedReportTab.propTypes = {
-  connect: PropTypes.shape({ _id: PropTypes.string }),
+  connect: PropTypes.shape({
+    _id: PropTypes.string,
+    viewerRole: PropTypes.string,
+    mentor: PropTypes.shape({ name: PropTypes.string }),
+    mentee: PropTypes.shape({ name: PropTypes.string }),
+  }),
   reportRefreshKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 

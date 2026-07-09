@@ -24,15 +24,15 @@ const RequestHistoryTab = () => {
     const handleRequestChanged = () => fetchRequests();
 
     const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
+      if (globalThis.__leapSocket?.connected) {
         clearInterval(waitForSocket);
-        window.__leapSocket.on("request_status_changed", handleRequestChanged);
+        globalThis.__leapSocket.on("request_status_changed", handleRequestChanged);
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
-      window.__leapSocket?.off("request_status_changed", handleRequestChanged);
+      globalThis.__leapSocket?.off("request_status_changed", handleRequestChanged);
     };
   }, [fetchRequests]);
 

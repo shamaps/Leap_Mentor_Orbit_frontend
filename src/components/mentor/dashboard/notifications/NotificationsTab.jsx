@@ -1,5 +1,4 @@
 // src/components/mentor/dashboard/NotificationsTab.jsx
-import { useState, useEffect } from "react";
 import { useNotifications } from "../../../../hooks/useNotifications";
 import StatCard from "@/components/common/StatCard";
 import ErrorState from "../../../common/ErrorState";
@@ -89,9 +88,7 @@ const TYPE_ICON_PATH = {
     </>
   ),
   connect_request_accepted: (
-    <>
       <polyline points="20 6 9 17 4 12" />
-    </>
   ),
   connect_request_declined: (
     <>
@@ -120,14 +117,10 @@ const TYPE_ICON_PATH = {
     </>
   ),
   new_review: (
-    <>
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </>
   ),
   feedback: (
-    <>
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </>
   ),
 };
 
@@ -152,7 +145,7 @@ const AVATAR_COLORS = [
   "bg-teal-600",
 ];
 const getAvatarColor = (id = "") => {
-  const sum = id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const sum = id.split("").reduce((acc, c) => acc + c.codePointAt(0), 0);
   return AVATAR_COLORS[sum % AVATAR_COLORS.length];
 };
 
@@ -283,9 +276,18 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={() => {
         if (!notif.read) onMarkRead(notif.id);
         resolveNavigation(notif, setActiveTab);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (!notif.read) onMarkRead(notif.id);
+          resolveNavigation(notif, setActiveTab);
+        }
       }}
       className={`relative rounded-2xl border px-3.5 py-3.5 sm:px-5 sm:py-4 flex items-start gap-3 sm:gap-4 transition-all duration-200 hover:shadow-md group
         ${notif.read ? "bg-white border-slate-100 cursor-default" : `${cfg.tint} ${cfg.border} cursor-pointer`}
@@ -358,11 +360,10 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
               <button
                 key={action.label}
                 onClick={(e) => e.stopPropagation()}
-                className={`text-xs font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all duration-150 ${
-                  action.primary
+                className={`text-xs font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all duration-150 ${action.primary
                     ? "bg-blue-900 text-white hover:bg-blue-800 shadow-sm"
                     : "border border-slate-300 text-slate-700 bg-white hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 {action.label}
               </button>
@@ -447,6 +448,7 @@ NotifCard.propTypes = {
     senderName: PropTypes.string,
     body: PropTypes.string,
     actions: PropTypes.array,
+    accent: PropTypes.bool,
   }).isRequired,
   onMarkRead: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
@@ -473,7 +475,7 @@ const NotificationsTab = ({ setActiveTab }) => {
       t.includes("minute") ||
       t.includes("hour") ||
       t.toLowerCase() === "yesterday" ||
-      (t.includes("day") && parseInt(t) <= 7)
+      (t.includes("day") && Number.parseInt(t) <= 7)
     );
   }).length;
   if (loading) {

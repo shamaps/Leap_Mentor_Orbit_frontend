@@ -43,9 +43,11 @@ const EscrowSuccessModal = ({ totalAmount, mentorName, onDone }) => {
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-60 bg-black/40 backdrop-blur-sm"
+      <button
+        type="button"
+        className="fixed inset-0 z-60 bg-black/40 backdrop-blur-sm border-none p-0 cursor-default"
         onClick={onDone}
+        aria-label="Close"
       />
 
       {/* Modal */}

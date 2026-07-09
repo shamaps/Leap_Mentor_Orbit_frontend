@@ -6,14 +6,14 @@ import {
   submitMenteeOnboarding,
   clearOnboardingMessages,
 } from "../store/slices/menteeOnboardingSlice";
-import { validateMenteeFields } from "../utils/onboardingValidation";
+import { menteeOnboardingSchema, getFirstErrorMessage } from "../schemas/onboardingSchemas";
 import {
   selectAuthToken,
   selectMenteeOnboardingLoading,
   selectMenteeOnboardingError,
   selectMenteeOnboardingSuccessMsg,
 } from "../store/selectors";
-import {  sessionStore } from "../utils/storage";
+import { sessionStore } from "../utils/storage";
 const useMenteeOnboarding = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -88,8 +88,8 @@ const useMenteeOnboarding = () => {
       return;
     }
 
-    //  shared util — replaces copy-pasted validation
-    const validationError = validateMenteeFields(form);
+    //  Zod schema replaces the old hand-written validateMenteeFields
+    const validationError = getFirstErrorMessage(menteeOnboardingSchema, form);
     if (validationError)
       return setMsg({ type: "error", text: validationError });
 

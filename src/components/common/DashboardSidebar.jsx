@@ -256,9 +256,11 @@ const DashboardSidebar = ({
             </aside>
 
             {/* Mobile backdrop */}
-            <div
+            <button
+                type="button"
                 className="dashboard-sidebar-backdrop"
                 onClick={onClose}
+                aria-label="Close sidebar"
                 style={{
                     position: "fixed",
                     inset: 0,
@@ -268,6 +270,9 @@ const DashboardSidebar = ({
                     opacity: isOpen ? 1 : 0,
                     pointerEvents: isOpen ? "auto" : "none",
                     transition: "opacity 0.3s ease",
+                    border: "none",
+                    padding: 0,
+                    cursor: "pointer",
                 }}
             />
 

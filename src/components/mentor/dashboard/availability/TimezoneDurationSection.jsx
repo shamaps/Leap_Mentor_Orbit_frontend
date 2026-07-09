@@ -52,10 +52,11 @@ const TimezoneDurationSection = ({
 
       {/* Timezone */}
       <div className="mb-4">
-        <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">
+        <label htmlFor="timezone-select" className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">
           Timezone
         </label>
         <select
+          id="timezone-select"
           value={timezone}
           onChange={(e) => updateTimezone(e.target.value)}
           className="w-full text-sm font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
@@ -69,10 +70,10 @@ const TimezoneDurationSection = ({
       </div>
 
       {/* Session Durations */}
-      <div>
-        <label className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">
+      <fieldset className="border-0 p-0 m-0">
+        <legend className="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">
           Session Durations
-        </label>
+        </legend>
         <div className="flex items-center gap-2">
           {DURATION_OPTIONS.map((duration) => {
             const isSelected = sessionDurations.includes(duration);
@@ -95,7 +96,7 @@ const TimezoneDurationSection = ({
         <p className="text-xs font-medium text-slate-800 mt-2">
           Select the session lengths you want to offer mentees.
         </p>
-      </div>
+      </fieldset>
     </div>
   );
 };

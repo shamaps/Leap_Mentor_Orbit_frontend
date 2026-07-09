@@ -7,12 +7,13 @@ import { useToast } from "../../context/ToastContext";
 import PropTypes from "prop-types";
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
-
+const SKELETON_ROW_KEYS = ["row-1", "row-2", "row-3", "row-4", "row-5"];
+const SKELETON_COL_KEYS = ["col-1", "col-2", "col-3", "col-4", "col-5", "col-6"];
 // ── Avatar ────────────────────────────────────────────────────
 const Avatar = ({ name }) => {
   const initials = name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
   const colors = ["#2563eb", "#7c3aed", "#0891b2", "#059669", "#d97706"];
-  const color = colors[initials.charCodeAt(0) % colors.length];
+  const color = colors[initials.codePointAt(0) % colors.length];
   return (
     <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-700 text-white"
       style={{ background: color, fontWeight: 700, fontFamily: FONT }}>
@@ -224,7 +225,63 @@ const AdminEngagements = () => {
       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
     },
   ];
-
+  let engagementsTableBody;
+  if (loading) {
+    engagementsTableBody = SKELETON_ROW_KEYS.map((rowKey) => (
+      <tr key={rowKey} style={{ borderBottom: "1px solid #f1f5f9" }}>
+        {SKELETON_COL_KEYS.map((colKey, j) => (
+          <td key={colKey} className="px-5 py-4">
+            <div className="h-4 rounded-lg animate-pulse" style={{ background: "#f1f5f9", width: j < 2 ? 130 : 70 }} />
+          </td>
+        ))}
+      </tr>
+    ));
+  } else if (engagements.length === 0) {
+    engagementsTableBody = (
+      <tr>
+        <td colSpan={6} className="text-center py-16 text-sm text-slate-400">
+          No engagements found.
+        </td>
+      </tr>
+    );
+  } else {
+    engagementsTableBody = engagements.flatMap((eng) => {
+      const isExpanded = expandedId === eng._id;
+      const rows = [
+        <tr key={eng._id}
+          className="transition-colors cursor-pointer"
+          style={{ borderBottom: isExpanded ? "none" : "1px solid #f1f5f9" }}
+          onMouseEnter={(e) => { if (!isExpanded) e.currentTarget.style.background = "#fafbfc"; }}
+          onMouseLeave={(e) => { if (!isExpanded) e.currentTarget.style.background = "transparent"; }}
+          onClick={() => toggleExpand(eng._id)}>
+          <td className="px-5 py-4"><UserCell user={eng.mentor} /></td>
+          <td className="px-5 py-4"><UserCell user={eng.mentee} /></td>
+          <td className="px-5 py-4"><StatusBadge status={eng.status} /></td>
+          <td className="px-5 py-4"><StatusBadge status={eng.paymentStatus || "unpaid"} /></td>
+          <td className="px-5 py-4">
+            <span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>
+              {eng.requestedAt
+                ? new Date(eng.requestedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                : "—"}
+            </span>
+          </td>
+          <td className="px-5 py-4">
+            <div className="w-7 h-7 flex items-center justify-center rounded-lg transition-all"
+              style={{ background: isExpanded ? "#eff6ff" : "#f1f5f9" }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                stroke={isExpanded ? "#2563eb" : "#94a3b8"}
+                strokeWidth="2.5" strokeLinecap="round"
+                style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+          </td>
+        </tr>
+      ];
+      if (isExpanded) rows.push(<ExpandedDetail key={`${eng._id}-detail`} eng={eng} />);
+      return rows;
+    });
+  }
   return (
   <>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
@@ -320,64 +377,9 @@ const AdminEngagements = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  [...Array(6)].map((_, i) => (
-                    <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      {[...Array(6)].map((_, j) => (
-                        <td key={j} className="px-5 py-4">
-                          <div className="h-4 rounded-lg animate-pulse"
-                            style={{ background: "#f1f5f9", width: j < 2 ? 130 : 70 }} />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                ) : engagements.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-16 text-sm text-slate-400">
-                      No engagements found.
-                    </td>
-                  </tr>
-                ) : (
-                  engagements.flatMap((eng) => {
-                    const isExpanded = expandedId === eng._id;
-                    const rows = [
-                      <tr key={eng._id}
-                        className="transition-colors cursor-pointer"
-                        style={{ borderBottom: isExpanded ? "none" : "1px solid #f1f5f9" }}
-                        onMouseEnter={(e) => { if (!isExpanded) e.currentTarget.style.background = "#fafbfc"; }}
-                        onMouseLeave={(e) => { if (!isExpanded) e.currentTarget.style.background = "transparent"; }}
-                        onClick={() => toggleExpand(eng._id)}>
-
-                        <td className="px-5 py-4"><UserCell user={eng.mentor} /></td>
-                        <td className="px-5 py-4"><UserCell user={eng.mentee} /></td>
-                        <td className="px-5 py-4"><StatusBadge status={eng.status} /></td>
-                        <td className="px-5 py-4"><StatusBadge status={eng.paymentStatus || "unpaid"} /></td>
-                        <td className="px-5 py-4">
-                          <span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>
-                            {eng.requestedAt
-                              ? new Date(eng.requestedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-                              : "—"}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="w-7 h-7 flex items-center justify-center rounded-lg transition-all"
-                            style={{ background: isExpanded ? "#eff6ff" : "#f1f5f9" }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                              stroke={isExpanded ? "#2563eb" : "#94a3b8"}
-                              strokeWidth="2.5" strokeLinecap="round"
-                              style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
-                              <polyline points="6 9 12 15 18 9" />
-                            </svg>
-                          </div>
-                        </td>
-                      </tr>
-                    ];
-                    if (isExpanded) rows.push(<ExpandedDetail key={`${eng._id}-detail`} eng={eng} />);
-                    return rows;
-                  })
-                )}
+                {engagementsTableBody}
               </tbody>
-            </table>
+             </table>
           </div>
 
           {/* Pagination */}

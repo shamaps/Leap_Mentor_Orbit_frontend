@@ -1,7 +1,7 @@
 // src/hooks/useMentorSettings.js
 import { useState, useEffect } from "react";
 import * as mentorProfileApi from "../api/mentorProfile.api";
-
+import logger from "../utils/logger";
 const BADGES = [
   {
     key: "newcomer",
@@ -65,6 +65,7 @@ const useMentorSettings = (initialProfile) => {
         setEmailNotifications(p.emailNotifications ?? true);
         setPublicProfile(p.isProfilePublished ?? true);
       } catch (err) {
+        logger.warn("Failed to load mentor settings", { message: err?.message });
         setMsg({ type: "error", text: "Failed to load settings." });
       } finally {
         setFetching(false);

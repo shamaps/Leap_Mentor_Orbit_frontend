@@ -1,25 +1,22 @@
 // components/mentor/verification/VerificationFormShell.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { useVerificationSubmit } from "../../hooks/useVerificationSubmit";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
 import PhoneNumberField from "./PhoneNumberField";
 import ResumeUpload from "./ResumeUpload";
 import WorkExperienceUpload from "./WorkExperienceUpload";
-import VerificationInstructionsModal from "./VerificationInstructionsModal"; // ✅ 1. IMPORT
-import { selectAuthToken } from "../../store/selectors";
+import VerificationInstructionsModal from "./VerificationInstructionsModal"; 
 import { IMAGES } from "../../constants/images";
 const VerificationFormShell = () => {
   const navigate = useNavigate();
-  const token = useSelector(selectAuthToken);
 
   // ── Form state ──
   const [phoneNumber, setPhoneNumber] = useState("");
   const [resumeFile, setResumeFile] = useState(null);
   const [workExperienceFiles, setWorkExperienceFiles] = useState([]);
   const [redirecting, setRedirecting] = useState(false);
-  const [showModal, setShowModal] = useState(true); // ✅ 2. MODAL STATE
+  const [showModal, setShowModal] = useState(true); 
 
   // ── Error state — per field ──
   const [errors, setErrors] = useState({
@@ -184,7 +181,7 @@ const VerificationFormShell = () => {
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                 Uploading documents…
               </span>
             ) : (

@@ -1,44 +1,58 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Spinner from "../../../common/Spinner";
 import PropTypes from "prop-types";
-const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
-  const [title, setTitle] = useState(initial.title || "");
-  const [description, setDescription] = useState(initial.description || "");
-  const [startDate, setStartDate] = useState(initial.startDate || "");
-  const [endDate, setEndDate] = useState(initial.endDate || "");
-  const [err, setErr] = useState("");
+import { goalSchema } from "../../../../schemas/miscSchemas";
 
-  const handleSave = async () => {
-    if (!title.trim()) {
-      setErr("Goal title is required");
-      return;
-    }
-    if (startDate && endDate && endDate < startDate) {
-      setErr("End date cannot be before start date");
-      return;
-    }
-    setErr("");
+const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(goalSchema),
+    defaultValues: {
+      title: initial.title || "",
+      description: initial.description || "",
+      startDate: initial.startDate || "",
+      endDate: initial.endDate || "",
+    },
+  });
+
+  const watchedTitle = watch("title");
+
+  // zodResolver has already validated the title + date-order rules by
+  // the time this runs — no manual checks needed.
+  const onSubmit = async (data) => {
     await onSave({
-      title: title.trim(),
-      description: description.trim(),
-      startDate,
-      endDate,
+      title: data.title.trim(),
+      description: (data.description || "").trim(),
+      startDate: data.startDate,
+      endDate: data.endDate,
     });
   };
 
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col gap-4"
+    >
       {/* Title */}
       <div>
-        <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
+        <label htmlFor="goal-title" className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
           Goal Title <span className="text-red-400">*</span>
         </label>
         <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          id="goal-title"
           placeholder="e.g. Land a frontend role at a product startup"
           className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-800 bg-white outline-none focus:border-blue-300 transition-colors placeholder:text-slate-400"
+          {...register("title")}
         />
+        {errors.title?.message && (
+          <p className="text-xs text-red-500 mt-1.5">{errors.title.message}</p>
+        )}
       </div>
 
       {/* Description */}
@@ -50,46 +64,46 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
           </span>
         </label>
         <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe what success looks like..."
           rows={3}
           className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-800 bg-white outline-none focus:border-blue-300 transition-colors resize-vertical leading-relaxed placeholder:text-slate-400"
+          {...register("description")}
         />
       </div>
 
       {/* Dates */}
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
+          <label htmlFor="goal-start-date" className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
             Start Date
           </label>
           <input
+            id="goal-start-date"
             type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
             className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 bg-white outline-none focus:border-blue-300 transition-colors"
+            {...register("startDate")}
           />
         </div>
         <div className="flex-1">
-          <label className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
+          <label htmlFor="goal-end-date" className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1.5">
             End Date
           </label>
           <input
+            id="goal-end-date"
             type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
             className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 bg-white outline-none focus:border-blue-300 transition-colors"
+            {...register("endDate")}
           />
+          {errors.endDate?.message && (
+            <p className="text-xs text-red-500 mt-1.5">{errors.endDate.message}</p>
+          )}
         </div>
       </div>
-
-      {/* Error */}
-      {err && <p className="text-xs text-red-500 m-0">{err}</p>}
 
       {/* Actions */}
       <div className="flex gap-2.5">
         <button
+          type="button"
           onClick={onCancel}
           disabled={saving}
           className="flex-1 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors"
@@ -97,13 +111,12 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
           Cancel
         </button>
         <button
-          onClick={handleSave}
-          disabled={saving || !title.trim()}
+          type="submit"
+          disabled={saving || !watchedTitle?.trim()}
           className={`flex-1 py-2.5 rounded-xl border-none text-xs font-bold transition-colors flex items-center justify-center gap-1.5
-            ${
-              title.trim() && !saving
-                ? "bg-violet-600 text-white cursor-pointer hover:bg-violet-700"
-                : "bg-slate-100 text-slate-400 cursor-not-allowed"
+            ${watchedTitle?.trim() && !saving
+              ? "bg-violet-600 text-white cursor-pointer hover:bg-violet-700"
+              : "bg-slate-100 text-slate-400 cursor-not-allowed"
             }`}
         >
           {saving ? <><Spinner size="sm" light />Saving...</> : (
@@ -111,7 +124,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }) => {
           )}
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 GoalForm.propTypes = {

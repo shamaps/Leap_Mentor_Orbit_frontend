@@ -3,14 +3,13 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { refetchMentorProfile } from "../../../store/slices/mentorProfileSlice";
 import { fetchIncomingRequests } from "../../../store/slices/connectRequestsSlice";
-import { selectMentorProfile } from "../../../store/selectors";
 import {
   selectActiveSessions,
   selectPendingCount,
   selectCompletedCount,
   selectConnectRequestsLoading,
+  selectMentorProfile ,
   selectConnectRequestsInitialLoad,
 } from "../../../store/selectors";
 import logger from "../../../utils/logger";
@@ -37,7 +36,7 @@ const parseSessionSlotDate = (sessionSlot) => {
 const convertTimeString = (rawTimeString) => {
   if (!rawTimeString) return "";
   const timeChunks = rawTimeString.split(":");
-  const integerHour = parseInt(timeChunks[0], 10);
+  const integerHour = Number.parseInt(timeChunks[0], 10);
   return `${integerHour % 12 || 12}:${timeChunks[1]} ${integerHour >= 12 ? "PM" : "AM"}`;
 };
 
@@ -89,6 +88,7 @@ const SessionCard = ({ request, index, navigate }) => {
   const menteeName = request.mentee?.name || "Mentee";
   const isOngoing = request.status === "ongoing";
   const accent = getAccent(index);
+  
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3.5 shadow-sm hover:shadow-md transition-all flex items-center gap-3">
@@ -208,19 +208,50 @@ const MentorHomeTab = ({ setActiveTab }) => {
     };
     fetchEarnings();
   }, []);
+  let sessionsSummaryText = "No active sessions yet.";
+  if (loadingSessions) {
+    sessionsSummaryText = "Loading your dashboard...";
+  } else if (sessions.length > 0) {
+    const plural = sessions.length > 1 ? "s" : "";
+    sessionsSummaryText = `You have ${sessions.length} active session${plural}.`;
+  }
 
+  let sessionsPanelContent;
+  if (loadingSessions) {
+    sessionsPanelContent = (
+      <div className="flex flex-col gap-3"><SessionSkeleton /><SessionSkeleton /></div>
+    );
+  } else if (sessions.length > 0) {
+    sessionsPanelContent = (
+      <div className="flex flex-col gap-3">
+        {sessions.map((request, idx) => <SessionCard key={request._id} request={request} index={idx} navigate={navigate} />)}
+      </div>
+    );
+  } else {
+    sessionsPanelContent = (
+      <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-10 text-center flex flex-col items-center gap-3 shadow-sm">
+        <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-blue-900">No active sessions</p>
+          <p className="text-xs text-blue-900 mt-1 max-w-xs leading-relaxed">Sessions appear here once a mentee completes escrow payment for an accepted request.</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Welcome, {firstName}! 👋</h1>
           <p className="text-sm text-blue-900 mt-1">
-            {loadingSessions ? "Loading your dashboard..." : sessions.length > 0 ? `You have ${sessions.length} active session${sessions.length > 1 ? "s" : ""}.` : "No active sessions yet."}
+            {sessionsSummaryText}
           </p>
         </div>
 
         {completionPct < 100 && (
-          <div className="flex flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setActiveTab("profile")}>
+          <button type="button" className="flex flex-col items-center gap-1 shrink-0 hover:opacity-80 transition-opacity" onClick={() => setActiveTab("profile")}>
             <div className="relative w-9 h-9">
               <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" strokeWidth="3" />
@@ -229,7 +260,7 @@ const MentorHomeTab = ({ setActiveTab }) => {
               <span className="absolute inset-0 flex items-center justify-center text-[10px] font-extrabold text-blue-900">{completionPct}%</span>
             </div>
             <span className="text-xs font-bold text-blue-900">Profile</span>
-          </div>
+          </button>
         )}
       </div>
 
@@ -247,23 +278,7 @@ const MentorHomeTab = ({ setActiveTab }) => {
             {sessions.length > 0 && <span className="text-xs font-bold text-blue-900 bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-full">{sessions.length} active</span>}
           </div>
 
-          {loadingSessions ? (
-            <div className="flex flex-col gap-3"><SessionSkeleton /><SessionSkeleton /></div>
-          ) : sessions.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {sessions.map((request, idx) => <SessionCard key={request._id} request={request} index={idx} navigate={navigate} />)}
-            </div>
-          ) : (
-            <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-10 text-center flex flex-col items-center gap-3 shadow-sm">
-              <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-blue-900">No active sessions</p>
-                <p className="text-xs text-blue-900 mt-1 max-w-xs leading-relaxed">Sessions appear here once a mentee completes escrow payment for an accepted request.</p>
-              </div>
-            </div>
-          )}
+          {sessionsPanelContent}
         </div>
 
         <div className="flex flex-col gap-4">

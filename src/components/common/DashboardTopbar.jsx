@@ -11,7 +11,7 @@ const DashboardTopbar = ({ onMenuToggle, onLogoClick }) => {
     const handleLogout = async () => {
         // hits /auth/logout → clears HttpOnly cookie server-side,
         // then clears Redux state and redirects to login
-        await dispatch(logoutUser());
+        await Promise.resolve(dispatch(logoutUser()));
         navigate("/login");
     };
 

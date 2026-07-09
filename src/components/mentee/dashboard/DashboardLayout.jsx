@@ -24,7 +24,7 @@ const MENTEE_NAV_ITEMS = [
   { key: "connects", label: "Connects", icon: <Users size={16} /> },
 ];
 const DashboardLayout = () => {
-  const { user, profile, loading, error } = useMenteeDashboard();
+  const { loading, error } = useMenteeDashboard();
   const { unreadCount, clearBadge } = useUnreadCount();
   useSocketToast();
   const [activeTab, setActiveTab] = useState("home");
@@ -32,8 +32,8 @@ const DashboardLayout = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     const handler = (e) => setActiveTab(e.detail);
-    window.addEventListener("setDashboardTab", handler);
-    return () => window.removeEventListener("setDashboardTab", handler);
+    globalThis.addEventListener("setDashboardTab", handler);
+    return () => globalThis.removeEventListener("setDashboardTab", handler);
   }, []);
   // Clear badge when notifications tab is opened
   useEffect(() => {
@@ -72,26 +72,11 @@ const DashboardLayout = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <ErrorState message={error} onAction={() => window.location.reload()} />
+        <ErrorState message={error} onAction={() => globalThis.location.reload()} />
       </div>
     );
   }
-  {
-    /*}
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-9 h-9 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
-          <p className="text-xs text-slate-400" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Loading...
-          </p>
-        </div>
-      </div>
-    );
-  }
-  */
-  }
+  
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">

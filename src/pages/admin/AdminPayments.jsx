@@ -10,7 +10,8 @@ const CORE_FONTS_COLLECTION = {
   sans: "'DM Sans', sans-serif",
   monospace: "'DM Mono', monospace"
 };
-
+const SKELETON_ROW_IDS = ["sk-row-1", "sk-row-2", "sk-row-3", "sk-row-4", "sk-row-5"];
+const SKELETON_COL_IDS = ["sk-col-1", "sk-col-2", "sk-col-3", "sk-col-4", "sk-col-5", "sk-col-6"];
 // ── Avatar ─────────────────────────────────────────────────────
 const Avatar = ({ name }) => {
   const words = String(name || "").split(" ");
@@ -18,7 +19,7 @@ const Avatar = ({ name }) => {
   const upperInitials = computedInitials.toUpperCase() || "?";
 
   const hexHexColors = ["#2563eb", "#7c3aed", "#0891b2", "#059669", "#d97706"];
-  const dynamicBgColor = hexHexColors[upperInitials.charCodeAt(0) % hexHexColors.length];
+  const dynamicBgColor = hexHexColors[upperInitials.codePointAt(0) % hexHexColors.length];
 
   return (
     <div
@@ -123,7 +124,7 @@ const RevenueChart = ({ data = [], loading }) => {
     line += ` C ${cpx1} ${ys[i]}, ${cpx2} ${ys[i + 1]}, ${xs[i + 1]} ${ys[i + 1]}`;
   }
 
-  const area = `${line} L ${xs[xs.length - 1]} ${H} L ${xs[0]} ${H} Z`;
+  const area = `${line} L ${xs.at(-1)} ${H} L ${xs[0]} ${H} Z`;  
   const fmtVal = (v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v));
   const Y_TICKS = [0, 0.25, 0.5, 0.75, 1];
 
@@ -137,15 +138,15 @@ const RevenueChart = ({ data = [], loading }) => {
           </linearGradient>
         </defs>
 
-        {Y_TICKS.filter((t) => t > 0 && t < 1).map((t, i) => (
-          <line key={i} x1={PAD_LEFT} y1={H * t} x2={W} y2={H * t} stroke="#e8eaf0" strokeWidth="1" strokeDasharray="4 4" />
+        {Y_TICKS.filter((t) => t > 0 && t < 1).map((t) => (
+          <line key={t} x1={PAD_LEFT} y1={H * t} x2={W} y2={H * t} stroke="#e8eaf0" strokeWidth="1" strokeDasharray="4 4" />
         ))}
 
-        {Y_TICKS.map((t, i) => {
+        {Y_TICKS.map((t) => {
           const value = Math.round(min + (max - min) * (1 - t));
           const y = Math.max(8, Math.min(H - 4, H * t));
           return (
-            <text key={i} x={PAD_LEFT - 6} y={y} fill="#94a3b8" fontSize="9" fontFamily={CORE_FONTS_COLLECTION.monospace} textAnchor="end" dominantBaseline="middle">
+            <text key={t} x={PAD_LEFT - 6} y={y} fill="#94a3b8" fontSize="9" fontFamily={CORE_FONTS_COLLECTION.monospace} textAnchor="end" dominantBaseline="middle">
               {fmtVal(value)}
             </text>
           );
@@ -157,7 +158,7 @@ const RevenueChart = ({ data = [], loading }) => {
         <path d={line} fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 
         {xs.map((x, i) => (
-          <g key={i}>
+          <g key={data[i]?.label ?? x}>
             <rect x={x - 14} y={0} width={28} height={H} fill="transparent" onMouseEnter={() => setHovered(i)} />
             {hovered === i && (
               <>
@@ -174,7 +175,7 @@ const RevenueChart = ({ data = [], loading }) => {
         ))}
 
         {xs.map((x, i) => (
-          <text key={i} x={x} y={H + 14} fill="#94a3b8" fontSize="9" fontFamily={CORE_FONTS_COLLECTION.monospace} textAnchor="middle">
+          <text key={data[i]?.label ?? x} x={x} y={H + 14} fill="#94a3b8" fontSize="9" fontFamily={CORE_FONTS_COLLECTION.monospace} textAnchor="middle">
             {data[i]?.label}
           </text>
         ))}
@@ -265,7 +266,7 @@ const AdminPayments = () => {
     {
       label: "Platform Commission",
       value: stats?.platformCommission,
-      sub: stats?.commissionRate != null ? `${stats.commissionRate}% rate` : "—",
+      sub: stats?.commissionRate == null ? "—" : `${stats.commissionRate}% rate`,
       accent: "#059669",
       icon: <span style={{ fontSize: 13, fontWeight: 800, fontFamily: CORE_FONTS_COLLECTION.monospace, color: "currentColor", letterSpacing: "-0.02em" }}>LP</span>,
     },
@@ -304,7 +305,57 @@ const AdminPayments = () => {
 
   // Re-sequenced tracking metrics tables layout to pass validation hashes
   const TABLE_DATA_LABELS = ["TRANSACTION ID", "USER", "AMOUNT", "TYPE", "DATE", "STATUS"];
-
+  const getSkeletonWidth = (cIndex) => {
+    if (cIndex === 0) return 100;
+    if (cIndex === 1) return 130;
+    return 70;
+  };
+  let transactionsTableBody;
+  if (loading) {
+    transactionsTableBody = SKELETON_ROW_IDS.map((rowId, rIndex) => (
+      <tr key={rowId} style={{ borderBottom: "1px solid #f1f5f9" }}>
+        {SKELETON_COL_IDS.map((colId, cIndex) => (
+          <td key={colId} className="px-5 py-4">
+            <div className="h-4 rounded-lg animate-pulse" style={{ background: "#f1f5f9", width: getSkeletonWidth(cIndex) }} />
+          </td>
+        ))}
+      </tr>
+    ));
+  } else if (transactions.length === 0) {
+    transactionsTableBody = (
+      <tr>
+        <td colSpan={6} className="text-center py-16 text-sm text-slate-400">No transactions found.</td>
+      </tr>
+    );
+  } else {
+    transactionsTableBody = transactions.map((tx) => (
+      <tr
+        key={tx.id} className="transition-colors" style={{ borderBottom: "1px solid #f1f5f9" }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "#fafbfc"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+      >
+        <td className="px-5 py-4">
+          <span className="text-xs font-500 text-slate-800" style={{ fontFamily: CORE_FONTS_COLLECTION.monospace, fontWeight: 500 }}>{tx.txId}</span>
+        </td>
+        <td className="px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <Avatar name={tx.user?.name} />
+            <div>
+              <p className="text-xs font-600 text-slate-900 leading-none" style={{ fontWeight: 600 }}>{tx.user?.name}</p>
+              <p className="text-[10px] text-slate-600 mt-0.5" style={{ fontFamily: CORE_FONTS_COLLECTION.monospace }}>{tx.user?.email}</p>
+            </div>
+          </div>
+        </td>
+        <td className="px-5 py-4">
+          <span className="text-xs font-500 text-slate-800" style={{ fontFamily: CORE_FONTS_COLLECTION.monospace, fontWeight: 500 }}>
+            {tx.amount?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        </td>
+        <td className="px-5 py-4"><TypeBadge type={tx.type} /></td>
+        <td className="px-5 py-4"><span className="text-xs text-slate-800" style={{ fontFamily: CORE_FONTS_COLLECTION.monospace }}>{tx.date}</span></td>
+        <td className="px-5 py-4"><TxStatusBadge status={tx.status} /></td>
+      </tr>
+    ));
+  }
   return (
     <>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
@@ -377,49 +428,7 @@ const AdminPayments = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, rIndex) => (
-                    <tr key={rIndex} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      {Array.from({ length: 6 }).map((_, cIndex) => (
-                        <td key={cIndex} className="px-5 py-4">
-                          <div className="h-4 rounded-lg animate-pulse" style={{ background: "#f1f5f9", width: cIndex === 0 ? 100 : cIndex === 1 ? 130 : 70 }} />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                ) : transactions.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-16 text-sm text-slate-400">No transactions found.</td>
-                  </tr>
-                ) : (
-                  transactions.map((tx) => (
-                    <tr
-                      key={tx.id} className="transition-colors" style={{ borderBottom: "1px solid #f1f5f9" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "#fafbfc"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                    >
-                      <td className="px-5 py-4">
-                        <span className="text-xs font-500 text-slate-800" style={{ fontFamily: CORE_FONTS_COLLECTION.monospace, fontWeight: 500 }}>{tx.txId}</span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2.5">
-                          <Avatar name={tx.user?.name} />
-                          <div>
-                            <p className="text-xs font-600 text-slate-900 leading-none" style={{ fontWeight: 600 }}>{tx.user?.name}</p>
-                            <p className="text-[10px] text-slate-600 mt-0.5" style={{ fontFamily: CORE_FONTS_COLLECTION.monospace }}>{tx.user?.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="text-xs font-500 text-slate-800" style={{ fontFamily: CORE_FONTS_COLLECTION.monospace, fontWeight: 500 }}>
-                          {tx.amount?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4"><TypeBadge type={tx.type} /></td>
-                      <td className="px-5 py-4"><span className="text-xs text-slate-800" style={{ fontFamily: CORE_FONTS_COLLECTION.monospace }}>{tx.date}</span></td>
-                      <td className="px-5 py-4"><TxStatusBadge status={tx.status} /></td>
-                    </tr>
-                  ))
-                )}
+                {transactionsTableBody}
               </tbody>
             </table>
           </div>

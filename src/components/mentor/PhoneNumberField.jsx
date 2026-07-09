@@ -14,7 +14,12 @@ const PhoneNumberField = ({ value, onChange, error }) => {
   const handleChange = (val) => {
     onChange({ target: { name: "phoneNumber", value: val || "" } });
   };
-
+  let phoneFieldStateClass = "border-slate-300 hover:border-slate-400 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100";
+  if (showError || error) {
+    phoneFieldStateClass = "border-red-300 ring-2 ring-red-100";
+  } else if (showSuccess) {
+    phoneFieldStateClass = "border-green-400 ring-2 ring-green-100";
+  }
   return (
     <div className="bg-white rounded-2xl border border-blue-100 shadow-sm">
       {/* Header */}
@@ -44,21 +49,15 @@ const PhoneNumberField = ({ value, onChange, error }) => {
       </div>
 
       <div className="px-6 py-5">
-        <label className="block text-xs font-semibold text-slate-500 mb-2">
+        <label htmlFor="phone-number-input" className="block text-xs font-semibold text-slate-500 mb-2">
           Phone Number <span className="text-red-400">*</span>
         </label>
 
         <div
-          className={`flex items-center border rounded-xl overflow-hidden transition-all duration-150
-            ${
-              showError || error
-                ? "border-red-300 ring-2 ring-red-100"
-                : showSuccess
-                  ? "border-green-400 ring-2 ring-green-100"
-                  : "border-slate-300 hover:border-slate-400 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100"
-            }`}
+          className={`flex items-center border rounded-xl overflow-hidden transition-all duration-150 ${phoneFieldStateClass}`}
         >
           <PhoneInput
+            id="phone-number-input"
             international
             defaultCountry="IN"
             value={value}

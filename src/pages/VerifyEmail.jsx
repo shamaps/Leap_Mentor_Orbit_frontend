@@ -1,8 +1,10 @@
-// src/pages/VerifyEmail.jsx
+//src / pages / VerifyEmail.jsx
 
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   sendOtp,
   verifyEmail,
@@ -12,7 +14,8 @@ import {
 import { IMAGES } from "../constants/images";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
 import { selectAuth } from "../store/selectors";
-
+import { verifyEmailSchema } from "../schemas/authSchemas";
+const OTP_DIGIT_KEYS = ["digit-0", "digit-1", "digit-2", "digit-3", "digit-4", "digit-5"];
 const VerifyEmail = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,18 +24,31 @@ const VerifyEmail = () => {
 
   const { loading, sending, error, successMsg } = useSelector(selectAuth);
 
-  const [email, setEmail] = useState(location.state?.email || "");
-  const [passcode, setPasscode] = useState(Array(6).fill(""));
+  const [passcode, setPasscode] = useState(new Array(6).fill(""));
   const [redirecting, setRedirecting] = useState(false);
-  const [msg, setMsg] = useState({ type: "", text: "" });
 
   const loginPath = "/login";
   const hasSentRef = useRef(false);
   const hasVerifiedRef = useRef(false);
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(verifyEmailSchema),
+    defaultValues: { email: location.state?.email || "", otp: "" },
+  });
+
+  const watchedEmail = watch("email");
+
   useEffect(() => {
-    if (error) setMsg({ type: "error", text: error });
-  }, [error, successMsg]);
+    if (error) setError("root", { type: "server", message: error });
+  }, [error, setError]);
 
   // ── Magic link auto-verify ────────────────────────────────
   useEffect(() => {
@@ -41,38 +57,38 @@ const VerifyEmail = () => {
 
     if (queryToken && queryEmail && !hasVerifiedRef.current) {
       hasVerifiedRef.current = true;
-      setEmail(queryEmail);
+      setValue("email", queryEmail);
       dispatch(clearMessages());
-      setMsg({ type: "", text: "" });
+      clearErrors();
 
       dispatch(verifyMagicLink({ token: queryToken, email: queryEmail })).then((action) => {
         if (verifyMagicLink.fulfilled.match(action)) {
           setRedirecting(true);
           setTimeout(() => navigate("/login"), 1500);
         } else {
-          setMsg({
-            type: "error",
-            text: action.payload || "Magic link verification failed.",
+          setError("root", {
+            type: "server",
+            message: action.payload || "Magic link verification failed.",
           });
         }
       });
     }
-  }, [searchParams, dispatch, navigate]);
+  }, [searchParams, dispatch, navigate, setValue, clearErrors, setError]);
 
   // ── Send OTP ──────────────────────────────────────────────
   const handleSendOtp = async () => {
     dispatch(clearMessages());
-    setMsg({ type: "", text: "" });
-    if (!email.trim()) {
-      setMsg({ type: "error", text: "Please enter your email first." });
+    clearErrors("root");
+    if (!watchedEmail?.trim()) {
+      setError("root", { type: "server", message: "Please enter your email first." });
       return;
     }
 
-    const action = await dispatch(sendOtp({ email }));
+    const action = await Promise.resolve(dispatch(sendOtp({ email: watchedEmail })));
     if (sendOtp.fulfilled.match(action)) {
-      setMsg({ type: "success", text: "OTP sent to your email." });
+      clearErrors("root");
     } else {
-      setMsg({ type: "error", text: action.payload || "Failed to send OTP." });
+      setError("root", { type: "server", message: action.payload || "Failed to send OTP." });
     }
   };
 
@@ -83,6 +99,7 @@ const VerifyEmail = () => {
       hasSentRef.current = true;
       handleSendOtp();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, location.state]);
 
   // ── Code Box Event Traversal (Bypasses ForgotPassword Token Scanner) ──
@@ -91,6 +108,7 @@ const VerifyEmail = () => {
     const arrayClone = [...passcode];
     arrayClone[positionIndex] = inputVal;
     setPasscode(arrayClone);
+    setValue("otp", arrayClone.join(""), { shouldValidate: true });
     if (inputVal && positionIndex < 5) {
       document.getElementById(`secure-code-${positionIndex + 1}`)?.focus();
     }
@@ -103,42 +121,37 @@ const VerifyEmail = () => {
   };
 
   const captureClipboardPaste = (event) => {
-    const payloadText = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const payloadText = event.clipboardData.getData("text").replaceAll(/\D/g, "").slice(0, 6);
     if (payloadText.length === 6) {
-      setPasscode(payloadText.split(""));
+      const digits = payloadText.split("");
+      setPasscode(digits);
+      setValue("otp", digits.join(""), { shouldValidate: true });
       document.getElementById("secure-code-5")?.focus();
     }
     event.preventDefault();
   };
 
   // ── Verify OTP ────────────────────────────────────────────
-  const verifyOtp = async (e) => {
-    e.preventDefault();
+  // zodResolver has already validated email + the full 6-digit otp by
+  // the time this runs.
+  const onSubmit = async (data) => {
     dispatch(clearMessages());
-    setMsg({ type: "", text: "" });
+    clearErrors("root");
 
-    const mergedString = passcode.join("");
-    if (!email.trim() || mergedString.length < 6) {
-      setMsg({
-        type: "error",
-        text: "Email and full 6-digit OTP are required.",
-      });
-      return;
-    }
-
-    const action = await dispatch(verifyEmail({ email, otp: mergedString }));
+    const action = await Promise.resolve(dispatch(verifyEmail({ email: data.email, otp: data.otp })))
+    ;
     if (verifyEmail.fulfilled.match(action)) {
       setRedirecting(true);
       setTimeout(() => navigate(loginPath), 900);
     } else {
-      setMsg({
-        type: "error",
-        text: action.payload || "OTP verification failed.",
+      setError("root", {
+        type: "server",
+        message: action.payload || "OTP verification failed.",
       });
     }
   };
 
-  const isMagicLinkPending = searchParams.get("token") && !msg.text;
+  const isMagicLinkPending = searchParams.get("token") && !errors.root?.message && !successMsg;
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
@@ -178,28 +191,33 @@ const VerifyEmail = () => {
             {isMagicLinkPending ? (
               "Verifying your magic link, please wait..."
             ) : (
-              <>Enter the 6-digit OTP sent to <span className="font-semibold text-slate-800">{email || "your email"}</span></>
+              <>Enter the 6-digit OTP sent to <span className="font-semibold text-slate-800">{watchedEmail || "your email"}</span></>
             )}
           </p>
 
-          {msg.type === "error" && msg.text && (
+          {errors.root?.message && (
             <div role="alert" aria-live="polite" className="mb-5 text-sm rounded-xl px-4 py-3 border border-red-300 bg-red-100 text-red-800">
-              {msg.text}
+              {errors.root.message}
             </div>
           )}
 
-          {msg.type === "success" && msg.text && (
+          {successMsg && (
             <div role="alert" aria-live="polite" className="mb-5 text-sm rounded-xl px-4 py-3 border border-emerald-300 bg-emerald-100 text-emerald-800">
-              {msg.text}
+              {successMsg}
             </div>
           )}
 
           {!isMagicLinkPending && (
-            <form onSubmit={verifyOtp} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
               {!location.state?.email && !searchParams.get("email") && (
                 <div>
                   <label htmlFor="verify-email-input" className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>
-                  <input id="verify-email-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all" />
+                  <input
+                    id="verify-email-input" type="email" placeholder="you@example.com"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all"
+                    {...register("email")}
+                  />
+                  {errors.email?.message && <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>}
                 </div>
               )}
 
@@ -208,7 +226,7 @@ const VerifyEmail = () => {
                 <div className="flex gap-2 justify-between" onPaste={captureClipboardPaste}>
                   {passcode.map((digit, idx) => (
                     <input
-                      key={idx}
+                      key={OTP_DIGIT_KEYS[idx]}
                       id={`secure-code-${idx}`}
                       type="text"
                       inputMode="numeric"
@@ -218,7 +236,7 @@ const VerifyEmail = () => {
                       onKeyDown={(e) => handleBackspaceTraversal(e, idx)}
                       aria-label={`OTP digit ${idx + 1} of 6`}
                       autoComplete={idx === 0 ? "one-time-code" : "off"}
-                      className="w-12 h-12 text-center text-lg font-bold border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 text-slate-800 transition-all"
+                      className="w-11 h-12 sm:w-12 sm:h-13 text-center text-lg font-bold text-slate-800 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all"
                     />
                   ))}
                 </div>
@@ -251,3 +269,4 @@ const VerifyEmail = () => {
 };
 
 export default VerifyEmail;
+

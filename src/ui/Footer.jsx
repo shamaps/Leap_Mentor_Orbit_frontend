@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TermsAndConditionsModal from "./TermsAndConditionsModal";
 import { IMAGES } from "../constants/images";
@@ -11,6 +11,17 @@ const footerLinks = {
 export default function Footer() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const contactDialogRef = useRef(null);
+  const contactBackdropRef = useRef(null);   
+  useEffect(() => {
+    const dialogEl = contactDialogRef.current;
+    if (!dialogEl) return;
+    if (isContactOpen && !dialogEl.open) {
+      dialogEl.showModal();
+    } else if (!isContactOpen && dialogEl.open) {
+      dialogEl.close();
+    }
+  }, [isContactOpen]);
   const navigate = useNavigate();
 
   // Same routes the navbar uses
@@ -206,28 +217,32 @@ export default function Footer() {
       />
 
       {/* Contact Modal */}
-      {isContactOpen && (
-        <div
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsContactOpen(false);
-          }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
-          role="dialog"
-          aria-modal="true"
+        <dialog
+          ref={contactDialogRef}
+          onClose={() => setIsContactOpen(false)}
           aria-labelledby="contact-modal-title"
+          className="fixed inset-0 z-50 m-0 p-0 max-w-none max-h-none w-full h-full bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm"
         >
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: "16px",
-              boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
-              width: "100%",
-              maxWidth: "420px",
-              padding: "32px",
-              animation: "modal-in 0.22s ease both",
-              textAlign: "center",
-            }}
-          >
+        <div
+          ref={contactBackdropRef}
+          role="presentation"
+          onClick={(e) => {
+            if (e.target === contactBackdropRef.current) setIsContactOpen(false);
+          }}
+          className="flex items-center justify-center w-full h-full px-4"
+        >
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: "16px",
+                boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
+                width: "100%",
+                maxWidth: "420px",
+                padding: "32px",
+                animation: "modal-in 0.22s ease both",
+                textAlign: "center",
+              }}
+            >
             <div
               style={{
                 width: "52px",
@@ -350,8 +365,8 @@ export default function Footer() {
               to   { opacity: 1; transform: translateY(0) scale(1); }
             }
           `}</style>
-        </div>
-      )}
+          </div>
+        </dialog>
     </>
   );
 }

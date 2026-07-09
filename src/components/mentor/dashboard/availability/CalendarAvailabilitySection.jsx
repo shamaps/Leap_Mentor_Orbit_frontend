@@ -1,8 +1,8 @@
 // components/mentor/dashboard/availability/CalendarAvailabilitySection.jsx
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import * as availabilityApi from "../../../../api/availability.api";
 import logger from "../../../../utils/logger";
+import axiosInstance from "../../../../utils/axiosInstance";
 import PropTypes from "prop-types";
 const MONTHS = [
   "January",
@@ -47,7 +47,7 @@ const getOverlappingBusy = (dateStr, slot, busySlots) => {
 };
 
 const formatTime = (isoStr) => {
-  if (!isoStr || !isoStr.includes("T")) return "";
+  if (!isoStr?.includes("T")) return "";
   const d = new Date(isoStr);
   return d.toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -56,6 +56,15 @@ const formatTime = (isoStr) => {
   });
 };
 
+const removeSlotById = (day, slotId) => ({
+  ...day,
+  slots: day.slots.filter((s) => s.id !== slotId),
+});
+
+const updateSlotById = (day, slotId, field, value) => ({
+  ...day,
+  slots: day.slots.map((s) => (s.id === slotId ? { ...s, [field]: value } : s)),
+});
 const isoToHHMM = (isoStr) => {
   if (!isoStr) return "";
   const d = new Date(isoStr);
@@ -221,8 +230,8 @@ const parseTyped = (raw) => {
   const s = raw.trim();
   const match = s.match(/^(\d{1,2})[:.]?(\d{2})?\s*(am|pm)?$/i);
   if (!match) return null;
-  let hh = parseInt(match[1], 10);
-  let mm = match[2] ? parseInt(match[2], 10) : 0;
+  let hh = Number.parseInt(match[1], 10);
+  let mm = match[2] ? Number.parseInt(match[2], 10) : 0;
   const meridian = match[3]?.toLowerCase();
 
   if (hh > 23 || mm > 59) return null;
@@ -405,18 +414,18 @@ const TimePicker = ({ value, onChange, hasError = false }) => {
     </div>
   );
 
+  let timeFieldStateClass = "border-slate-200 hover:border-slate-300";
+  if (hasError) {
+    timeFieldStateClass = "border-red-400 ring-2 ring-red-100";
+  } else if (isEditing) {
+    timeFieldStateClass = "border-blue-400 ring-2 ring-blue-100";
+  }
+
   return (
     <>
       <div
         ref={wrapperRef}
-        className={`flex items-center bg-white border rounded-lg transition-all duration-150
-          ${
-            hasError
-              ? "border-red-400 ring-2 ring-red-100"
-              : isEditing
-                ? "border-blue-400 ring-2 ring-blue-100"
-                : "border-slate-200 hover:border-slate-300"
-          }`}
+        className={`flex items-center bg-white border rounded-lg transition-all duration-150 ${timeFieldStateClass}`}
         style={{ width: "120px" }}
       >
         <input
@@ -465,8 +474,8 @@ const EventTooltip = ({ events, isBusyOnly }) => (
       </div>
     ) : (
       <div className="space-y-2">
-        {events.map((e, i) => (
-          <div key={i} className="flex flex-col gap-0.5">
+        {events.map((e) => (
+          <div key={e.id} className="flex flex-col gap-0.5">
             <span className="text-xs font-semibold text-white leading-tight truncate">
               {e.summary}
             </span>
@@ -507,9 +516,8 @@ const CalendarGrid = ({
   const [hoveredDate, setHoveredDate] = useState(null);
 
   const cells = [];
-  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let i = 0; i < firstDay; i++) cells.push({ blank: true, key: `blank-${year}-${month}-${i}` });
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -564,8 +572,9 @@ const CalendarGrid = ({
       </div>
 
       <div style={{ ...GRID_7, gap: "3px", overflow: "visible" }}>
-        {cells.map((day, idx) => {
-          if (!day) return <div key={`e-${idx}`} />;
+        {cells.map((cell) => {
+          if (cell?.blank) return <div key={cell.key} />;
+          const day = cell;
           const dateStr = toDateStr(year, month, day);
           const isPast = dateStr < today;
           const isToday = dateStr === today;
@@ -581,28 +590,34 @@ const CalendarGrid = ({
           const hasIndicator = hasEvents || hasBusy;
           const isHovered = hoveredDate === dateStr;
 
+          let dayCellClass = "text-slate-600 hover:bg-slate-100 hover:text-slate-800";
+          if (isPast) {
+            dayCellClass = "text-slate-200 cursor-not-allowed";
+          } else if (isSelected) {
+            dayCellClass = "bg-blue-900 text-white shadow-sm scale-105";
+          } else if (isToday) {
+            dayCellClass = "bg-blue-50 text-blue-900 ring-1 ring-blue-300 font-bold hover:bg-blue-100";
+          }
+
+          let indicatorDotClass = "bg-orange-400";
+          if (isPast) {
+            indicatorDotClass = "bg-orange-200";
+          } else if (isSelected) {
+            indicatorDotClass = "bg-yellow-300";
+          }
+
           return (
-            <div
-              key={dateStr}
-              className="relative"
-              onMouseEnter={() => hasIndicator && setHoveredDate(dateStr)}
-              onMouseLeave={() => setHoveredDate(null)}
-            >
+            <div key={dateStr} className="relative">
               <button
                 type="button"
                 disabled={isPast}
                 onClick={() => !isPast && onToggleDate(dateStr)}
+                onMouseEnter={() => hasIndicator && setHoveredDate(dateStr)}
+                onMouseLeave={() => setHoveredDate(null)}
+                onFocus={() => hasIndicator && setHoveredDate(dateStr)}
+                onBlur={() => setHoveredDate(null)}
                 style={{ aspectRatio: "1 / 1", width: "100%" }}
-                className={`relative rounded-lg text-[11px] font-semibold flex flex-col items-center justify-center transition-all duration-150
-                  ${
-                    isPast
-                      ? "text-slate-200 cursor-not-allowed"
-                      : isSelected
-                        ? "bg-blue-900 text-white shadow-sm scale-105"
-                        : isToday
-                          ? "bg-blue-50 text-blue-900 ring-1 ring-blue-300 font-bold hover:bg-blue-100"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
-                  }`}
+                className={`relative rounded-lg text-[11px] font-semibold flex flex-col items-center justify-center transition-all duration-150 ${dayCellClass}`}
               >
                 {day}
                 <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-0.5">
@@ -611,7 +626,7 @@ const CalendarGrid = ({
                   )}
                   {hasIndicator && (
                     <span
-                      className={`w-1 h-1 rounded-full ${isPast ? "bg-orange-200" : isSelected ? "bg-yellow-300" : "bg-orange-400"}`}
+                      className={`w-1 h-1 rounded-full ${indicatorDotClass}`}
                     />
                   )}
                 </div>
@@ -655,9 +670,9 @@ const BusyBadge = ({ overlaps }) => {
   if (!overlaps?.length) return null;
   return (
     <div className="flex flex-col gap-1">
-      {overlaps.map((b, i) => (
+      {overlaps.map((b) => (
         <span
-          key={i}
+          key={`${b.start}-${b.end}`}
           className="inline-flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-orange-100 border border-orange-300 rounded-lg px-2.5 py-1 leading-none whitespace-nowrap"
         >
           <WarnIcon />
@@ -724,17 +739,13 @@ const DateSlotEditor = ({
 
       {/* Slots */}
       <div className="px-3.5 py-2.5 space-y-3">
-        {dateEntry.slots.map((slot, index) => {
+        {dateEntry.slots.map((slot) => {
           const overlaps = getOverlappingBusy(dateEntry.date, slot, busySlots);
           const isBusy = overlaps.length > 0;
-          const slotError = getSlotError(
-            slot.startTime,
-            slot.endTime,
-            minDuration,
-          );
+          const slotError = getSlotError(slot.startTime, slot.endTime, minDuration);
 
           const handleStartChange = (val) => {
-            onUpdateSlot(dateEntry.date, index, "startTime", val);
+            onUpdateSlot(dateEntry.date, slot.id, "startTime", val);
             const endMins = timeToMins(slot.endTime);
             const startMins = timeToMins(val);
             if (startMins >= endMins) {
@@ -743,7 +754,7 @@ const DateSlotEditor = ({
               const em = newEnd % 60;
               onUpdateSlot(
                 dateEntry.date,
-                index,
+                slot.id,
                 "endTime",
                 `${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}`,
               );
@@ -751,11 +762,11 @@ const DateSlotEditor = ({
           };
 
           const handleEndChange = (val) => {
-            onUpdateSlot(dateEntry.date, index, "endTime", val);
+            onUpdateSlot(dateEntry.date, slot.id, "endTime", val);
           };
 
           return (
-            <div key={index} className="space-y-1.5">
+            <div key={slot.id} className="space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
                 <TimePicker
                   value={slot.startTime}
@@ -775,7 +786,7 @@ const DateSlotEditor = ({
                 {dateEntry.slots.length > 1 && (
                   <button
                     type="button"
-                    onClick={() => onRemoveSlot(dateEntry.date, index)}
+                    onClick={() => onRemoveSlot(dateEntry.date, slot.id)}
                     title="Remove this slot"
                     className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-500 bg-slate-100 border border-slate-300 hover:text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-150 ml-auto"
                   >
@@ -882,7 +893,7 @@ const CalendarAvailabilitySection = ({
       if (exists) return prev.filter((d) => d.date !== dateStr);
       return [
         ...prev,
-        { date: dateStr, slots: [{ startTime: "09:00", endTime: "17:00" }] },
+        { date: dateStr, slots: [{ id: crypto.randomUUID(), startTime: "09:00", endTime: "17:00" }] },
       ].sort((a, b) => a.date.localeCompare(b.date));
     });
   };
@@ -894,32 +905,19 @@ const CalendarAvailabilitySection = ({
       prev.map((d) =>
         d.date === dateStr
           ? {
-              ...d,
-              slots: [...d.slots, { startTime: "09:00", endTime: "17:00" }],
-            }
+            ...d,
+            slots: [...d.slots, { id: crypto.randomUUID(), startTime: "09:00", endTime: "17:00" }],
+          }
           : d,
       ),
     );
-  const handleRemoveSlot = (dateStr, index) =>
+  const handleRemoveSlot = (dateStr, slotId) =>
     setSpecificDates((prev) =>
-      prev.map((d) =>
-        d.date === dateStr
-          ? { ...d, slots: d.slots.filter((_, i) => i !== index) }
-          : d,
-      ),
+      prev.map((d) => (d.date === dateStr ? removeSlotById(d, slotId) : d)),
     );
-  const handleUpdateSlot = (dateStr, index, field, value) =>
+  const handleUpdateSlot = (dateStr, slotId, field, value) =>
     setSpecificDates((prev) =>
-      prev.map((d) =>
-        d.date === dateStr
-          ? {
-              ...d,
-              slots: d.slots.map((s, i) =>
-                i === index ? { ...s, [field]: value } : s,
-              ),
-            }
-          : d,
-      ),
+      prev.map((d) => (d.date === dateStr ? updateSlotById(d, slotId, field, value) : d)),
     );
 
   const handlePrevMonth = () => {

@@ -7,8 +7,12 @@ import PropTypes from "prop-types";
 const INDIGO = "#4f46e5";
 const INDIGO_LIGHT = "#eef2ff";
 const INDIGO_BORDER = "#c7d2fe";
-
-// ─── FAQ Knowledge Base ───────────────────────────────────────────────────────
+const TYPING_DOTS = [
+  { id: "dot-1", delay: 0 },
+  { id: "dot-2", delay: 0.2 },
+  { id: "dot-3", delay: 0.4 },
+];
+// ─── FAQ Knowledge Base 
 
 const mentorFaqs = [
   {
@@ -149,16 +153,16 @@ function TypingDots() {
         padding: "4px 2px",
       }}
     >
-      {[0, 1, 2].map((i) => (
+      {TYPING_DOTS.map((dot) => (
         <span
-          key={i}
+          key={dot.id}
           style={{
             width: 6,
             height: 6,
             borderRadius: "50%",
             background: "#94a3b8",
             display: "inline-block",
-            animation: `lb-bounce 1.2s ${i * 0.2}s infinite`,
+            animation: `lb-bounce 1.2s ${dot.delay}s infinite`,
           }}
         />
       ))}
@@ -555,7 +559,7 @@ export default function LeapBuddy({
               const tStatus = ticketStatus[msg.msgIdx];
               return (
                 <div
-                  key={idx}
+                  key={msg.msgIdx ? `msg-${msg.msgIdx}` : `${msg.role}-${idx}`}
                   style={{
                     display: "flex",
                     flexDirection: "column",

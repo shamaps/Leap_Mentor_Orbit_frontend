@@ -23,15 +23,16 @@ const inputClass = (hasError) =>
       : "border-slate-300 focus:border-blue-400 focus:ring-blue-100"
   }`;
 
-const selectClass = (hasError, hasValue) =>
-  `w-full text-sm bg-white border rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 transition-all duration-150 hover:border-slate-400 appearance-none cursor-pointer pr-8 ${
-    hasError
-      ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100 text-slate-800"
-      : `border-slate-300 focus:border-blue-400 focus:ring-blue-100 ${hasValue ? "text-slate-800" : "text-slate-400"}`
-  }`;
+const selectClass = (hasError, hasValue) => {
+  if (hasError) {
+    return "w-full text-sm bg-white border rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 transition-all duration-150 hover:border-slate-400 appearance-none cursor-pointer pr-8 border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100 text-slate-800";
+  }
+  const textColor = hasValue ? "text-slate-800" : "text-slate-400";
+  return `w-full text-sm bg-white border rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 transition-all duration-150 hover:border-slate-400 appearance-none cursor-pointer pr-8 border-slate-300 focus:border-blue-400 focus:ring-blue-100 ${textColor}`;
+};
 
 const ProfessionalInfoSection = forwardRef((_, ref) => {
-  const { form, onChange, onBlur, errors = {} } = useMentorOnboardingForm();
+  const { form, onChange, errors = {} } = useMentorOnboardingForm();
   return (
     <div
       ref={ref}
@@ -61,10 +62,11 @@ const ProfessionalInfoSection = forwardRef((_, ref) => {
         <div className="grid grid-cols-2 gap-4">
           {/* Current Role */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-2">
+            <label htmlFor="currentRole" className="block text-xs font-semibold text-slate-500 mb-2">
               Current Role <span className="text-blue-900">*</span>
             </label>
             <input
+              id="currentRole"
               name="currentRole"
               value={form.currentRole}
               onChange={onChange}
@@ -128,10 +130,11 @@ const ProfessionalInfoSection = forwardRef((_, ref) => {
 
           {/* Company */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-2">
+            <label htmlFor="company" className="block text-xs font-semibold text-slate-500 mb-2">
               Company
             </label>
             <input
+              id="company"
               name="company"
               value={form.company}
               onChange={onChange}
@@ -142,10 +145,11 @@ const ProfessionalInfoSection = forwardRef((_, ref) => {
 
           {/* Educational Qualifications */}
           <div className="col-span-2">
-            <label className="block text-xs font-semibold text-slate-500 mb-2">
+            <label htmlFor="education" className="block text-xs font-semibold text-slate-500 mb-2">
               Educational Qualifications
             </label>
             <input
+              id="education"
               name="education"
               value={form.education || ""}
               onChange={onChange}
@@ -156,10 +160,11 @@ const ProfessionalInfoSection = forwardRef((_, ref) => {
 
           {/* Years of Experience */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-2">
+            <label htmlFor="yearsOfExperience" className="block text-xs font-semibold text-slate-500 mb-2">
               Years of Experience <span className="text-blue-900">*</span>
             </label>
             <input
+              id="yearsOfExperience"
               name="yearsOfExperience"
               type="number"
               value={form.yearsOfExperience}
@@ -177,9 +182,8 @@ const ProfessionalInfoSection = forwardRef((_, ref) => {
           {/* Session Rate */}
           <div className="col-span-2">
             <label className="block text-xs font-semibold text-slate-500 mb-2">
-              Session Rate (Leap Points)
+              Session Rate (Leap Points){" "}
               <span className="text-slate-400 font-normal">
-                {" "}
                 (1 LP – 100 LP)
               </span>
             </label>

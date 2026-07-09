@@ -14,11 +14,13 @@ const testimonials = rawCommunityFeed.map(([name, role, company, avatar, gradien
   name, role, company, avatar, text, rating: 5, color: `bg-gradient-to-br ${gradient}`
 }));
 
+const STAR_KEYS = ["star-1", "star-2", "star-3", "star-4", "star-5"];
+
 function StarRating({ count }) {
   return (
     <div className="flex gap-0.5">
-      {Array.from({ length: count }).map((_, index) => (
-        <svg key={index} width="14" height="14" viewBox="0 0 24 24" fill="#FBBF24">
+      {STAR_KEYS.slice(0, count).map((key) => (
+        <svg key={key} width="14" height="14" viewBox="0 0 24 24" fill="#FBBF24">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
       ))}
@@ -103,16 +105,18 @@ export default function Testimonials() {
           </button>
 
           <div className="flex gap-5 items-center w-full max-w-4xl overflow-hidden">
-            <div className="hidden md:block w-1/3 shrink-0 cursor-pointer" onClick={() => triggerShift(-1)}>
+            <button type="button" className="hidden md:block w-1/3 shrink-0 cursor-pointer border-none bg-transparent p-0 text-left" onClick={() => triggerShift(-1)}>
               <TestimonialCard testimonial={testimonials[prev]} dimmedCard />
-            </div>
+            </button>
 
             <div className="w-full md:w-1/3 shrink-0 transition-all duration-300" style={{ opacity: animating ? 0 : 1, transform: animating ? "scale(0.96)" : "scale(1)" }}>
               <TestimonialCard testimonial={testimonials[curr]} activeCard />
             </div>
 
-            <div className="hidden md:block w-1/3 shrink-0 cursor-pointer" onClick={() => triggerShift(1)}>
-              <TestimonialCard testimonial={testimonials[next]} dimmedCard />
+            <div className="hidden md:block w-1/3 shrink-0">
+              <button type="button" className="hidden md:block w-1/3 shrink-0 cursor-pointer border-none bg-transparent p-0 text-left" onClick={() => triggerShift(1)}>
+                <TestimonialCard testimonial={testimonials[next]} dimmedCard />
+              </button>
             </div>
           </div>
 
@@ -126,9 +130,9 @@ export default function Testimonials() {
 
         {/* Carousel Micro Indicator Dots */}
         <div className="flex justify-center gap-2 mt-10">
-          {testimonials.map((_, dotIdx) => (
+          {testimonials.map((t, dotIdx) => (
             <button
-              key={dotIdx}
+              key={t.name}
               onClick={() => {
                 if (!animating && dotIdx !== active) {
                   setAnimating(true);
@@ -153,15 +157,16 @@ export default function Testimonials() {
   );
 }
 
+const getCardStateClass = (activeCard, dimmedCard) => {
+  if (activeCard) return "bg-white border-violet-100 shadow-xl scale-100";
+  if (dimmedCard) return "bg-white/70 border-gray-100 shadow-sm opacity-50 scale-95";
+  return "bg-white border-gray-100 shadow-sm";
+};
+
 function TestimonialCard({ testimonial, activeCard, dimmedCard }) {
   return (
     <div
-      className={`rounded-2xl p-6 border transition-all duration-300 ${activeCard
-          ? "bg-white border-violet-100 shadow-xl scale-100"
-          : dimmedCard
-            ? "bg-white/70 border-gray-100 shadow-sm opacity-50 scale-95"
-            : "bg-white border-gray-100 shadow-sm"
-        }`}
+      className={`rounded-2xl p-6 border transition-all duration-300 ${getCardStateClass(activeCard, dimmedCard)}`}
     >
       <div className="mb-4">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="#ede9fe">

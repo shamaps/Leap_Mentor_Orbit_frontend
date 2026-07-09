@@ -1,6 +1,6 @@
 // components/mentor/verification/WorkExperienceUpload.jsx
 import PropTypes from "prop-types";
-const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
+const ACCEPTED_TYPES = new Set(["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"]);
 const MAX_FILES = 3;
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB per file
 
@@ -15,7 +15,7 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
       return;
     }
 
-    const invalid = selected.find((f) => !ACCEPTED_TYPES.includes(f.type));
+    const invalid = selected.find((f) => !ACCEPTED_TYPES.has(f.type));
     if (invalid) {
       onChange(files, "Only PDF, JPG, PNG, WEBP files are allowed");
       return;
@@ -41,7 +41,7 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
       onChange(files, `Maximum ${MAX_FILES} files allowed`);
       return;
     }
-    const invalid = dropped.find((f) => !ACCEPTED_TYPES.includes(f.type));
+    const invalid = dropped.find((f) => !ACCEPTED_TYPES.has(f.type));
     if (invalid) {
       onChange(files, "Only PDF, JPG, PNG, WEBP files are allowed");
       return;
@@ -113,6 +113,7 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
         {/* Drop zone — hide when max reached */}
         {files.length < MAX_FILES && (
           <label
+            aria-label="Upload work experience files"
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
             className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl px-6 py-6 cursor-pointer transition-all duration-150

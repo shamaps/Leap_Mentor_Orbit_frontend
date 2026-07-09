@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import ErrorState from "../common/ErrorState";
+import FilterTabs from "../common/FilterTabs";
 const STATUS_STYLES = {
   open: { background: "#fef9c3", color: "#854d0e", label: "Open" },
   resolved: { background: "#dcfce7", color: "#166534", label: "Resolved" },
@@ -24,8 +25,8 @@ export default function AdminSupportMessages() {
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          err.message ||
-          "Failed to load messages",
+        err.message ||
+        "Failed to load messages",
       );
     } finally {
       setLoading(false);
@@ -56,6 +57,25 @@ export default function AdminSupportMessages() {
   );
   const openCount = messages.filter((m) => m.status === "open").length;
   const resolvedCount = messages.filter((m) => m.status === "resolved").length;
+
+  const emptyFilterLabel = filter === "all" ? "" : filter;
+
+  let statusContent = null;
+  if (loading) {
+    statusContent = (
+      <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
+        <p>Loading messages...</p>
+      </div>
+    );
+  } else if (error) {
+    statusContent = <ErrorState message={error} onAction={fetchMessages} />;
+  } else if (filtered.length === 0) {
+    statusContent = (
+      <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
+        <p>No {emptyFilterLabel} messages yet.</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -115,44 +135,12 @@ export default function AdminSupportMessages() {
       </div>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-        {["all", "open", "resolved"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            style={{
-              padding: "6px 18px",
-              borderRadius: 20,
-              fontSize: 13,
-              fontWeight: 500,
-              cursor: "pointer",
-              border: "1.5px solid",
-              borderColor: filter === f ? "#2563eb" : "#e2e8f0",
-              background: filter === f ? "#2563eb" : "#fff",
-              color: filter === f ? "#fff" : "#475569",
-              textTransform: "capitalize",
-              transition: "all 0.15s",
-            }}
-          >
-            {f}
-          </button>
-        ))}
+        <FilterTabs options={["all", "open", "resolved"]} active={filter} onChange={setFilter} />
       </div>
 
-      {loading ? (
-        <div
-          style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}
-        >
-          <p>Loading messages...</p>
-        </div>
-      ) : error ? (
-        <ErrorState message={error} onAction={fetchMessages} />
-      ) : filtered.length === 0 ? (
-        <div
-          style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}
-        >
-          <p>No {filter !== "all" ? filter : ""} messages yet.</p>
-        </div>
-      ) : (
+      {statusContent}
+
+      {!statusContent && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {filtered.map((msg) => {
             const isOpen = expanded === msg._id;
@@ -170,14 +158,21 @@ export default function AdminSupportMessages() {
                   transition: "border-color 0.2s",
                 }}
               >
-                <div
+                <button
+                  type="button"
                   onClick={() => setExpanded(isOpen ? null : msg._id)}
+                  aria-expanded={isOpen}
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: 14,
                     padding: "16px 20px",
                     cursor: "pointer",
+                    width: "100%",
+                    background: "none",
+                    border: "none",
+                    textAlign: "left",
+                    font: "inherit",
                   }}
                 >
                   <span
@@ -256,8 +251,7 @@ export default function AdminSupportMessages() {
                   >
                     ▾
                   </span>
-                </div>
-
+                </button>
                 {isOpen && (
                   <div
                     style={{
@@ -310,7 +304,7 @@ export default function AdminSupportMessages() {
                                 animation: "spin 0.7s linear infinite",
                               }}
                             />
-                            Resolving...
+                            <span>Resolving...</span>
                           </>
                         ) : (
                           "Mark as Resolved"
@@ -324,7 +318,6 @@ export default function AdminSupportMessages() {
           })}
         </div>
       )}
-
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

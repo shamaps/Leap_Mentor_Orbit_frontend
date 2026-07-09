@@ -29,7 +29,7 @@ const ConnectSuccessModal = ({ mentorName, onBackToDashboard }) => {
             <span className="font-semibold text-slate-700">
               {mentorName || "the mentor"}
             </span>
-            . You'll be notified once they respond.
+            {". You'll be notified once they respond."}
           </p>
         </div>
 

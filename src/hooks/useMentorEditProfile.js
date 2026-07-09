@@ -1,12 +1,12 @@
 // src/hooks/useMentorEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import logger from "../utils/logger";
 import * as mentorProfileApi from "../api/mentorProfile.api";
 import getErrorMessage from "../utils/getErrorMessage";
-import { validateCommonFields } from "../utils/onboardingValidation";
+import { commonOnboardingSchema, getFirstErrorMessage } from "../schemas/onboardingSchemas";
 import { selectAuthToken } from "../store/selectors";
-import { useDispatch } from "react-redux";
 import { refetchMentorProfile } from "../store/slices/mentorProfileSlice";
 const useMentorEditProfile = () => {
   const navigate = useNavigate();
@@ -53,6 +53,7 @@ const useMentorEditProfile = () => {
           portfolioUrl: data.portfolioUrl || "",
         });
       } catch (err) {
+        logger.warn("Failed to load mentor profile data", { message: err?.message });
         setMsg({ type: "error", text: "Failed to load profile data." });
       } finally {
         setFetchLoading(false);
@@ -70,7 +71,7 @@ const useMentorEditProfile = () => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
 
-    const validationError = validateCommonFields(form);
+    const validationError = getFirstErrorMessage(commonOnboardingSchema, form);
     if (validationError)
       return setMsg({ type: "error", text: validationError });
 
@@ -89,14 +90,14 @@ const useMentorEditProfile = () => {
         languages:
           typeof form.languages === "string"
             ? form.languages
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean)
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
             : form.languages,
       };
 
       await mentorProfileApi.updateMentorProfile(payload);
-      await dispatch(refetchMentorProfile());
+      await Promise.resolve(dispatch(refetchMentorProfile()));
 
       setMsg({
         type: "success",

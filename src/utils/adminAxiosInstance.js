@@ -44,7 +44,7 @@ adminAxiosInstance.interceptors.response.use(
       // since error.message will now read "timeout of 15000ms exceeded".
     }
     if (error.response?.status === HTTP_STATUS.UNAUTHORIZED) {
-      window.location.href = "/admin/login";
+      globalThis.location.href = "/admin/login";
     }
     return Promise.reject(error);
   },

@@ -101,9 +101,12 @@ const RequestCard = ({ request, onApprove, onReject, processing }) => {
   const maxSessions = Math.max(totalSessions, 10);
 
   // Activity score: simple heuristic
-  const activityScore =
-    completedSessions >= 5 ? "High" : completedSessions >= 2 ? "Medium" : "Low";
-
+  let activityScore = "Low";
+  if (completedSessions >= 5) {
+    activityScore = "High";
+  } else if (completedSessions >= 2) {
+    activityScore = "Medium";
+  }
   const activityConfig = {
     High: {
       color: "text-emerald-600",
@@ -372,7 +375,46 @@ const LeapRequests = () => {
     { key: "approved", label: "Approved" },
     { key: "rejected", label: "Rejected" },
   ];
-
+}
+  let requestsContent;
+  if (loading) {
+    requestsContent = (
+      <>
+        <CardSkeleton />
+        <CardSkeleton />
+        <CardSkeleton />
+      </>
+    );
+  } else if (requests.length === 0) {
+    requestsContent = (
+      <EmptyState
+        fullWidth
+        icon={
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="17 11 12 6 7 11" />
+            <line x1="12" y1="6" x2="12" y2="18" />
+          </svg>
+        }
+        message={`No ${tab} requests`}
+        subMessage={
+          tab === "pending"
+            ? "When mentees run out of Leap Points and request a refill, they'll appear here."
+            : `All ${tab} requests will show up here.`
+        }
+      />
+    );
+  } else {
+    requestsContent = requests.map((req) => (
+      <RequestCard
+        key={req._id}
+        request={req}
+        onApprove={handleApprove}
+        onReject={handleReject}
+        processing={processingId === req._id}
+      />
+    ));
+  }
   return (
     <div className="max-w-5xl mx-auto">
       {/* Toast */}
@@ -441,43 +483,9 @@ const LeapRequests = () => {
 
       {/* Cards grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {loading ? (
-          <>
-            <CardSkeleton />
-            <CardSkeleton />
-            <CardSkeleton />
-          </>
-        ) : requests.length === 0 ? (
-            <EmptyState
-              fullWidth
-              icon={
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="17 11 12 6 7 11" />
-                  <line x1="12" y1="6" x2="12" y2="18" />
-                </svg>
-              }
-              message={`No ${tab} requests`}
-              subMessage={
-                tab === "pending"
-                  ? "When mentees run out of Leap Points and request a refill, they'll appear here."
-                  : `All ${tab} requests will show up here.`
-              }
-            />
-        ) : (
-          requests.map((req) => (
-            <RequestCard
-              key={req._id}
-              request={req}
-              onApprove={handleApprove}
-              onReject={handleReject}
-              processing={processingId === req._id}
-            />
-          ))
-        )}
+        {requestsContent}
       </div>
     </div>
   );
-};
 
 export default LeapRequests;

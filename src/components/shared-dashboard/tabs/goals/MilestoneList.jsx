@@ -21,7 +21,7 @@ const MilestoneProgress = ({ completed, total }) => {
     <div className="mb-4">
       <div className="flex items-center justify-between mb-1.5">
         <p className="text-xs font-semibold text-slate-500">
-          {completed} of {total} milestone{total !== 1 ? "s" : ""} completed
+          {completed} of {total} milestone{total === 1 ? "" : "s"} completed
         </p>
         <p
           className={`text-xs font-bold ${allDone ? "text-green-600" : "text-violet-600"}`}
@@ -116,13 +116,16 @@ AddMilestoneForm.propTypes = {
 // ── Delete Confirmation Modal ─────────────────────────────────
 const DeleteMilestoneModal = ({ milestone, onConfirm, onCancel }) => (
   <div
+    role="presentation"
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
-    onClick={onCancel}
+    onClick={(e) => {
+      if (e.target === e.currentTarget) onCancel();
+    }}
+    onKeyDown={(e) => {
+      if (e.key === "Escape") onCancel();
+    }}
   >
-    <div
-      className="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-xl"
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-xl">
       <h3 className="text-base font-extrabold text-slate-800 mb-1">
         Delete Milestone?
       </h3>
@@ -160,11 +163,12 @@ DeleteMilestoneModal.propTypes = {
 const MilestoneRow = ({ milestone, onToggle, onRequestDelete }) => {
   const overdue = !milestone.isCompleted && isOverdue(milestone.dueDate);
 
-  const dueBadgeClass = milestone.isCompleted
-    ? "bg-slate-100 text-slate-400 border-slate-200"
-    : overdue
-      ? "bg-red-50 text-red-500 border-red-200"
-      : "bg-violet-50 text-violet-600 border-violet-200";
+  let dueBadgeClass = "bg-violet-50 text-violet-600 border-violet-200";
+  if (milestone.isCompleted) {
+    dueBadgeClass = "bg-slate-100 text-slate-400 border-slate-200";
+  } else if (overdue) {
+    dueBadgeClass = "bg-red-50 text-red-500 border-red-200";
+  }
 
   return (
     <div

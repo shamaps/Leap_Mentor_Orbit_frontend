@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import * as menteeProfileApi from "../api/menteeProfile.api";
 import * as authApi from "../api/auth.api";
 import * as escrowApi from "../api/escrow.api";
+import logger from "../utils/logger";
 const useMenteeSettings = (initialProfile) => {
   const [fetching, setFetching] = useState(!initialProfile);
   const [saving, setSaving] = useState(false);
@@ -39,7 +40,7 @@ const useMenteeSettings = (initialProfile) => {
         setEmailNotifications(p.emailNotifications ?? true);
         setMarketingPreferences(p.marketingPreferences ?? false);
       } catch (err) {
-        // eslint-disable-line no-unused-vars
+        logger.warn("Failed to load mentee profile settings", { message: err?.message });
         setMsg({ type: "error", text: "Failed to load settings." });
       } finally {
         setFetching(false);
@@ -56,8 +57,8 @@ const useMenteeSettings = (initialProfile) => {
         const data = await authApi.getCurrentUser();
         setPasswordChangedAt(data.passwordChangedAt || null);
       } catch (err) {
-        // eslint-disable-line no-unused-vars
-        // silent fail — not critical
+        // Not critical to the page — user just won't see a "last changed" date.
+        logger.warn("Failed to fetch passwordChangedAt", { message: err?.message });
       }
     };
     fetchUser();
@@ -71,8 +72,8 @@ const useMenteeSettings = (initialProfile) => {
         setBalance(data.balance);
         setEscrow(data.escrow);
       } catch (err) {
-        // eslint-disable-line no-unused-vars
-        // silent fail
+        // Not critical to the page — balance/escrow just stay at their defaults.
+        logger.warn("Failed to fetch wallet", { message: err?.message });
       }
     };
     fetchWallet();
@@ -90,7 +91,7 @@ const useMenteeSettings = (initialProfile) => {
       setMsg({ type: "success", text: "Preferences saved successfully!" });
       setTimeout(() => setMsg({ type: "", text: "" }), 3000);
     } catch (err) {
-      // eslint-disable-line no-unused-vars
+      logger.warn("Failed to save mentee preferences", { message: err?.message });
       setMsg({ type: "error", text: "Failed to save preferences." });
     } finally {
       setSaving(false);

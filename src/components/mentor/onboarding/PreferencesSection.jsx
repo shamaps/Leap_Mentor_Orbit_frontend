@@ -40,14 +40,15 @@ const PreferencesSection = () => {
 
   const selected = form.communicationPreferences || [];
   // ✅ Support both string (old) and array (new) format
-  const languages = Array.isArray(form.languages)
-    ? form.languages
-    : form.languages
-      ? form.languages
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean)
-      : [];
+  let languages = [];
+  if (Array.isArray(form.languages)) {
+    languages = form.languages;
+  } else if (form.languages) {
+    languages = form.languages
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
 
   useEffect(() => {
     const handler = (e) => {
@@ -108,10 +109,10 @@ const PreferencesSection = () => {
       <div className="px-6 py-5">
         <div className="grid grid-cols-2 gap-6">
           {/* Communication Channels */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-3">
+          <fieldset className="border-0 p-0 m-0">
+            <legend className="block text-xs font-semibold text-slate-500 mb-3">
               Communication Channels
-            </label>
+            </legend>
             <div className="space-y-2.5">
               {COMMUNICATION_OPTIONS.map(({ value, label, icon }) => {
                 const isChecked = selected.includes(value);
@@ -120,9 +121,15 @@ const PreferencesSection = () => {
                     key={value}
                     className="flex items-center gap-3 cursor-pointer group"
                   >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleComm(value)}
+                      className="sr-only"
+                    />
                     <div
-                      onClick={() => toggleComm(value)}
-                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-150 cursor-pointer shrink-0 ${
+                      aria-hidden="true"
+                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-150 shrink-0 ${
                         isChecked
                           ? "bg-blue-900 border-blue-900"
                           : "border-slate-300 bg-white group-hover:border-blue-400"
@@ -145,23 +152,20 @@ const PreferencesSection = () => {
                         </svg>
                       )}
                     </div>
-                    <span
-                      onClick={() => toggleComm(value)}
-                      className="text-sm text-slate-600 select-none"
-                    >
+                    <span className="text-sm text-slate-600 select-none">
                       {icon} {label}
                     </span>
                   </label>
                 );
               })}
             </div>
-          </div>
+          </fieldset>
 
           {/* Languages — dropdown multi-select */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-2">
-              Languages Known
-            </label>
+          <span className="block text-xs font-semibold text-slate-500 mb-2">
+            Languages Known
+          </span>
 
             {/* Selected language tags */}
             {languages.length > 0 && (
@@ -188,6 +192,7 @@ const PreferencesSection = () => {
             <div ref={dropdownRef} className="relative">
               <button
                 type="button"
+                aria-label="Select known languages"
                 onClick={() => setDropdownOpen((prev) => !prev)}
                 className="w-full text-sm text-left bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 hover:border-slate-400 transition-all duration-150 flex items-center justify-between"
               >

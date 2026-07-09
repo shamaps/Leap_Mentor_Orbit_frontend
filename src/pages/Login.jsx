@@ -44,7 +44,7 @@ const Login = () => {
         text: "Google login successful! Redirecting...",
       });
       setTimeout(
-        () => redirectByRole(data?.user?.roles || [], navigate, setMsg),
+        () => redirectByRole(data?.user?.roles || [], navigate),
         700,
       );
     },
@@ -65,14 +65,14 @@ const Login = () => {
       setLoading(true);
 
       // ✅ Force sign out and wait fully before proceeding
-      await signOut({ redirectUrl: window.location.href });
+      await signOut({ redirectUrl: globalThis.location.href });
 
       ssoFlags.set("existing", true);
 
       await signIn.authenticateWithRedirect({
         strategy: CLERK_STRATEGY[provider],
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: `${window.location.origin}/sso-callback-sync`,
+        redirectUrl: `${globalThis.location.origin}/sso-callback`,
+        redirectUrlComplete: `${globalThis.location.origin}/sso-callback-sync`,
       });
     } catch (err) {
       ssoFlags.clear();
@@ -112,7 +112,12 @@ const Login = () => {
       setLoading(false);
     }
   };
-
+  let msgBannerClass = "bg-red-50 text-red-700";
+  if (msg.type === "success") {
+    msgBannerClass = "bg-green-50 text-green-700";
+  } else if (msg.type === "info") {
+    msgBannerClass = "bg-blue-50 text-blue-900";
+  }
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md border rounded-xl p-6">
@@ -123,13 +128,7 @@ const Login = () => {
 
         {msg.text && (
           <div
-            className={`mt-4 text-sm rounded-md p-3 ${
-              msg.type === "success"
-                ? "bg-green-50 text-green-700"
-                : msg.type === "info"
-                  ? "bg-blue-50 text-blue-900"
-                  : "bg-red-50 text-red-700"
-            }`}
+            className={`mt-4 text-sm rounded-md p-3 ${msgBannerClass}`}
           >
             {msg.text}
           </div>
@@ -165,8 +164,9 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="text-sm">Email</label>
+            <label htmlFor="login-email" className="text-sm">Email</label>
             <input
+              id="login-email"
               name="email"
               type="email"
               value={form.email}
@@ -177,8 +177,9 @@ const Login = () => {
             />
           </div>
           <div>
-            <label className="text-sm">Password</label>
+            <label htmlFor="login-password" className="text-sm">Password</label>
             <input
+              id="login-password"
               name="password"
               type="password"
               value={form.password}
@@ -200,12 +201,13 @@ const Login = () => {
 
         <p className="text-sm text-gray-600 mt-4">
           Don't have an account?{" "}
-          <span
-            className="underline cursor-pointer"
+          <button
+            type="button"
+            className="underline cursor-pointer bg-transparent border-none p-0"
             onClick={() => navigate("/register/mentee")}
           >
             Register
-          </span>
+          </button>
         </p>
       </div>
     </div>

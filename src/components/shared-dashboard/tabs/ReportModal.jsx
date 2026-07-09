@@ -1,7 +1,10 @@
 // src/components/shared-dashboard/tabs/ReportModal.jsx
 import { useState, useRef, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import useReportComplaint from "../../../hooks/useReportComplaint";
 import PropTypes from "prop-types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { reportSchema } from "../../../schemas/miscSchemas";
 const COMPLAINT_ICONS = {
   inappropriate_behavior: "🚫",
   session_misconduct: "📅",
@@ -36,22 +39,33 @@ const BASE_COMPLAINT_TYPES = [
 ];
 
 const ReportModal = ({ connect, onClose, onSuccess }) => {
-  const [complaintType, setComplaintType] = useState("");
-  const [description, setDescription] = useState("");
   const [screenshot, setScreenshot] = useState(null);
   const [preview, setPreview] = useState(null);
   const fileRef = useRef(null);
+
+  const {
+    watch,
+    setValue,
+    handleSubmit,
+  } = useForm({
+    resolver: zodResolver(reportSchema),
+    defaultValues: { complaintType: "", description: "" },
+  });
+
+  const complaintType = watch("complaintType");
+  const description = watch("description") || "";
+
 
   const COMPLAINT_TYPES = [
     ...BASE_COMPLAINT_TYPES.filter((ct) => ct.value !== "refund"),
     ...(connect?.viewerRole === "mentee"
       ? [
-          {
-            value: "refund",
-            label: " Refund Issue",
-            sub: "Request a refund for a session or payment",
-          },
-        ]
+        {
+          value: "refund",
+          label: " Refund Issue",
+          sub: "Request a refund for a session or payment",
+        },
+      ]
       : []),
   ]
     .reduce((acc, ct) => {
@@ -74,8 +88,8 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
     const handler = (e) => {
       if (e.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    globalThis.addEventListener("keydown", handler);
+    return () => globalThis.removeEventListener("keydown", handler);
   }, [onClose]);
 
   const handleFileChange = (e) => {
@@ -91,19 +105,14 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
     if (fileRef.current) fileRef.current.value = "";
   };
 
-  const handleSubmit = async () => {
+
+  // zodResolver has already validated complaintType + description (>=10
+  // chars) by the time this runs.
+  const onSubmit = async (data) => {
     setError(null);
-    if (!complaintType) {
-      setError("Please select a complaint type.");
-      return;
-    }
-    if (description.trim().length < 10) {
-      setError("Description must be at least 10 characters.");
-      return;
-    }
     const result = await submitReport({
-      complaintType,
-      description,
+      complaintType: data.complaintType,
+      description: data.description,
       screenshot,
     });
     if (result?.success) onSuccess();
@@ -111,6 +120,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
 
   return (
     <div
+      role="presentation"
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{
         backgroundColor: "rgba(15,23,42,0.45)",
@@ -118,6 +128,9 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
       }}
     >
       <div
@@ -201,10 +214,10 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
           </div>
 
           {/* Complaint type — list style */}
-          <div>
-            <label className="text-xs font-semibold text-slate-700 block mb-2">
+          <fieldset className="border-0 p-0 m-0">
+            <legend className="text-xs font-semibold text-slate-700 block mb-2">
               Complaint Type <span className="text-red-400">*</span>
-            </label>
+            </legend>
             <div className="flex flex-col rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
               {COMPLAINT_TYPES.map((ct) => {
                 const selected = complaintType === ct.value;
@@ -212,7 +225,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
                   <button
                     key={ct.value}
                     type="button"
-                    onClick={() => setComplaintType(ct.value)}
+                    onClick={() => setValue("complaintType", ct.value, { shouldValidate: true })}
                     className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors
                       ${selected ? "bg-red-50" : "bg-white hover:bg-slate-50"}`}
                   >
@@ -265,16 +278,17 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
                 );
               })}
             </div>
-          </div>
+          </fieldset>
 
           {/* Description */}
           <div>
-            <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+            <label htmlFor="report-description" className="text-xs font-semibold text-slate-700 block mb-1.5">
               Describe the issue <span className="text-red-400">*</span>
             </label>
             <textarea
+              id="report-description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setValue("description", e.target.value, { shouldValidate: true })}
               placeholder="Please describe what happened in detail..."
               rows={4}
               maxLength={1000}
@@ -392,7 +406,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
             </button>
             <button
               type="button"
-              onClick={handleSubmit}
+              onClick={handleSubmit(onSubmit)}
               disabled={submitting}
               className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-xs
                 font-bold hover:bg-red-600 transition-all
@@ -401,7 +415,7 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
             >
               {submitting ? (
                 <>
-                  <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />{" "}
                   Submitting...
                 </>
               ) : (

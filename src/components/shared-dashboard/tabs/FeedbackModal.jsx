@@ -2,12 +2,17 @@ import { useState } from "react";
 import useReport from "../../../hooks/useReport";
 import PropTypes from "prop-types";
 import Spinner from "../../common/Spinner";
-const StarRatingInput = ({ value, onChange, disabled }) => (
-  <div className="flex items-center gap-1.5">
+const STAR_LABELS = ["Poor", "Fair", "Good", "Great", "Excellent"];
+
+const StarRatingInput = ({ value, onChange, disabled, labelledBy }) => (
+  <fieldset aria-labelledby={labelledBy} className="flex items-center gap-1.5">
+  <div role="group" aria-labelledby={labelledBy} className="flex items-center gap-1.5">
     {[1, 2, 3, 4, 5].map((star) => (
       <button
         key={star}
         type="button"
+        aria-label={`Rate ${star} star${star > 1 ? "s" : ""} — ${STAR_LABELS[star - 1]}`}
+        aria-pressed={star <= value}
         onClick={() => !disabled && onChange(star)}
         disabled={disabled}
         className={`transition-all ${disabled ? "cursor-default" : "cursor-pointer hover:scale-110"}`}
@@ -30,11 +35,13 @@ const StarRatingInput = ({ value, onChange, disabled }) => (
       </span>
     )}
   </div>
+  </fieldset>
 );
 StarRatingInput.propTypes = {
   value: PropTypes.number.isRequired,
   onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
+  labelledBy: PropTypes.string,
 };
 const FeedbackModal = ({
   connect,
@@ -86,7 +93,47 @@ const FeedbackModal = ({
       }}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 flex flex-col gap-5">
-        {!done ? (
+        {done ? (
+          /* Success Screen */
+          <div className="flex flex-col items-center text-center gap-4 py-4">
+            <div
+              className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200
+              flex items-center justify-center"
+            >
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#10b981"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">
+                Feedback Submitted!
+              </p>
+              <p className="text-base font-extrabold text-slate-800">
+                Thanks for your feedback!
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                Your review has been submitted successfully.
+              </p>
+            </div>
+            <button
+              onClick={handleDone}
+              className="px-6 py-2.5 rounded-xl bg-blue-900 text-white text-xs font-bold
+                hover:bg-blue-700 transition-all"
+            >
+              Done
+            </button>
+          </div>
+        ) : (
           <>
             {/* Header */}
             <div className="flex items-start justify-between gap-3">
@@ -111,9 +158,9 @@ const FeedbackModal = ({
                     </svg>
                   </div>
                   <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest">
-                    {slotIndex !== undefined
-                      ? `Session ${slotIndex + 1} Complete!`
-                      : "Session Complete!"}
+                    {slotIndex === undefined
+                      ? "Session Complete!"
+                      : `Session ${slotIndex + 1} Complete!`}
                   </p>
                 </div>
                 <h2 className="text-lg font-extrabold text-slate-800">
@@ -144,17 +191,18 @@ const FeedbackModal = ({
               </button>
             </div>
 
-            {/* Rating */}
-            <div>
-              <label className="text-xs font-bold text-slate-700 block mb-2.5 uppercase tracking-widest">
-                Overall Rating <span className="text-red-400">*</span>
-              </label>
-              <StarRatingInput
-                value={rating}
-                onChange={setRating}
-                disabled={submitting}
-              />
-            </div>
+              {/* Rating */}
+              <div>
+                <p id="rating-label" className="text-xs font-bold text-slate-700 block mb-2.5 uppercase tracking-widest">
+                  Overall Rating <span className="text-red-400">*</span>
+                </p>
+                <StarRatingInput
+                  value={rating}
+                  onChange={setRating}
+                  disabled={submitting}
+                  labelledBy="rating-label"
+                />
+              </div>
 
             {/* Comment */}
             <div>
@@ -220,46 +268,6 @@ const FeedbackModal = ({
               </button>
             </div>
           </>
-        ) : (
-          /* Success Screen */
-          <div className="flex flex-col items-center text-center gap-4 py-4">
-            <div
-              className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200
-              flex items-center justify-center"
-            >
-              <svg
-                width="26"
-                height="26"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#10b981"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">
-                Feedback Submitted!
-              </p>
-              <p className="text-base font-extrabold text-slate-800">
-                Thanks for your feedback!
-              </p>
-              <p className="text-xs text-slate-500 mt-1">
-                Your review has been submitted successfully.
-              </p>
-            </div>
-            <button
-              onClick={handleDone}
-              className="px-6 py-2.5 rounded-xl bg-blue-900 text-white text-xs font-bold
-                hover:bg-blue-700 transition-all"
-            >
-              Done
-            </button>
-          </div>
         )}
       </div>
     </div>

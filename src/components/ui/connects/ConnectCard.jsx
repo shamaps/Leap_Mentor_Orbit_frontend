@@ -17,7 +17,7 @@ const AVATAR_GRADIENTS = [
 ];
 
 const getGradient = (name = "") => {
-  const index = name.charCodeAt(0) % AVATAR_GRADIENTS.length;
+  const index = name.codePointAt(0) % AVATAR_GRADIENTS.length;
   return AVATAR_GRADIENTS[index];
 };
 
@@ -30,7 +30,7 @@ const formatSlot = (slot) => {
   });
   const getParts = (t) => {
     const [h, m] = t.split(":");
-    const hour = parseInt(h);
+    const hour = Number.parseInt(h);
     const ampm = hour >= 12 ? "PM" : "AM";
     const display = hour % 12 || 12;
     return { display: `${display}:${m}`, ampm };
@@ -159,7 +159,7 @@ const ConnectCard = ({
                 className="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full
                 bg-emerald-50 border border-emerald-200 text-emerald-600 text-[10px] font-bold"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />{" "}
                 Active
               </span>
             )}
@@ -167,8 +167,8 @@ const ConnectCard = ({
 
           {skills.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {skills.map((s, i) => (
-                <SkillTag key={i} label={s} />
+              {skills.map((s) => (
+                <SkillTag key={s} label={s} />
               ))}
             </div>
           )}

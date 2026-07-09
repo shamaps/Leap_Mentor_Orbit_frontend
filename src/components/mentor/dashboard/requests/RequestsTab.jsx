@@ -39,15 +39,15 @@ const RequestsTab = () => {
     const handleRequestChanged = () => dispatch(fetchIncomingRequests());
 
     const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
+      if (globalThis.__leapSocket?.connected) {
         clearInterval(waitForSocket);
-        window.__leapSocket.on("request_status_changed", handleRequestChanged);
+        globalThis.__leapSocket.on("request_status_changed", handleRequestChanged);
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
-      window.__leapSocket?.off("request_status_changed", handleRequestChanged);
+      globalThis.__leapSocket?.off("request_status_changed", handleRequestChanged);
     };
   }, [dispatch]);
 
@@ -91,7 +91,17 @@ const RequestsTab = () => {
       </div>
     );
   }
-
+  const SUB_MESSAGES = {
+    pending: "You'll see new requests here when mentees reach out.",
+    referred: "Requests you've referred to other mentors will appear here.",
+    all: "When mentees send you connect requests, they'll appear here.",
+  };
+  const emptyStateSubMessage = SUB_MESSAGES[activeTab] || `No requests have been ${activeTab} yet.`;
+  const getTabBadgeClass = (isActive, tabKey) => {
+    if (isActive) return "bg-blue-900 text-white";
+    if (tabKey === "referred") return "bg-violet-100 text-violet-600";
+    return "bg-slate-100 text-slate-500";
+  };
   return (
     <>
       <div className="w-full space-y-5">
@@ -134,13 +144,7 @@ const RequestsTab = () => {
                 {tab.label}
                 {counts[tab.key] > 0 && (
                   <span
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      activeTab === tab.key
-                        ? "bg-blue-900 text-white"
-                        : tab.key === "referred"
-                          ? "bg-violet-100 text-violet-600"
-                          : "bg-slate-100 text-slate-500"
-                    }`}
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${getTabBadgeClass(activeTab === tab.key, tab.key)}`}
                   >
                     {counts[tab.key]}
                   </span>
@@ -159,15 +163,7 @@ const RequestsTab = () => {
               </svg>
             }
             message={activeTab === "all" ? "No requests yet" : `No ${activeTab} requests`}
-            subMessage={
-              activeTab === "pending"
-                ? "You'll see new requests here when mentees reach out."
-                : activeTab === "referred"
-                  ? "Requests you've referred to other mentors will appear here."
-                  : activeTab === "all"
-                    ? "When mentees send you connect requests, they'll appear here."
-                    : `No requests have been ${activeTab} yet.`
-            }
+            subMessage={emptyStateSubMessage}
           />
         ) : (
           // ✅ 1 col mobile → 2 col md+ with min card width enforced

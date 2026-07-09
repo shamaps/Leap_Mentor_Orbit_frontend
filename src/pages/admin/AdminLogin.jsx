@@ -1,29 +1,45 @@
 // src/pages/admin/AdminLogin.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import { IMAGES } from "../../constants/images";
+import { loginSchema } from "../../schemas/authSchemas";
+import { mapServerErrorsToForm } from "../../utils/mapServerErrorsToForm";
+
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
+  const {
+    register,
+    handleSubmit,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  // register() gives us its own onBlur (used for RHF's validation
+  // lifecycle); this form also imperatively resets the border color on
+  // blur, so both are called rather than one replacing the other.
+  const emailField = register("email");
+  const passwordField = register("password");
+
+  const onSubmit = async (data) => {
+    clearErrors("root");
     setLoading(true);
     try {
       // ← UPDATED: no localStorage — token is set as httpOnly cookie by the backend
       // res.data.admin contains the admin object, accessToken is NOT in the response body
-      await adminAxiosInstance.post("admin/auth/login", { email, password });
+      await adminAxiosInstance.post("admin/auth/login", { email: data.email, password: data.password });
       navigate("/admin/users");
     } catch (err) {
-      setError(
-        err?.response?.data?.message || "Login failed. Please try again.",
-      );
+      mapServerErrorsToForm(err, setError);
     } finally {
       setLoading(false);
     }
@@ -105,39 +121,46 @@ const AdminLogin = () => {
             Sign in to continue
           </h2>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             {/* Email */}
             <div>
               <label
+                htmlFor={emailField.name}
                 className="text-xs font-600 text-slate-400 block mb-1.5"
                 style={{ fontWeight: 600 }}
               >
                 Email
               </label>
               <input
+                id={emailField.name}
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@leapmentor.com"
-                required
                 className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 outline-none transition-all"
                 style={{
                   background: "rgba(255,255,255,0.07)",
                   border: "1px solid rgba(255,255,255,0.1)",
                   fontFamily: "'DM Sans', sans-serif",
                 }}
+                name={emailField.name}
+                ref={emailField.ref}
+                onChange={emailField.onChange}
                 onFocus={(e) =>
                   (e.target.style.borderColor = "rgba(37,99,235,0.6)")
                 }
-                onBlur={(e) =>
-                  (e.target.style.borderColor = "rgba(255,255,255,0.1)")
-                }
+                onBlur={(e) => {
+                  emailField.onBlur(e);
+                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                }}
               />
+              {errors.email?.message && (
+                <p className="text-xs text-red-400 mt-1.5">{errors.email.message}</p>
+              )}
             </div>
 
             {/* Password */}
             <div>
               <label
+                htmlFor="admin-password"
                 className="text-xs font-600 text-slate-400 block mb-1.5"
                 style={{ fontWeight: 600 }}
               >
@@ -145,23 +168,25 @@ const AdminLogin = () => {
               </label>
               <div className="relative">
                 <input
+                  id="admin-password"
                   type={showPass ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  required
                   className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-slate-500 outline-none transition-all pr-11"
                   style={{
                     background: "rgba(255,255,255,0.07)",
                     border: "1px solid rgba(255,255,255,0.1)",
                     fontFamily: "'DM Sans', sans-serif",
                   }}
+                  name={passwordField.name}
+                  ref={passwordField.ref}
+                  onChange={passwordField.onChange}
                   onFocus={(e) =>
                     (e.target.style.borderColor = "rgba(37,99,235,0.6)")
                   }
-                  onBlur={(e) =>
-                    (e.target.style.borderColor = "rgba(255,255,255,0.1)")
-                  }
+                  onBlur={(e) => {
+                    passwordField.onBlur(e);
+                    e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  }}
                 />
                 <button
                   type="button"
@@ -198,9 +223,12 @@ const AdminLogin = () => {
                   )}
                 </button>
               </div>
+              {errors.password?.message && (
+                <p className="text-xs text-red-400 mt-1.5">{errors.password.message}</p>
+              )}
             </div>
 
-            {error && (
+            {errors.root?.message && (
               <div
                 className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
                 style={{
@@ -221,7 +249,7 @@ const AdminLogin = () => {
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <p className="text-xs text-red-400">{error}</p>
+                <p className="text-xs text-red-400">{errors.root.message}</p>
               </div>
             )}
 
@@ -240,7 +268,7 @@ const AdminLogin = () => {
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />{" "}
                   Signing in...
                 </span>
               ) : (

@@ -50,11 +50,11 @@ const ReferModal = ({ request, onClose, onReferred }) => {
   const mentee = request.mentee;
   const initials = mentee?.name
     ? mentee.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
     : "?";
 
   // ── Success screen ────────────────────────────────────────
@@ -87,8 +87,7 @@ const ReferModal = ({ request, onClose, onReferred }) => {
             request to{" "}
             <span className="font-semibold text-slate-700">
               {selected?.user?.name}
-            </span>
-            .
+            </span>.
           </p>
           <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 mb-6 mt-1">
             <p className="text-xs text-blue-900 font-medium leading-relaxed">
@@ -105,6 +104,175 @@ const ReferModal = ({ request, onClose, onReferred }) => {
           </button>
         </div>
       </div>
+    );
+  }
+
+  let mentorSuggestionsContent;
+  if (loading) {
+    mentorSuggestionsContent = (
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
+        <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
+        <p className="text-sm text-slate-400 font-medium">
+          Finding similar mentors...
+        </p>
+      </div>
+    );
+  } else if (mentors.length === 0) {
+    mentorSuggestionsContent = (
+      <EmptyState
+        icon={
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        }
+        message="No similar mentors found"
+        subMessage="No other published mentors share your skills yet."
+        compact
+      />
+    );
+  } else {
+    mentorSuggestionsContent = (
+      <>
+        <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">
+          {mentors.length} mentor{mentors.length > 1 ? "s" : ""} with
+          similar skills
+        </p>
+
+        {/* ── Mentor list ── */}
+        <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+          {mentors.map((mentor) => {
+            const mInitials = mentor.user?.name
+              ? mentor.user.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2)
+              : "?";
+            const isSelected = selected?._id === mentor._id;
+            const matchingSkills = mentor.skills.filter((s) =>
+              mySkills
+                .map((ms) => ms.toLowerCase())
+                .includes(s.toLowerCase()),
+            );
+
+            return (
+              <button
+                key={mentor._id}
+                type="button"
+                onClick={() => setSelected(mentor)}
+                className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all duration-150 ${isSelected
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
+                  }`}
+              >
+                <div className="flex items-center gap-3">
+                  {/* Avatar */}
+                  {mentor.profilePicture ? (
+                    <img
+                      src={mentor.profilePicture}
+                      alt={mentor.user?.name}
+                      className="w-10 h-10 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                      {mInitials}
+                    </div>
+                  )}
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold text-slate-800 truncate">
+                        {mentor.user?.name}
+                      </p>
+                      {mentor.avgRating > 0 && (
+                        <span className="flex items-center gap-0.5 text-xs text-amber-500 font-semibold shrink-0">
+                          ⭐ {mentor.avgRating.toFixed(1)}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-400 truncate">
+                      {mentor.currentRole}
+                      {mentor.company ? ` · ${mentor.company}` : ""}
+                    </p>
+                    {/* Matching skills */}
+                    {matchingSkills.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {matchingSkills.slice(0, 4).map((skill) => (
+                          <span
+                            key={skill}
+                            className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-semibold"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                        {matchingSkills.length > 4 && (
+                          <span className="text-[10px] text-slate-400 font-medium self-center">
+                            +{matchingSkills.length - 4} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Selected indicator */}
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${isSelected
+                        ? "border-blue-500 bg-blue-500"
+                        : "border-slate-300"
+                      }`}
+                  >
+                    {isSelected && (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── Action buttons ── */}
+        <div className="flex gap-3 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-3 rounded-2xl border-2 border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all duration-150"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleRefer}
+            disabled={!selected || referring}
+            className="flex-1 py-3 rounded-2xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-emerald-200"
+          >
+            {referring ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />{" "}
+                Referring...
+              </span>
+            ) : (
+              "Refer Request"
+            )}
+          </button>
+        </div>
+      </>
     );
   }
 
@@ -165,170 +333,8 @@ const ReferModal = ({ request, onClose, onReferred }) => {
             </div>
           )}
 
-          {/* ── Loading ── */}
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-3">
-              <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
-              <p className="text-sm text-slate-400 font-medium">
-                Finding similar mentors...
-              </p>
-            </div>
-          ) : mentors.length === 0 ? (
-              <EmptyState
-                icon={
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                }
-                message="No similar mentors found"
-                subMessage="No other published mentors share your skills yet."
-                compact
-              />
-          ) : (
-            <>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">
-                {mentors.length} mentor{mentors.length > 1 ? "s" : ""} with
-                similar skills
-              </p>
-
-              {/* ── Mentor list ── */}
-              <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-                {mentors.map((mentor) => {
-                  const mInitials = mentor.user?.name
-                    ? mentor.user.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .toUpperCase()
-                        .slice(0, 2)
-                    : "?";
-                  const isSelected = selected?._id === mentor._id;
-                  const matchingSkills = mentor.skills.filter((s) =>
-                    mySkills
-                      .map((ms) => ms.toLowerCase())
-                      .includes(s.toLowerCase()),
-                  );
-
-                  return (
-                    <button
-                      key={mentor._id}
-                      type="button"
-                      onClick={() => setSelected(mentor)}
-                      className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all duration-150 ${
-                        isSelected
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        {/* Avatar */}
-                        {mentor.profilePicture ? (
-                          <img
-                            src={mentor.profilePicture}
-                            alt={mentor.user?.name}
-                            className="w-10 h-10 rounded-full object-cover shrink-0"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                            {mInitials}
-                          </div>
-                        )}
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-bold text-slate-800 truncate">
-                              {mentor.user?.name}
-                            </p>
-                            {mentor.avgRating > 0 && (
-                              <span className="flex items-center gap-0.5 text-xs text-amber-500 font-semibold shrink-0">
-                                ⭐ {mentor.avgRating.toFixed(1)}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-slate-400 truncate">
-                            {mentor.currentRole}
-                            {mentor.company ? ` · ${mentor.company}` : ""}
-                          </p>
-                          {/* Matching skills */}
-                          {matchingSkills.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {matchingSkills.slice(0, 4).map((skill) => (
-                                <span
-                                  key={skill}
-                                  className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-semibold"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                              {matchingSkills.length > 4 && (
-                                <span className="text-[10px] text-slate-400 font-medium self-center">
-                                  +{matchingSkills.length - 4} more
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Selected indicator */}
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                            isSelected
-                              ? "border-blue-500 bg-blue-500"
-                              : "border-slate-300"
-                          }`}
-                        >
-                          {isSelected && (
-                            <svg
-                              width="10"
-                              height="10"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="white"
-                              strokeWidth="3"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* ── Action buttons ── */}
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 py-3 rounded-2xl border-2 border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all duration-150"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleRefer}
-                  disabled={!selected || referring}
-                  className="flex-1 py-3 rounded-2xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 shadow-sm shadow-emerald-200"
-                >
-                  {referring ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      Referring...
-                    </span>
-                  ) : (
-                    "Refer Request"
-                  )}
-                </button>
-              </div>
-            </>
-          )}
+          {/* ── Loading / Empty / Mentor list ── */}
+          {mentorSuggestionsContent}
         </div>
       </div>
     </div>

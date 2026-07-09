@@ -21,10 +21,20 @@ const getProgress = (startDate, endDate) => {
 
 const getDaysRemaining = (endDate) => {
   if (!endDate) return null;
-  const diff = new Date(endDate + "T00:00:00") - new Date();
+  const diff = new Date(endDate + "T00:00:00").getTime() - Date.now();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 };
+const getDaysLeftColor = (daysLeft) => {
+  if (daysLeft < 0) return "bg-red-50 text-red-500 border-red-200";
+  if (daysLeft <= 7) return "bg-orange-50 text-orange-600 border-orange-200";
+  return "bg-green-50 text-green-600 border-green-200";
+};
 
+const formatDaysLeftLabel = (daysLeft) => {
+  if (daysLeft < 0) return `Ended ${Math.abs(daysLeft)} days ago`;
+  if (daysLeft === 0) return "Ends today";
+  return `${daysLeft} days remaining`;
+};
 const today = new Date().toISOString().split("T")[0];
 
 const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
@@ -46,14 +56,98 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
     await onUpdate(goal._id, { startDate, endDate });
     setEditing(false);
   };
-
-  const daysLeftColor =
-    daysLeft < 0
-      ? "bg-red-50 text-red-500 border-red-200"
-      : daysLeft <= 7
-        ? "bg-orange-50 text-orange-600 border-orange-200"
-        : "bg-green-50 text-green-600 border-green-200";
-
+  const daysLeftColor = getDaysLeftColor(daysLeft);
+  let timelineContent;
+  if (editing) {
+    timelineContent = (
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <label htmlFor="timeline-start-date" className="text-xs font-semibold text-slate-500 block mb-1.5">
+              Start Date
+            </label>
+            <input
+              id="timeline-start-date"
+              type="date"
+              value={startDate}
+              min={today}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:border-blue-300 transition-colors"
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="timeline-end-date" className="text-xs font-semibold text-slate-500 block mb-1.5">
+              End Date
+            </label>
+            <input
+              id="timeline-end-date"
+              type="date"
+              value={endDate}
+              min={startDate || today}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:border-blue-300 transition-colors"
+            />
+          </div>
+        </div>
+        {err && <p className="text-xs text-red-500">{err}</p>}
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setEditing(false);
+              setErr("");
+            }}
+            className="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1 py-2 rounded-lg bg-blue-600 border-none text-xs font-bold text-white cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </div>
+    );
+  } else if (hasTimeline) {
+    timelineContent = (
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-between items-center">
+          <span className="text-xs font-semibold text-slate-500">
+            {formatDate(goal.startDate)}
+          </span>
+          <span className="text-xs font-semibold text-slate-500">
+            {formatDate(goal.endDate)}
+          </span>
+        </div>
+        <div>
+          <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${progress >= 100 ? "bg-green-500" : "bg-blue-600"}`}
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-xs text-slate-400 mt-1.5 text-right">
+            {progress}% through engagement
+          </p>
+        </div>
+        {daysLeft !== null && (
+          <div className="flex justify-center">
+            <span className={`text-xs font-bold px-3.5 py-1 rounded-full border ${daysLeftColor}`}>
+              {formatDaysLeftLabel(daysLeft)}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  } else {
+    timelineContent = (
+      <p className="text-sm text-slate-400 text-center py-4">
+        No timeline set. Click 'Set Timeline' to add dates.
+      </p>
+    );
+  }
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5">
       {/* Header */}
@@ -124,130 +218,8 @@ const TimelineTracker = ({ goal, viewerRole, onUpdate, saving }) => {
         
       </div>
       {/* Edit form */}
-      
-      {editing ? (
-        <div className="flex flex-col gap-3">
-          
-          <div className="flex gap-3">
-            
-            <div className="flex-1">
-              
-              <label className="text-xs font-semibold text-slate-500 block mb-1.5">
-                Start Date
-              </label>
-              
-              <input
-                type="date"
-                value={startDate}
-                min={today}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:border-blue-300 transition-colors"
-              />
-              
-            </div>
-            
-            <div className="flex-1">
-              
-              <label className="text-xs font-semibold text-slate-500 block mb-1.5">
-                End Date
-              </label>
-              
-              <input
-                type="date"
-                value={endDate}
-                min={startDate || today}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 outline-none focus:border-blue-300 transition-colors"
-              />
-              
-            </div>
-            
-          </div>
-          {err && <p className="text-xs text-red-500">{err}</p>}
-                  <div className="flex gap-2">
-            
-            <button
-              onClick={() => {
-                setEditing(false);
-                setErr("");
-              }}
-              className="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 cursor-pointer hover:bg-slate-50 transition-colors"
-            >
-              Cancel 
-            </button>
-            
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 py-2 rounded-lg bg-blue-600 border-none text-xs font-bold text-white cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {saving ? "Saving..." : "Save"}
-              
-            </button>
-            
-          </div>
-          
-        </div>
-      ) : hasTimeline ? (
-        <div className="flex flex-col gap-3">
-          {/* Date labels */}
-          
-          <div className="flex justify-between items-center">
-            
-            <span className="text-xs font-semibold text-slate-500">
-              {formatDate(goal.startDate)}
-            </span>
-            
-            <span className="text-xs font-semibold text-slate-500">
-              {formatDate(goal.endDate)}
-            </span>
-            
-          </div>
-          {/* Progress bar */}
-          
-          <div>
-            
-            <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-              
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${progress >= 100 ? "bg-green-500" : "bg-blue-600"}`}
-                style={{ width: `${progress}%` }}
-              />
-              
-            </div>
-            
-            <p className="text-xs text-slate-400 mt-1.5 text-right">
-              {progress}% through engagement
-            </p>
-            
-          </div>
-          {/* Days remaining */}
-          
-          {daysLeft !== null && (
-            <div className="flex justify-center">
-              
-              <span
-                className={`text-xs font-bold px-3.5 py-1 rounded-full border ${daysLeftColor}`}
-              >
-                
-                {daysLeft < 0
-                  ? `Ended ${Math.abs(daysLeft)} days ago`
-                  : daysLeft === 0
-                    ? "Ends today"
-                    : `${daysLeft} days remaining`}
-                
-              </span>
-              
-            </div>
-          )}
-          
-        </div>
-      ) : (
-        <p className="text-sm text-slate-400 text-center py-4">
-          No timeline set. Click 'Set Timeline' to add dates. 
-        </p>
-      )}
-      
+      {timelineContent}
+     
     </div>
   );
 };

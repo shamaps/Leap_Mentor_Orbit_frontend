@@ -16,7 +16,23 @@ const redirectByRole = (roles, navigate) => {
     navigate("/dashboard/mentee");
   }
 };
+const navigateAfterSync = (resData, role, navigate) => {
+  const intendedRole = role && role !== "existing" ? role : null;
 
+  if (resData?.isNewUser) {
+    const onboardingRole = intendedRole || resData.user.roles[0];
+    navigate(`/onboarding/${onboardingRole}`, { replace: true });
+    return;
+  }
+
+  if (intendedRole === "mentee") {
+    navigate("/dashboard/mentee", { replace: true });
+  } else if (intendedRole === "mentor") {
+    navigate("/dashboard/mentor", { replace: true });
+  } else {
+    redirectByRole(resData?.user?.roles || [], navigate);
+  }
+};
 const SSOSync = () => {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const navigate = useNavigate();
@@ -59,7 +75,7 @@ const SSOSync = () => {
         const res = await axiosInstance.post("/auth/clerk-sso", {
           clerkToken,
           roles: role && role !== "existing" ? [role] : undefined,
-          termsAccepted: role !== "existing" ? termsAccepted : true,
+          termsAccepted: role === "existing" ? true : termsAccepted,
         });
 
         // Dispatch into Redux only — HttpOnly cookie is set by backend automatically
@@ -73,22 +89,7 @@ const SSOSync = () => {
         }
 
         ssoFlags.clear();
-
-        if (res.data?.isNewUser) {
-          const onboardingRole =
-            role && role !== "existing" ? role : res.data.user.roles[0];
-          navigate(`/onboarding/${onboardingRole}`, { replace: true });
-        } else {
-          const intendedRole = role && role !== "existing" ? role : null;
-
-          if (intendedRole === "mentee") {
-            navigate("/dashboard/mentee", { replace: true });
-          } else if (intendedRole === "mentor") {
-            navigate("/dashboard/mentor", { replace: true });
-          } else {
-            redirectByRole(res.data?.user?.roles || [], navigate);
-          }
-        }
+        navigateAfterSync(res.data, role, navigate);
       } catch (err) {
         setError(err?.response?.data?.message || err.message || "SSO failed");
         ssoFlags.clear();

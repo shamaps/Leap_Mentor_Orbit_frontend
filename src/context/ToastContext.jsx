@@ -1,5 +1,5 @@
 // src/context/ToastContext.jsx
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 const ToastContext = createContext(null);
 
@@ -12,20 +12,21 @@ export const useToast = () => {
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
-  const showToast = useCallback(({ type = "success", title, message }) => {
-    const id = Date.now() + Math.random();
-    setToasts((prev) => [...prev, { id, type, title, message }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3000);
-  }, []);
-
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const showToast = useCallback(
+    ({ type = "success", title, message }) => {
+      const id = Date.now() + Math.random();
+      setToasts((prev) => [...prev, { id, type, title, message }]);
+      setTimeout(() => removeToast(id), 3000);
+    },
+    [removeToast]
+  );
+  const ctxValue = useMemo(() => ({ showToast }), [showToast]);
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={ctxValue}>
       {children}
       {/* ── Toast container — top right ── */}
       <div
@@ -145,7 +146,6 @@ const Toast = ({ toast, onRemove }) => {
 
   return (
     <div
-      onClick={() => onRemove(toast.id)}
       style={{
         pointerEvents: "auto",
         display: "flex",
@@ -159,8 +159,9 @@ const Toast = ({ toast, onRemove }) => {
         minWidth: "300px",
         maxWidth: "380px",
         boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
-        cursor: "pointer",
         animation: "slideIn 0.25s ease",
+        textAlign: "left",
+        font: "inherit",
       }}
     >
       <style>{`
@@ -210,10 +211,7 @@ const Toast = ({ toast, onRemove }) => {
 
       {/* Close */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove(toast.id);
-        }}
+        onClick={() => onRemove(toast.id)}
         style={{
           background: "none",
           border: "none",

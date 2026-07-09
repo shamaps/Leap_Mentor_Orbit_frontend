@@ -53,8 +53,8 @@ const useGoogleAuth = ({
       if (!btnRef.current) return;
 
       // Only initialize once for the entire app lifetime
-      if (!window.__googleInitialized) {
-        window.google.accounts.id.initialize({
+      if (!globalThis.__googleInitialized) {
+        globalThis.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: async (response) => {
             const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
@@ -98,12 +98,12 @@ const useGoogleAuth = ({
             }
           },
         });
-        window.__googleInitialized = true;
+        globalThis.__googleInitialized = true;
       }
 
       // Always re-render the button — safe to call multiple times
       btnRef.current.innerHTML = "";
-      window.google.accounts.id.renderButton(btnRef.current, {
+      globalThis.google.accounts.id.renderButton(btnRef.current, {
         theme: "outline",
         size: "large",
         width: 400,
@@ -111,8 +111,8 @@ const useGoogleAuth = ({
       });
     };
 
-    if (window.google) {
-      if ("requestIdleCallback" in window) {
+    if (globalThis.google) {
+      if ("requestIdleCallback" in globalThis) {
         requestIdleCallback(initGoogle, { timeout: 2000 });
       } else {
         setTimeout(initGoogle, 200);

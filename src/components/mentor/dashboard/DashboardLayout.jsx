@@ -49,8 +49,13 @@ const TabSkeleton = () => (
 );
 
 const DashboardLayout = () => {
-  const { user, profile, loading, error, refetchProfile } =
-    useMentorDashboard();
+  const {
+    user,
+    profile,
+    loading,
+    error,
+    refetchProfile,
+  } = useMentorDashboard();
   const { unreadCount, clearBadge } = useUnreadCount();
   useSocketToast();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -122,7 +127,7 @@ const DashboardLayout = () => {
             {activeTab === "home" && (
               <MentorHomeTab setActiveTab={handleSetTab} />
             )}
-            {activeTab === "profile" && <ProfileTab />}
+            {activeTab === "profile" && <ProfileTab user={user} profile={profile} />}
             {activeTab === "availability" && <AvailabilityTab />}
             {activeTab === "requests" && <RequestsTab />}
             {activeTab === "connects" && <MentorConnectsTab />}

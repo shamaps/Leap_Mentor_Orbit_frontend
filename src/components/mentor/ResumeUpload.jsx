@@ -1,12 +1,12 @@
 // components/mentor/verification/ResumeUpload.jsx
 import PropTypes from "prop-types";
-const ACCEPTED_TYPES = [
+const ACCEPTED_TYPES = new Set([
   "application/pdf",
   "image/jpeg",
   "image/jpg",
   "image/png",
   "image/webp",
-];
+]);
 const ACCEPTED_LABEL = "PDF, JPG, PNG, WEBP";
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -15,7 +15,7 @@ const ResumeUpload = ({ file, onChange, error }) => {
     const selected = e.target.files[0];
     if (!selected) return;
 
-    if (!ACCEPTED_TYPES.includes(selected.type)) {
+    if (!ACCEPTED_TYPES.has(selected.type)) {
       onChange(
         null,
         `File type not supported. Please upload: ${ACCEPTED_LABEL}`,
@@ -33,7 +33,7 @@ const ResumeUpload = ({ file, onChange, error }) => {
     e.preventDefault();
     const dropped = e.dataTransfer.files[0];
     if (!dropped) return;
-    if (!ACCEPTED_TYPES.includes(dropped.type)) {
+    if (!ACCEPTED_TYPES.has(dropped.type)) {
       onChange(
         null,
         `File type not supported. Please upload: ${ACCEPTED_LABEL}`,
@@ -82,50 +82,7 @@ const ResumeUpload = ({ file, onChange, error }) => {
       </div>
 
       <div className="px-6 py-5">
-        {!file ? (
-          <label
-            onDrop={handleDrop}
-            onDragOver={(e) => e.preventDefault()}
-            className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl px-6 py-8 cursor-pointer transition-all duration-150
-              ${
-                error
-                  ? "border-red-300 bg-red-50 hover:bg-red-50"
-                  : "border-slate-200 bg-slate-50 hover:border-blue-400 hover:bg-blue-50"
-              }`}
-          >
-            <input
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png,.webp"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#64748b"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="16 16 12 12 8 16" />
-                <line x1="12" y1="12" x2="12" y2="21" />
-                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-              </svg>
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-semibold text-slate-700">
-                Drop your resume here or{" "}
-                <span className="text-blue-600">browse</span>
-              </p>
-              <p className="text-xs text-slate-400 mt-1">
-                {ACCEPTED_LABEL} · Max 10MB
-              </p>
-            </div>
-          </label>
-        ) : (
+        {file ? (
           <div className="flex items-center justify-between gap-3 border border-green-200 bg-green-50 rounded-xl px-4 py-3">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
@@ -172,6 +129,49 @@ const ResumeUpload = ({ file, onChange, error }) => {
               </svg>
             </button>
           </div>
+        ) : (
+          <label
+            aria-label="Upload resume file"
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+            className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl px-6 py-8 cursor-pointer transition-all duration-150
+              ${error
+                ? "border-red-300 bg-red-50 hover:bg-red-50"
+                : "border-slate-200 bg-slate-50 hover:border-blue-400 hover:bg-blue-50"
+              }`}
+          >
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.webp"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#64748b"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="16 16 12 12 8 16" />
+                <line x1="12" y1="12" x2="12" y2="21" />
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-slate-700">
+                Drop your resume here or{" "}
+                <span className="text-blue-600">browse</span>
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                {ACCEPTED_LABEL} · Max 10MB
+              </p>
+            </div>
+          </label>
         )}
 
         {error && (

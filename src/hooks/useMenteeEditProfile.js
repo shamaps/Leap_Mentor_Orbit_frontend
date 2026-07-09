@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import * as menteeProfileApi from "../api/menteeProfile.api";
-import { validateMenteeFields } from "../utils/onboardingValidation";
+import { menteeOnboardingSchema, getFirstErrorMessage } from "../schemas/onboardingSchemas";
 
 const useMenteeEditProfile = () => {
   const navigate = useNavigate();
@@ -26,10 +26,10 @@ const useMenteeEditProfile = () => {
   });
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfile = async (signal) => {
       setFetchLoading(true);
       try {
-        const data = await menteeProfileApi.getMenteeProfile();
+        const data = await menteeProfileApi.getMenteeProfile(signal);
         setForm({
           currentRole: data.currentRole || "",
           industry: data.industry || "",
@@ -67,7 +67,7 @@ const useMenteeEditProfile = () => {
     setLoading(true);
     setMsg({ type: "", text: "" });
 
-    const validationError = validateMenteeFields(form);
+    const validationError = getFirstErrorMessage(menteeOnboardingSchema, form);
     if (validationError) {
       setLoading(false);
       return setMsg({ type: "error", text: validationError });

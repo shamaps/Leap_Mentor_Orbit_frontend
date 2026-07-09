@@ -10,7 +10,7 @@ import {
 } from "../store/selectors";
 import NotFound from "./NotFound";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-const VALID_TABS = ["overview", "chat", "goals", "notes", "addSession"];
+const VALID_TABS =new Set( ["overview", "chat", "goals", "notes", "addSession"]);
 const OBJECT_ID_REGEX = /^[0-9a-fA-F]{24}$/;
 const SharedDashboardPage = () => {
   const { connectRequestId } = useParams();
@@ -23,7 +23,7 @@ const SharedDashboardPage = () => {
   const { connect, loading, error } = useSelector(selectSharedConnect);
 
   const tabFromUrl = searchParams.get("tab");
-  const activeTab = VALID_TABS.includes(tabFromUrl) ? tabFromUrl : "overview";
+  const activeTab = VALID_TABS.has(tabFromUrl) ? tabFromUrl : "overview";
 
   const handleSetActiveTab = useCallback(
     (tab) => {

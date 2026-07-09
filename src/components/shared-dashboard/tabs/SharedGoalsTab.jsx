@@ -20,11 +20,13 @@ const LoadingSkeleton = () => (
 
 
 const GoalCard = ({ goal, onEdit, milestones, saving, onAdd, onToggle, onDelete }) => {
-  const statusClass =
-    goal.status === "completed" ? "bg-green-50 text-green-600 border-green-200"
-      : goal.status === "abandoned" ? "bg-red-50 text-red-500 border-red-200"
-        : "bg-violet-50 text-violet-600 border-violet-200";
-
+  let statusClass = "bg-violet-50 text-violet-600 border-violet-200";
+  if (goal.status === "completed") {
+    statusClass = "bg-green-50 text-green-600 border-green-200";
+  } else if (goal.status === "abandoned") {
+    statusClass = "bg-red-50 text-red-500 border-red-200";
+  }
+  
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5">
       <div className="flex items-start justify-between gap-3">
@@ -73,6 +75,7 @@ const GoalCard = ({ goal, onEdit, milestones, saving, onAdd, onToggle, onDelete 
 };
 GoalCard.propTypes = {
   goal: PropTypes.shape({
+    _id: PropTypes.string,
     title: PropTypes.string,
     description: PropTypes.string,
     status: PropTypes.oneOf(["active", "completed", "abandoned"]),
@@ -138,7 +141,7 @@ const OverallProgress = ({ completedSlots, totalSlots, progress, onLeaveFeedback
         <div>
           <p className="text-sm font-bold text-slate-800">Overall Session Progress</p>
           <p className="text-xs text-slate-700 mt-0.5">
-            {completedSlots} of {totalSlots} session{totalSlots !== 1 ? "s" : ""} completed by both parties
+            {completedSlots} of {totalSlots} session{totalSlots === 1 ? "" : "s"} completed by both parties
           </p>
         </div>
         <p className="text-2xl font-black text-blue-900">{progress}%</p>
@@ -223,7 +226,6 @@ const SharedGoalsTab = ({ onAllComplete }) => {
 
   const {
     myFeedback,
-    mySlotFeedback,
     loading: feedbackLoading,
     refetch: refetchFeedback,        // ← destructure refetch
   } = useReport(connectRequestId);
@@ -248,6 +250,31 @@ const SharedGoalsTab = ({ onAllComplete }) => {
 
   const activeSlots = slots.filter((s) => !s.status || s.status !== "cancelled");
 
+  let goalSectionContent;
+  if (isEditing) {
+    goalSectionContent = (
+      <GoalForm
+        initial={goal || {}}
+        onSave={goal ? (fields) => handleUpdateGoal(goal._id, fields) : handleCreateGoal}
+        onCancel={() => setIsEditing(false)}
+        saving={goalsSaving}
+      />
+    );
+  } else if (goal) {
+    goalSectionContent = (
+      <GoalCard
+        goal={goal}
+        onEdit={() => setIsEditing(true)}
+        milestones={milestones}
+        saving={goalsSaving}
+        onAdd={addMilestone}
+        onToggle={toggleMilestone}
+        onDelete={deleteMilestone}
+      />
+    );
+  } else {
+    goalSectionContent = <NoGoalState onSetGoal={() => setIsEditing(true)} />;
+  }
   return (
     <div className="flex flex-col gap-5">
 
@@ -277,26 +304,7 @@ const SharedGoalsTab = ({ onAllComplete }) => {
       )}
 
       {/* Goal section */}
-      {isEditing ? (
-        <GoalForm
-          initial={goal || {}}
-          onSave={goal ? (fields) => handleUpdateGoal(goal._id, fields) : handleCreateGoal}
-          onCancel={() => setIsEditing(false)}
-          saving={goalsSaving}
-        />
-      ) : goal ? (
-        <GoalCard
-          goal={goal}
-          onEdit={() => setIsEditing(true)}
-          milestones={milestones}
-          saving={goalsSaving}
-          onAdd={addMilestone}
-          onToggle={toggleMilestone}
-          onDelete={deleteMilestone}
-        />
-      ) : (
-        <NoGoalState onSetGoal={() => setIsEditing(true)} />
-      )}
+      {goalSectionContent}
 
       {/* Overall progress */}
       {activeSlots.length > 0 && (
@@ -319,7 +327,7 @@ const SharedGoalsTab = ({ onAllComplete }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {slots.map((slot, index) => (
               <SessionCard
-                key={`${slot.date}-${slot.startTime}`}
+                key={`${slot.date}-${slot.startTime}-${index}`}
                 slot={slot}
                 slotIndex={index}
                 viewerRole={viewerRole}

@@ -1,6 +1,6 @@
 // src/components/mentee/dashboard/findMentors/MentorProfileModal.jsx
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import useConnectRequest from "../../../../hooks/useConnectRequest";
 import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "../../../../hooks/useSlotLock";
@@ -13,7 +13,7 @@ const ELIGIBLE_BADGES_CONFIG = [
   { id: "top_rated", title: "Top Rated", icon: "⭐", blurb: "Achieved 4.5+ rating", verify: (m) => (m?.avgRating || 0) >= 4.5 },
   { id: "expert_guide", title: "Expert Guide", icon: "🏆", blurb: "50+ sessions completed", verify: (m) => (m?.totalSessions || 0) >= 50 }
 ];
-
+const SLOT_DOT_KEYS = ["dot-1", "dot-2", "dot-3", "dot-4", "dot-5"];
 const MAX_SLOTS = 5;
 
 const formatTime = (timeString) => {
@@ -54,15 +54,16 @@ StarRating.propTypes = {
 // ── Alternative Slot Pill Sub-component Layout ────────────────
 const SlotPill = ({ slot, group, selected, maxReached, onToggle }) => {
   const inactive = maxReached && !selected;
+  let slotStateClass = "bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-md hover:scale-[1.02] cursor-pointer";
+  if (selected) {
+    slotStateClass = "bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.04]";
+  } else if (inactive) {
+    slotStateClass = "bg-slate-50 border-slate-100 cursor-not-allowed opacity-40";
+  }
   return (
     <button
       type="button" disabled={inactive} onClick={() => !inactive && onToggle(slot, group)}
-      className={`relative flex flex-row items-center justify-center gap-1 rounded-2xl px-2 h-14 text-center border transition-all duration-200 ${selected
-          ? "bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.04]"
-          : inactive
-            ? "bg-slate-50 border-slate-100 cursor-not-allowed opacity-40"
-            : "bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-md hover:scale-[1.02] cursor-pointer"
-        }`}
+      className={`relative flex flex-row items-center justify-center gap-1 rounded-2xl px-2 h-14 text-center border transition-all duration-200 ${slotStateClass}`}
     >
       {selected && (
         <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-white rounded-full border-2 border-blue-900 flex items-center justify-center shadow-sm z-10">
@@ -127,14 +128,14 @@ const MentorProfileModal = ({ mentor, onClose }) => {
   const [imgError, setImgError] = useState(false);
 
   const { groupedSlots, availableDurations, fetchingSlots, slotsError, fetchSlots } =
-    useMentorSlots(mentor?.user?._id, selectedDuration, setSelectedDuration);
+    useMentorSlots(mentor?.userId, selectedDuration, setSelectedDuration);
 
   const { sending, error, sendRequest, reset } = useConnectRequest();
-  const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentor?.user?._id);
+  const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentor?.userId);
   const [lockError, setLockError] = useState("");
 
   const {
-    user, currentRole, company, industry, bio, hourlyRate, avgRating, reviewCount,
+    name, currentRole, company, industry, bio, hourlyRate, avgRating, reviewCount,
     yearsOfExperience, profilePicture, location, totalSessions,
   } = mentor;
 
@@ -143,8 +144,8 @@ const MentorProfileModal = ({ mentor, onClose }) => {
     isUnlocked: badgeItem.verify({ avgRating, totalSessions }),
   }));
 
-  const initials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+  const initials = name
+    ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "?";
 
   const toggleSlot = async (slot, group) => {
@@ -186,7 +187,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
     if (sendingRef.current || selectedSlots.length === 0) return;
     sendingRef.current = true;
     const isSuccessResult = await sendRequest({
-      mentorId: mentor.user._id,
+      mentorId: mentor.userId,
       message,
       selectedSlots: selectedSlots.map(({ day, date, startTime, endTime }) => ({ day, date, startTime, endTime })),
       sessionRate: hourlyRate,
@@ -210,7 +211,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
   if (showSuccess) {
     return (
       <ConnectSuccessModal
-        mentorName={user?.name}
+        mentorName={mentor?.name}
         onBackToDashboard={() => {
           reset();
           setShowSuccess(false);
@@ -237,13 +238,13 @@ const MentorProfileModal = ({ mentor, onClose }) => {
             <div className="flex items-center gap-4">
               <div className="relative shrink-0">
                 {profilePicture && !imgError ? (
-                  <img src={mentor.profilePicture80 || profilePicture} alt={user?.name} className="w-20 h-20 rounded-full object-cover border-2 border-slate-100 shadow-sm" onError={() => setImgError(true)} />
+                  <img src={mentor.profilePicture80 || profilePicture} alt={mentor?.name} className="w-20 h-20 rounded-full object-cover border-2 border-slate-100 shadow-sm" onError={() => setImgError(true)} />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-blue-900 flex items-center justify-center text-white text-xl font-bold shadow-sm">{initials}</div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-xl font-bold text-slate-800 leading-tight">{user?.name || "—"}</h2>
+                <h2 className="text-xl font-bold text-slate-800 leading-tight">{mentor?.name || "—"}</h2>
                 <p className="text-sm text-blue-700 font-semibold mt-0.5">{currentRole}{company ? ` at ${company}` : ""}</p>
                 {bio && <p className="text-xs text-slate-500 mt-1.5 leading-relaxed line-clamp-3">{bio}</p>}
                 {location && (
@@ -327,8 +328,8 @@ const MentorProfileModal = ({ mentor, onClose }) => {
                   {totalAvailable > 0 && <span className="text-xs text-slate-400">{totalAvailable} available</span>}
                   {selectedSlots.length > 0 && (
                     <div className="flex items-center gap-1 bg-blue-900 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                      {Array.from({ length: MAX_SLOTS }).map((_, i) => (
-                        <span key={i} className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${i < selectedSlots.length ? "bg-white" : "bg-blue-400"}`} />
+                      {SLOT_DOT_KEYS.map((key, i) => (
+                        <span key={key} className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${i < selectedSlots.length ? "bg-white" : "bg-blue-400"}`} />
                       ))}
                       <span className="ml-1">{selectedSlots.length}/{MAX_SLOTS}</span>
                     </div>
@@ -382,8 +383,8 @@ const MentorProfileModal = ({ mentor, onClose }) => {
                           <span className="text-[10px] text-slate-400 font-medium">{activeFreeSlots.length} open</span>
                         </div>
                         <div className="grid grid-cols-3 gap-5">
-                          {activeFreeSlots.map((slot, i) => (
-                            <SlotPill key={i} slot={slot} group={activeGroup} selected={isSlotSelected(activeGroup.date, slot.startTime)} maxReached={selectedSlots.length >= MAX_SLOTS} onToggle={toggleSlot} />
+                          {activeFreeSlots.map((slot) => (
+                            <SlotPill key={slot.startTime} slot={slot} group={activeGroup} selected={isSlotSelected(activeGroup.date, slot.startTime)} maxReached={selectedSlots.length >= MAX_SLOTS} onToggle={toggleSlot} />
                           ))}
                         </div>
                       </div>
@@ -400,7 +401,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
                       </button>
                     </div>
                     <div className="flex flex-col gap-3">
-                      {selectedSlots.map((s, i) => (<SelectedSlotRow key={i} slot={s} index={i} onRemove={removeSlot} />))}
+                      {selectedSlots.map((s, i) => (<SelectedSlotRow key={`${s.date}-${s.startTime}`} slot={s} index={i} onRemove={removeSlot} />))}
                     </div>
                   </div>
                 )}
@@ -411,7 +412,7 @@ const MentorProfileModal = ({ mentor, onClose }) => {
               <p className="text-sm font-bold text-slate-700 mb-2">Write a custom message</p>
               <textarea
                 value={message} onChange={(e) => setMessage(e.target.value)} maxLength={500} rows={3}
-                placeholder={`Hi ${user?.name?.split(" ")[0] || "there"}, I'm looking for guidance on...`}
+                placeholder={`Hi ${mentor?.name?.split(" ")[0] || "there"}, I'm looking for guidance on...`}
                 className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
               />
               <p className="text-xs text-slate-400 text-right mt-1">{message.length}/500</p>
@@ -440,7 +441,9 @@ const MentorProfileModal = ({ mentor, onClose }) => {
 };
 MentorProfileModal.propTypes = {
   mentor: PropTypes.shape({
-    user: PropTypes.shape({ _id: PropTypes.string, name: PropTypes.string }),
+    id: PropTypes.string,
+    userId: PropTypes.string,
+    name: PropTypes.string,
     currentRole: PropTypes.string,
     company: PropTypes.string,
     industry: PropTypes.string,

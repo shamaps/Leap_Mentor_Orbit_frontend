@@ -21,7 +21,7 @@ const AVATAR_COLORS = [
   { bg: "#fef3c7", text: "#92400e" },
 ];
 const getAvatarColor = (name = "") =>
-  AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+  AVATAR_COLORS[name.codePointAt(0) % AVATAR_COLORS.length];
 
 const formatDate = (iso) => {
   if (!iso) return "—";
@@ -220,48 +220,58 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
             </div>
           ))}
         </div>
-
         {/* Engagements List */}
         <div className="overflow-y-auto flex-1 px-6 py-4 space-y-3">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <svg
-                className="animate-spin w-6 h-6 text-blue-600"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="#dbeafe"
-                  strokeWidth="3"
-                />
-                <path
-                  d="M12 2a10 10 0 0 1 10 10"
-                  stroke="#2563eb"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <p className="text-xs text-slate-400">
-                Loading engagement history…
-              </p>
-            </div>
-          ) : engagements.length === 0 ? (
-              <EmptyState
-                compact
-                icon={
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.6" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+          {(() => {
+            if (loading) {
+              return (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <svg
+                    className="animate-spin w-6 h-6 text-blue-600"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="#dbeafe"
+                      strokeWidth="3"
+                    />
+                    <path
+                      d="M12 2a10 10 0 0 1 10 10"
+                      stroke="#2563eb"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
                   </svg>
-                }
-                message="No engagements found"
-                subMessage="This mentee has no session history yet."
-              />
-          ) : (
-            engagements.map((eng) => {
-              const isOpen = expandedId === eng._id;
+                  <p className="text-xs text-slate-400">
+                    Loading engagement history…
+                  </p>
+                </div>
+              );
+            }
+
+            if (engagements.length === 0) {
+              return (
+                <EmptyState
+                  compact
+                  icon={
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.6" strokeLinecap="round">
+                      <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                  }
+                  message="No engagements found"
+                  subMessage="This mentee has no session history yet."
+                />
+              );
+            }
+
+            return (
+              <>
+                {engagements.map((eng) => {
+                  const isOpen = expandedId === eng._id;
+
               const engSlots = eng.selectedSlots || [];
               const completed = engSlots.filter(
                 (s) => s.status === "completed",
@@ -383,10 +393,7 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
                             </thead>
                             <tbody>
                               {engSlots.map((slot, i) => (
-                                <tr
-                                  key={i}
-                                  className="border-t border-slate-100 bg-white hover:bg-slate-50"
-                                >
+                                <tr key={`${slot.date}-${slot.startTime}`} className="border-t border-slate-100 bg-white hover:bg-slate-50">
                                   <td className="px-3 py-2 font-bold text-slate-400">
                                     {i + 1}
                                   </td>
@@ -408,8 +415,10 @@ const MenteeHistoryModal = ({ mentee, onClose }) => {
                   )}
                 </div>
               );
-            })
-          )}
+            })}
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>
@@ -557,6 +566,7 @@ RequestRow.propTypes = {
       profilePicture: PropTypes.string,
     }),
     currentBalance: PropTypes.number,
+    createdAt: PropTypes.string,
     status: PropTypes.string,
   }).isRequired,
   onApprove: PropTypes.func.isRequired,
@@ -564,6 +574,15 @@ RequestRow.propTypes = {
   actionLoading: PropTypes.string,
   onViewHistory: PropTypes.func.isRequired,
 };
+const LoadingSpinner = () => (
+  <div className="py-20 flex flex-col items-center gap-3">
+    <svg className="animate-spin w-7 h-7 text-blue-600" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="#dbeafe" strokeWidth="3" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+    <p className="text-xs text-slate-400 font-medium">Loading requests…</p>
+  </div>
+);
 // ── Main Page ─────────────────────────────────────────────────
 const AdminWalletRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -580,6 +599,7 @@ const AdminWalletRequests = () => {
       const res = await adminAxiosInstance.get("/admin/leap-requests");
       setRequests(res.data.requests || res.data || []);
     } catch (err) {
+      logger.error("Failed to fetch leap requests", { message: err?.message });
       showToast({ message: "Failed to load requests.", type: "error" });
     } finally {
       setLoading(false);
@@ -602,7 +622,7 @@ const AdminWalletRequests = () => {
       );
       showToast({ message: "500 LP added to mentee's wallet successfully!", type: "success" });
     } catch (err) {
-      showToast({ essage: err.response?.data?.message || "Approval failed.", type: "error" });
+      showToast({ message: err.response?.data?.message || "Approval failed.", type: "error" });
     } finally {
       setActionLoading(null);
     }
@@ -642,7 +662,45 @@ const AdminWalletRequests = () => {
     rejected: requests.filter((r) => r.status === "rejected").length,
     all: requests.length,
   };
-
+  const getEmptyRequestsLabel = (search, activeTab) => {
+    if (search) return `No results for "${search}"`;
+    if (activeTab === "pending") return "No pending requests 🎉";
+    return `No ${activeTab} requests yet`;
+  };
+  let content;
+  if (loading) {
+    content = <LoadingSpinner />;
+  } else if (filtered.length === 0) {
+    content = <EmptyState label={getEmptyRequestsLabel(search, activeTab)} />;
+  } else {
+    content = (
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[700px]">
+          <thead>
+            <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+              {["Mentee", "Current Balance", "Requested On", "Status", "History", "Actions"].map((col) => (
+                <th key={col} className="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((req) => (
+              <RequestRow
+                key={req._id}
+                req={req}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                actionLoading={actionLoading}
+                onViewHistory={setHistoryMentee}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
   return (
   <>
       <div className="flex flex-col gap-6">
@@ -736,83 +794,7 @@ const AdminWalletRequests = () => {
           </div>
 
           {/* Table */}
-          {loading ? (
-            <div className="py-20 flex flex-col items-center gap-3">
-              <svg
-                className="animate-spin w-7 h-7 text-blue-600"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="#dbeafe"
-                  strokeWidth="3"
-                />
-                <path
-                  d="M12 2a10 10 0 0 1 10 10"
-                  stroke="#2563eb"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <p className="text-xs text-slate-400 font-medium">
-                Loading requests…
-              </p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <EmptyState
-              label={
-                search
-                  ? `No results for "${search}"`
-                  : activeTab === "pending"
-                    ? "No pending requests 🎉"
-                    : `No ${activeTab} requests yet`
-              }
-            />
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[700px]">
-                <thead>
-                  <tr
-                    style={{
-                      background: "#f8fafc",
-                      borderBottom: "1px solid #e2e8f0",
-                    }}
-                  >
-                    {[
-                      "Mentee",
-                      "Current Balance",
-                      "Requested On",
-                      "Status",
-                      "History",
-                      "Actions",
-                    ].map((col) => (
-                      <th
-                        key={col}
-                        className="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400"
-                      >
-                        {col}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((req) => (
-                    <RequestRow
-                      key={req._id}
-                      req={req}
-                      onApprove={handleApprove}
-                      onReject={handleReject}
-                      actionLoading={actionLoading}
-                      onViewHistory={setHistoryMentee}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          {content}
         </div>
         
       </div>

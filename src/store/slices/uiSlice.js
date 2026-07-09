@@ -2,7 +2,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    globalError: null, // { message, code } | null
+    globalError: null, 
 };
 
 const uiSlice = createSlice({
@@ -10,7 +10,7 @@ const uiSlice = createSlice({
     initialState,
     reducers: {
         setGlobalError(state, action) {
-            state.globalError = action.payload; // { message, code }
+            state.globalError = action.payload; 
         },
         clearGlobalError(state) {
             state.globalError = null;

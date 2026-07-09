@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
 const formatSlotTime = (timeStr) => {
   if (!timeStr) return "";
   const [hhStr, mm] = timeStr.split(":");
-  let hh = parseInt(hhStr, 10);
+  let hh = Number.parseInt(hhStr, 10);
   const period = hh >= 12 ? "PM" : "AM";
   hh = hh % 12 || 12;
   return `${hh}:${mm} ${period}`;
@@ -49,8 +49,8 @@ const BusyConflictModal = ({ conflicts, onConfirm, onCancel }) => (
 
       {/* Conflict list */}
       <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 mb-5 space-y-2 max-h-48 overflow-y-auto">
-        {conflicts.map((c, i) => (
-          <div key={i} className="flex items-start gap-2">
+        {conflicts.map((c) => (
+          <div key={`${c.dateLabel}-${c.slotTime}`} className="flex items-start gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0" />
             <div>
               <span className="text-xs font-bold text-orange-800">
@@ -246,7 +246,7 @@ const AvailabilityTab = () => {
           >
             {saving ? (
               <>
-                <span className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                <span className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                 Saving...
               </>
             ) : (

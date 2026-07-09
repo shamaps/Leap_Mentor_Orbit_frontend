@@ -38,18 +38,20 @@ const ENUMERATED_FILE_MESSAGES = {
   other: { label: "FILE", bg: "bg-violet-100", text: "text-violet-600", border: "border-violet-200", icon: "📎" },
 };
 
-const VALID_MIME_STRINGS = [
+const VALID_MIME_STRINGS =new Set( [
   "application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif",
   "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "text/plain"
-];
+]);
 
 // ── Distinct Skeleton Block Wrapper ──────────────────────────
+const SKELETON_SLOT_IDS = ["skeleton-1", "skeleton-2", "skeleton-3", "skeleton-4"];
+
 const LoadingSkeletons = () => (
   <div className="grid grid-cols-2 gap-4 w-full">
-    {Array.from({ length: 4 }).map((_, slotIndex) => (
-      <div key={slotIndex} className="bg-white border border-slate-200 rounded-2xl p-5 flex gap-4 animate-pulse w-full">
+    {SKELETON_SLOT_IDS.map((slotId) => (
+      <div key={slotId} className="bg-white border border-slate-200 rounded-2xl p-5 flex gap-4 animate-pulse w-full">
         <div className="w-12 h-12 rounded-xl bg-slate-100 shrink-0" />
         <div className="flex-1 space-y-3.5 pt-0.5">
           <div className="h-2.5 bg-slate-100 rounded w-9/12" />
@@ -72,7 +74,7 @@ const UploadModal = ({ onUpload, uploading, onClose }) => {
   const processIncomingFile = (targetFile) => {
     setFileError("");
     if (!targetFile) return;
-    if (!VALID_MIME_STRINGS.includes(targetFile.type)) {
+    if (!VALID_MIME_STRINGS.has(targetFile.type)) {
       setFileError("File type not supported.");
       return;
     }
@@ -83,7 +85,13 @@ const UploadModal = ({ onUpload, uploading, onClose }) => {
     setSelectedFile(targetFile);
     setTitle(targetFile.name.replace(/\.[^/.]+$/, ""));
   };
-
+  let dropzoneStateClass = "border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-300";
+  if (dragOver) {
+    dropzoneStateClass = "border-amber-400 bg-amber-50 cursor-pointer";
+  } else if (selectedFile) {
+    dropzoneStateClass = "border-emerald-400 bg-emerald-50 cursor-default";
+  }
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
@@ -105,12 +113,12 @@ const UploadModal = ({ onUpload, uploading, onClose }) => {
             <p className="text-xs font-semibold text-amber-700">This file will be <strong>private</strong> — your partner cannot see it.</p>
           </div>
 
-          <div
-            onClick={() => !selectedFile && fileInputRef.current?.click()}
+          <label
+            htmlFor="private-note-file-input"
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={(e) => { e.preventDefault(); setDragOver(false); processIncomingFile(e.dataTransfer.files?.[0]); }}
-            className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 ${dragOver ? "border-amber-400 bg-amber-50 cursor-pointer" : selectedFile ? "border-emerald-400 bg-emerald-50 cursor-default" : "border-slate-200 bg-slate-50 cursor-pointer hover:border-amber-300"}`}
+            className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 ${dropzoneStateClass}`}
           >
             {selectedFile ? (
               <div className="flex flex-col items-center gap-3">
@@ -134,8 +142,8 @@ const UploadModal = ({ onUpload, uploading, onClose }) => {
                 </div>
               </div>
             )}
-            <input ref={fileInputRef} type="file" onChange={(e) => processIncomingFile(e.target.files?.[0])} className="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.webp,.gif,.txt" />
-          </div>
+            <input id="private-note-file-input" ref={fileInputRef} type="file" disabled={!!selectedFile} onChange={(e) => processIncomingFile(e.target.files?.[0])} className="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.webp,.gif,.txt" />
+          </label>
 
           {fileError && (
             <div className="flex items-center gap-2 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl">
@@ -146,8 +154,8 @@ const UploadModal = ({ onUpload, uploading, onClose }) => {
 
           {selectedFile && (
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Title (optional)</label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Week 2 Notes" className="w-full text-sm border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-400 bg-slate-50 text-slate-800 font-medium" />
+              <label htmlFor="private-note-title" className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Title (optional)</label>
+              <input id="private-note-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Week 2 Notes" className="w-full text-sm border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-400 bg-slate-50 text-slate-800 font-medium" />
             </div>
           )}
 
@@ -199,20 +207,20 @@ const PrivateFileCard = ({ note, onDelete }) => {
               const res = await fetch(note.fileUrl);
               const b = await res.blob();
               const el = document.createElement("a");
-              el.href = window.URL.createObjectURL(b);
+              el.href = globalThis.URL.createObjectURL(b);
               el.download = note.fileName || "download";
               document.body.appendChild(el);
               el.click();
               el.remove();
             } catch {
-              window.open(note.fileUrl, "_blank");
+              globalThis.open(note.fileUrl, "_blank");
             }
           }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             Download
           </button>
           <button type="button" disabled={deleting} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-red-200 bg-white text-red-500 text-xs font-semibold hover:bg-red-50 disabled:opacity-50" onClick={async () => {
-            if (window.confirm("Delete this file?")) {
+            if (globalThis.confirm("Delete this file?")) {
               setDeleting(true);
               await onDelete(note._id);
               setDeleting(false);
@@ -268,16 +276,29 @@ const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }) => {
     element.remove();
   };
 
-  const dispatchPdfWindow = () => {
-    const contextWindow = window.open("", "_blank");
-    contextWindow.document.write(`
-      <html><head><title>${title || "Note"}</title>
-      <style>body{font-family:Georgia,serif;padding:48px;max-width:680px;margin:auto;color:#1e293b;line-height:1.7;}
-      h1{font-size:24px;margin-bottom:28px;border-bottom:2px solid #e2e8f0;padding-bottom:16px;font-weight:700;}
-      pre{white-space:pre-wrap;font-family:inherit;font-size:15px;}</style></head>
-      <body><h1>${title || "Untitled Note"}</h1><pre>${content}</pre></body></html>
-    `);
-    contextWindow.document.close();
+  const dispatchPdfglobalThis = () => {
+    const contextWindow = globalThis.open("", "_blank");
+    const doc = contextWindow.document;
+
+    doc.title = title || "Note";
+
+    const style = doc.createElement("style");
+    style.textContent = `
+    body{font-family:Georgia,serif;padding:48px;max-width:680px;margin:auto;color:#1e293b;line-height:1.7;}
+    h1{font-size:24px;margin-bottom:28px;border-bottom:2px solid #e2e8f0;padding-bottom:16px;font-weight:700;}
+    pre{white-space:pre-wrap;font-family:inherit;font-size:15px;}
+  `;
+    doc.head.appendChild(style);
+
+    const heading = doc.createElement("h1");
+    heading.textContent = title || "Untitled Note";
+
+    const body = doc.createElement("pre");
+    body.textContent = content;
+
+    doc.body.appendChild(heading);
+    doc.body.appendChild(body);
+
     contextWindow.print();
   };
 
@@ -294,7 +315,7 @@ const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }) => {
         />
         <div className="flex items-center gap-2 shrink-0">
           <button type="button" onClick={dispatchTxtDownload} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-bold hover:bg-white">.txt</button>
-          <button type="button" onClick={dispatchPdfWindow} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-bold hover:bg-white">PDF</button>
+          <button type="button" onClick={dispatchPdfglobalThis} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-slate-600 text-xs font-bold hover:bg-white">PDF</button>
           <button type="button" onClick={commitSaveEvent} disabled={saving || !dirty} className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all ${dirty ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm" : "bg-slate-100 text-slate-400 cursor-not-allowed"}`}>
             {saving ? <><span className="w-3 h-3 rounded-full border-2 border-current/30 border-t-current animate-spin" />Saving</> : <>Save</>}
           </button>
@@ -318,7 +339,7 @@ const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }) => {
       />
 
       <div className="flex items-center justify-between px-5 py-2.5 border-t border-slate-100 bg-slate-50/60">
-        <span className="text-[11px] text-slate-500 font-medium">{wordCount} file word{wordCount !== 1 ? "s" : ""} · {content.length} chars</span>
+        <span className="text-[11px] text-slate-500 font-medium">{wordCount} file word{wordCount === 1 ? "" : "s"} · {content.length} chars</span>
         {dirty && <span className="flex items-center gap-1.5 text-[11px] text-amber-600 font-semibold"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />Unsaved changes</span>}
       </div>
     </div>
@@ -326,6 +347,7 @@ const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }) => {
 };
 NotepadEditor.propTypes = {
   note: PropTypes.shape({
+    _id: PropTypes.string,
     title: PropTypes.string,
     content: PropTypes.string,
   }),
@@ -346,7 +368,11 @@ const NoteListItem = ({ note, isActive, onClick }) => {
   );
 };
 NoteListItem.propTypes = {
-  note: PropTypes.shape({ title: PropTypes.string }).isRequired,
+  note: PropTypes.shape({
+    title: PropTypes.string,
+    content: PropTypes.string,
+    updatedAt: PropTypes.string,
+  }).isRequired,
   isActive: PropTypes.bool,
   onClick: PropTypes.func.isRequired,
 };
@@ -397,7 +423,7 @@ const NotepadSection = ({ connectId, isCompleted }) => {
         </div>
 
         {activeNote ? (
-          <NotepadEditor note={activeNote} onSave={async (id, t, c) => id ? await updateNote(id, t, c) : await createNote(t, c)} onDelete={async (id) => { if (window.confirm("Delete this note?")) { await deleteNote(id); setActiveNoteId(notes.find((n) => n._id !== id)?._id || null); setMobileView("list"); } }} onClose={() => { setActiveNoteId(null); setMobileView("list"); }} saving={saving} />
+          <NotepadEditor note={activeNote} onSave={async (id, t, c) => id ? await updateNote(id, t, c) : await createNote(t, c)} onDelete={async (id) => { if (globalThis.confirm("Delete this note?")) { await deleteNote(id); setActiveNoteId(notes.find((n) => n._id !== id)?._id || null); setMobileView("list"); } }} onClose={() => { setActiveNoteId(null); setMobileView("list"); }} saving={saving} />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center py-16 text-center gap-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl">
             <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center">
@@ -439,13 +465,41 @@ const PrivateFilesSection = ({ connect }) => {
     }
     return list;
   };
-
+  let privateFilesContent;
+  if (loading) {
+    privateFilesContent = <LoadingSkeletons />;
+  } else if ((privateNotes || []).length === 0) {
+    privateFilesContent = (
+      <EmptyState
+        icon={<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>}
+        message="No private files yet" subMessage="Upload files that only you can access — your session partner won't see these."
+        actionLabel={isCompleted ? undefined : "Upload First Private File"} onAction={isCompleted ? undefined : () => setShowUpload(true)}
+      />
+    );
+  } else {
+    privateFilesContent = (
+      <div className="w-full grid grid-cols-2 gap-4">
+        {buildPartitionSequence().map((item) => {
+          if (item.type === "separator") {
+            return (
+              <div key={item.key} className="col-span-2 flex items-center gap-3 my-2">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-[11px] font-bold text-slate-500 px-3 py-1 rounded-full bg-white border border-slate-200 whitespace-nowrap shadow-sm">{generateDateHeader(item.dateStr)}</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
+            );
+          }
+          return <PrivateFileCard key={item.key} note={item.note} onDelete={async (id) => deleteNote(id, true)} />;
+        })}
+      </div>
+    );
+  }
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-base font-bold text-slate-800">Private Files</h2>
-          <p className="text-xs text-slate-500 mt-0.5">{(privateNotes || []).length} file{(privateNotes || []).length !== 1 ? "s" : ""} — only visible to you</p>
+          <p className="text-xs text-slate-500 mt-0.5">{(privateNotes || []).length} file{(privateNotes || []).length === 1 ? "" : "s"} — only visible to you</p>
         </div>
         {!isCompleted && (
           <button type="button" onClick={() => setShowUpload(true)} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-bold shadow-sm">
@@ -456,29 +510,7 @@ const PrivateFilesSection = ({ connect }) => {
 
       {error && !uploading && <div className="flex items-center gap-2.5 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 mb-5">{error}</div>}
 
-      {loading ? (
-        <LoadingSkeletons />
-      ) : (privateNotes || []).length === 0 ? (
-        <EmptyState
-          icon={<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>}
-          message="No private files yet" subMessage="Upload files that only you can access — your session partner won't see these."
-          actionLabel={!isCompleted ? "Upload First Private File" : undefined} onAction={!isCompleted ? () => setShowUpload(true) : undefined}
-        />
-      ) : (
-        <div className="w-full grid grid-cols-2 gap-4">
-          {buildPartitionSequence().map((item) =>
-            item.type === "separator" ? (
-              <div key={item.key} className="col-span-2 flex items-center gap-3 my-2">
-                <div className="flex-1 h-px bg-slate-200" />
-                <span className="text-[11px] font-bold text-slate-500 px-3 py-1 rounded-full bg-white border border-slate-200 whitespace-nowrap shadow-sm">{generateDateHeader(item.dateStr)}</span>
-                <div className="flex-1 h-px bg-slate-200" />
-              </div>
-            ) : (
-              <PrivateFileCard key={item.key} note={item.note} onDelete={async (id) => deleteNote(id, true)} />
-            )
-          )}
-        </div>
-      )}
+      {privateFilesContent}
 
       {showUpload && <UploadModal onUpload={async (f, t) => uploadNote(f, t, true)} uploading={uploading} onClose={() => setShowUpload(false)} />}
     </div>

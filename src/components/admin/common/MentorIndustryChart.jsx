@@ -1,15 +1,5 @@
 // src/components/admin/common/MentorIndustryChart.jsx
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  LabelList,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList, ResponsiveContainer, Cell } from "recharts";
 import PropTypes from "prop-types";
 const PALETTE = [
   "#2563eb",
@@ -60,16 +50,7 @@ const CustomTooltip = ({ active, payload }) => {
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
-      <p
-        style={{
-          fontSize: 11,
-          fontWeight: 700,
-          color: "#1e293b",
-          marginBottom: 2,
-        }}
-      >
-        {industry}
-      </p>
+      <p className="text-xs font-bold text-slate-700 mb-1">{industry}</p>
       <p
         style={{
           fontSize: 10,
@@ -77,7 +58,7 @@ const CustomTooltip = ({ active, payload }) => {
           fontFamily: "'DM Mono', monospace",
         }}
       >
-        {count} mentor{count !== 1 ? "s" : ""} · {pct}%
+        {count} mentor{count === 1 ? "" : "s"} · {pct}%
       </p>
     </div>
   );
@@ -141,13 +122,17 @@ const MentorIndustryChart = ({ data = [] }) => {
   const total = data.reduce((s, d) => s + d.count, 0);
   const maxCount = Math.max(...data.map((d) => d.count));
   const yTicks = getYAxisTicks(maxCount);
-  const yMax = yTicks[yTicks.length - 1];
-
+  const yMax = yTicks.at(-1);
   const chartData = data.map((item) => ({
     ...item,
     pct: ((item.count / total) * 100).toFixed(1),
   }));
-
+  let computedBarSize = 24;
+  if (chartData.length <= 3) {
+    computedBarSize = 52;
+  } else if (chartData.length <= 6) {
+    computedBarSize = 36;
+  }
   return (
     <div
       className="rounded-2xl p-6"
@@ -160,15 +145,14 @@ const MentorIndustryChart = ({ data = [] }) => {
             Mentor Industry Distribution
           </p>
           <p className="text-xs text-slate-500 mt-0.5">
-            {total} mentor{total !== 1 ? "s" : ""} across {data.length} industr
-            {data.length !== 1 ? "ies" : "y"}
+            {total} mentor{total === 1 ? "" : "s"} across {data.length} {data.length === 1 ? "industry" : "industries"}
           </p>
         </div>
 
         {/* Legend */}
         <div className="flex flex-wrap gap-x-3 gap-y-1.5 max-w-[220px] justify-end">
           {chartData.map((item, i) => (
-            <div key={i} className="flex items-center gap-1.5">
+            <div key={item.industry} className="flex items-center gap-1.5">
               <div
                 className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ background: PALETTE[i % PALETTE.length] }}
@@ -186,7 +170,7 @@ const MentorIndustryChart = ({ data = [] }) => {
         <BarChart
           data={chartData}
           margin={{ top: 20, right: 16, left: -10, bottom: 60 }}
-          barSize={chartData.length <= 3 ? 52 : chartData.length <= 6 ? 36 : 24}
+          barSize={computedBarSize} 
         >
           <CartesianGrid
             vertical={false}
@@ -217,9 +201,12 @@ const MentorIndustryChart = ({ data = [] }) => {
             content={<CustomTooltip />}
             cursor={{ fill: "#f8fafc", radius: 6 }}
           />
-          <Bar dataKey="count" radius={[5, 5, 0, 0]}>
-            {chartData.map((_, i) => (
-              <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
+          <Bar
+            dataKey="count"
+            radius={[5, 5, 0, 0]}
+          >
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${entry.industry ?? index}`} fill={PALETTE[index % PALETTE.length]} />
             ))}
             <LabelList
               dataKey="count"

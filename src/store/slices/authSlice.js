@@ -5,7 +5,7 @@ import getErrorMessage from "../../utils/getErrorMessage";
 import * as Sentry from "@sentry/react";
 import logger from "../../utils/logger";
 import { localStore, sessionStore } from "../../utils/storage"; 
-export const redirectByRole = (roles = [], targetRole, navigate) => {
+export const redirectByRole = (targetRole, navigate, roles = []) => {
   if (targetRole === "mentor" && roles.includes("mentor"))
     return navigate("/dashboard/mentor");
   if (targetRole === "mentee" && roles.includes("mentee"))

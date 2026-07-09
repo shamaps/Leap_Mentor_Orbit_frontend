@@ -1,6 +1,5 @@
 // src/pages/admin/AdminVerifications.jsx
 import { useEffect, useState, useCallback } from "react";
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import ErrorState from "../../components/common/ErrorState";
@@ -296,8 +295,10 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40"
+      <button
+        type="button"
+        aria-label="Close"
+        className="fixed inset-0 z-40 cursor-default"
         style={{
           background: "rgba(15,23,42,0.45)",
           backdropFilter: "blur(3px)",
@@ -473,8 +474,8 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 px-1">
-                {mentorProfile.skills.map((s, i) => (
-                  <Pill key={i} label={s} />
+                {mentorProfile.skills.map((s) => (
+                  <Pill key={s} label={s} />
                 ))}
               </div>
             </section>
@@ -503,7 +504,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }) => {
               )}
               {mentorProfile?.workExperienceDocuments?.map((doc, i) => (
                 <DocCard
-                  key={i}
+                  key={doc.url}
                   label={`Work Experience Doc ${i + 1}`}
                   url={doc.url}
                   icon={<IconBriefcase />}
@@ -658,6 +659,120 @@ const AdminVerifications = () => {
     pending: mentors.filter((m) => m.verificationStatus !== "verified").length,
     verified: mentors.filter((m) => m.verificationStatus === "verified").length,
   };
+
+  let mentorRowsContent;
+  if (loading) {
+    mentorRowsContent = (
+      <div className="px-5 py-16 text-center">
+        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-sm text-slate-400">Loading mentors…</p>
+      </div>
+    );
+  } else if (error) {
+    mentorRowsContent = <ErrorState message={error} onAction={fetchMentors} compact />;
+  } else if (filtered.length === 0) {
+    mentorRowsContent = (
+      <div className="px-5 py-16 text-center">
+        <p className="text-sm text-slate-400">No mentors found.</p>
+      </div>
+    );
+  } else {
+    mentorRowsContent = filtered.map((m, i) => {
+      const isVerified = m.verificationStatus === "verified";
+      const docCount =
+        (m.resumeDocument?.url ? 1 : 0) +
+        (m.workExperienceDocuments?.length || 0);
+
+      return (
+        <div
+          key={m._id || m.user?._id || i}
+          role="button"
+          tabIndex={0}
+          className="grid items-center px-5 py-4 transition-all duration-150 hover:bg-blue-50/40 cursor-pointer"
+          style={{
+            gridTemplateColumns: "2fr 2fr 1fr 1fr 1.2fr 80px",
+            borderBottom:
+              i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
+          }}
+          onClick={() => setSelected(m)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setSelected(m);
+            }
+          }}
+        >
+          {/* Name + avatar */}
+          <div className="flex items-center gap-3 min-w-0">
+            {m.profilePicture ? (
+              <img
+                src={m.profilePicture}
+                alt={m.user?.name}
+                className="w-8 h-8 rounded-xl object-cover flex-shrink-0 border border-slate-100"
+              />
+            ) : (
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                style={{
+                  background: "linear-gradient(135deg,#1e40af,#3b82f6)",
+                }}
+              >
+                {m.user?.name?.[0]?.toUpperCase() || "?"}
+              </div>
+            )}
+            <p className="text-sm font-semibold text-slate-800 truncate">
+              {m.user?.name || "—"}
+            </p>
+          </div>
+
+          {/* Email */}
+          <p className="text-xs text-slate-500 truncate">
+            {m.user?.email || "—"}
+          </p>
+
+          {/* Doc count */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-slate-400">
+              <IconDoc />
+            </span>
+            <span className="text-xs font-semibold text-slate-700">
+              {docCount}
+            </span>
+            {docCount === 0 && (
+              <span className="text-[10px] text-slate-400">none</span>
+            )}
+          </div>
+
+          {/* Phone */}
+          <p className="text-xs text-slate-600">
+            {m.phoneNumber || <span className="text-slate-300">—</span>}
+          </p>
+
+          {/* Status badge */}
+          <StatusBadge status={m.verificationStatus} />
+
+          {/* View button */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelected(m);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all"
+              style={
+                isVerified
+                  ? { background: "#f1f5f9", color: "#64748b" }
+                  : { background: "#eff6ff", color: "#1d4ed8" }
+              }
+            >
+              <IconEye /> View
+            </button>
+          </div>
+        </div>
+      );
+    });
+  }
 
   // ══════════════════════════════════════════════════════════
   // RENDER
@@ -821,105 +936,7 @@ const AdminVerifications = () => {
         </div>
 
         {/* Rows */}
-        {loading ? (
-          <div className="px-5 py-16 text-center">
-            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm text-slate-400">Loading mentors…</p>
-          </div>
-        ) : error ? (
-          <ErrorState message={error} onAction={fetchMentors} compact />
-        ) : filtered.length === 0 ? (
-          <div className="px-5 py-16 text-center">
-            <p className="text-sm text-slate-400">No mentors found.</p>
-          </div>
-        ) : (
-          filtered.map((m, i) => {
-            const isVerified = m.verificationStatus === "verified";
-            const docCount =
-              (m.resumeDocument?.url ? 1 : 0) +
-              (m.workExperienceDocuments?.length || 0);
-
-            return (
-              <div
-                key={m._id || m.user?._id || i}
-                className="grid items-center px-5 py-4 transition-all duration-150 hover:bg-blue-50/40 cursor-pointer"
-                style={{
-                  gridTemplateColumns: "2fr 2fr 1fr 1fr 1.2fr 80px",
-                  borderBottom:
-                    i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
-                }}
-                onClick={() => setSelected(m)}
-              >
-                {/* Name + avatar */}
-                <div className="flex items-center gap-3 min-w-0">
-                  {m.profilePicture ? (
-                    <img
-                      src={m.profilePicture}
-                      alt={m.user?.name}
-                      className="w-8 h-8 rounded-xl object-cover flex-shrink-0 border border-slate-100"
-                    />
-                  ) : (
-                    <div
-                      className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                      style={{
-                        background: "linear-gradient(135deg,#1e40af,#3b82f6)",
-                      }}
-                    >
-                      {m.user?.name?.[0]?.toUpperCase() || "?"}
-                    </div>
-                  )}
-                  <p className="text-sm font-semibold text-slate-800 truncate">
-                    {m.user?.name || "—"}
-                  </p>
-                </div>
-
-                {/* Email */}
-                <p className="text-xs text-slate-500 truncate">
-                  {m.user?.email || "—"}
-                </p>
-
-                {/* Doc count */}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-400">
-                    <IconDoc />
-                  </span>
-                  <span className="text-xs font-semibold text-slate-700">
-                    {docCount}
-                  </span>
-                  {docCount === 0 && (
-                    <span className="text-[10px] text-slate-400">none</span>
-                  )}
-                </div>
-
-                {/* Phone */}
-                <p className="text-xs text-slate-600">
-                  {m.phoneNumber || <span className="text-slate-300">—</span>}
-                </p>
-
-                {/* Status badge */}
-                <StatusBadge status={m.verificationStatus} />
-
-                {/* View button */}
-                <div className="flex justify-end">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelected(m);
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all"
-                    style={
-                      isVerified
-                        ? { background: "#f1f5f9", color: "#64748b" }
-                        : { background: "#eff6ff", color: "#1d4ed8" }
-                    }
-                  >
-                    <IconEye /> View
-                  </button>
-                </div>
-              </div>
-            );
-          })
-        )}
+        {mentorRowsContent}
       </div>
 
       {/* Count footer */}

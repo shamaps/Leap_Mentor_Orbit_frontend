@@ -1,7 +1,6 @@
 // src/components/mentor/dashboard/requests/MenteeProfileModal.jsx
 
 import { useState } from "react";
-import axiosInstance from "../../../../utils/axiosInstance";
 import RequestActionModal from "./RequestActionModal";
 import ReferModal from "./ReferModal";
 import Spinner from "../../../common/Spinner";
@@ -132,8 +131,8 @@ const MenteeProfileModal = ({ request, onClose, onUpdate }) => {
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Proposed Session Times</p>
             <div className="space-y-2">
-              {proposedTimeSlots.map((item, index) => (
-                <div key={index} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+              {proposedTimeSlots.map((item) => (
+                <div key={`${item.date}-${item.startTime}`} className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                   <div className="flex items-center gap-3">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                     <span className="text-sm font-semibold text-slate-700">{formatProfileCalendarDate(item.date)}</span>

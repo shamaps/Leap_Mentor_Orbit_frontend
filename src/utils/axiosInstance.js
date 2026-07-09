@@ -83,11 +83,14 @@ const processQueue = (error, token = null) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    // Guard against a 2xx response whose body isn't JSON — e.g. an HTML
-    // error page served by a proxy/CDN/gateway with a 200 status. Without
-    // this, malformed data would silently flow downstream as `undefined`
-    // fields instead of surfacing as a real, loggable error.
-    if (response.data !== null && typeof response.data !== "object") {
+    // 204 No Content / empty body is a valid, successful response —
+    // don't treat it as malformed just because it isn't JSON.
+    const isEmptyBody =
+      response.status === 204 ||
+      response.data === "" ||
+      response.data === undefined;
+
+    if (!isEmptyBody && response.data !== null && typeof response.data !== "object") {
       logger.error("Non-JSON response received", {
         url: response.config?.url,
         contentType: response.headers?.["content-type"],
@@ -108,13 +111,17 @@ axiosInstance.interceptors.response.use(
     // interceptor gets logged here once, regardless of which component
     // triggered it. Components can still show their own user-facing
     // message, but they no longer need to remember to report it.
-    logger.error(
-      `API request failed: ${originalRequest?.method?.toUpperCase()} ${originalRequest?.url} → ${status ?? "network error"}`,
-      {
-        requestId,
-        message: error.response?.data?.message || error.message,
-      }
-    );
+    const isExpectedAuthRefresh401 =
+      status === HTTP_STATUS.UNAUTHORIZED && originalRequest?.url?.includes("/auth/refresh");
+    const isExpectedNotFound =
+      status === HTTP_STATUS.NOT_FOUND && originalRequest?.suppressNotFoundLog;
+
+    if (!isExpectedAuthRefresh401 && !isExpectedNotFound) {
+      logger.error(
+        `API request failed: ${originalRequest?.method?.toUpperCase()} ${originalRequest?.url} → ${status ?? "network error"}`,
+        { requestId, message: error.response?.data?.message || error.message }
+      );
+    }
 
     // ── Timeout handling ──
     // Axios timeouts have no error.response and error.code "ECONNABORTED".

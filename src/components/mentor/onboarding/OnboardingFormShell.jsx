@@ -1,5 +1,4 @@
 // components/mentor/onboarding/OnboardingFormShell.jsx
-import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -7,12 +6,13 @@ import {
   clearMentorOnboardingMessages,
 } from "../../../store/slices/mentorOnboardingSlice";
 import { IMAGES } from "../../../constants/images";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
-  getMentorFieldErrors,
-  validateCommonFields,
-  isOnlyNumbers,
-  isValidUrl,
-} from "../../../utils/onboardingValidation";
+  mentorOnboardingSchema,
+  commonOnboardingSchema,
+  getFieldErrorMap,
+  getFirstErrorMessage,
+} from "../../../schemas/onboardingSchemas";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
 import { MentorOnboardingFormContext } from "../../../context/MentorOnboardingFormContext";
 import {
@@ -28,7 +28,7 @@ import PreferencesSection from "./PreferencesSection";
 import SocialLinksSection from "./SocialLinksSection";
 import OnboardingProgressBar from "../../../ui/OnboardingProgressBar";
 import { MENTOR_ONBOARDING_FIELDS } from "../../../config/onboardingFields";
-import { sessionStore } from "../../../utils/storage"; 
+import { sessionStore } from "../../../utils/storage";
 const OnboardingFormShell = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -88,8 +88,8 @@ const OnboardingFormShell = () => {
     sessionStore.setJSON("mentorOnboardingForm", form);
   }, [form]);
 
-  // uses shared util instead of copy-pasted field checks
-  const validate = () => getMentorFieldErrors(form);
+  // Zod schema replaces the old getMentorFieldErrors util
+  const validate = () => getFieldErrorMap(mentorOnboardingSchema, form);
 
   const scrollToFirstError = (errorKeys) => {
     if (!errorKeys.length) return;
@@ -120,7 +120,7 @@ const OnboardingFormShell = () => {
   };
   const handleBlur = (e) => {
     const { name } = e.target;
-    const fieldErrors = getMentorFieldErrors(form);
+    const fieldErrors = getFieldErrorMap(mentorOnboardingSchema, form);
     if (fieldErrors[name]) {
       setErrors((prev) => ({ ...prev, [name]: true }));
     }
@@ -147,7 +147,7 @@ const OnboardingFormShell = () => {
         text: "Session rate must be between ₹1 and ₹100.",
       });
 
-    const commonError = validateCommonFields(form);
+    const commonError = getFirstErrorMessage(commonOnboardingSchema, form);
     if (commonError) return setMsg({ type: "error", text: commonError });
 
     if (!token) {
@@ -162,18 +162,20 @@ const OnboardingFormShell = () => {
       languages:
         typeof form.languages === "string"
           ? form.languages
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
           : form.languages,
     };
 
     dispatch(submitMentorOnboarding(payload));
   };
 
-  //  context value — onChange matches what mentor sections expect
-  const ctxValue = { form, errors, onChange: handleChange, onBlur: handleBlur };
-
+  // context value — onChange matches what mentor sections expect
+  const ctxValue = useMemo(
+    () => ({ form, errors, onChange: handleChange, onBlur: handleBlur }),
+    [form, errors, handleChange, handleBlur],
+  );
   return (
     <MentorOnboardingFormContext.Provider value={ctxValue}>
       <div
@@ -226,11 +228,10 @@ const OnboardingFormShell = () => {
 
             {msg.text && (
               <div
-                className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${
-                  msg.type === "success"
+                className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
                     ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
                     : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
-                }`}
+                  }`}
               >
                 <span>{msg.type === "success" ? "✓" : "⚠"}</span>
                 {msg.text}
@@ -244,7 +245,7 @@ const OnboardingFormShell = () => {
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                  <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                   Saving profile…
                 </span>
               ) : (

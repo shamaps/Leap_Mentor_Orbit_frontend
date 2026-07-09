@@ -91,15 +91,20 @@ const steps = [
 const VerificationInstructionsModal = ({ onClose }) => {
   const [step, setStep] = useState(0);
   const isLast = step === steps.length - 1;
-
+  const getStepDotClass = (i) => {
+    if (i === step) return "bg-blue-900";
+    if (i < step) return "bg-blue-300";
+    return "bg-slate-200";
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+      <button
+        type="button"
+        aria-label="Close"
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm cursor-default"
         onClick={onClose}
       />
-
       {/* Modal */}
       <div
         className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
@@ -157,16 +162,10 @@ const VerificationInstructionsModal = ({ onClose }) => {
 
           {/* Step dots */}
           <div className="flex items-center gap-1.5 mt-4">
-            {steps.map((_, i) => (
+            {steps.map((s, i) => (
               <div
-                key={i}
-                className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                  i === step
-                    ? "bg-blue-900"
-                    : i < step
-                      ? "bg-blue-300"
-                      : "bg-slate-200"
-                }`}
+                key={s.label}
+                className={`h-1 flex-1 rounded-full transition-all duration-300 ${getStepDotClass(i)}`}
               />
             ))}
           </div>

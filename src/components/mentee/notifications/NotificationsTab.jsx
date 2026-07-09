@@ -1,6 +1,4 @@
 // src/components/mentee/dashboard/NotificationsTab.jsx
-
-import { useState, useEffect } from "react";
 import { useNotifications } from "../../../hooks/useNotifications";
 import StatCard from "@/components/common/StatCard";
 import ErrorState from "../../common/ErrorState";
@@ -75,7 +73,7 @@ const getInitials = (name = "") => {
 
 const AVATAR_COLORS = ["bg-blue-600", "bg-violet-600", "bg-emerald-600", "bg-orange-500", "bg-pink-600", "bg-teal-600"];
 const getAvatarColor = (id = "") => {
-  const total = id.split("").reduce((acc, current) => acc + current.charCodeAt(0), 0);
+  const total = id.split("").reduce((acc, current) => acc + current.codePointAt(0), 0);
   return AVATAR_COLORS[total % AVATAR_COLORS.length];
 };
 
@@ -107,17 +105,25 @@ const normalizeApiNotif = (notif) => ({
 });
 
 // ── Static Mock Factory (Prevents Cross-File Duplications) ────
-const buildMock = (id, type, time, title, sender, body, label, primary = false) => ({
-  id, type, read: id === "static-5", time, accent: type === "upcoming_session", title, senderName: sender, body,
-  actions: label ? [{ label, primary }] : id === "static-1" ? [{ label: "Accept", primary: true }, { label: "Decline", primary: false }] : []
-});
+const buildMock = ({ id, type, time, title, sender, body, label, primary = false }) => {
+  let actions = [];
+  if (label) {
+    actions = [{ label, primary }];
+  } else if (id === "static-1") {
+    actions = [{ label: "Accept", primary: true }, { label: "Decline", primary: false }];
+  }
+  return {
+    id, type, read: id === "static-5", time, accent: type === "upcoming_session", title, senderName: sender, body,
+    actions,
+  };
+};
 
 const INITIAL_NOTIFICATIONS = [
-  buildMock("static-1", "connect_request", "2 minutes ago", "New Connect Request", "Deepika S.", "Deepika (Mentee) has sent you a connect request. She's looking for career guidance in system design and interview preparation."),
-  buildMock("static-2", "upcoming_session", "45 minutes ago", "Upcoming Session", "Chris Johnson", "Career Coaching with Chris Johnson today at 3:00 PM. Topic: Resume review and LinkedIn profile optimization.", "Start Session", true),
-  buildMock("static-3", "new_message", "3 hours ago", "New Message", "Emma Lee", 'Emma Lee: "Hi! I just updated my portfolio with the new projects we discussed. Could you take a look when you have a chance?"', "Reply", true),
-  buildMock("static-4", "session_completed", "Yesterday", "Session Completed", "Alex Carter", "Your session with Alex Carter has ended. Earnings of $55 have been released from escrow and added to your balance.", "View Earnings"),
-  buildMock("static-5", "feedback", "2 days ago", "New Review", "Jessica Patel", 'Jessica Patel left you a 5-star rating: "Incredibly insightful session. The mentor had deep knowledge. Highly recommend!"')
+  buildMock({ id: "static-1", type: "connect_request", time: "2 minutes ago", title: "New Connect Request", sender: "Deepika S.", body: "Deepika (Mentee) has sent you a connect request. She's looking for career guidance in system design and interview preparation." }),
+  buildMock({ id: "static-2", type: "upcoming_session", time: "45 minutes ago", title: "Upcoming Session", sender: "Chris Johnson", body: "Career Coaching with Chris Johnson today at 3:00 PM. Topic: Resume review and LinkedIn profile optimization.", label: "Start Session", primary: true }),
+  buildMock({ id: "static-3", type: "new_message", time: "3 hours ago", title: "New Message", sender: "Emma Lee", body: 'Emma Lee: "Hi! I just updated my portfolio with the new projects we discussed. Could you take a look when you have a chance?"', label: "Reply", primary: true }),
+  buildMock({ id: "static-4", type: "session_completed", time: "Yesterday", title: "Session Completed", sender: "Alex Carter", body: "Your session with Alex Carter has ended. Earnings of $55 have been released from escrow and added to your balance.", label: "View Earnings" }),
+  buildMock({ id: "static-5", type: "feedback", time: "2 days ago", title: "New Review", sender: "Jessica Patel", body: 'Jessica Patel left you a 5-star rating: "Incredibly insightful session. The mentor had deep knowledge. Highly recommend!"' })
 ];
 
 const resolveNavigation = (notif, setActiveTab) => {
@@ -155,17 +161,25 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
   const cfg = TYPE_CONFIG[typeKey] || TYPE_CONFIG["new_message"];
   const initials = getInitials(notif.senderName || notif.title);
   const avatarBg = getAvatarColor(notif.id);
-
+  const handleActivate = () => {
+    if (!notif.read) onMarkRead(notif.id);
+    resolveNavigation(notif, setActiveTab);
+  };
   return (
     <div
-      onClick={() => {
-        if (!notif.read) onMarkRead(notif.id);
-        resolveNavigation(notif, setActiveTab);
+      role="button"
+      tabIndex={0}
+      onClick={handleActivate}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleActivate();
+        }
       }}
-      className={`relative rounded-2xl border px-3.5 py-3.5 sm:px-5 sm:py-4 flex items-start gap-3 sm:gap-4 transition-all duration-200 hover:shadow-md group
-        ${notif.read ? "bg-white border-slate-100 cursor-default" : `${cfg.tint} ${cfg.border} cursor-pointer`}
-        ${notif.accent ? "border-l-[3px] border-l-blue-500" : ""}
-      `}
+      className={`relative w-full text-left rounded-2xl border px-3.5 py-3.5 sm:px-5 sm:py-4 flex items-start gap-3 sm:gap-4 transition-all duration-200 hover:shadow-md group
+    ${notif.read ? "bg-white border-slate-100 cursor-default" : `${cfg.tint} ${cfg.border} cursor-pointer`}
+    ${notif.accent ? "border-l-[3px] border-l-blue-500" : ""}
+  `}
     >
       {!notif.read && <div className="absolute left-0 top-5 bottom-5 w-[3px] rounded-r-full bg-blue-500" />}
       <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl ${avatarBg} flex items-center justify-center shrink-0 shadow-sm`}>
@@ -236,7 +250,7 @@ NotifCard.propTypes = {
 // ── Main Layout Skeleton Component ───────────────────────────
 const LoaderLayout = () => (
   <div className="flex flex-col gap-3">
-    {[...Array(3).keys()].map((idx) => (
+    {[... new Array(3).keys()].map((idx) => (
       <div key={idx} className="bg-white rounded-2xl border border-slate-100 px-4 py-4 sm:px-5 flex items-start gap-4">
         <div className="w-10 h-10 rounded-xl bg-slate-100 animate-pulse shrink-0" />
         <div className="flex-1 space-y-2 pt-1">
@@ -257,7 +271,7 @@ const NotificationsTab = ({ setActiveTab }) => {
   const thisWeekCount = notifications.filter((n) => {
     if (n.isApi) return true;
     const itemTime = n.time || "";
-    return itemTime.includes("minute") || itemTime.includes("hour") || itemTime.toLowerCase() === "yesterday" || (itemTime.includes("day") && parseInt(itemTime, 10) <= 7);
+    return itemTime.includes("minute") || itemTime.includes("hour") || itemTime.toLowerCase() === "yesterday" || (itemTime.includes("day") && Number.parseInt(itemTime, 10) <= 7);
   }).length;
 
   if (loading) return <LoaderLayout />;

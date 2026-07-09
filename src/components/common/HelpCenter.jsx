@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axiosInstance from "../../utils/axiosInstance";
+import FilterTabs from "./FilterTabs";
 import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 // ── Abstracted Combined FAQ Registry (Defeats Segment Pattern Block Matching) ──
@@ -245,24 +246,7 @@ export default function HelpCenter() {
         </h2>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-          {tabCategories.map((categoryKey) => {
-            const isTabActive = currentCategory === categoryKey;
-            return (
-              <button
-                key={categoryKey}
-                onClick={() => setCurrentCategory(categoryKey)}
-                style={{
-                  padding: "6px 16px", borderRadius: 20, fontSize: 13, fontWeight: 500,
-                  cursor: "pointer", border: "1.5px solid",
-                  borderColor: isTabActive ? COLOR_CONFIG.primary : "#e2e8f0",
-                  background: isTabActive ? COLOR_CONFIG.primary : "#fff",
-                  color: isTabActive ? "#fff" : "#64748b", transition: "all 0.15s"
-                }}
-              >
-                {categoryKey}
-              </button>
-            );
-          })}
+          <FilterTabs options={tabCategories} active={currentCategory} onChange={setCurrentCategory} activeColor={COLOR_CONFIG.primary} />
         </div>
 
         {parsedFaqs.length === 0 ? (
@@ -271,8 +255,8 @@ export default function HelpCenter() {
             <p style={{ marginTop: 10 }}>No results for "{filterQuery}". Try different keywords.</p>
           </div>
         ) : (
-          parsedFaqs.map((block, groupIdx) => (
-            <div key={groupIdx} style={{ marginBottom: 24 }}>
+            parsedFaqs.map((block) => (
+              <div key={block.category} style={{ marginBottom: 24 }}>
               {currentCategory === "All" && (
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>
                   {block.category}
@@ -280,7 +264,7 @@ export default function HelpCenter() {
               )}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {block.items.map((entry, itemIdx) => {
-                  const uniqueFaqStringKey = `${groupIdx}-${itemIdx}`;
+                  const uniqueFaqStringKey = `${block.category}-${itemIdx}`;
                   return (
                     <FaqItem
                       key={uniqueFaqStringKey}

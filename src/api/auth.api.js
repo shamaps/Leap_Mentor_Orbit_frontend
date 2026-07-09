@@ -1,6 +1,6 @@
 // src/api/auth.api.js
 import axiosInstance from "../utils/axiosInstance";
-
+import { mapAuthResponse } from "../mappers/authMapper";
 export const registerUser = async ({ name, email, password, roles, termsAccepted }) => {
     const res = await axiosInstance.post("/auth/register", {
         name,
@@ -9,12 +9,12 @@ export const registerUser = async ({ name, email, password, roles, termsAccepted
         roles,
         termsAccepted,
     });
-    return res.data;
+    return mapAuthResponse(res.data);
 };
 
 export const loginUser = async ({ email, password }) => {
     const res = await axiosInstance.post("/auth/login", { email, password });
-    return res.data;
+    return mapAuthResponse(res.data);
 };
 
 export const sendOtp = async (email) => {
@@ -64,7 +64,7 @@ export const logoutRequest = async () => {
 };
 export const getCurrentUser = async () => {
     const res = await axiosInstance.get("/users/me");
-    return res.data;
+    return mapUser(res.data);
 };
 
 export const changePassword = async (currentPassword, newPassword) => {

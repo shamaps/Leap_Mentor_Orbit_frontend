@@ -11,7 +11,7 @@ import StatusBadge from "../../../common/StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import PropTypes from "prop-types";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
-
+import { mapReferredMentor } from "../../../../mappers/connectRequestMapper";
 // ── Slot row ────────────────────────────────────────────────
 const SlotRow = ({ slot, isConfirmed }) => (
   <div
@@ -43,8 +43,8 @@ const SlotsSection = ({ slots = [], heading, isConfirmed = false }) => (
       {heading}
     </p>
     <div className="space-y-1.5">
-      {slots.map((slot, index) => (
-        <SlotRow key={index} slot={slot} isConfirmed={isConfirmed} />
+      {slots.map((slot) => (
+        <SlotRow key={`${slot.date}-${slot.startTime}`} slot={slot} isConfirmed={isConfirmed} />
       ))}
     </div>
   </div>
@@ -200,7 +200,7 @@ const OngoingContent = ({ request, onClose }) => {
         {downloading ? (
           <>
             <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300 border-t-slate-600 animate-spin" />
-            Downloading...
+            <span>Downloading...</span>
           </>
         ) : (
           <>
@@ -228,6 +228,7 @@ const OngoingContent = ({ request, onClose }) => {
 };
 OngoingContent.propTypes = {
   request: PropTypes.shape({
+    _id: PropTypes.string,
     confirmedSlot: PropTypes.object,
     sessionRate: PropTypes.number,
     sessionCount: PropTypes.number,
@@ -290,20 +291,7 @@ const ReferredContent = ({ request, onDelete }) => {
   const { mentor, referredTo, referredToProfile, selectedSlots = [], message } = request;
   const [showReferredProfile, setShowReferredProfile] = useState(false);
 
-  const referredMentorForModal = referredTo
-    ? {
-      user: { _id: referredTo._id, name: referredTo.name, email: referredTo.email },
-      currentRole: referredToProfile?.currentRole || "",
-      company: referredToProfile?.company || "",
-      industry: referredToProfile?.industry || "",
-      bio: referredToProfile?.bio || "",
-      hourlyRate: referredToProfile?.hourlyRate || null,
-      avgRating: referredToProfile?.avgRating || 0,
-      yearsOfExperience: referredToProfile?.yearsOfExperience || null,
-      profilePicture: referredToProfile?.profilePicture || null,
-      skills: referredToProfile?.skills || [],
-    }
-    : null;
+  const referredMentorForModal = mapReferredMentor(referredTo, referredToProfile);
 
   return (
     <>
@@ -408,7 +396,12 @@ const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }) => {
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/10" onClick={onClose} />
+      <button
+        type="button"
+        className="fixed inset-0 z-40 bg-black/10 border-none p-0 cursor-default"
+        onClick={onClose}
+        aria-label="Close details"
+      />
       <div className="fixed right-0 top-14 bottom-0 w-80 z-50 bg-white border-l border-slate-100 shadow-2xl flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <h3 className="text-sm font-bold text-slate-800">Request Details</h3>

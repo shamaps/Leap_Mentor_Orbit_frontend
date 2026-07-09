@@ -17,24 +17,21 @@ const PageLoader = () => (
 
 const ProtectedRoute = ({ children, role }) => {
   const { token, isBootstrapping, user } = useSelector(selectAuth);
-  const storedRole = user?.roles?.includes("mentor")
-    ? "mentor"
-    : user?.roles?.includes("mentee")
-      ? "mentee"
-      : null;
+  let storedRole = null;
+  if (user?.roles?.includes("mentor")) {
+    storedRole = "mentor";
+  } else if (user?.roles?.includes("mentee")) {
+    storedRole = "mentee";
+  }
   // Wait for /auth/refresh to finish before deciding to redirect
   if (isBootstrapping) return <PageLoader />;
 
   if (!token) {
-    const redirectTo =
-      role === "mentor"
-        ? "/login/mentor"
-        : role === "mentee"
-          ? "/login/mentee"
-          : "/login";
-    return <Navigate to={redirectTo} replace />;
+    return <Navigate to="/login" replace />;
   }
-
+  if (user && user.isEmailVerified === false) {
+    return <Navigate to="/verify-email" state={{ email: user.email, role: storedRole }} replace />;
+  }
   if (role && storedRole && storedRole !== role) {
     return <Navigate to={`/dashboard/${storedRole}`} replace />;
   }

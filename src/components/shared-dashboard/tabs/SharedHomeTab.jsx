@@ -13,7 +13,7 @@ const getInitials = (fullName = "") => {
 
 const assignBackgroundStyle = (seedName = "") => {
   const customPalette = ["#3b82f6, #1d4ed8", "#8b5cf6, #6d28d9", "#10b981, #047857", "#f59e0b, #b45309", "#ef4444, #b91c1c"];
-  const targetIndex = seedName.charCodeAt(0) % customPalette.length;
+  const targetIndex = seedName.codePointAt(0) % customPalette.length;
   return `linear-gradient(135deg, ${customPalette[targetIndex]})`;
 };
 
@@ -25,7 +25,7 @@ const formatSlot = (timeSlot) => {
 
   const parseHourString = (timeVal) => {
     const [hours, minutes] = timeVal.split(":");
-    const numericHr = parseInt(hours, 10);
+    const numericHr = Number.parseInt(hours, 10);
     return `${numericHr % 12 || 12}:${minutes} ${numericHr >= 12 ? "PM" : "AM"}`;
   };
 
@@ -72,8 +72,8 @@ const PersonCard = ({ name, profile, roleLabel }) => {
       </div>
       {userSkills.length > 0 && (
         <div className="flex flex-wrap gap-1">
-          {userSkills.map((tag, idx) => (
-            <span key={idx} className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600">{tag}</span>
+          {userSkills.map((tag) => (
+            <span key={tag} className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600">{tag}</span>
           ))}
         </div>
       )}
@@ -163,10 +163,9 @@ const SharedHomeTab = ({ slots = [], onTabChange = () => { } }) => {
           <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">Session Details</p>
           {slots.length > 0
             ? slots.map((item, idx) => (
-              <InfoRow key={idx} icon={CALENDAR_VECTOR} label={`Session ${idx + 1}${item.status === "completed" ? " ✓" : ""}`} value={formatSlot(item)} />
+              <InfoRow key={`${item.date}-${item.startTime}`} icon={CALENDAR_VECTOR} label={`Session ${idx + 1}${item.status === "completed" ? " ✓" : ""}`} value={formatSlot(item)} />
             ))
             : confirmedSlot && <InfoRow icon={CALENDAR_VECTOR} label="Confirmed Session" value={formatSlot(confirmedSlot)} />}
-
           {totalAmount != null && (
             <InfoRow
               icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>}

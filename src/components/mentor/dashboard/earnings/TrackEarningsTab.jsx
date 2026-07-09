@@ -23,7 +23,7 @@ const fmt = (n) =>
 
 // ── Custom Tooltip ────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
+  if (active && payload?.length) {
     return (
       <div className="bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-lg">
         <p className="text-xs text-slate-400 font-medium">{label}</p>
@@ -67,9 +67,63 @@ const TrackEarningsTab = () => {
     goNext,
     goPrev,
   } = useTrackEarnings();
-
+  let tableBody;
+  if (loadingPayouts) {
+    tableBody = [1, 2, 3, 4].map((i) => (
+      <tr key={i}>
+        {[1, 2, 3, 4, 5, 6].map((j) => (
+          <td key={j} className="py-3 pr-4">
+            <Skeleton className="h-4 w-full" />
+          </td>
+        ))}
+      </tr>
+    ));
+  } else if (payouts.length === 0) {
+    tableBody = (
+      <tr>
+        <td colSpan={6}>
+          <EmptyState
+            icon={
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+            }
+            message="No payouts found"
+            subMessage={search ? `No results for "${search}"` : "Completed sessions will appear here."}
+            compact
+          />
+        </td>
+      </tr>
+    );
+  } else {
+    tableBody = payouts.map((row) => (
+      <tr
+        key={row.id}
+        className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
+      >
+        <td className="py-3.5 pr-4 text-sm font-semibold text-slate-600 whitespace-nowrap">
+          {row.date}
+        </td>
+        <td className="py-3.5 pr-4 text-sm font-semibold text-slate-600 whitespace-nowrap">
+          {row.menteeName}
+        </td>
+        <td className="py-3.5 pr-4 text-xs font-semibold text-slate-600 uppercase tracking-wide">
+          {row.sessionType}
+        </td>
+        <td className="py-3.5 pr-4 text-sm font-semibold text-slate-600 whitespace-nowrap">
+          {row.duration}
+        </td>
+        <td className="py-3.5 pr-4 text-sm font-semibold text-slate-600">
+          {fmt(row.amount)}
+        </td>
+        <td className="py-3.5">
+          <StatusBadge status={row.status === "paid" ? "completed" : row.status} variant="history" />
+        </td>
+      </tr>
+    ));
+  }
   return (
-    <>
       <div className="space-y-5">
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -313,59 +367,7 @@ const TrackEarningsTab = () => {
                 </tr>
               </thead>
               <tbody>
-                {loadingPayouts ? (
-                  [1, 2, 3, 4].map((i) => (
-                    <tr key={i}>
-                      {[1, 2, 3, 4, 5, 6].map((j) => (
-                        <td key={j} className="py-3 pr-4">
-                          <Skeleton className="h-4 w-full" />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                ) : payouts.length === 0 ? (
-                    <tr>
-                      <td colSpan={6}>
-                        <EmptyState
-                          icon={
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="2" y="5" width="20" height="14" rx="2" />
-                              <line x1="2" y1="10" x2="22" y2="10" />
-                            </svg>
-                          }
-                         message="No payouts found"
-                          subMessage={search ? `No results for "${search}"` : "Completed sessions will appear here."}
-                          compact
-                        />
-                      </td>
-                    </tr>
-                ) : (
-                  payouts.map((row) => (
-                    <tr
-                      key={row.id}
-                      className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
-                    >
-                      <td className="py-3.5 pr-4 text-sm font-semibold text-slate-600 whitespace-nowrap">
-                        {row.date}
-                      </td>
-                      <td className="py-3.5 pr-4 text-sm font-semibold text-slate-600 whitespace-nowrap">
-                        {row.menteeName}
-                      </td>
-                      <td className="py-3.5 pr-4 text-xs font-semibold text-slate-600 uppercase tracking-wide">
-                        {row.sessionType}
-                      </td>
-                      <td className="py-3.5 pr-4 text-sm font-semibold text-slate-600 whitespace-nowrap">
-                        {row.duration}
-                      </td>
-                      <td className="py-3.5 pr-4 text-sm font-semibold text-slate-600">
-                        {fmt(row.amount)}
-                      </td>
-                      <td className="py-3.5">
-                        <StatusBadge status={row.status === "paid" ? "completed" : row.status} variant="history" />
-                      </td>
-                    </tr>
-                  ))
-                )}
+              {tableBody}
               </tbody>
             </table>
           </div>
@@ -396,7 +398,7 @@ const TrackEarningsTab = () => {
           </div>
         </div>
       </div>
-    </>
+
   );
 };
 

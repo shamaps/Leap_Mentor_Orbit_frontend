@@ -1,7 +1,10 @@
 // src/pages/admin/AdminSettings.jsx
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
 import { useToast } from "../../context/ToastContext";
+import { commissionSchema, addAdminSchema } from "../../schemas/settingsSchemas";
 import PropTypes from "prop-types";
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
@@ -74,54 +77,30 @@ SubmitBtn.propTypes = {
   onClick: PropTypes.func.isRequired,
   accent: PropTypes.string,
 };
-const OverviewCard = ({ label, value, icon, accent, sub }) => (
-  <div
-    className="rounded-2xl p-5 flex flex-col gap-2 relative overflow-hidden"
-    style={{ background: "#ffffff", border: "1px solid #e8eaf0" }}
-  >
-    <div
-      className="absolute top-0 right-0 w-20 h-20 rounded-full pointer-events-none"
-      style={{
-        background: `radial-gradient(circle at top right, ${accent}15, transparent 70%)`,
-      }}
-    />
-    <div
-      className="w-9 h-9 rounded-xl flex items-center justify-center"
-      style={{ background: `${accent}14` }}
-    >
-      <span style={{ color: accent }}>{icon}</span>
-    </div>
-    <div>
-      <p
-        className="text-2xl font-700 text-slate-900"
-        style={{ fontWeight: 700, fontFamily: FONT }}
-      >
-        {value?.toLocaleString() ?? "—"}
-      </p>
-      <p className="text-xs text-slate-600 mt-0.5">{label}</p>
-      {sub && <p className="text-[10px] text-slate-600 mt-0.5">{sub}</p>}
-    </div>
-  </div>
-);
-OverviewCard.propTypes = {
-  label: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  icon: PropTypes.node,
-  accent: PropTypes.string,
-  sub: PropTypes.string,
-};
 const AdminSettings = () => {
   const [overview, setOverview] = useState({
     totalUsers: 0,
     activeSessions: 0,
   });
-  const [adminName, setAdminName] = useState("");
-  const [adminEmail, setAdminEmail] = useState("");
   const [addingAdmin, setAddingAdmin] = useState(false);
   const [tempPw, setTempPw] = useState("");
-  const [commission, setCommission] = useState("");
   const [savingCommission, setSavingCommission] = useState(false);
   const { showToast } = useToast();
+
+  // Two independent actions, each its own form + schema — there's no
+  // single <form onSubmit> here, both are triggered by a button
+  // onClick, so handleSubmit is wired to onClick instead of a submit
+  // event.
+  const commissionForm = useForm({
+    resolver: zodResolver(commissionSchema),
+    defaultValues: { commission: "" },
+  });
+
+  const addAdminForm = useForm({
+    resolver: zodResolver(addAdminSchema),
+    defaultValues: { adminName: "", adminEmail: "" },
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -133,44 +112,40 @@ const AdminSettings = () => {
           totalUsers: ovRes.data.totalUsers,
           activeSessions: ovRes.data.activeSessions,
         });
-        setCommission(String(cmRes.data.commissionRate));
+        commissionForm.setValue("commission", String(cmRes.data.commissionRate));
       } catch {
         showToast({ message: "Failed to load settings.", type: "error" });
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAddAdmin = async () => {
-    if (!adminName.trim() || !adminEmail.trim()) {
-      return showToast({ message: "Name and email are required.", type: "error" });
-    }
+  // zodResolver has already validated name/email by the time this runs.
+  const handleAddAdmin = async (data) => {
     try {
       setAddingAdmin(true);
       setTempPw("");
       const res = await adminAxiosInstance.post("/admin/settings/admins", {
-        name: adminName.trim(),
-        email: adminEmail.trim(),
+        name: data.adminName.trim(),
+        email: data.adminEmail.trim(),
       });
       setTempPw(res.data.tempPassword);
-      showToast({ message: `Admin account created for ${adminEmail}` });
-      setAdminName("");
-      setAdminEmail("");
+      showToast({ message: `Admin account created for ${data.adminEmail}` });
+      addAdminForm.reset({ adminName: "", adminEmail: "" });
     } catch (err) {
-      showToast(
-        err?.response?.data?.message || "Failed to create admin.",
-        "error",
-      );
+      showToast({
+        message: err?.response?.data?.message || "Failed to create admin.",
+        type: "error",
+      });
     } finally {
       setAddingAdmin(false);
     }
   };
 
-  const handleSaveCommission = async () => {
-    const rate = parseFloat(commission);
-    if (isNaN(rate) || rate < 0 || rate > 100) {
-      return showToast({ message: "Commission must be between 0 and 100.", type: "error" });
-    }
+  // zodResolver has already validated the 0-100 range by the time this runs.
+  const handleSaveCommission = async (data) => {
+    const rate = Number.parseFloat(data.commission);
     try {
       setSavingCommission(true);
       await adminAxiosInstance.patch("/admin/settings/commission", {
@@ -178,17 +153,17 @@ const AdminSettings = () => {
       });
       showToast({ message: `Commission rate set to ${rate}%` });
     } catch (err) {
-      showToast(
-        err?.response?.data?.message || "Failed to update commission.",
-        "error",
-      );
+      showToast({
+        message: err?.response?.data?.message || "Failed to update commission.",
+        type: "error",
+      });
     } finally {
       setSavingCommission(false);
     }
   };
 
   return (
-  <>
+    <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
         @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
@@ -229,15 +204,15 @@ const AdminSettings = () => {
           <div className="flex gap-3" style={{ alignItems: "flex-start" }}>
             <div style={{ width: 240 }}>
               <label
+                htmlFor="commission-rate-input"
                 className="text-xs font-600 text-slate-900 block mb-1.5"
                 style={{ fontWeight: 600, fontFamily: FONT }}
               >
                 Commission Rate (%)
               </label>
               <input
+                id="commission-rate-input"
                 type="number"
-                value={commission}
-                onChange={(e) => setCommission(e.target.value)}
                 placeholder="e.g. 10"
                 className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
                 style={{
@@ -247,11 +222,21 @@ const AdminSettings = () => {
                   fontFamily: FONT,
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "#fed7aa")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                onBlur={(e) => {
+                  commissionForm.register("commission").onBlur(e);
+                  e.target.style.borderColor = "#e2e8f0";
+                }}
+                {...commissionForm.register("commission")}
               />
-              <p className="text-[10px] text-slate-600 mt-1">
-                Applied to every mentor payout. Must be between 0–100.
-              </p>
+              {commissionForm.formState.errors.commission?.message ? (
+                <p className="text-[10px] text-red-500 mt-1">
+                  {commissionForm.formState.errors.commission.message}
+                </p>
+              ) : (
+                <p className="text-[10px] text-slate-600 mt-1">
+                  Applied to every mentor payout. Must be between 0–100.
+                </p>
+              )}
             </div>
 
             {/*  mt-6 pushes button down to align with input (label height = ~1.5rem) */}
@@ -259,7 +244,7 @@ const AdminSettings = () => {
               <SubmitBtn
                 loading={savingCommission}
                 label="Save Rate"
-                onClick={handleSaveCommission}
+                onClick={commissionForm.handleSubmit(handleSaveCommission)}
                 accent="#d97706"
               />
             </div>
@@ -292,15 +277,15 @@ const AdminSettings = () => {
           <div className="grid grid-cols-2 gap-4 max-w-lg">
             <div>
               <label
+                htmlFor="admin-name-input"
                 className="text-xs font-600 text-slate-900 block mb-1.5"
                 style={{ fontWeight: 600, fontFamily: FONT }}
               >
                 Full Name
               </label>
               <input
+                id="admin-name-input"
                 type="text"
-                value={adminName}
-                onChange={(e) => setAdminName(e.target.value)}
                 placeholder="e.g. Sarah Admin"
                 className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
                 style={{
@@ -310,20 +295,29 @@ const AdminSettings = () => {
                   fontFamily: FONT,
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "#93c5fd")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                onBlur={(e) => {
+                  addAdminForm.register("adminName").onBlur(e);
+                  e.target.style.borderColor = "#e2e8f0";
+                }}
+                {...addAdminForm.register("adminName")}
               />
+              {addAdminForm.formState.errors.adminName?.message && (
+                <p className="text-[10px] text-red-500 mt-1">
+                  {addAdminForm.formState.errors.adminName.message}
+                </p>
+              )}
             </div>
             <div>
               <label
+                htmlFor="admin-email-input"
                 className="text-xs font-600 text-slate-900 block mb-1.5"
                 style={{ fontWeight: 600, fontFamily: FONT }}
               >
                 Email Address
               </label>
               <input
+                id="admin-email-input"
                 type="email"
-                value={adminEmail}
-                onChange={(e) => setAdminEmail(e.target.value)}
                 placeholder="admin@leapmentor.com"
                 className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
                 style={{
@@ -333,12 +327,22 @@ const AdminSettings = () => {
                   fontFamily: FONT,
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "#93c5fd")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                onBlur={(e) => {
+                  addAdminForm.register("adminEmail").onBlur(e);
+                  e.target.style.borderColor = "#e2e8f0";
+                }}
+                {...addAdminForm.register("adminEmail")}
               />
-              <p className="text-[10px] text-slate-600 mt-1">
-                {" "}
-                Password will be generated.
-              </p>
+              {addAdminForm.formState.errors.adminEmail?.message ? (
+                <p className="text-[10px] text-red-500 mt-1">
+                  {addAdminForm.formState.errors.adminEmail.message}
+                </p>
+              ) : (
+                <p className="text-[10px] text-slate-600 mt-1">
+                  {" "}
+                  Password will be generated.
+                </p>
+              )}
             </div>
           </div>
 
@@ -346,7 +350,7 @@ const AdminSettings = () => {
             <SubmitBtn
               loading={addingAdmin}
               label="Create Admin Account"
-              onClick={handleAddAdmin}
+              onClick={addAdminForm.handleSubmit(handleAddAdmin)}
               accent="#059669"
             />
           </div>
@@ -386,7 +390,7 @@ const AdminSettings = () => {
           )}
         </SectionCard>
       </div>
-  </>
+    </>
   );
 };
 

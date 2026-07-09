@@ -20,7 +20,7 @@ const GRADIENTS = [
   "linear-gradient(135deg, #f59e0b, #b45309)",
 ];
 const getGradient = (name = "") =>
-  GRADIENTS[name.charCodeAt(0) % GRADIENTS.length];
+  GRADIENTS[name.codePointAt(0) % GRADIENTS.length];
 
 const formatTime = (dateStr) => {
   if (!dateStr) return "";

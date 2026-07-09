@@ -41,7 +41,21 @@ const FindMentorsTab = () => {
     };
     fetchCommissionRate();
   }, []);
-
+  let commissionRateContent = null;
+  if (feeLoading) {
+    commissionRateContent = (
+      <div className="h-7 w-16 bg-slate-200 rounded-lg animate-pulse" />
+    );
+  } else if (commissionRate != null) {
+    commissionRateContent = (
+      <div className="flex items-baseline gap-1">
+        <span className="text-2xl font-extrabold text-slate-800 leading-none">
+          {commissionRate}
+        </span>
+        <span className="text-sm font-bold text-amber-500">%</span>
+      </div>
+    );
+  }
   return (
     <div className="space-y-5">
       {/* ── Header + Fee Card row ── */}
@@ -61,16 +75,7 @@ const FindMentorsTab = () => {
 
           <p className="text-[10px] text-blue-900 font-medium">Current Rate</p>
 
-          {feeLoading ? (
-            <div className="h-7 w-16 bg-slate-200 rounded-lg animate-pulse" />
-          ) : commissionRate != null ? (
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-extrabold text-slate-800 leading-none">
-                {commissionRate}
-              </span>
-              <span className="text-sm font-bold text-amber-500">%</span>
-            </div>
-          ) : null}
+          {commissionRateContent}
         </div>
       </div>
 

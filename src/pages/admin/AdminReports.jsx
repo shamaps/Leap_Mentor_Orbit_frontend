@@ -67,15 +67,22 @@ CategoryBadge.propTypes = {
   category: PropTypes.string,
 };
 // ── Skeleton Loader (Breaks Verbatim Matrix Multi-loops Match) ──
-const TableSkeletonRows = () => {
-  const rows = [0, 1, 2, 3, 4];
-  const cells = [100, 100, 100, 100, 100, 60];
+const SKELETON_ROW_KEYS = ["row-1", "row-2", "row-3", "row-4", "row-5"];
+const SKELETON_CELL_WIDTHS = [
+  { key: "cell-1", width: 100 },
+  { key: "cell-2", width: 100 },
+  { key: "cell-3", width: 100 },
+  { key: "cell-4", width: 100 },
+  { key: "cell-5", width: 100 },
+  { key: "cell-6", width: 60 },
+];
 
-  return rows.map((rowIndex) => (
-    <tr key={rowIndex} style={{ borderBottom: "1px solid #f1f5f9" }}>
-      {cells.map((widthVal, cellIndex) => (
-        <td key={cellIndex} className="px-5 py-4">
-          <div className="h-4 rounded-lg animate-pulse" style={{ background: "#f1f5f9", width: widthVal }} />
+const TableSkeletonRows = () => {
+  return SKELETON_ROW_KEYS.map((rowKey) => (
+    <tr key={rowKey} style={{ borderBottom: "1px solid #f1f5f9" }}>
+      {SKELETON_CELL_WIDTHS.map(({ key: cellKey, width }) => (
+        <td key={cellKey} className="px-5 py-4">
+          <div className="h-4 rounded-lg animate-pulse" style={{ background: "#f1f5f9", width }} />
         </td>
       ))}
     </tr>
@@ -301,8 +308,9 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
             </div>
 
             <div>
-              <label className="text-xs font-600 text-slate-500 block mb-1.5" style={{ fontWeight: 600 }}>Admin Note <span className="text-slate-400 font-400">(optional)</span></label>
+              <label htmlFor="admin-note" className="text-xs font-600 text-slate-500 block mb-1.5" style={{ fontWeight: 600 }}>Admin Note <span className="text-slate-400 font-400">(optional)</span></label>
               <textarea
+                id="admin-note"
                 value={adminNote} onChange={(e) => setAdminNote(e.target.value)} placeholder="Add a note about how this was resolved or any action taken..." rows={3} className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all resize-none"
                 style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#334155", fontFamily: FONT }}
                 onFocus={(e) => { e.target.style.borderColor = "#93c5fd"; }} onBlur={(e) => { e.target.style.borderColor = "#e2e8f0"; }}
@@ -340,12 +348,20 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }) => 
 };
 HandleModal.propTypes = {
   report: PropTypes.shape({
-    _id: PropTypes.string,
+    id: PropTypes.string,
     category: PropTypes.string,
     status: PropTypes.string,
-    reportedBy: PropTypes.shape({ name: PropTypes.string }),
-    connectRequest: PropTypes.object,
+    reportedBy: PropTypes.string,
+    mentee: PropTypes.string,
+    mentor: PropTypes.string,
+    date: PropTypes.string,
     description: PropTypes.string,
+    adminNote: PropTypes.string,
+    connectRequestId: PropTypes.string,
+    refundProcessed: PropTypes.bool,
+    totalAmount: PropTypes.number,
+    screenshotUrl: PropTypes.string,
+    paymentStatus: PropTypes.string,
   }).isRequired,
   onClose: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
@@ -468,7 +484,44 @@ const AdminReports = () => {
 
   // Modified explicit style mapping property array to dodge any token hashing
   const DATA_GRID_HEADERS = ["User Mentee", "Target Mentor", "Issue Category", "Filing Date", "Current Status", "Action Center"];
-
+  let reportsTableBody;
+  if (loading) {
+    reportsTableBody = <TableSkeletonRows />;
+  } else if (reports.length === 0) {
+    reportsTableBody = (
+      <tr>
+        <td colSpan={6} className="text-center py-16 text-sm text-slate-400">No reports found.</td>
+      </tr>
+    );
+  } else {
+    reportsTableBody = reports.map((report) => (
+      <tr
+        key={report.id} className="transition-colors" style={{ borderBottom: "1px solid #f1f5f9" }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "#fafbfc"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+      >
+        <td className="px-5 py-4">
+          <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentee || "—"}</p>
+          <p className="text-[10px] text-slate-500 mt-0.5" style={{ fontFamily: MONO }}>{report.menteeEmail}</p>
+        </td>
+        <td className="px-5 py-4">
+          <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentor || "—"}</p>
+          <p className="text-[10px] text-slate-600 mt-0.5" style={{ fontFamily: MONO }}>{report.mentorEmail}</p>
+        </td>
+        <td className="px-5 py-4"><CategoryBadge category={report.category} /></td>
+        <td className="px-5 py-4"><span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>{report.date}</span></td>
+        <td className="px-5 py-4"><StatusBadge status={report.status} /></td>
+        <td className="px-5 py-4">
+          <button
+            type="button" onClick={() => setSelected(report)} className="px-3 py-1.5 rounded-xl text-xs font-600 border border-bfdbfe bg-eff6ff text-2563eb transition-all"
+            onMouseEnter={(e) => { e.currentTarget.style.background = "#2563eb"; e.currentTarget.style.color = "white"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#2563eb"; }}
+          >
+            Handle
+          </button>
+        </td>
+      </tr>
+    ));
+  }
   return (
     <>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
@@ -523,41 +576,7 @@ const AdminReports = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  <TableSkeletonRows />
-                ) : reports.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center py-16 text-sm text-slate-400">No reports found.</td>
-                  </tr>
-                ) : (
-                  reports.map((report) => (
-                    <tr
-                      key={report.id} className="transition-colors" style={{ borderBottom: "1px solid #f1f5f9" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "#fafbfc"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                    >
-                      <td className="px-5 py-4">
-                        <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentee || "—"}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5" style={{ fontFamily: MONO }}>{report.menteeEmail}</p>
-                      </td>
-                      <td className="px-5 py-4">
-                        <p className="text-xs font-600 text-slate-800" style={{ fontWeight: 600 }}>{report.mentor || "—"}</p>
-                        <p className="text-[10px] text-slate-600 mt-0.5" style={{ fontFamily: MONO }}>{report.mentorEmail}</p>
-                      </td>
-                      <td className="px-5 py-4"><CategoryBadge category={report.category} /></td>
-                      <td className="px-5 py-4"><span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>{report.date}</span></td>
-                      <td className="px-5 py-4"><StatusBadge status={report.status} /></td>
-                      <td className="px-5 py-4">
-                        <button
-                          type="button" onClick={() => setSelected(report)} className="px-3 py-1.5 rounded-xl text-xs font-600 border border-bfdbfe bg-eff6ff text-2563eb transition-all"
-                          onMouseEnter={(e) => { e.currentTarget.style.background = "#2563eb"; e.currentTarget.style.color = "white"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#2563eb"; }}
-                        >
-                          Handle
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                {reportsTableBody}
               </tbody>
             </table>
           </div>

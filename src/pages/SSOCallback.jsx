@@ -36,7 +36,7 @@ const SyncWithBackend = () => {
         const res = await axiosInstance.post("/auth/clerk-sso", {
           clerkToken,
           roles: role && role !== "existing" ? [role] : undefined,
-          termsAccepted: role !== "existing" ? termsAccepted : true,
+          termsAccepted: role === "existing" ? true : termsAccepted,
         });
 
         logger.info("SSO backend sync succeeded", {
@@ -105,10 +105,11 @@ const SyncWithBackend = () => {
 const SSOCallback = () => {
   return (
     <AuthenticateWithRedirectCallback
-      afterSignInUrl="/sso-callback-sync"
-      afterSignUpUrl="/sso-callback-sync"
+      signInFallbackRedirectUrl="/sso-callback-sync"
+      signUpFallbackRedirectUrl="/sso-callback-sync"
     />
   );
 };
+
 
 export default SSOCallback;

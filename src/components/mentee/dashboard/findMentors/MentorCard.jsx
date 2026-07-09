@@ -78,7 +78,7 @@ VerificationBadge.propTypes = {
 
 const MentorCard = ({ mentor, onViewProfile }) => {
   const {
-    user,
+    name,
     currentRole,
     company,
     industry,
@@ -94,8 +94,8 @@ const MentorCard = ({ mentor, onViewProfile }) => {
   const visibleSkills = skills.slice(0, MAX_SKILLS_SHOWN);
   const extraSkills = skills.length - MAX_SKILLS_SHOWN;
 
-  const initials = user?.name
-    ? user.name
+  const initials = name
+    ? name
         .split(" ")
         .map((n) => n[0])
         .join("")
@@ -111,6 +111,7 @@ const MentorCard = ({ mentor, onViewProfile }) => {
           {profilePicture && !imgError ? (
             <img
               src={mentor.profilePicture56 || profilePicture}
+              alt={name}
               className="w-14 h-14 rounded-full object-cover border-2 border-slate-100"
               onError={() => setImgError(true)}
             />
@@ -123,7 +124,7 @@ const MentorCard = ({ mentor, onViewProfile }) => {
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-slate-800 truncate">
-            {user?.name || "—"}
+            {name || "—"}
           </p>
           <p className="text-xs text-slate-500 truncate mt-0.5">
             {currentRole || "—"}
@@ -163,9 +164,9 @@ const MentorCard = ({ mentor, onViewProfile }) => {
       {/* ── Skills ── */}
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {visibleSkills.map((skill, i) => (
+          {visibleSkills.map((skill) => (
             <span
-              key={i}
+              key={skill}
               className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full"
             >
               {skill}
@@ -215,7 +216,8 @@ const MentorCard = ({ mentor, onViewProfile }) => {
 
 MentorCard.propTypes = {
   mentor: PropTypes.shape({
-    user: PropTypes.shape({ name: PropTypes.string }),
+    id: PropTypes.string,
+    name: PropTypes.string,
     currentRole: PropTypes.string,
     company: PropTypes.string,
     industry: PropTypes.string,

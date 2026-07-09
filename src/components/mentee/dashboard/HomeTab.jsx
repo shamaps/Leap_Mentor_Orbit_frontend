@@ -1,5 +1,5 @@
 // src/components/mentee/dashboard/HomeTab.jsx
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import { useNavigate } from "react-router-dom";
 import MentorProfileModal from "./findMentors/MentorProfileModal";
 import LeapBuddy from "../../LeapBuddy";
@@ -27,7 +27,7 @@ const AVATAR_COLORS = [
   "bg-amber-100 text-amber-600",
 ];
 const getAvatarColor = (name = "") =>
-  AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+  AVATAR_COLORS[name.codePointAt(0) % AVATAR_COLORS.length];
 
 const formatSlotDate = (slot) => {
   if (!slot?.date) return "";
@@ -42,7 +42,7 @@ const formatSlotTime = (slot) => {
   if (!slot?.startTime || !slot?.endTime) return "";
   const fmt = (t) => {
     const [h, m] = t.split(":");
-    const hour = parseInt(h);
+    const hour = Number.parseInt(h);
     const ampm = hour >= 12 ? "PM" : "AM";
     return `${hour % 12 || 12}:${m} ${ampm}`;
   };
@@ -82,9 +82,10 @@ const MentorCard = ({ mentor, onViewProfile }) => {
   const skills = mentor.skills?.slice(0, 2) || [];
 
   return (
-    <div
+    <button
+      type="button"
       onClick={() => onViewProfile(mentor)}
-      className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer text-left w-full"
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -134,7 +135,7 @@ const MentorCard = ({ mentor, onViewProfile }) => {
           )}
         </div>
       )}
-    </div>
+    </button>
   );
 };
 MentorCard.propTypes = {
@@ -176,7 +177,7 @@ const SessionCard = ({ request, index, navigate }) => {
           <StatusBadge status={isOngoing ? "ongoing" : "accepted"} variant="history" />
         </div>
         <p className="text-[10px] text-blue-900 truncate mt-0.5">
-          {timeStr ? timeStr : "Time TBD"}
+          {timeStr || "Time TBD"}
           {slot?.date ? ` · ${formatSlotDate(slot)}` : ""}
         </p>
       </div>
@@ -223,7 +224,28 @@ const LeapPointsPanel = ({ balance, loading }) => {
 
   const isAlreadyRequested =
     requestStatus === "pending" || requestStatus === "sent";
-
+  let refillStatusContent = null;
+  if (isAlreadyRequested) {
+    refillStatusContent = (
+      <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-100">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+        <p className="text-[11px] font-semibold text-emerald-700">
+          Request sent — pending admin review
+        </p>
+      </div>
+    );
+  } else if (requestStatus === "error") {
+    refillStatusContent = (
+      <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50 border border-red-100">
+        <p className="text-[11px] font-semibold text-red-600">
+          Something went wrong. Try again.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-3">
       <div className="flex items-center gap-2">
@@ -280,39 +302,14 @@ const LeapPointsPanel = ({ balance, loading }) => {
         <div className="mt-1">
           {isBalanceEmpty ? (
             <>
-              {isAlreadyRequested ? (
-                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-100">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#059669"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </svg>
-                  <p className="text-[11px] font-semibold text-emerald-700">
-                    Request sent — pending admin review
-                  </p>
-                </div>
-              ) : requestStatus === "error" ? (
-                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-50 border border-red-100">
-                  <p className="text-[11px] font-semibold text-red-600">
-                    Something went wrong. Try again.
-                  </p>
-                </div>
-              ) : (
+              {refillStatusContent || (
                 <button
                   onClick={handleUpgradeRequest}
                   disabled={requestStatus === "sending"}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold
-                    bg-blue-900 hover:bg-blue-800 active:bg-blue-950 text-white
-                    transition-all duration-150 shadow-sm hover:shadow-md
-                    disabled:opacity-60 disabled:cursor-not-allowed"
+      bg-blue-900 hover:bg-blue-800 active:bg-blue-950 text-white
+      transition-all duration-150 shadow-sm hover:shadow-md
+      disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {requestStatus === "sending" ? (
                     <>
@@ -398,7 +395,73 @@ const HomeTab = () => {
   const [selectedMentor, setSelectedMentor] = useState(null);
 
   const { mentors, sessions, loading, balance } = useMenteeHomeData(profile);
-
+  let sessionsSummaryText = "No active sessions yet. Find a mentor to get started!";
+  if (sessions.length > 0) {
+    const plural = sessions.length > 1 ? "s" : "";
+    sessionsSummaryText = `You have ${sessions.length} active session${plural}.`;
+  }
+  let mentorGridContent;
+  if (loading) {
+    mentorGridContent = (
+      <>
+        <MentorCardSkeleton variant="compact" />
+        <MentorCardSkeleton variant="compact" />
+        <MentorCardSkeleton variant="compact" />
+        <MentorCardSkeleton variant="compact" />
+      </>
+    );
+  } else if (mentors.length > 0) {
+    mentorGridContent = mentors.map((mentor) => (
+      <MentorCard
+        key={mentor.id || mentor.userId}
+        mentor={mentor}
+        onViewProfile={setSelectedMentor}
+      />
+    ));
+  } else {
+    mentorGridContent = (
+      <div className="col-span-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-8 text-center">
+        <p className="text-sm text-slate-700">No mentor recommendations yet.</p>
+        <button
+          onClick={() =>
+            globalThis.dispatchEvent(
+              new CustomEvent("setDashboardTab", { detail: "findMentors" }),
+            )
+          }
+          className="text-xs text-blue-900 font-semibold mt-2 hover:underline"
+        >
+          Browse all mentors →
+        </button>
+      </div>
+    );
+  }
+  let sessionsListContent;
+  if (loading) {
+    sessionsListContent = (
+      <>
+        <SessionSkeleton />
+        <SessionSkeleton />
+      </>
+    );
+  } else if (sessions.length > 0) {
+    sessionsListContent = sessions.map((request, idx) => (
+      <SessionCard
+        key={request._id}
+        request={request}
+        index={idx}
+        navigate={navigate}
+      />
+    ));
+  } else {
+    sessionsListContent = (
+      <div className="bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-6 text-center">
+        <p className="text-sm text-slate-700">No active sessions yet.</p>
+        <p className="text-xs text-slate-700 mt-1">
+          Once a mentor accepts, your sessions appear here.
+        </p>
+      </div>
+    );
+  }
   return (
     <>
       <div className="flex flex-col gap-6 -mt-2">
@@ -411,17 +474,16 @@ const HomeTab = () => {
                 : `Welcome , ${firstName}! 👋`}
             </h1>
             <p className="text-sm text-blue-900 mt-1">
-              {sessions.length > 0
-                ? `You have ${sessions.length} active session${sessions.length > 1 ? "s" : ""}.`
-                : "No active sessions yet. Find a mentor to get started!"}
+              {sessionsSummaryText}
             </p>
           </div>
 
           {completionPct < 100 && (
-            <div
-              className="flex flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+            <button
+              type="button"
+              className="flex flex-col items-center gap-1 shrink-0 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-none"
               onClick={() =>
-                window.dispatchEvent(
+                globalThis.dispatchEvent(
                   new CustomEvent("setDashboardTab", { detail: "profile" }),
                 )
               }
@@ -452,7 +514,7 @@ const HomeTab = () => {
                 </span>
               </div>
               <span className="text-xs font-bold text-blue-900">Profile</span>
-            </div>
+            </button>
           )}
         </div>
 
@@ -474,7 +536,7 @@ const HomeTab = () => {
             </div>
             <button
               onClick={() =>
-                window.dispatchEvent(
+                globalThis.dispatchEvent(
                   new CustomEvent("setDashboardTab", { detail: "findMentors" }),
                 )
               }
@@ -485,40 +547,7 @@ const HomeTab = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {loading ? (
-              <>
-                <MentorCardSkeleton variant="compact" />
-                <MentorCardSkeleton variant="compact" />
-                <MentorCardSkeleton variant="compact" />
-                <MentorCardSkeleton variant="compact" />
-              </>
-            ) : mentors.length > 0 ? (
-              mentors.map((mentor) => (
-                <MentorCard
-                  key={mentor._id || mentor.user?._id}
-                  mentor={mentor}
-                  onViewProfile={setSelectedMentor}
-                />
-              ))
-            ) : (
-              <div className="col-span-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-8 text-center">
-                <p className="text-sm text-slate-700">
-                  No mentor recommendations yet.
-                </p>
-                <button
-                  onClick={() =>
-                    window.dispatchEvent(
-                      new CustomEvent("setDashboardTab", {
-                        detail: "findMentors",
-                      }),
-                    )
-                  }
-                  className="text-xs text-blue-900 font-semibold mt-2 hover:underline"
-                >
-                  Browse all mentors →
-                </button>
-              </div>
-            )}
+            {mentorGridContent}
           </div>
         </section>
 
@@ -529,30 +558,7 @@ const HomeTab = () => {
               Active Sessions
             </h2>
             <div className="flex flex-col gap-2.5">
-              {loading ? (
-                <>
-                  <SessionSkeleton />
-                  <SessionSkeleton />
-                </>
-              ) : sessions.length > 0 ? (
-                sessions.map((request, idx) => (
-                  <SessionCard
-                    key={request._id}
-                    request={request}
-                    index={idx}
-                    navigate={navigate}
-                  />
-                ))
-              ) : (
-                <div className="bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-6 text-center">
-                  <p className="text-sm text-slate-700">
-                    No active sessions yet.
-                  </p>
-                  <p className="text-xs text-slate-700 mt-1">
-                    Once a mentor accepts, your sessions appear here.
-                  </p>
-                </div>
-              )}
+              {sessionsListContent}          
             </div>
           </section>
 

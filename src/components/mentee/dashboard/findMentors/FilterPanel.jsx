@@ -127,10 +127,11 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
         <div className="mt-3 bg-white border border-slate-100 rounded-2xl shadow-sm p-5 grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Industry */}
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+            <label htmlFor="filter-industry" className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
               Industry
             </label>
             <select
+              id="filter-industry"
               value={filters.industry}
               onChange={(e) => updateFilter("industry", e.target.value)}
               className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
@@ -146,24 +147,25 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
 
           {/* Price range */}
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+            <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
               Price Range ($/hr)
-            </label>
+            </span>
             <div className="flex items-center gap-2">
-              {/* ✅ Uses localMin/localMax — debounced before hitting updateFilter */}
               <input
                 type="number"
                 min="0"
                 placeholder="Min"
+                aria-label="Minimum price per hour"
                 value={localMin}
                 onChange={(e) => handleMinPrice(e.target.value)}
-                className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
+                className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150" 
               />
               <span className="text-slate-300 font-bold shrink-0">—</span>
               <input
                 type="number"
                 min="0"
                 placeholder="Max"
+                aria-label="Maximum price per hour"
                 value={localMax}
                 onChange={(e) => handleMaxPrice(e.target.value)}
                 className="w-full text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-150"
@@ -173,20 +175,19 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
 
           {/* Rating */}
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+            <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
               Minimum Rating
-            </label>
-            <div className="flex gap-2 flex-wrap">
+            </span>
+            <div className="flex gap-2 flex-wrap" role="group" aria-label="Minimum rating">
               {RATINGS.map((r) => (
                 <button
                   key={r.label}
                   type="button"
                   onClick={() => updateFilter("minRating", r.value)}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
-                    filters.minRating === r.value
+                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${filters.minRating === r.value
                       ? "bg-blue-900 text-white shadow-sm"
                       : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                  }`}
+                    }`}
                 >
                   {r.label}
                 </button>
@@ -195,12 +196,12 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
           </div>
 
           {/* ✅ Experience — new filter, full width on its own row */}
-          <div className="md:col-span-3">
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
-              Experience
-            </label>
-            <div className="flex gap-2 flex-wrap">
-              {EXPERIENCE_RANGES.map((r) => (
+            <fieldset className="md:col-span-3 border-0 p-0 m-0">
+              <legend className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+                Experience
+              </legend>
+              <div className="flex gap-2 flex-wrap">
+                {EXPERIENCE_RANGES.map((r) => (
                 <button
                   key={r.label}
                   type="button"
@@ -215,7 +216,8 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
                 </button>
               ))}
             </div>
-          </div>
+            </fieldset>
+
 
           {/* Reset */}
           {activeFilterCount > 0 && (

@@ -130,8 +130,10 @@ const SharedSidebar = ({ activeTab, setActiveTab, isOpen, onClose, viewerRole })
       </aside>
 
       {/* Mobile background overlay */}
-      <div
-        className="shared-sidebar-backdrop"
+      <button
+        type="button"
+        aria-label="Close sidebar"
+        className="shared-sidebar-backdrop border-none p-0 cursor-default"
         onClick={onClose}
         style={{
           position: "fixed", inset: 0, backgroundColor: "rgba(15,23,42,0.5)",

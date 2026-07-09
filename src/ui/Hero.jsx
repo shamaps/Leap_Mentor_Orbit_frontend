@@ -5,24 +5,22 @@ const images = [
   "/images/mentor4.webp",
   "/images/mentor2.webp",
 ];
-
+const advanceSlide = (prev) => (prev + 1) % images.length;
 export default function Hero() {
   const [current, setCurrent] = useState(0);
   const [fade, setFade] = useState(true);
-
-  // NO useEffect preload — handled via <link rel="preload"> in index.html
 
   useEffect(() => {
     const interval = setInterval(() => {
       setFade(false);
       setTimeout(() => {
-        setCurrent((prev) => (prev + 1) % images.length);
+        setCurrent(advanceSlide);
         setFade(true);
       }, 400);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
-
+  const getSlideOpacity = (current, i, fade) => (current === i && fade ? 1 : 0);
   return (
     <section className="min-h-screen bg-white pt-24 pb-16 px-6 flex items-center">
       <div className="max-w-6xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -42,16 +40,14 @@ export default function Hero() {
           {/* Social Proof */}
           <div className="flex items-center gap-3 mt-2">
             <div className="flex -space-x-2">
-              {["bg-pink-400", "bg-yellow-400", "bg-green-400"].map(
-                (color, i) => (
-                  <div
-                    key={i}
-                    className={`w-9 h-9 rounded-full ${color} border-2 border-white flex items-center justify-center text-white text-xs font-bold`}
-                  >
-                    {["A", "B", "C"][i]}
-                  </div>
-                ),
-              )}
+              {["bg-pink-400", "bg-yellow-400", "bg-green-400"].map((color, i) => (
+                <div
+                  key={color}
+                  className={`w-9 h-9 rounded-full ${color} border-2 border-white flex items-center justify-center text-white text-xs font-bold`}
+                >
+                  {["A", "B", "C"][i]}
+                </div>
+              ))}
             </div>
             <p className="text-sm text-gray-500">
               Joined by{" "}
@@ -81,7 +77,7 @@ export default function Hero() {
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  opacity: current === i ? (fade ? 1 : 0) : 0,
+                  opacity: getSlideOpacity(current, i, fade),           
                   transition:
                     current === i && fade ? "opacity 0.4s ease-in-out" : "none",
                 }}

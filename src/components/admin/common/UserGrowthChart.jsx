@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 const smoothPath = (points, w, h, min, max) => {
-  if (points.length < 2) return "";
+  if (points.length < 2) return { line: "", xs: [], ys: [] };
   const range = max - min || 1;
 
   const xs = points.map((_, i) => (i / (points.length - 1)) * w);
@@ -20,6 +20,7 @@ const smoothPath = (points, w, h, min, max) => {
 
 const RANGES = ["7D", "30D", "90D"];
 const Y_TICKS = 4;
+const RANGE_DAYS = { "7D": 7, "30D": 30, "90D": 90 };
 
 const UserGrowthChart = ({ data = [] }) => {
   const [range, setRange] = useState("30D");
@@ -31,7 +32,7 @@ const UserGrowthChart = ({ data = [] }) => {
   const H = 160;
 
   const sliced = useMemo(() => {
-    const dayCount = range === "7D" ? 7 : range === "30D" ? 30 : 90;
+    const dayCount = RANGE_DAYS[range];
     return data.length ? data.slice(-dayCount) : [];
   }, [data, range]);
 
@@ -55,7 +56,7 @@ const UserGrowthChart = ({ data = [] }) => {
     Math.max(...values) <= 0 ? 10 : Math.ceil(Math.max(...values) * 1.2);
 
   const result = smoothPath(values, CHART_W, H, scaleMin, scaleMax);
-  if (!result) return null;
+  if (!result.line) return null;
 
   const { line, xs, ys } = result;
   const area = `${line} L ${xs[xs.length - 1]} ${H} L ${xs[0]} ${H} Z`;
@@ -120,8 +121,8 @@ const UserGrowthChart = ({ data = [] }) => {
             </linearGradient>
           </defs>
 
-          {yTicks.map(({ value, yPos }, i) => (
-            <g key={i}>
+          {yTicks.map(({ value, yPos }) => (
+            <g key={value}>
               <line
                 x1={LABEL_W}
                 y1={yPos}
@@ -156,7 +157,7 @@ const UserGrowthChart = ({ data = [] }) => {
             />
 
             {xs.map((x, i) => (
-              <g key={i}>
+              <g key={`point-${x}`}>
                 <rect
                   x={x - 10}
                   y={0}
@@ -234,9 +235,9 @@ const UserGrowthChart = ({ data = [] }) => {
             (_, i) =>
               i % Math.ceil(sliced.length / 6) === 0 || i === sliced.length - 1,
           )
-          .map((d, i) => (
+          .map((d) => (
             <span
-              key={i}
+              key={d.label}
               className="text-[10px] text-slate-500"
               style={{ fontFamily: "'DM Mono', monospace" }}
             >

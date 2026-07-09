@@ -8,7 +8,7 @@ const formatDate = (dateStr) => {
   const d = dateStr.includes("T")
     ? new Date(dateStr)
     : new Date(dateStr + "T00:00:00");
-  if (isNaN(d)) return "—";
+  if (Number.isNaN(d)) return "—";
   return d.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -86,7 +86,6 @@ const SlotsModal = ({ request, onClose }) => {
     message,
     requestedAt,
   } = request;
-  const cfg = getCfg(status);
   const initials = mentee?.name
     ? mentee.name
         .split(" ")
@@ -192,7 +191,7 @@ const SlotsModal = ({ request, onClose }) => {
           {/* All proposed slots */}
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-              Proposed Slots
+              Proposed Slots{" "}
               <span className="ml-1.5 text-blue-600 normal-case font-semibold">
                 ({selectedSlots.length})
               </span>
@@ -200,7 +199,7 @@ const SlotsModal = ({ request, onClose }) => {
             <div className="space-y-2">
               {selectedSlots.map((slot, i) => (
                 <div
-                  key={i}
+                  key={`${slot.date}-${slot.startTime}`}
                   className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"
                 >
                   <div className="flex items-center gap-2.5">

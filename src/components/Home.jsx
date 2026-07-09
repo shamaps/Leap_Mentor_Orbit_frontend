@@ -12,11 +12,12 @@ export default function Home() {
   const navigate = useNavigate();
   const token = useSelector(selectAuthToken);
   const user = useSelector(selectAuthUser);
-  const role = user?.roles?.includes("mentor")
-    ? "mentor"
-    : user?.roles?.includes("mentee")
-      ? "mentee"
-      : null;
+  const getRole = (roles) => {
+    if (roles?.includes("mentor")) return "mentor";
+    if (roles?.includes("mentee")) return "mentee";
+    return null;
+  };
+  const role = getRole(user?.roles);
 
   useEffect(() => {
     //  token now comes from Redux (was always null after new auth flow)

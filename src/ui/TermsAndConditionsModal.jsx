@@ -19,22 +19,21 @@ const TermsAndConditionsModal = ({
 }) => {
   const [agreed, setAgreed] = useState(false);
   const overlayRef = useRef(null);
-
+  const backdropRef = useRef(null); 
   // Reset checkbox whenever modal opens
   useEffect(() => {
     if (isOpen) setAgreed(false);
   }, [isOpen]);
-
-  // Close on Escape key
-  // Close on Escape key
+  // Sync isOpen with native <dialog> show/close, and handle ESC/cancel
   useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [isOpen, onClose]);
+    const dialogEl = overlayRef.current;
+    if (!dialogEl) return;
+    if (isOpen && !dialogEl.open) {
+      dialogEl.showModal();
+    } else if (!isOpen && dialogEl.open) {
+      dialogEl.close();
+    }
+  }, [isOpen]);
 
   // Prevent background scroll while open
   useEffect(() => {
@@ -44,28 +43,27 @@ const TermsAndConditionsModal = ({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
-  const handleOverlayClick = (e) => {
-    if (e.target === overlayRef.current) onClose();
-  };
-
   const handleAccept = () => {
     if (!agreed) return;
     onAccept();
   };
 
   return (
-    <div
+    <dialog
       ref={overlayRef}
-      onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
-      role="dialog"
-      aria-modal="true"
+      onClose={onClose}
       aria-labelledby="terms-modal-title"
+      className="fixed inset-0 z-50 m-0 p-0 max-w-none max-h-none w-full h-full bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm"
     >
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-modal-in">
-        {/* ── Header ── */}
+      <div
+        ref={backdropRef}
+        role="presentation"
+        onClick={(e) => {
+          if (e.target === backdropRef.current) onClose();
+        }}
+        className="flex items-center justify-center w-full h-full px-4"
+      >
+        <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-modal-in">   {/* ── Header ── */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100 shrink-0">
           <div>
             <h2
@@ -210,8 +208,7 @@ const TermsAndConditionsModal = ({
                 className="text-blue-900 underline"
               >
                 leapmentor2026@gmail.com
-              </a>
-              .
+              </a>.
             </p>
           </section>
         </div>
@@ -234,8 +231,7 @@ const TermsAndConditionsModal = ({
                 and{" "}
                 <span className="font-medium text-slate-800">
                   Privacy Policy
-                </span>
-                .
+                </span>.
               </span>
             </label>
 
@@ -267,6 +263,7 @@ const TermsAndConditionsModal = ({
         .animate-modal-in { animation: modal-in 0.22s ease both; }
       `}</style>
     </div>
+    </dialog>
   );
 };
 TermsAndConditionsModal.propTypes = {

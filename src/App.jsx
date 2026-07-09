@@ -10,7 +10,7 @@ import GlobalErrorBanner from "./components/common/GlobalErrorBanner";
 import NotFound from "./pages/NotFound";
 import AdminRoute from "./components/admin/AdminRoute";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 const RegisterMentee = lazy(() => import("./pages/RegisterMentee"));
 const RegisterMentor = lazy(() => import("./pages/RegisterMentor"));
 const LoginMentor = lazy(() => import("./pages/LoginMentor"));
@@ -110,7 +110,7 @@ const App = () => {
 
           <Route path="/register/mentee" element={<RegisterMentee />} />
           <Route path="/register/mentor" element={<RegisterMentor />} />
-          <Route path="/login" element={<Navigate to="/login/mentee" replace />} />
+          <Route path="/login" element={<LoginMentee />} />
           <Route path="/login/mentor" element={<LoginMentor />} />
           <Route path="/login/mentee" element={<LoginMentee />} />
           <Route path="/verify-email" element={<VerifyEmail />} />

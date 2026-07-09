@@ -1,25 +1,28 @@
 // src/components/auth/RegisterForm.jsx
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerSchema } from "../../schemas/authSchemas";
 import useGoogleAuth from "../../hooks/useGoogleAuth";
 import { ssoFlags } from "../../utils/storage";
 import PropTypes from "prop-types";
+import PasswordVisibilityIcon from "../common/PasswordVisibilityIcon";
 import {
   registerUser,
   clearMessages,
   setUser,
 } from "../../store/slices/authSlice";
 import FullScreenLoader from "@/components/common/FullScreenLoader";
+import FormField from "../common/FormField";
 import AuthSSOButtons from "./AuthSSOButtons";
-import { AuthMessageBanner, AuthDivider, AuthField, AuthBrand } from "./AuthUI";
+import { AuthMessageBanner, AuthDivider, AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
 import TermsAndConditionsModal from "../../ui/TermsAndConditionsModal";
 import { selectAuth } from "../../store/selectors";
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",
@@ -27,10 +30,13 @@ const CLERK_STRATEGY = {
 };
 
 // ── Alternative Password Rules Array Engine (Masks Structural Similarity) ──
+// Kept as-is for the live strength-meter UI. registerSchema in
+// authSchemas.js encodes the same 4 rules for actual submit-time
+// validation, so this array is now purely presentational.
 const POLICY_CRITERIA_REGISTRY = [
   { keyId: "length", infoText: "At least 8 characters", evaluate: (str) => str.length >= 8 },
   { keyId: "upper", infoText: "At least 1 uppercase letter", evaluate: (str) => /[A-Z]/.test(str) },
-  { keyId: "digit", infoText: "At least 1 number", evaluate: (str) => /[0-9]/.test(str) },
+  { keyId: "digit", infoText: "At least 1 number", evaluate: (str) => /\d/.test(str) },
   { keyId: "sym", infoText: "At least 1 special character", evaluate: (str) => /[^A-Za-z0-9]/.test(str) }
 ];
 
@@ -57,36 +63,47 @@ const RegisterForm = ({ role }) => {
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
 
   const googleBtnRef = useRef(null);
-  const termsAcceptedRef = useRef(true);
+  const termsAcceptedRef = useRef(false);
 
-  const { loading, error, successMsg } = useSelector(selectAuth);
-
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    termsAccepted: false,
-  });
+  const { loading, error } = useSelector(selectAuth);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [localMsg, setLocalMsg] = useState({ type: "", text: "" });
-  const [pwTouched, setPwTouched] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors, touchedFields },
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { name: "", email: "", password: "", termsAccepted: false },
+  });
+
+  const watchedPassword = watch("password");
+  const watchedTerms = watch("termsAccepted");
+
+  // useGoogleAuth reads termsAcceptedRef synchronously (outside React's
+  // render cycle), so it's kept in sync with RHF's own termsAccepted
+  // field here rather than duplicating a second source of truth.
   useEffect(() => {
-    if (error) setLocalMsg({ type: "error", text: error });
-  }, [error, successMsg]);
+    termsAcceptedRef.current = watchedTerms;
+  }, [watchedTerms]);
+
+  // Redux-level errors (e.g. a rejected registerUser thunk) surface as
+  // a root-level form error, same place client + other server errors
+  // render.
+  useEffect(() => {
+    if (error) setError("root", { type: "server", message: error });
+  }, [error, setError]);
 
   useEffect(() => {
     return () => dispatch(clearMessages());
   }, [dispatch]);
-
-  useEffect(() => {
-    if (form.termsAccepted && localMsg.text === "Please accept the terms to continue.") {
-      setLocalMsg({ type: "", text: "" });
-    }
-  }, [form.termsAccepted, localMsg.text]);
 
   useGoogleAuth({
     btnRef: googleBtnRef,
@@ -95,26 +112,16 @@ const RegisterForm = ({ role }) => {
     dispatch,
     setUser,
     onSuccess: (data) => {
-      setLocalMsg({ type: "success", text: "Google signup successful! Redirecting..." });
+      setRedirecting(true);
       setTimeout(() => navigate(data?.isNewUser ? `/onboarding/${role}` : `/dashboard/${role}`), 700);
     },
-    onError: (text) => setLocalMsg({ type: "error", text }),
+    onError: (text) => setError("root", { type: "server", message: text }),
   });
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (name === "termsAccepted") termsAcceptedRef.current = checked;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
   const handleTermsAccept = () => {
-    termsAcceptedRef.current = true;
-    setForm((prev) => ({ ...prev, termsAccepted: true }));
+    setValue("termsAccepted", true, { shouldValidate: true });
     setShowTermsModal(false);
-    setLocalMsg({ type: "", text: "" });
+    clearErrors("termsAccepted");
   };
 
   const handleTermsClose = () => setShowTermsModal(false);
@@ -122,50 +129,41 @@ const RegisterForm = ({ role }) => {
   const handleClerkSSO = async (provider) => {
     if (!clerkLoaded) return;
     try {
-      await signOut({ redirectUrl: window.location.href });
+      await signOut({ redirectUrl: globalThis.location.href });
       ssoFlags.set(role, true);
       await signIn.authenticateWithRedirect({
         strategy: CLERK_STRATEGY[provider],
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: `${window.location.origin}/sso-callback-sync`,
+        redirectUrl: `${globalThis.location.origin}/sso-callback`,
+        redirectUrlComplete: `${globalThis.location.origin}/sso-callback-sync`,
       });
     } catch (err) {
       ssoFlags.clear();
-      setLocalMsg({ type: "error", text: err.message || "SSO failed. Try again." });
+      setError("root", { type: "server", message: err.message || "SSO failed. Try again." });
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLocalMsg({ type: "", text: "" });
-
-    if (!form.termsAccepted) {
-      return setLocalMsg({ type: "error", text: "Please accept the terms to continue." });
-    }
-
-    const { matchedRulesCount } = checkPasswordPolicyMatches(form.password);
-    if (matchedRulesCount < 4) {
-      setPwTouched(true);
-      return setLocalMsg({ type: "error", text: "Please choose a stronger password." });
-    }
-
-    const result = await dispatch(
+  // zodResolver has already validated name/email/password/termsAccepted
+  // by the time this runs — no manual policy or terms checks needed.
+  const onSubmit = async (data) => {
+    const result = await Promise.resolve(
+      dispatch(
       registerUser({
-        name: form.name.trim(),
-        email: form.email.trim(),
-        password: form.password,
+        name: data.name.trim(),
+        email: data.email.trim(),
+        password: data.password,
         roles: [role],
         termsAccepted: true,
-      }),
+      }),),
     );
 
     if (registerUser.fulfilled.match(result)) {
       if (!result.payload.isNewUser) {
-        return setLocalMsg({ type: "error", text: "This email is already registered. Please login instead." });
+        setError("email", { type: "server", message: "This email is already registered. Please login instead." });
+        return;
       }
 
       setRedirecting(true);
-      setTimeout(() => navigate("/verify-email", { state: { email: form.email.trim(), role } }), 800);
+      setTimeout(() => navigate("/verify-email", { state: { email: data.email.trim(), role } }), 800);
     }
   };
 
@@ -183,40 +181,46 @@ const RegisterForm = ({ role }) => {
           : "Create your LeapMentor mentee account to start growing."}
       </p>
 
-      {localMsg.type === "error" && <AuthMessageBanner type="error" text={localMsg.text} />}
+      {errors.root?.message && <AuthMessageBanner type="error" text={errors.root.message} />}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <AuthField label="Full Name" name="name" value={form.name} onChange={handleChange} placeholder="John Doe" required />
-        <AuthField label="Email Address" name="email" type="email" value={form.email} onChange={handleChange} placeholder="name@company.com" required />
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
+        <FormField
+          label="Full Name"
+          required
+          placeholder="John Doe"
+          error={errors.name?.message}
+          {...register("name")}
+        />
+        <FormField
+          label="Email Address"
+          required
+          type="email"
+          placeholder="name@company.com"
+          error={errors.email?.message}
+          {...register("email")}
+        />
 
         <div className="flex flex-col gap-1.5">
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Password</label>
           <div className="relative">
-            <input
-              name="password" type={showPassword ? "text" : "password"} value={form.password}
-              onChange={(e) => { handleChange(e); setPwTouched(true); }} onBlur={() => setPwTouched(true)}
-              placeholder="••••••••" required
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-11 text-sm text-slate-800 bg-white outline-none focus:border-blue-900 focus:ring-4 focus:ring-blue-50 transition-all duration-150"
+            <FormField
+              label="Password"
+              required
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              className="pr-11"
+              error={errors.password?.message}
+              {...register("password")}
             />
             <button
               type="button" tabIndex={-1} aria-label={showPassword ? "Hide password" : "Show password"}
-              onClick={() => setShowPassword((p) => !p)} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-2"
+              onClick={() => setShowPassword((p) => !p)} className="absolute right-2 top-[38px] text-slate-400 hover:text-slate-600 transition-colors p-2"
             >
-              {showPassword ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" />
-                </svg>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-                </svg>
-              )}
+              <PasswordVisibilityIcon visible={showPassword} />
             </button>
           </div>
 
-          {pwTouched && form.password.length > 0 && (() => {
-            const { policyList, matchedRulesCount } = checkPasswordPolicyMatches(form.password);
+          {touchedFields.password && watchedPassword?.length > 0 && (() => {
+            const { policyList, matchedRulesCount } = checkPasswordPolicyMatches(watchedPassword);
             const strengthBar = buildStrengthIndicator(matchedRulesCount);
             return (
               <div className="mt-2 flex flex-col gap-2">
@@ -228,7 +232,7 @@ const RegisterForm = ({ role }) => {
                 </div>
                 <div className="grid grid-cols-2 gap-1">
                   {policyList.map((rule) => {
-                    const ruleValid = rule.evaluate(form.password);
+                    const ruleValid = rule.evaluate(watchedPassword);
                     return (
                       <div key={rule.keyId} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                         <span style={{ color: ruleValid ? "#22c55e" : "#cbd5e1", fontSize: "12px" }}>{ruleValid ? "✓" : "○"}</span>
@@ -242,14 +246,19 @@ const RegisterForm = ({ role }) => {
           })()}
         </div>
 
-        <div className="flex items-start gap-2">
-          <input type="checkbox" id="termsAccepted" name="termsAccepted" checked={form.termsAccepted} onChange={handleChange} className="mt-0.5 w-4 h-4 accent-blue-900 shrink-0 cursor-pointer" />
-          <label htmlFor="termsAccepted" className="text-sm text-slate-600 leading-relaxed">
-            I agree to the{" "}
-            <button type="button" onClick={() => setShowTermsModal(true)} className="text-blue-900 underline cursor-pointer bg-transparent border-none p-0 text-sm font-normal">Terms</button>
-            {" "}and{" "}
-            <button type="button" onClick={() => setShowTermsModal(true)} className="text-blue-900 underline cursor-pointer bg-transparent border-none p-0 text-sm font-normal">Privacy Policy</button>.
-          </label>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-start gap-2">
+            <input type="checkbox" id="termsAccepted" className="mt-0.5 w-4 h-4 accent-blue-900 shrink-0 cursor-pointer" {...register("termsAccepted")} />
+            <label htmlFor="termsAccepted" className="text-sm text-slate-600 leading-relaxed">
+              I agree to the{" "}
+              <button type="button" onClick={() => setShowTermsModal(true)} className="text-blue-900 underline cursor-pointer bg-transparent border-none p-0 text-sm font-normal">Terms</button>
+              {" "}and{" "}
+              <button type="button" onClick={() => setShowTermsModal(true)} className="text-blue-900 underline cursor-pointer bg-transparent border-none p-0 text-sm font-normal">Privacy Policy</button>.
+            </label>
+          </div>
+          {errors.termsAccepted?.message && (
+            <p className="text-xs text-red-400 ml-6">{errors.termsAccepted.message}</p>
+          )}
         </div>
 
         <button type="submit" disabled={loading} className="w-full bg-blue-900 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-lg py-2.5 mt-1 transition-colors">
@@ -269,10 +278,16 @@ const RegisterForm = ({ role }) => {
 
       <p className="text-sm text-slate-500 text-center mt-5">
         Already have an account?{" "}
-        <span className="text-blue-900 font-semibold cursor-pointer hover:underline" onClick={() => navigate("/login")}>Login</span>
+        <button
+          type="button"
+          className="text-blue-900 font-semibold cursor-pointer hover:underline bg-transparent border-none p-0"
+          onClick={() => navigate("/login")}
+        >
+          Login
+        </button>
       </p>
 
-      <TermsAndConditionsModal isOpen={showTermsModal} onClose={handleTermsClose} onAccept={handleTermsAccept} role={role} termsAccepted={form.termsAccepted} />
+      <TermsAndConditionsModal isOpen={showTermsModal} onClose={handleTermsClose} onAccept={handleTermsAccept} role={role} termsAccepted={watchedTerms} />
     </>
   );
 };

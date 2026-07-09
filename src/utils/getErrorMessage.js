@@ -8,7 +8,11 @@ const getErrorMessage = (err, fallback = "Something went wrong.") => {
   if (status === HTTP_STATUS.UNPROCESSABLE_ENTITY) {
     return data?.message || "Please check the highlighted fields and try again.";
   }
-
+  // 400 — field-level validation errors from Joi/Mongoose come back as
+  // { success: false, errors: [{ field, message }] }, not { message }
+  if (status === HTTP_STATUS.BAD_REQUEST && Array.isArray(data?.errors) && data.errors.length) {
+    return data.errors.map((e) => e.message).join(" ");
+  }
   // 429 — rate limited, tell the user to slow down instead of "something went wrong"
   if (status === HTTP_STATUS.TOO_MANY_REQUESTS) {
     return "You're doing that a bit too fast. Please wait a moment and try again.";

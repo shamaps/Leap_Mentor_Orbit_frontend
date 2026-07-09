@@ -20,7 +20,7 @@ const mentorsData = [
   },
   {
     name: "Clara Lee",
-    rating: 5.0,
+    rating: 5,
     skills: ["AI Architecture", "ReactJS Architecture"],
     badge: "Star Mentor",
     hourlyRate: 100,
@@ -106,9 +106,9 @@ const MentorMatchmaking = () => {
       : false;
 
     const minRating =
-      filters.minRating === "" ? 0 : parseFloat(filters.minRating);
+      filters.minRating === "" ? 0 : Number.parseFloat(filters.minRating);
     const maxRate =
-      filters.maxRate === "" ? Infinity : parseFloat(filters.maxRate);
+      filters.maxRate === "" ? Infinity : Number.parseFloat(filters.maxRate);
 
     return (
       (!filters.industry || m.industry === filters.industry) &&
@@ -187,9 +187,9 @@ const MentorMatchmaking = () => {
       {/* Mentor Cards */}
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredMentors.length ? (
-          filteredMentors.map((mentor, idx) => (
+          filteredMentors.map((mentor) => (
             <div
-              key={idx}
+              key={mentor.name}
               className="bg-white rounded-xl shadow p-5 flex flex-col gap-2 border-t-4 border-blue-400 hover:scale-105 transition-transform"
             >
               <div className="flex justify-between items-center">

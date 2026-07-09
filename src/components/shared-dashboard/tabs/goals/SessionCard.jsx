@@ -1,6 +1,5 @@
 // src/components/shared-dashboard/tabs/goals/SessionCard.jsx
-import { useState, useEffect } from "react";
-import FeedbackModal from "../FeedbackModal";
+import { useState } from "react";
 import StatusBadge from "../../../common/StatusBadge";
 import Spinner from "../../../common/Spinner";
 import PropTypes from "prop-types";
@@ -18,11 +17,24 @@ const formatSlotDate = (slot) => {
 const formatTime = (t) => {
   if (!t) return "";
   const [h, m] = t.split(":");
-  const hour = parseInt(h);
+  const hour = Number.parseInt(h);
   const ampm = hour >= 12 ? "PM" : "AM";
   return `${hour % 12 || 12}:${m} ${ampm}`;
 };
+const formatTimeShort = formatTime;
+const isMoreThan12HrsAway = (slot) => {
+  if (!slot?.date || !slot?.startTime) return false;
+  const sessionDateTime = new Date(`${slot.date}T${slot.startTime}`);
+  const diffMs = sessionDateTime.getTime() - Date.now();
+  return diffMs > 12 * 60 * 60 * 1000;
+};
 
+const getSessionStatus = (cancelled, bothDone, slot) => {
+  if (cancelled) return "cancelled";
+  if (bothDone) return "completed";
+  if (slot?.menteeMarked || slot?.mentorMarked) return "in_progress";
+  return "pending";
+};
 const isActive = (slot) => !slot?.status || slot?.status !== "cancelled";
 const slotShape = PropTypes.shape({
   date: PropTypes.string,
@@ -103,10 +115,11 @@ const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }) => {
         </p>
 
         <div>
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">
+          <label htmlFor="cancel-reason" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">
             Reason <span className="font-normal normal-case">(optional)</span>
           </label>
           <textarea
+            id="cancel-reason"
             rows={2}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
@@ -134,9 +147,9 @@ const CancelModal = ({ slot, slotIndex, onConfirm, onClose, saving }) => {
               flex items-center justify-center gap-2"
           >
             {saving ? <><Spinner size="sm" light />Cancelling...</>
-             :(
-              "Yes, Cancel It"
-            )}
+              : (
+                "Yes, Cancel It"
+              )}
           </button>
         </div>
       </div>
@@ -150,16 +163,11 @@ CancelModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   saving: PropTypes.bool,
 };
-
-// ── Slot Picker ───────────────────────────────────────────────
-const formatTimeShort = (t) => {
-  if (!t) return "";
-  const [h, m] = t.split(":");
-  const hour = parseInt(h);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  return `${hour % 12 || 12}:${m} ${ampm}`;
+const getSlotPillClass = (selected, booked) => {
+  if (selected) return "bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.02]";
+  if (booked) return "bg-slate-50 border-slate-100 cursor-not-allowed opacity-40";
+  return "bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-md cursor-pointer";
 };
-
 // ── Slot Pill ─────────────────────────────────────────────────
 const SlotPill = ({ slot, group, selected, onSelect, booked }) => (
   <button
@@ -175,17 +183,11 @@ const SlotPill = ({ slot, group, selected, onSelect, booked }) => (
       })
     }
     className={`
-      relative flex items-center justify-center
-      rounded-2xl px-3 h-12 text-center border w-full
-      transition-all duration-200
-      ${
-        selected
-          ? "bg-blue-900 border-blue-900 shadow-lg shadow-blue-100 scale-[1.02]"
-          : booked
-            ? "bg-slate-50 border-slate-100 cursor-not-allowed opacity-40"
-            : "bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-md cursor-pointer"
-      }
-    `}
+  relative flex items-center justify-center
+  rounded-2xl px-3 h-12 text-center border w-full
+  transition-all duration-200
+  ${getSlotPillClass(selected, booked)}
+`}
   >
     {selected && (
       <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-white rounded-full border-2 border-blue-900 flex items-center justify-center shadow-sm z-10">
@@ -290,6 +292,12 @@ const SlotTabPicker = ({
             const freeCnt = group.slots.filter(
               (s) => !isBooked(group, s),
             ).length;
+            let dayTabStateClass = "bg-white border-slate-200 hover:border-blue-200 hover:bg-blue-50";
+            if (isActiveTab) {
+              dayTabStateClass = "bg-blue-900 border-blue-900 shadow-md";
+            } else if (freeCnt === 0) {
+              dayTabStateClass = "bg-slate-50 border-slate-100 opacity-50 cursor-not-allowed";
+            }
             return (
               <button
                 key={group.date}
@@ -298,13 +306,7 @@ const SlotTabPicker = ({
                 className={`
                   flex-1 flex flex-col items-center justify-center
                   py-2 px-1 rounded-xl border text-center transition-all duration-200
-                  ${
-                    isActiveTab
-                      ? "bg-blue-900 border-blue-900 shadow-md"
-                      : freeCnt === 0
-                        ? "bg-slate-50 border-slate-100 opacity-50 cursor-not-allowed"
-                        : "bg-white border-slate-200 hover:border-blue-200 hover:bg-blue-50"
-                  }
+                  ${dayTabStateClass}
                 `}
                 disabled={freeCnt === 0}
               >
@@ -338,9 +340,9 @@ const SlotTabPicker = ({
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              {freeSlots.map((slot, i) => (
+              {freeSlots.map((slot) => (
                 <SlotPill
-                  key={i}
+                  key={slot.startTime}
                   slot={slot}
                   group={activeGroup}
                   selected={
@@ -385,6 +387,62 @@ const RescheduleModal = ({
   const bookedSlots = existingSlots
     .filter((s, i) => i !== slotIndex && isActive(s))
     .map((s) => ({ date: s.date, startTime: s.startTime, endTime: s.endTime }));
+
+  let availabilityContent;
+  if (availLoading) {
+    availabilityContent = (
+      <div className="flex flex-col gap-2">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-16 rounded-2xl bg-slate-100 animate-pulse"
+          />
+        ))}
+      </div>
+    );
+  } else if (availError) {
+    availabilityContent = (
+      <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+        {availError}
+      </div>
+    );
+  } else if (availability.length === 0) {
+    availabilityContent = (
+      <div className="flex flex-col items-center gap-3 py-10 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#94a3b8"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+        <p className="text-sm font-semibold text-slate-600">
+          No slots available
+        </p>
+        <p className="text-xs text-slate-400 max-w-xs">
+          Your mentor hasn't set availability for {duration}-min
+          sessions yet.
+        </p>
+      </div>
+    );
+  } else {
+    availabilityContent = (
+      <SlotTabPicker
+        availability={availability}
+        selectedSlot={selectedNewSlot}
+        onSelect={setSelectedNewSlot}
+        bookedSlots={bookedSlots}
+      />
+    );
+  }
 
   return (
     <div
@@ -474,10 +532,9 @@ const RescheduleModal = ({
                     setSelectedNewSlot(null);
                   }}
                   className={`px-5 py-2 rounded-xl text-xs font-bold transition-all
-                    ${
-                      duration === dur
-                        ? "bg-blue-900 text-white shadow-md"
-                        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    ${duration === dur
+                      ? "bg-blue-900 text-white shadow-md"
+                      : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                     }`}
                 >
                   {dur} min
@@ -487,52 +544,7 @@ const RescheduleModal = ({
           </div>
 
           <div>
-            {availLoading ? (
-              <div className="flex flex-col gap-2">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-16 rounded-2xl bg-slate-100 animate-pulse"
-                  />
-                ))}
-              </div>
-            ) : availError ? (
-              <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
-                {availError}
-              </div>
-            ) : availability.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 py-10 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#94a3b8"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                <p className="text-sm font-semibold text-slate-600">
-                  No slots available
-                </p>
-                <p className="text-xs text-slate-400 max-w-xs">
-                  Your mentor hasn't set availability for {duration}-min
-                  sessions yet.
-                </p>
-              </div>
-            ) : (
-              <SlotTabPicker
-                availability={availability}
-                selectedSlot={selectedNewSlot}
-                onSelect={setSelectedNewSlot}
-                bookedSlots={bookedSlots}
-              />
-            )}
+            {availabilityContent}
           </div>
         </div>
 
@@ -575,23 +587,23 @@ const RescheduleModal = ({
                   flex items-center justify-center gap-2 bg-blue-900"
               >
                 {saving ? <><Spinner size="sm" light />Rescheduling...</>
-                 : (
-                  <>
-                    <svg
-                      width="13"
-                      height="13"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    Confirm Reschedule
-                  </>
-                )}
+                  : (
+                    <>
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Confirm Reschedule
+                    </>
+                  )}
               </button>
             </div>
           </div>
@@ -631,115 +643,79 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
     if (result?.success) setEditing(false);
   };
 
-  return (
-    <div className="border-t border-slate-100 pt-3">
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-        Meeting Link
-      </p>
-      {editing ? (
-        <div className="flex flex-col gap-2">
-          <input
-            autoFocus
-            value={linkVal}
-            onChange={(e) => {
-              setLinkVal(e.target.value);
-              setLinkErr("");
-            }}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            placeholder="https://meet.google.com/..."
-            className={`w-full px-3 py-2 border rounded-xl text-sm text-slate-700
-              bg-white outline-none transition-colors placeholder:text-slate-400
-              ${linkErr ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-blue-300"}`}
-          />
-          {linkErr && (
-            <div className="flex items-start gap-1.5 px-3 py-2 bg-red-50 border border-red-100 rounded-xl">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#ef4444"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="shrink-0 mt-0.5"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              <p className="text-xs text-red-600 leading-relaxed">{linkErr}</p>
-            </div>
-          )}
-          {/* Helper hint */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                setEditing(false);
-                setLinkErr("");
-                setLinkVal(slot?.meetingLink || "");
-              }}
-              className="flex-1 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving || !linkVal.trim()}
-              className="flex-1 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold
-                hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </div>
-      ) : slot?.meetingLink ? (
-        <div className="flex items-center gap-2">
-          <a
-            href={slot.meetingLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100
-            rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors truncate"
-          >
+  let meetingLinkSectionContent;
+  if (editing) {
+    meetingLinkSectionContent = (
+      <div className="flex flex-col gap-2">
+        <input
+          autoFocus
+          value={linkVal}
+          onChange={(e) => {
+            setLinkVal(e.target.value);
+            setLinkErr("");
+          }}
+          onKeyDown={(e) => e.key === "Enter" && handleSave()}
+          placeholder="https://meet.google.com/..."
+          className={`w-full px-3 py-2 border rounded-xl text-sm text-slate-700
+            bg-white outline-none transition-colors placeholder:text-slate-400
+            ${linkErr ? "border-red-300 focus:border-red-400" : "border-slate-200 focus:border-blue-300"}`}
+        />
+        {linkErr && (
+          <div className="flex items-start gap-1.5 px-3 py-2 bg-red-50 border border-red-100 rounded-xl">
             <svg
               width="12"
               height="12"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
+              stroke="#ef4444"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="shrink-0 mt-0.5"
             >
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            <span className="truncate">{slot.meetingLink}</span>
-          </a>
-          {isMentor && (
-            <button
-              onClick={() => {
-                setLinkVal(slot.meetingLink);
-                setEditing(true);
-              }}
-              className="shrink-0 px-2.5 py-2 rounded-xl border border-slate-200 bg-white
-                text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              Edit
-            </button>
-          )}
+            <p className="text-xs text-red-600 leading-relaxed">{linkErr}</p>
+          </div>
+        )}
+        {/* Helper hint */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setEditing(false);
+              setLinkErr("");
+              setLinkVal(slot?.meetingLink || "");
+            }}
+            className="flex-1 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving || !linkVal.trim()}
+            className="flex-1 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold
+              hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
         </div>
-      ) : isMentor ? (
-        <button
-          onClick={() => setEditing(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-dashed
-            border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500
-            hover:border-blue-300 hover:text-blue-600 transition-colors"
+      </div>
+    );
+  } else if (slot?.meetingLink) {
+    meetingLinkSectionContent = (
+      <div className="flex items-center gap-2">
+        <a
+          href={slot.meetingLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100
+          rounded-xl text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors truncate"
         >
           <svg
-            width="11"
-            height="11"
+            width="12"
+            height="12"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -747,16 +723,63 @@ const MeetingLinkSection = ({ slot, viewerRole, onSetLink, saving }) => {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
-          Add Meeting Link
-        </button>
-      ) : (
-        <p className="text-xs text-slate-400 italic">
-          No meeting link added yet.
-        </p>
-      )}
+          <span className="truncate">{slot.meetingLink}</span>
+        </a>
+        {isMentor && (
+          <button
+            onClick={() => {
+              setLinkVal(slot.meetingLink);
+              setEditing(true);
+            }}
+            className="shrink-0 px-2.5 py-2 rounded-xl border border-slate-200 bg-white
+              text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+    );
+  } else if (isMentor) {
+    meetingLinkSectionContent = (
+      <button
+        onClick={() => setEditing(true)}
+        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-dashed
+          border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500
+          hover:border-blue-300 hover:text-blue-600 transition-colors"
+      >
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Add Meeting Link
+      </button>
+    );
+  } else {
+    meetingLinkSectionContent = (
+      <p className="text-xs text-slate-400 italic">
+        No meeting link added yet.
+      </p>
+    );
+  }
+
+  return (
+    <div className="border-t border-slate-100 pt-3">
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+        Meeting Link
+      </p>
+      {meetingLinkSectionContent}
     </div>
   );
 };
@@ -831,23 +854,23 @@ const CompletionSection = ({
             flex items-center justify-center gap-2"
         >
           {localSaving ? <><Spinner size="sm" light />Marking Complete...</>
-           : (
-            <>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              Mark Session Complete
-            </>
-          )}
+            : (
+              <>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Mark Session Complete
+              </>
+            )}
         </button>
       )}
 
@@ -908,22 +931,8 @@ const SessionCard = ({
   const bothDone = slot?.menteeMarked && slot?.mentorMarked;
 
   const canCancel = !cancelled && !bothDone;
-  const isMoreThan12HrsAway = (slot) => {
-    if (!slot?.date || !slot?.startTime) return false;
-    const sessionDateTime = new Date(`${slot.date}T${slot.startTime}`);
-    const diffMs = sessionDateTime - new Date();
-    return diffMs > 12 * 60 * 60 * 1000;
-  };
-
   const canReschedule = !cancelled && !bothDone && isMoreThan12HrsAway(slot);
-
-  const sessionStatus = cancelled
-    ? "cancelled"
-    : bothDone
-      ? "completed"
-      : (slot?.menteeMarked || slot?.mentorMarked)
-        ? "in_progress"
-        : "pending";
+  const sessionStatus = getSessionStatus(cancelled, bothDone, slot);
 
   const handleCancel = async (idx, reason) => {
     const result = await onCancelSlot(idx, reason);
@@ -935,11 +944,18 @@ const SessionCard = ({
     if (result?.success) setShowRescheduleModal(false);
   };
 
+  let cardStateClass = "border-slate-200";
+  if (cancelled) {
+    cardStateClass = "opacity-60 border-red-100";
+  } else if (bothDone) {
+    cardStateClass = "border-emerald-200";
+  }
+
   return (
     <>
       <div
         className={`bg-white border rounded-2xl p-4 flex flex-col gap-3 transition-opacity
-        ${cancelled ? "opacity-60 border-red-100" : bothDone ? "border-emerald-200" : "border-slate-200"}`}
+        ${cardStateClass}`}
       >
         <div className="flex items-start justify-between gap-2">
           <div>

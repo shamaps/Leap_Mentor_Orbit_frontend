@@ -6,6 +6,8 @@ import UserGrowthChart from "../../components/admin/common/UserGrowthChart";
 import MentorIndustryChart from "../../components/admin/common/MentorIndustryChart";
 import logger from "../../utils/logger";
 import PropTypes from "prop-types";
+const SKELETON_ROW_KEYS = ["row-1", "row-2", "row-3", "row-4", "row-5"];
+const SKELETON_COL_KEYS = ["col-1", "col-2", "col-3", "col-4", "col-5"];
 // ── Unified Action Modal (Handles Delete, Block, Unblock) ─────
 const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }) => {
   const config = {
@@ -174,7 +176,7 @@ const Avatar = ({ name, picture }) => {
       .slice(0, 2)
       .toUpperCase() || "?";
   const colors = ["#2563eb", "#7c3aed", "#0891b2", "#059669", "#d97706"];
-  const color = colors[initials.charCodeAt(0) % colors.length];
+  const color = colors[initials.codePointAt(0) % colors.length];
   return (
     <div
       className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-700 text-white"
@@ -214,8 +216,8 @@ const AdminUserManagement = () => {
   const searchTimer = useRef(null);
 
   // ── Toast ─────────────────────────────────────────────────
-  const showToast = (msg, type = "success") => {
-    setToast({ msg, type });
+  const showToast = ({ message, type = "success" }) => {
+    setToast({ msg: message, type });
     setTimeout(() => setToast(null), 3500);
   };
 
@@ -324,6 +326,199 @@ const AdminUserManagement = () => {
       setActionLoading(false);
     }
   };
+
+  let usersTableBody;
+  if (loading) {
+    usersTableBody = SKELETON_ROW_KEYS.map((rowKey) => (
+      <tr key={rowKey} style={{ borderBottom: "1px solid #f1f5f9" }}>
+        {SKELETON_COL_KEYS.map((colKey, j) => (
+          <td key={colKey} className="px-6 py-4">
+            <div
+              className="h-4 rounded-lg animate-pulse"
+              style={{
+                background: "#f1f5f9",
+                width: j === 0 ? 140 : 80,
+              }}
+            />
+          </td>
+        ))}
+      </tr>
+    ));
+  } else if (users.length === 0) {
+    usersTableBody = (
+      <tr>
+        <td
+          colSpan={5}
+          className="text-center py-16 text-sm text-slate-400"
+        >
+          No users found.
+        </td>
+      </tr>
+    );
+  } else {
+    usersTableBody = users.map((user) => (
+      <tr
+        key={user._id}
+        className="transition-colors"
+        style={{ borderBottom: "1px solid #f1f5f9" }}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.background = "#fafbfc")
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.background = "transparent")
+        }
+      >
+        <td className="px-6 py-4">
+          <div className="flex items-center gap-3">
+            <Avatar
+              name={user.name}
+              picture={user.profile?.profilePicture}
+            />
+            <div>
+              <p
+                className="text-sm font-600 text-slate-900"
+                style={{ fontWeight: 600 }}
+              >
+                {user.name}{" "}
+                {showBlocked && (
+                  <span className="ml-2 text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                    Blocked
+                  </span>
+                )}
+              </p>
+              <p
+                className="text-[10px] text-slate-600"
+                style={{ fontFamily: "'DM Mono', monospace" }}
+              >
+                {user.email}
+              </p>
+            </div>
+          </div>
+        </td>
+        <td className="px-3 py-3">
+          <RoleBadge roles={user.roles} />
+        </td>
+        <td className="px-6 py-4">
+          <div className="flex items-center gap-1.5">
+            <div
+              className="w-1.5 h-1.5 rounded-full"
+              style={{
+                background: user.isEmailVerified
+                  ? "#22c55e"
+                  : "#f59e0b",
+              }}
+            />
+            <span className="text-xs text-slate-900">
+              {user.isEmailVerified ? "Verified" : "Pending"}
+            </span>
+          </div>
+        </td>
+        <td className="px-6 py-4">
+          <span
+            className="text-xs text-slate-900"
+            style={{ fontFamily: "'DM Mono', monospace" }}
+          >
+            {new Date(user.createdAt).toLocaleDateString(
+              "en-US",
+              { month: "short", day: "numeric", year: "numeric" },
+            )}
+          </span>
+        </td>
+        <td className="px-6 py-4">
+          <div className="flex items-center gap-2">
+            {showBlocked ? (
+              <button
+                onClick={() =>
+                  setActionModal({ user, mode: "unblock" })
+                }
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-green-100"
+                style={{
+                  background: "#f0fdf4",
+                  color: "#15803d",
+                  fontWeight: 600,
+                  border: "1px solid #bbf7d0",
+                }}
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                Unblock
+              </button>
+            ) : (
+              <button
+                onClick={() =>
+                  setActionModal({ user, mode: "block" })
+                }
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-amber-100"
+                style={{
+                  background: "#fffbeb",
+                  color: "#d97706",
+                  fontWeight: 600,
+                  border: "1px solid #fde68a",
+                }}
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line
+                    x1="4.93"
+                    y1="4.93"
+                    x2="19.07"
+                    y2="19.07"
+                  />
+                </svg>
+                Block
+              </button>
+            )}
+            <button
+              onClick={() =>
+                setActionModal({ user, mode: "delete" })
+              }
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-red-100"
+              style={{
+                background: "#fef2f2",
+                color: "#dc2626",
+                fontWeight: 600,
+                border: "1px solid #fecaca",
+              }}
+            >
+              <svg
+                width="10"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14H6L5 6" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+              </svg>
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    ));
+  }
 
   return (
     <>
@@ -566,8 +761,8 @@ const AdminUserManagement = () => {
                 onClick={() => handleBlockedToggle(false)}
                 className="px-4 py-1.5 rounded-lg text-xs font-600 transition-all shadow-sm"
                 style={{
-                  background: !showBlocked ? "#ffffff" : "transparent",
-                  color: !showBlocked ? "#0f172a" : "#64748b",
+                  background: showBlocked ? "transparent" : "#ffffff",
+                  color: showBlocked ? "#64748b" : "#0f172a",
                 }}
               >
                 Active Users
@@ -666,200 +861,7 @@ const AdminUserManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  [...Array(5)].map((_, i) => (
-                    <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      {[...Array(5)].map((_, j) => (
-                        <td key={j} className="px-6 py-4">
-                          <div
-                            className="h-4 rounded-lg animate-pulse"
-                            style={{
-                              background: "#f1f5f9",
-                              width: j === 0 ? 140 : 80,
-                            }}
-                          />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                ) : users.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="text-center py-16 text-sm text-slate-400"
-                    >
-                      No users found.
-                    </td>
-                  </tr>
-                ) : (
-                  users.map((user) => (
-                    <tr
-                      key={user._id}
-                      className="transition-colors"
-                      style={{ borderBottom: "1px solid #f1f5f9" }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.background = "#fafbfc")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.background = "transparent")
-                      }
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar
-                            name={user.name}
-                            picture={user.profile?.profilePicture}
-                          />
-                          <div>
-                            <p
-                              className="text-sm font-600 text-slate-900"
-                              style={{ fontWeight: 600 }}
-                            >
-                              {user.name}{" "}
-                              {showBlocked && (
-                                <span className="ml-2 text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                                  Blocked
-                                </span>
-                              )}
-                            </p>
-                            <p
-                              className="text-[10px] text-slate-600"
-                              style={{ fontFamily: "'DM Mono', monospace" }}
-                            >
-                              {user.email}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="px-3 py-3">
-                        <RoleBadge roles={user.roles} />
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1.5">
-                          <div
-                            className="w-1.5 h-1.5 rounded-full"
-                            style={{
-                              background: user.isEmailVerified
-                                ? "#22c55e"
-                                : "#f59e0b",
-                            }}
-                          />
-                          <span className="text-xs text-slate-900">
-                            {user.isEmailVerified ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <span
-                          className="text-xs text-slate-900"
-                          style={{ fontFamily: "'DM Mono', monospace" }}
-                        >
-                          {new Date(user.createdAt).toLocaleDateString(
-                            "en-US",
-                            { month: "short", day: "numeric", year: "numeric" },
-                          )}
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          {!showBlocked ? (
-                            <button
-                              onClick={() =>
-                                setActionModal({ user, mode: "block" })
-                              }
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-amber-100"
-                              style={{
-                                background: "#fffbeb",
-                                color: "#d97706",
-                                fontWeight: 600,
-                                border: "1px solid #fde68a",
-                              }}
-                            >
-                              <svg
-                                width="12"
-                                height="12"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                              >
-                                <circle cx="12" cy="12" r="10" />
-                                <line
-                                  x1="4.93"
-                                  y1="4.93"
-                                  x2="19.07"
-                                  y2="19.07"
-                                />
-                              </svg>
-                              Block
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() =>
-                                setActionModal({ user, mode: "unblock" })
-                              }
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-green-100"
-                              style={{
-                                background: "#f0fdf4",
-                                color: "#15803d",
-                                fontWeight: 600,
-                                border: "1px solid #bbf7d0",
-                              }}
-                            >
-                              <svg
-                                width="12"
-                                height="12"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                              >
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                <polyline points="22 4 12 14.01 9 11.01" />
-                              </svg>
-                              Unblock
-                            </button>
-                          )}
-
-                          <button
-                            onClick={() =>
-                              setActionModal({ user, mode: "delete" })
-                            }
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-600 transition-all hover:bg-red-100"
-                            style={{
-                              background: "#fef2f2",
-                              color: "#dc2626",
-                              fontWeight: 600,
-                              border: "1px solid #fecaca",
-                            }}
-                          >
-                            <svg
-                              width="10"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="3"
-                              strokeLinecap="round"
-                            >
-                              <polyline points="3 6 5 6 21 6" />
-                              <path d="M19 6l-1 14H6L5 6" />
-                              <path d="M10 11v6" />
-                              <path d="M14 11v6" />
-                            </svg>
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                {usersTableBody}
               </tbody>
             </table>
           </div>
@@ -913,7 +915,7 @@ const AdminUserManagement = () => {
           loading={actionLoading}
         />
       )}
-  </>
+    </>
   );
 };
 

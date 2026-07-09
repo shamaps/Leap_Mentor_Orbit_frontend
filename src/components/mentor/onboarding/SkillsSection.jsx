@@ -3,7 +3,7 @@ import { useState, forwardRef } from "react";
 import { useMentorOnboardingForm } from "../../../context/MentorOnboardingFormContext";
 
 const SkillsSection = forwardRef((_, ref) => {
-  const { form, onChange, onBlur, errors = {} } = useMentorOnboardingForm();
+  const { form, onChange,  errors = {} } = useMentorOnboardingForm();
   const [input, setInput] = useState("");
   const hasError = errors.skills;
 
@@ -63,7 +63,7 @@ const SkillsSection = forwardRef((_, ref) => {
       </div>
 
       <div className="px-6 py-5">
-        <label className="block text-xs font-semibold text-slate-500 mb-2">
+        <label htmlFor="core-skills-input" className="block text-xs font-semibold text-slate-500 mb-2">
           Core Skills <span className="text-blue-900">*</span>
         </label>
 
@@ -89,6 +89,7 @@ const SkillsSection = forwardRef((_, ref) => {
 
         <div className="flex gap-2">
           <input
+            id="core-skills-input"
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}

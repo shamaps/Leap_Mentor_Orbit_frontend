@@ -22,11 +22,12 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
       <div className="w-full px-6 py-4 flex items-center justify-between">
         {/* Logo — untouched */}
-        <div
-          className="flex items-center gap-2 cursor-pointer"
+        <button
+          type="button"
+          className="flex items-center gap-2 bg-transparent border-none p-0 cursor-pointer"
           onClick={() => {
-            if (window.location.pathname === "/") {
-              window.scrollTo({ top: 0, behavior: "smooth" });
+            if (globalThis.location.pathname === "/") {
+              globalThis.scrollTo({ top: 0, behavior: "smooth" });
             } else {
               navigate("/");
             }
@@ -42,7 +43,7 @@ export default function Navbar() {
           <span className="text-xl font-bold text-gray-900 tracking-tight">
             LeapMentor
           </span>
-        </div>
+        </button>
 
         {/* Desktop Buttons — only this block changed */}
         <div className="hidden md:flex items-center gap-3">

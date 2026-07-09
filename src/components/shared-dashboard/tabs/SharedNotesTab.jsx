@@ -40,12 +40,12 @@ const FILE_MAP = {
   other: { label: "FILE", bg: "bg-violet-100", text: "text-violet-600", border: "border-violet-200", icon: "📎" },
 };
 
-const ALLOWED_MIME_LIST = [
+const ALLOWED_MIME_LIST = new Set([
   "application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif",
   "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "text/plain"
-];
+]);
 
 // ── Alternative Micro Layout Skeletons ────────────────────────
 const LoadingSkeletons = () => (
@@ -74,7 +74,7 @@ const UploadModal = ({ onUpload, uploading, onClose, isPrivateView }) => {
   const performFileValidation = (file) => {
     setFileError("");
     if (!file) return;
-    if (!ALLOWED_MIME_LIST.includes(file.type)) {
+    if (!ALLOWED_MIME_LIST.has(file.type)) {
       setFileError("File type not supported. Use PDF, image, Word, PowerPoint, Excel or text.");
       return;
     }
@@ -91,7 +91,12 @@ const UploadModal = ({ onUpload, uploading, onClose, isPrivateView }) => {
     const response = await onUpload(selectedFile, title);
     if (response?.success) onClose();
   };
-
+  let dropzoneStateClass = "border-slate-200 bg-slate-50 cursor-pointer hover:border-blue-300 hover:bg-blue-50/40";
+  if (dragOver) {
+    dropzoneStateClass = "border-blue-400 bg-blue-50 cursor-pointer";
+  } else if (selectedFile) {
+    dropzoneStateClass = "border-emerald-400 bg-emerald-50 cursor-default";
+  }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
@@ -117,12 +122,12 @@ const UploadModal = ({ onUpload, uploading, onClose, isPrivateView }) => {
             </div>
           )}
 
-          <div
-            onClick={() => !selectedFile && fileInputRef.current?.click()}
+          <label
+            htmlFor="shared-note-file-input"
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={(e) => { e.preventDefault(); setDragOver(false); performFileValidation(e.dataTransfer.files?.[0]); }}
-            className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 ${dragOver ? "border-blue-400 bg-blue-50 cursor-pointer" : selectedFile ? "border-emerald-400 bg-emerald-50 cursor-default" : "border-slate-200 bg-slate-50 cursor-pointer hover:border-blue-300 hover:bg-blue-50/40"}`}
+            className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 ${dropzoneStateClass}`}
           >
             {selectedFile ? (
               <div className="flex flex-col items-center gap-3">
@@ -150,8 +155,8 @@ const UploadModal = ({ onUpload, uploading, onClose, isPrivateView }) => {
                 </div>
               </div>
             )}
-            <input ref={fileInputRef} type="file" onChange={(e) => performFileValidation(e.target.files?.[0])} className="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.webp,.gif,.txt" />
-          </div>
+            <input id="shared-note-file-input" ref={fileInputRef} type="file" disabled={!!selectedFile} onChange={(e) => performFileValidation(e.target.files?.[0])} className="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.webp,.gif,.txt" />
+          </label>
 
           {fileError && (
             <div className="flex items-center gap-2 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl">
@@ -162,8 +167,8 @@ const UploadModal = ({ onUpload, uploading, onClose, isPrivateView }) => {
 
           {selectedFile && (
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Title (optional)</label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Week 2 Summary" className="w-full text-sm border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-400 bg-slate-50 text-slate-800 font-medium" />
+              <label htmlFor="shared-note-title" className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Title (optional)</label>
+              <input id="shared-note-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Week 2 Summary" className="w-full text-sm border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-400 bg-slate-50 text-slate-800 font-medium" />
             </div>
           )}
 
@@ -191,7 +196,7 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
   const cfg = FILE_MAP[note.fileType] || FILE_MAP.other;
 
   const triggerRemoval = async () => {
-    if (!window.confirm("Delete this file?")) return;
+    if (!globalThis.confirm("Delete this file?")) return;
     setDeleting(true);
     await onDelete(note._id);
     setDeleting(false);
@@ -202,13 +207,13 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
       const res = await fetch(note.fileUrl);
       const b = await res.blob();
       const el = document.createElement("a");
-      el.href = window.URL.createObjectURL(b);
+      el.href = globalThis.URL.createObjectURL(b);
       el.download = note.fileName || "download";
       document.body.appendChild(el);
       el.click();
       el.remove();
     } catch {
-      window.open(note.fileUrl, "_blank");
+      globalThis.open(note.fileUrl, "_blank");
     }
   };
 
@@ -223,10 +228,10 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }) => {
         <div>
           <div className="flex items-start justify-between gap-2">
             <p className="text-sm font-bold text-slate-800 truncate flex-1">{note.title || note.fileName}</p>
-            {!isPrivateView ? (
-              <span className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border ${activeUserMatch ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-violet-50 text-violet-600 border-violet-200"}`}>{activeUserMatch ? "You" : note.uploadedBy?.name || "Partner"}</span>
-            ) : (
+            {isPrivateView ? (
               <span className="shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border bg-amber-50 text-amber-600 border-amber-200">🔒 Private</span>
+            ) : (
+              <span className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border ${activeUserMatch ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-violet-50 text-violet-600 border-violet-200"}`}>{activeUserMatch ? "You" : note.uploadedBy?.name || "Partner"}</span>
             )}
           </div>
 
@@ -287,13 +292,49 @@ const SharedFilesSection = ({ connect }) => {
     }
     return sequence;
   };
-
+  let sharedFilesContent;
+  if (loading) {
+    sharedFilesContent = <LoadingSkeletons />;
+  } else if (notes.length === 0) {
+    sharedFilesContent = (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="w-20 h-20 rounded-3xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center mb-5">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+        </div>
+        <p className="text-base font-bold text-slate-700">No shared files yet</p>
+        <p className="text-sm text-slate-500 mt-2 max-w-sm leading-relaxed">Upload PDFs, documents, images, or presentations to share with your session partner.</p>
+        {!isCompleted && (
+          <button type="button" onClick={() => setShowUpload(true)} className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold shadow-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            Upload First File
+          </button>
+        )}
+      </div>
+    );
+  } else {
+    sharedFilesContent = (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full" style={{ gridAutoRows: "1fr" }}>
+        {processCollection().map((item) => {
+          if (item.type === "separator") {
+            return (
+              <div key={item.key} className="col-span-2 flex items-center gap-3 my-2">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-[11px] font-bold text-slate-500 px-3 py-1 rounded-full bg-white border border-slate-200 whitespace-nowrap shadow-sm">{formatDateSeparator(item.dateStr)}</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
+            );
+          }
+          return <NoteCard key={item.key} note={item.note} myId={myId} onDelete={async (id) => deleteNote(id, false)} isPrivateView={false} />;
+        })}
+      </div>
+    );
+  }
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-base font-bold text-slate-800">Shared Files</h2>
-          <p className="text-xs text-slate-500 mt-0.5">{notes.length} file{notes.length !== 1 ? "s" : ""} shared with your session partner</p>
+          <p className="text-xs text-slate-500 mt-0.5">{notes.length} file{notes.length === 1 ? "" : "s"} shared with your session partner</p>
         </div>
         {!isCompleted && (
           <button type="button" onClick={() => setShowUpload(true)} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 shadow-sm">
@@ -305,37 +346,7 @@ const SharedFilesSection = ({ connect }) => {
 
       {error && !uploading && <div className="flex items-center gap-2.5 text-sm bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 mb-5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /></svg>{error}</div>}
 
-      {loading ? (
-        <LoadingSkeletons />
-      ) : notes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="w-20 h-20 rounded-3xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center mb-5">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-          </div>
-          <p className="text-base font-bold text-slate-700">No shared files yet</p>
-          <p className="text-sm text-slate-500 mt-2 max-w-sm leading-relaxed">Upload PDFs, documents, images, or presentations to share with your session partner.</p>
-          {!isCompleted && (
-            <button type="button" onClick={() => setShowUpload(true)} className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold shadow-sm">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-              Upload First File
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full" style={{ gridAutoRows: "1fr" }}>
-          {processCollection().map((item) =>
-            item.type === "separator" ? (
-              <div key={item.key} className="col-span-2 flex items-center gap-3 my-2">
-                <div className="flex-1 h-px bg-slate-200" />
-                <span className="text-[11px] font-bold text-slate-500 px-3 py-1 rounded-full bg-white border border-slate-200 whitespace-nowrap shadow-sm">{formatDateSeparator(item.dateStr)}</span>
-                <div className="flex-1 h-px bg-slate-200" />
-              </div>
-            ) : (
-              <NoteCard key={item.key} note={item.note} myId={myId} onDelete={async (id) => deleteNote(id, false)} isPrivateView={false} />
-            )
-          )}
-        </div>
-      )}
+      {sharedFilesContent}
 
       {showUpload && <UploadModal onUpload={async (f, t) => uploadNote(f, t, false)} uploading={uploading} onClose={() => setShowUpload(false)} isPrivateView={false} />}
     </div>

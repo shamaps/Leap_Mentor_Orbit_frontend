@@ -1,14 +1,15 @@
 // src/api/connectRequests.api.js
 import axiosInstance from "../utils/axiosInstance";
+import { mapConnectRequestList } from "../mappers/connectRequestMapper";
 
 export const getMyRequests = async () => {
     const res = await axiosInstance.get("/connect-requests/my-requests");
-    return res.data;
+    return { requests: mapConnectRequestList(res.data.requests) };
 };
 
 export const getOngoingConnects = async () => {
     const res = await axiosInstance.get("/connect-requests/ongoing");
-    return res.data;
+    return { connects: mapConnectRequestList(res.data.connects) };
 };
 
 export const sendConnectRequest = async ({

@@ -1,8 +1,7 @@
 // src/components/admin/AdminLayout.jsx
 import { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Outlet } from "react-router-dom";
 import adminAxiosInstance from "../../utils/adminAxiosInstance";
-import { Outlet } from "react-router-dom";
 import { IMAGES } from "../../constants/images";
 import logger from "../../utils/logger";
 const NAV_ITEMS = [
@@ -241,8 +240,10 @@ const AdminLayout = () => {
 
       {/* ── Mobile backdrop ───────────────────────────────── */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-30 lg:hidden"
+        <button
+          type="button"
+          aria-label="Close sidebar"
+          className="fixed inset-0 z-30 lg:hidden block w-full h-full cursor-default"
           style={{
             background: "rgba(15,23,42,0.45)",
             backdropFilter: "blur(2px)",

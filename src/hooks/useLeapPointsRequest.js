@@ -12,7 +12,9 @@ export const useLeapPointsRequest = () => {
     useEffect(() => {
         const checkExistingRequest = async () => {
             try {
-                const res = await axiosInstance.get("/leap-requests/my-request");
+                const res = await axiosInstance.get("/leap-requests/my-request", {
+                    suppressNotFoundLog: true,
+                });
                 if (res.data?.status === "pending") {
                     setRequestStatus("pending");
                 }

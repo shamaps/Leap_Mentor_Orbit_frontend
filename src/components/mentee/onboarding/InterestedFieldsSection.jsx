@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 const errorClass =
   "border-red-400 focus:border-red-400 focus:ring-red-100 hover:border-red-400";
 
-const TagInput = ({ tags, onAdd, onRemove, placeholder, error }) => {
+const TagInput = ({ id, tags, onAdd, onRemove, placeholder, error }) => {
   const [input, setInput] = useState("");
 
   const add = () => {
@@ -40,6 +40,7 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder, error }) => {
         </div>
       )}
       <input
+        id={id}
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
@@ -58,6 +59,7 @@ const TagInput = ({ tags, onAdd, onRemove, placeholder, error }) => {
 }; 
 
 TagInput.propTypes = {
+  id: PropTypes.string,
   tags: PropTypes.arrayOf(PropTypes.string).isRequired,
   onAdd: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
@@ -70,7 +72,7 @@ TagInput.propTypes = {
 // data-field on each sub-section lets the DOM querySelector fallback
 // land on the specific errored input if it comes up first.
 const InterestedFieldsSection = forwardRef((_, ref) => {
-  const { form, handleChange, onBlur, errors = {} } = useMenteeOnboardingForm();
+  const { form, handleChange, errors = {} } = useMenteeOnboardingForm();
   const addToArray = (field, value) => {
     handleChange({
       target: { name: field, value: [...(form[field] || []), value] },
@@ -117,10 +119,11 @@ const InterestedFieldsSection = forwardRef((_, ref) => {
         {/* data-field here lets querySelector find it if interestedFields
             is the first error key and the ref fallback isn't needed */}
         <div data-field="interestedFields">
-          <label className="block text-xs font-semibold text-slate-500 mb-2">
+          <label htmlFor="interested-fields-input" className="block text-xs font-semibold text-slate-500 mb-2">
             Fields of Interest <span className="text-blue-900">*</span>
           </label>
           <TagInput
+            id="interested-fields-input"
             tags={form.interestedFields || []}
             onAdd={(v) => addToArray("interestedFields", v)}
             onRemove={(v) => removeFromArray("interestedFields", v)}
@@ -137,10 +140,11 @@ const InterestedFieldsSection = forwardRef((_, ref) => {
         {/* data-field="skills" lets querySelector scroll directly to the
             skills input when skills is the first (or only) error */}
         <div data-field="skills">
-          <label className="block text-xs font-semibold text-slate-500 mb-2">
+          <label htmlFor="skills-input" className="block text-xs font-semibold text-slate-500 mb-2">
             Skills of Interest <span className="text-blue-900">*</span>
           </label>
           <TagInput
+            id="skills-input"
             tags={form.skills || []}
             onAdd={(v) => addToArray("skills", v)}
             onRemove={(v) => removeFromArray("skills", v)}

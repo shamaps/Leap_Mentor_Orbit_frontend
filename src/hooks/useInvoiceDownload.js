@@ -15,7 +15,7 @@ export const useInvoiceDownload = () => {
                 responseType: "arraybuffer",
             });
 
-            const url = window.URL.createObjectURL(
+            const url = globalThis.URL.createObjectURL(
                 new Blob([res.data], { type: "application/pdf" }),
             );
             const link = document.createElement("a");
@@ -24,7 +24,7 @@ export const useInvoiceDownload = () => {
             document.body.appendChild(link);
             link.click();
             link.remove();
-            window.URL.revokeObjectURL(url);
+            globalThis.URL.revokeObjectURL(url);
         } catch (err) {
             logger.error("Invoice download failed", { requestId, message: err.message });
             setError("Failed to download invoice. Please try again.");

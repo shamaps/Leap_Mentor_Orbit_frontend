@@ -1,5 +1,5 @@
 // src/utils/storage.js
-const isBrowser = typeof window !== "undefined";
+const isBrowser = globalThis.window !== undefined;
 const SSO_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 const safeGet = (store, key) => {
@@ -31,12 +31,12 @@ const safeRemove = (store, key) => {
 };
 
 export const sessionStore = {
-    get: (key) => safeGet(window.sessionStorage, key),
-    set: (key, value) => safeSet(window.sessionStorage, key, value),
-    remove: (key) => safeRemove(window.sessionStorage, key),
-    clear: () => isBrowser && window.sessionStorage.clear(),
+    get: (key) => safeGet(globalThis.sessionStorage, key),
+    set: (key, value) => safeSet(globalThis.sessionStorage, key, value),
+    remove: (key) => safeRemove(globalThis.sessionStorage, key),
+    clear: () => isBrowser && globalThis.sessionStorage.clear(),
     getJSON: (key) => {
-        const raw = safeGet(window.sessionStorage, key);
+        const raw = safeGet(globalThis.sessionStorage, key);
         if (!raw) return null;
         try {
             return JSON.parse(raw);
@@ -44,15 +44,15 @@ export const sessionStore = {
             return null;
         }
     },
-    setJSON: (key, value) => safeSet(window.sessionStorage, key, JSON.stringify(value)),
+    setJSON: (key, value) => safeSet(globalThis.sessionStorage, key, JSON.stringify(value)),
 };
 
 export const localStore = {
-    get: (key) => safeGet(window.localStorage, key),
-    set: (key, value) => safeSet(window.localStorage, key, value),
-    remove: (key) => safeRemove(window.localStorage, key),
-    clear: () => isBrowser && window.localStorage.clear(),
-    keys: () => (isBrowser ? Object.keys(window.localStorage) : []),
+    get: (key) => safeGet(globalThis.localStorage, key),
+    set: (key, value) => safeSet(globalThis.localStorage, key, value),
+    remove: (key) => safeRemove(globalThis.localStorage, key),
+    clear: () => isBrowser && globalThis.localStorage.clear(),
+    keys: () => (isBrowser ? Object.keys(globalThis.localStorage) : []),
 };
 
 // ── SSO flow flags — short-lived, TTL-bound, sessionStorage only ──

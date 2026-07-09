@@ -1,8 +1,8 @@
 // components/mentee/onboarding/MenteeOnboardingShell.jsx
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import useMenteeOnboarding from "../../../hooks/useMenteeOnboarding";
 import { MenteeOnboardingFormContext } from "../../../context/MenteeOnboardingFormContext";
-import { getMenteeFieldErrors } from "../../../utils/onboardingValidation";
+import { menteeOnboardingSchema, getFieldErrorMap } from "../../../schemas/onboardingSchemas";
 import PersonalInfoSection from "./PersonalInfoSection";
 import ProfessionalDetailsSection from "./ProfessionalDetailsSection";
 import InterestedFieldsSection from "./InterestedFieldsSection";
@@ -24,8 +24,8 @@ const MenteeOnboardingShell = () => {
     skills: useRef(null),
   };
 
-  // shared util replaces the duplicate validate() block
-  const validate = () => getMenteeFieldErrors(form);
+  // Zod schema replaces the old getMenteeFieldErrors util
+  const validate = () => getFieldErrorMap(menteeOnboardingSchema, form);
 
   const scrollToFirstError = (errorKeys) => {
     if (!errorKeys.length) return;
@@ -51,7 +51,7 @@ const MenteeOnboardingShell = () => {
   };
   const onBlur = (e) => {
     const { name } = e.target;
-    const fieldErrors = getMenteeFieldErrors(form);
+    const fieldErrors = getFieldErrorMap(menteeOnboardingSchema, form);
     if (fieldErrors[name]) {
       setErrors((prev) => ({ ...prev, [name]: true }));
     }
@@ -68,8 +68,11 @@ const MenteeOnboardingShell = () => {
     handleSubmit(e);
   };
 
-  //  context value — only form/errors/onChange; loading/msg/submit stay local
-  const ctxValue = { form, errors, handleChange: onChange, onBlur };
+  // context value — only form/errors/onChange; loading/msg/submit stay local
+  const ctxValue = useMemo(
+    () => ({ form, errors, handleChange: onChange, onBlur }),
+    [form, errors, onChange, onBlur],
+  );
   return (
     <MenteeOnboardingFormContext.Provider value={ctxValue}>
       <div className="min-h-screen bg-[#f0f4ff]">
@@ -124,11 +127,10 @@ const MenteeOnboardingShell = () => {
             {/* Status message */}
             {msg.text && (
               <div
-                className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${
-                  msg.type === "success"
+                className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
                     ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                     : "bg-red-50 border-red-200 text-red-600"
-                }`}
+                  }`}
               >
                 <span>{msg.type === "success" ? "✓" : "⚠️"}</span>
                 {msg.text}
@@ -143,7 +145,7 @@ const MenteeOnboardingShell = () => {
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                  <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                   Saving profile...
                 </span>
               ) : (

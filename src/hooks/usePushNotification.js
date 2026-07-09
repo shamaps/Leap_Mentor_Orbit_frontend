@@ -7,9 +7,9 @@ const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
 const urlBase64ToUint8Array = (base64String) => {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const base64 = (base64String + padding).replaceAll("-", "+").replaceAll("-", "/");
   const rawData = atob(base64);
-  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+  return Uint8Array.from([...rawData].map((char) => char.codePointAt(0)));
 };
 
 const usePushNotification = () => {
@@ -19,7 +19,7 @@ const usePushNotification = () => {
   // Register service worker + subscribe to push
   useEffect(() => {
     if (!token) return;
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    if (!("serviceWorker" in navigator) || !("PushManager" in globalThis)) return;
 
     const setup = async () => {
       try {

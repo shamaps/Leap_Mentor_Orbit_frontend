@@ -4,11 +4,6 @@
 // - Ships structured logs to BetterStack (Logtail HTTP ingest) whenever a
 //   source token is configured, in any environment — set  VITE_BETTERSTACK_SOURCE_TOKEN 
 
-// Usage:
-//   import logger from "../utils/logger";
-//   logger.info("Fetched mentor profile", { mentorId });
-//   logger.warn("Escrow status fetch failed", { requestId, err: err.message });
-//   logger.error("Leap request failed", { err });
 
 const BETTERSTACK_SOURCE_TOKEN = import.meta.env.VITE_BETTERSTACK_SOURCE_TOKEN;
 const BETTERSTACK_INGEST_URL =
@@ -67,7 +62,7 @@ const ship = (level, message, context) => {
         context: redact(context),
         app: "leapmentor-frontend",
         env: import.meta.env.MODE,
-        url: typeof window !== "undefined" ? window.location.href : undefined,
+        url: typeof globalThis === "undefined" ? undefined : globalThis.location.href,
     });
 
     fetch(BETTERSTACK_INGEST_URL, {

@@ -1,4 +1,5 @@
 // components/mentee/profile/MenteeEditProfileShell.jsx
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import useMenteeEditProfile from "../../../hooks/useMenteeEditProfile";
 import { MenteeOnboardingFormContext } from "../../../context/MenteeOnboardingFormContext";
@@ -13,6 +14,13 @@ const MenteeEditProfileShell = () => {
   const { form, loading, fetchLoading, msg, handleChange, handleSubmit } =
     useMenteeEditProfile();
 
+  // same context as onboarding — sections consume form/errors/handleChange
+  // from context, not props. errors = {} here (edit-profile shows msg banners,
+  // not inline field errors like onboarding does)
+  // NOTE: must run before the fetchLoading early return below, so this hook
+  // is called on every render regardless of loading state (Rules of Hooks).
+  const ctxValue = useMemo(() => ({ form, errors: {}, handleChange }), [form, handleChange]);
+
   if (fetchLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -20,11 +28,6 @@ const MenteeEditProfileShell = () => {
       </div>
     );
   }
-
-  // same context as onboarding — sections consume form/errors/handleChange
-  // from context, not props. errors = {} here (edit-profile shows msg banners,
-  // not inline field errors like onboarding does)
-  const ctxValue = { form, errors: {}, handleChange };
 
   return (
     <MenteeOnboardingFormContext.Provider value={ctxValue}>
@@ -74,11 +77,10 @@ const MenteeEditProfileShell = () => {
 
             {msg.text && (
               <div
-                className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${
-                  msg.type === "success"
+                className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
                     ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                     : "bg-red-50 border-red-200 text-red-600"
-                }`}
+                  }`}
               >
                 <span>{msg.type === "success" ? "✓" : "⚠"}</span>
                 {msg.text}
@@ -92,7 +94,7 @@ const MenteeEditProfileShell = () => {
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                  <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                   Saving changes...
                 </span>
               ) : (

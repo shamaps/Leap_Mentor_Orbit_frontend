@@ -2,10 +2,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import axiosInstance from "../utils/axiosInstance";
 
-//const SOCKET_URL = import.meta.env.VITE_SOCKET_URL   || "http://localhost:5000";
 const TYPING_DEBOUNCE_MS = 2000;
 const PAGE_LIMIT = 30;
-
+const appendUniqueMessage = (prev, message) => {
+  if (prev.some((m) => m._id === message._id)) return prev;
+  return [...prev, message];
+};
+const markAllRead = (prev, readAt) =>
+  prev.map((m) => (m.readAt ? m : { ...m, readAt }));
 const useChat = (connectRequestId) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,51 +73,47 @@ const useChat = (connectRequestId) => {
     if (!connectRequestId) return;
 
     const joinRoom = () => {
-      window.__leapSocket?.emit("join_room", { connectRequestId });
+      globalThis.__leapSocket?.emit("join_room", { connectRequestId });
     };
 
     const handleNewMessage = (message) => {
-      setMessages((prev) => {
-        if (prev.some((m) => m._id === message._id)) return prev;
-        return [...prev, message];
-      });
+      setMessages((prev) => appendUniqueMessage(prev, message));
     };
-
     const handleTypingStart = () => setIsTyping(true);
     const handleTypingStop = () => setIsTyping(false);
     const handleUserOnline = () => setOtherOnline(true);
     const handleUserOffline = () => setOtherOnline(false);
     const handleMessagesRead = ({ readAt }) => {
-      setMessages((prev) => prev.map((m) => (m.readAt ? m : { ...m, readAt })));
+      setMessages((prev) => markAllRead(prev, readAt));
     };
     const handleError = ({ message }) => setError(message);
 
     const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
+      if (globalThis.__leapSocket?.connected) {
         clearInterval(waitForSocket);
-        socketRef.current = window.__leapSocket;
+        socketRef.current = globalThis.__leapSocket;
         joinRoom();
 
-        window.__leapSocket.on("new_message", handleNewMessage);
-        window.__leapSocket.on("typing_start", handleTypingStart);
-        window.__leapSocket.on("typing_stop", handleTypingStop);
-        window.__leapSocket.on("user_online", handleUserOnline);
-        window.__leapSocket.on("user_offline", handleUserOffline);
-        window.__leapSocket.on("messages_read", handleMessagesRead);
-        window.__leapSocket.on("error", handleError);
+        globalThis.__leapSocket.on("new_message", handleNewMessage);
+        globalThis.__leapSocket.on("typing_start", handleTypingStart);
+        globalThis.__leapSocket.on("typing_stop", handleTypingStop);
+        globalThis.__leapSocket.on("user_online", handleUserOnline);
+        globalThis.__leapSocket.on("user_offline", handleUserOffline);
+        globalThis.__leapSocket.on("messages_read", handleMessagesRead);
+        globalThis.__leapSocket.on("error", handleError);
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
       clearTimeout(typingTimerRef.current);
-      window.__leapSocket?.off("new_message", handleNewMessage);
-      window.__leapSocket?.off("typing_start", handleTypingStart);
-      window.__leapSocket?.off("typing_stop", handleTypingStop);
-      window.__leapSocket?.off("user_online", handleUserOnline);
-      window.__leapSocket?.off("user_offline", handleUserOffline);
-      window.__leapSocket?.off("messages_read", handleMessagesRead);
-      window.__leapSocket?.off("error", handleError);
+      globalThis.__leapSocket?.off("new_message", handleNewMessage);
+      globalThis.__leapSocket?.off("typing_start", handleTypingStart);
+      globalThis.__leapSocket?.off("typing_stop", handleTypingStop);
+      globalThis.__leapSocket?.off("user_online", handleUserOnline);
+      globalThis.__leapSocket?.off("user_offline", handleUserOffline);
+      globalThis.__leapSocket?.off("messages_read", handleMessagesRead);
+      globalThis.__leapSocket?.off("error", handleError);
       socketRef.current = null;
     };
   }, [connectRequestId]);

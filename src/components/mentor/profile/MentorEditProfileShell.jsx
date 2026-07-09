@@ -1,4 +1,5 @@
 // components/mentor/profile/MentorEditProfileShell.jsx
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import useMentorEditProfile from "../../../hooks/useMentorEditProfile";
 import { MentorOnboardingFormContext } from "../../../context/MentorOnboardingFormContext";
@@ -13,6 +14,11 @@ const MentorEditProfileShell = () => {
   const { form, loading, fetchLoading, msg, handleChange, handleSubmit } =
     useMentorEditProfile();
 
+  // alias handleChange → onChange to match what mentor sections expect
+  // NOTE: must run before the fetchLoading early return below, so this hook
+  // is called on every render regardless of loading state (Rules of Hooks).
+  const ctxValue = useMemo(() => ({ form, errors: {}, onChange: handleChange }), [form, handleChange]);
+
   if (fetchLoading) {
     return (
       <div className="min-h-screen bg-[#f0f4ff] flex items-center justify-center">
@@ -20,9 +26,6 @@ const MentorEditProfileShell = () => {
       </div>
     );
   }
-
-  // ✅ alias handleChange → onChange to match what mentor sections expect
-  const ctxValue = { form, errors: {}, onChange: handleChange };
 
   return (
     <MentorOnboardingFormContext.Provider value={ctxValue}>
@@ -77,11 +80,10 @@ const MentorEditProfileShell = () => {
 
             {msg.text && (
               <div
-                className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${
-                  msg.type === "success"
+                className={`flex items-center gap-2.5 text-sm rounded-xl px-4 py-3 border ${msg.type === "success"
                     ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#16a34a]"
                     : "bg-[#fff1f2] border-[#fecdd3] text-[#e11d48]"
-                }`}
+                  }`}
               >
                 <span>{msg.type === "success" ? "✓" : "⚠"}</span>
                 {msg.text}
@@ -95,7 +97,7 @@ const MentorEditProfileShell = () => {
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                  <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                   Saving changes…
                 </span>
               ) : (
