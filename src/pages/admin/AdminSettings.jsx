@@ -78,10 +78,6 @@ SubmitBtn.propTypes = {
   accent: PropTypes.string,
 };
 const AdminSettings = () => {
-  const [overview, setOverview] = useState({
-    totalUsers: 0,
-    activeSessions: 0,
-  });
   const [addingAdmin, setAddingAdmin] = useState(false);
   const [tempPw, setTempPw] = useState("");
   const [savingCommission, setSavingCommission] = useState(false);
@@ -104,15 +100,8 @@ const AdminSettings = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ovRes, cmRes] = await Promise.all([
-          adminAxiosInstance.get("/admin/settings/overview"),
-          adminAxiosInstance.get("/admin/settings/commission"),
-        ]);
-        setOverview({
-          totalUsers: ovRes.data.totalUsers,
-          activeSessions: ovRes.data.activeSessions,
-        });
-        commissionForm.setValue("commission", String(cmRes.data.commissionRate));
+        const { data } = await adminAxiosInstance.get("/admin/settings/commission");
+        commissionForm.setValue("commission", String(data.commissionRate));
       } catch {
         showToast({ message: "Failed to load settings.", type: "error" });
       }

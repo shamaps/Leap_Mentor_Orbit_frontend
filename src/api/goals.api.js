@@ -28,10 +28,12 @@ export const addMilestone = async (goalId, { title, dueDate }) => {
 };
 
 export const toggleMilestone = async (milestoneId, isCompleted) => {
-    const res = await axiosInstance.patch(`/goals/milestones/${milestoneId}`, { isCompleted });
+    const res = await axiosInstance.patch(`/goals/milestones/${milestoneId}`, {
+        isCompleted,
+        socketId: globalThis.__leapSocket?.id,
+    });
     return res.data;
 };
-
 export const deleteMilestone = async (milestoneId) => {
     await axiosInstance.delete(`/goals/milestones/${milestoneId}`);
 };

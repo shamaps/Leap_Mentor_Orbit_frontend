@@ -3,6 +3,7 @@ import { useNotifications } from "../../../hooks/useNotifications";
 import StatCard from "@/components/common/StatCard";
 import ErrorState from "../../common/ErrorState";
 import PropTypes from "prop-types";
+import TabLoader from "@/components/common/TabLoader";
 // ── Type configurations & aliasing ───────────────────────────
 const TYPE_ALIASES = { connect_request: "connect_request_received" };
 const resolveType = (type) => TYPE_ALIASES[type] || type;
@@ -166,16 +167,9 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
     resolveNavigation(notif, setActiveTab);
   };
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       onClick={handleActivate}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleActivate();
-        }
-      }}
       className={`relative w-full text-left rounded-2xl border px-3.5 py-3.5 sm:px-5 sm:py-4 flex items-start gap-3 sm:gap-4 transition-all duration-200 hover:shadow-md group
     ${notif.read ? "bg-white border-slate-100 cursor-default" : `${cfg.tint} ${cfg.border} cursor-pointer`}
     ${notif.accent ? "border-l-[3px] border-l-blue-500" : ""}
@@ -228,7 +222,7 @@ const NotifCard = ({ notif, onMarkRead, onDelete, setActiveTab }) => {
       <div className="sm:hidden shrink-0 self-start">
         <DeleteButton onDelete={onDelete} notifId={notif.id} />
       </div>
-    </div>
+    </button>
   );
 };
 NotifCard.propTypes = {
@@ -247,21 +241,7 @@ NotifCard.propTypes = {
   onDelete: PropTypes.func.isRequired,
   setActiveTab: PropTypes.func,
 };
-// ── Main Layout Skeleton Component ───────────────────────────
-const LoaderLayout = () => (
-  <div className="flex flex-col gap-3">
-    {[... new Array(3).keys()].map((idx) => (
-      <div key={idx} className="bg-white rounded-2xl border border-slate-100 px-4 py-4 sm:px-5 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-slate-100 animate-pulse shrink-0" />
-        <div className="flex-1 space-y-2 pt-1">
-          <div className="h-2 bg-slate-100 rounded animate-pulse w-1/5" />
-          <div className="h-3 bg-slate-100 rounded animate-pulse w-2/4" />
-          <div className="h-2.5 bg-slate-100 rounded animate-pulse w-3/4" />
-        </div>
-      </div>
-    ))}
-  </div>
-);
+
 
 // ── Main Tab Component ───────────────────────────────────────
 const NotificationsTab = ({ setActiveTab }) => {
@@ -274,7 +254,7 @@ const NotificationsTab = ({ setActiveTab }) => {
     return itemTime.includes("minute") || itemTime.includes("hour") || itemTime.toLowerCase() === "yesterday" || (itemTime.includes("day") && Number.parseInt(itemTime, 10) <= 7);
   }).length;
 
-  if (loading) return <LoaderLayout />;
+  if (loading) return <TabLoader message="Loading your notifications..." />
 
   return (
     <div className="space-y-4 sm:space-y-5">

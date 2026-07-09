@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { TABS } from "./constants";
 import HistoryTable from "./HistoryTable";
 import DetailDrawer from "./DetailDrawer";
-
+import TabLoader from "../../../common/TabLoader";
 const RequestHistoryTab = () => {
   const {
     filtered,
@@ -37,16 +37,7 @@ const RequestHistoryTab = () => {
   }, [fetchRequests]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
-          <p className="text-sm text-slate-400 font-medium">
-            Loading your history...
-          </p>
-        </div>
-      </div>
-    );
+    return <TabLoader message="Loading your history..." />;
   }
 
   return (

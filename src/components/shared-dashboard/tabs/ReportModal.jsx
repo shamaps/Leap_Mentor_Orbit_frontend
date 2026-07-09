@@ -47,9 +47,11 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
     watch,
     setValue,
     handleSubmit,
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(reportSchema),
     defaultValues: { complaintType: "", description: "" },
+    mode: "onChange",
   });
 
   const complaintType = watch("complaintType");
@@ -298,9 +300,17 @@ const ReportModal = ({ connect, onClose, onSuccess }) => {
                 transition-all resize-none text-slate-700 placeholder:text-slate-600
                 disabled:opacity-60 disabled:cursor-not-allowed"
             />
-            <p className="text-[10px] text-slate-600 text-right mt-1">
-              {description.length}/1000
-            </p>
+            <div className="flex items-center justify-between mt-1">
+              {errors.description ? (
+                <p className="text-[11px] text-red-500">{errors.description.message}</p>
+              ) : (
+                <span />
+              )}
+              <p className="text-[10px] text-slate-600">
+                {description.length}/1000
+              </p>
+            </div>
+
           </div>
 
           {/* Screenshot */}

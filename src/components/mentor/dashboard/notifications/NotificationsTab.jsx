@@ -3,6 +3,7 @@ import { useNotifications } from "../../../../hooks/useNotifications";
 import StatCard from "@/components/common/StatCard";
 import ErrorState from "../../../common/ErrorState";
 import PropTypes from "prop-types";
+import TabLoader from "@/components/common/TabLoader";
 // ── Type config ───────────────────────────────────────────────
 const TYPE_CONFIG = {
   connect_request_received: {
@@ -479,23 +480,7 @@ const NotificationsTab = ({ setActiveTab }) => {
     );
   }).length;
   if (loading) {
-    return (
-      <div className="flex flex-col gap-3">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="bg-white rounded-2xl border border-slate-100 px-4 py-4 sm:px-5 flex items-start gap-3 sm:gap-4"
-          >
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-slate-100 animate-pulse shrink-0" />
-            <div className="flex-1 space-y-2.5 pt-1">
-              <div className="h-2.5 bg-slate-100 rounded animate-pulse w-1/4" />
-              <div className="h-3.5 bg-slate-100 rounded animate-pulse w-1/2" />
-              <div className="h-3 bg-slate-100 rounded animate-pulse w-3/4" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+    return <TabLoader message="Loading your notifications..." />;
   }
 
   return (

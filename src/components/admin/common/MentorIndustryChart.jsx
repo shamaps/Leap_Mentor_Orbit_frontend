@@ -1,5 +1,5 @@
 // src/components/admin/common/MentorIndustryChart.jsx
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList, ResponsiveContainer, Rectangle } from "recharts";
 import PropTypes from "prop-types";
 const PALETTE = [
   "#2563eb",
@@ -67,6 +67,7 @@ CustomTooltip.propTypes = {
   active: PropTypes.bool,
   payload: PropTypes.array,
 };
+
 // ── Custom X-Axis Tick (rotated to prevent overlap) ───────────
 const CustomXTick = ({ x, y, payload }) => {
   return (
@@ -92,6 +93,13 @@ CustomXTick.propTypes = {
   y: PropTypes.number,
   payload: PropTypes.shape({ value: PropTypes.string }),
 };
+const ColoredBar = ({ index, ...rest }) => (
+  <Rectangle {...rest} fill={PALETTE[index % PALETTE.length]} />
+);
+ColoredBar.propTypes = {
+  index: PropTypes.number,
+};
+
 // ══════════════════════════════════════════════════════════════
 const MentorIndustryChart = ({ data = [] }) => {
   if (!data.length) {
@@ -204,10 +212,8 @@ const MentorIndustryChart = ({ data = [] }) => {
           <Bar
             dataKey="count"
             radius={[5, 5, 0, 0]}
+            shape={<ColoredBar />}
           >
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${entry.industry ?? index}`} fill={PALETTE[index % PALETTE.length]} />
-            ))}
             <LabelList
               dataKey="count"
               position="top"

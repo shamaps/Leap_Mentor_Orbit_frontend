@@ -29,7 +29,7 @@ const ProtectedRoute = ({ children, role }) => {
   if (!token) {
     return <Navigate to="/login" replace />;
   }
-  if (user && user.isEmailVerified === false) {
+  if (user?.isEmailVerified === false) {
     return <Navigate to="/verify-email" state={{ email: user.email, role: storedRole }} replace />;
   }
   if (role && storedRole && storedRole !== role) {

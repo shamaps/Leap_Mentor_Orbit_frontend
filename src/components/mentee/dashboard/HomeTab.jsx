@@ -394,14 +394,13 @@ const HomeTab = () => {
   const completionPct = calculateProfileCompletion(profile);
   const [selectedMentor, setSelectedMentor] = useState(null);
 
-  const { mentors, sessions, loading, balance } = useMenteeHomeData(profile);
-  let sessionsSummaryText = "No active sessions yet. Find a mentor to get started!";
+  const { mentors, loadingMentors, sessions, loadingSessions, balance, loadingWallet } = useMenteeHomeData(profile);  let sessionsSummaryText = "No active sessions yet. Find a mentor to get started!";
   if (sessions.length > 0) {
     const plural = sessions.length > 1 ? "s" : "";
     sessionsSummaryText = `You have ${sessions.length} active session${plural}.`;
   }
   let mentorGridContent;
-  if (loading) {
+  if (loadingMentors) {
     mentorGridContent = (
       <>
         <MentorCardSkeleton variant="compact" />
@@ -436,7 +435,7 @@ const HomeTab = () => {
     );
   }
   let sessionsListContent;
-  if (loading) {
+  if (loadingSessions) {
     sessionsListContent = (
       <>
         <SessionSkeleton />
@@ -566,7 +565,7 @@ const HomeTab = () => {
             <h2 className="text-base font-semibold text-slate-700 mb-3">
               Wallet
             </h2>
-            <LeapPointsPanel balance={balance} loading={loading} />
+            <LeapPointsPanel balance={balance} loading={loadingWallet} />
           </div>
         </div>
       </div>

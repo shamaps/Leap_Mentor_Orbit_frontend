@@ -1,6 +1,7 @@
 // src/components/ui/connects/ConnectsLayout.jsx
 import EmptyState from "../../common/EmptyState";
 import PropTypes from "prop-types";
+import TabLoader from "../../common/TabLoader";
 // ── Skeleton card ─────────────────────────────────────────────
 const SkeletonCard = () => (
   <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 animate-pulse">
@@ -53,7 +54,9 @@ const ConnectsLayout = ({
   completedCount, // ✅ completed count
 }) => {
   const hasCompleted = completedCount > 0;
-
+  if (loading) {
+    return <TabLoader message="Loading your connects..." />;
+  }
   return (
     <div className="space-y-6">
       {/* ── Header ── */}
@@ -89,13 +92,6 @@ const ConnectsLayout = ({
 
       {/* ── Active grid ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Loading skeletons */}
-        {loading && (
-          <>
-            <SkeletonCard />
-            <SkeletonCard />
-          </>
-        )}
 
         {/* Empty state — only show if no active AND no completed */}
         {!loading && !error && count === 0 && !hasCompleted && (

@@ -1,11 +1,10 @@
 // src/components/mentee/dashboard/findMentors/MentorGrid.jsx
 import MentorCard from "./MentorCard";
 import MentorCardSkeleton from "@/components/common/MentorCardSkeleton";
-import EmptyState from "../../../common/EmptyState";
 import PropTypes from "prop-types";
 import { withProfiler } from "../../../../utils/withProfiler";
 import { useMountLogger } from "../../../../hooks/useMountLogger";
-
+import TabLoader from "@/components/common/TabLoader";
 const SKELETON_KEYS = ["sk-1", "sk-2", "sk-3", "sk-4", "sk-5", "sk-6"];
 const MORE_SKELETON_KEYS = ["more-1", "more-2", "more-3"];
 
@@ -21,19 +20,17 @@ const MentorGrid = ({
 }) => {
   useMountLogger("MentorGrid");
 
-  // ── Loading skeletons — initial search ───────────────────
   if (loading) {
+    return <TabLoader message="Finding mentors for you..." />;
+  }
+  if (hasSearched && mentors.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {SKELETON_KEYS.map((key) => (
-          <MentorCardSkeleton key={key} />
-        ))}
-      </div>
+      <EmptyState
+        message="No mentors found"
+        subMessage="Try adjusting your filters or searching a different skill."
+      />
     );
   }
-
-  // ... (rest unchanged, everything from "Empty state" down to "Show More" block stays the same)
-
   return (
     <div className="space-y-6">
       {/* Results count */}
