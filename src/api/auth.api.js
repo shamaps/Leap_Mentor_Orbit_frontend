@@ -1,6 +1,6 @@
 // src/api/auth.api.js
 import axiosInstance from "../utils/axiosInstance";
-import { mapAuthResponse } from "../mappers/authMapper";
+import { mapAuthResponse, mapUser } from "../mappers/authMapper";
 export const registerUser = async ({ name, email, password, roles, termsAccepted }) => {
     const res = await axiosInstance.post("/auth/register", {
         name,

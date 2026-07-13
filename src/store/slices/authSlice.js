@@ -4,6 +4,7 @@ import * as authApi from "../../api/auth.api";
 import getErrorMessage from "../../utils/getErrorMessage";
 import * as Sentry from "@sentry/react";
 import logger from "../../utils/logger";
+import axiosInstance from "../../utils/axiosInstance";
 import { localStore, sessionStore } from "../../utils/storage"; 
 export const redirectByRole = (targetRole, navigate, roles = []) => {
   if (targetRole === "mentor" && roles.includes("mentor"))

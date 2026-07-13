@@ -48,10 +48,7 @@ const redact = (value, depth = 0) => {
     return output;
 };
 
-// ── Shipping to BetterStack ───────────────────────────────
-// Uses fetch(..., { keepalive: true }) rather than sendBeacon because
-// BetterStack ingest requires a Bearer auth header, which sendBeacon
-// cannot set. keepalive gives the same "survive page unload" guarantee.
+// ── Shipping to BetterStack
 const ship = (level, message, context) => {
     if (!BETTERSTACK_SOURCE_TOKEN) return;
 
@@ -62,7 +59,7 @@ const ship = (level, message, context) => {
         context: redact(context),
         app: "leapmentor-frontend",
         env: import.meta.env.MODE,
-        url: typeof globalThis === "undefined" ? undefined : globalThis.location.href,
+        url: globalThis.location?.href,
     });
 
     fetch(BETTERSTACK_INGEST_URL, {

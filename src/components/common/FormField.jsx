@@ -1,7 +1,6 @@
 // components/common/FormField.jsx
-import { forwardRef } from "react";
 import PropTypes from "prop-types";
-
+import { forwardRef, useId } from "react";
 const baseFieldClass =
     "w-full text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400";
 
@@ -10,11 +9,6 @@ const stateClass = (hasError) =>
         ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100"
         : "border-slate-300 focus:border-blue-400 focus:ring-blue-100";
 
-// forwardRef is required so react-hook-form's register(name) can attach
-// its ref directly to the underlying <input>/<select>/<textarea> DOM
-// node. Without this, RHF can still track the field's value via
-// onChange/onBlur, but can't call `.focus()` on validation errors and
-// some edge-case behaviors (defaultValue reset, etc.) silently break.
 const FormField = forwardRef(
     (
         {
@@ -23,36 +17,40 @@ const FormField = forwardRef(
             error,
             as = "input",
             icon,
-            endIcon, 
+            endIcon,
             className = "",
             rows = 4,
             children,
+            id,
+            name,
             ...inputProps
         },
         ref
     ) => {
+        const generatedId = useId();
+        const fieldId = id || name || generatedId;
+
         const fieldClass = `${baseFieldClass} ${stateClass(!!error)} ${as === "select" ? "appearance-none cursor-pointer pr-8" : ""
             } ${as === "textarea" ? "resize-none" : ""} ${icon ? "pl-10" : ""} ${className}`;
         let fieldElement;
         if (as === "select") {
             fieldElement = (
-                <select ref={ref} className={fieldClass} {...inputProps}>
+                <select ref={ref} id={fieldId} name={name} className={fieldClass} {...inputProps}>
                     {children}
                 </select>
             );
         } else if (as === "textarea") {
-            fieldElement = <textarea ref={ref} className={fieldClass} rows={rows} {...inputProps} />;
+            fieldElement = <textarea ref={ref} id={fieldId} name={name} className={fieldClass} rows={rows} {...inputProps} />;
         } else {
-            fieldElement = <input ref={ref} className={fieldClass} {...inputProps} />;
+            fieldElement = <input ref={ref} id={fieldId} name={name} className={fieldClass} {...inputProps} />;
         }
         return (
             <div>
                 {label && (
-                    <label className="block text-xs font-semibold text-slate-500 mb-2">
+                    <label htmlFor={fieldId} className="block text-xs font-semibold text-slate-500 mb-2">
                         {label} {required && <span className="text-blue-900">*</span>}
                     </label>
-                )}
-                <div className="relative">
+                )}                <div className="relative">
                     {icon && (
                         <span className="absolute left-3.5 top-1/2 -translate-y-1/2">
                             {icon}

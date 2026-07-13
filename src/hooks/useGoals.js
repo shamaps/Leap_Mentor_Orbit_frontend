@@ -247,7 +247,7 @@ const useGoals = (connectRequestId) => {
       return { success: true };
     } catch (err) {
       pendingOwnMilestoneDelete.current.delete(milestoneId);
-      setMilestones(prevMilestones);
+      setMilestones((prev) => prevMilestones ?? prev);
       const msg =
         err?.response?.data?.message ||
         err.message ||

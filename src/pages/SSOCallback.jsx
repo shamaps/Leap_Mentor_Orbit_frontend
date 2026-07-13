@@ -17,7 +17,7 @@ const redirectByRole = (roles, navigate) => {
 };
 
 // ── Inner component — only runs AFTER Clerk finishes OAuth ──
-const SyncWithBackend = () => {
+export const SyncWithBackend = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();

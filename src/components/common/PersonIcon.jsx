@@ -1,8 +1,14 @@
 // src/components/common/PersonIcon.jsx
 import PropTypes from "prop-types";
 
-const PersonIcon = ({ size = 13, stroke = "white", strokeWidth = "2.5" }) => (
+const PersonIcon = ({
+    size = 13,
+    stroke = "white",
+    strokeWidth = "2",
+    testId = "person-icon",
+}) => (
     <svg
+        data-testid={testId}
         width={size}
         height={size}
         viewBox="0 0 24 24"
@@ -17,10 +23,12 @@ const PersonIcon = ({ size = 13, stroke = "white", strokeWidth = "2.5" }) => (
     </svg>
 );
 
+
 PersonIcon.propTypes = {
     size: PropTypes.number,
     stroke: PropTypes.string,
     strokeWidth: PropTypes.string,
+    testId: PropTypes.string,
 };
 
 export default PersonIcon;

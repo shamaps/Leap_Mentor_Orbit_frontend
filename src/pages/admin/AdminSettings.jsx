@@ -210,12 +210,12 @@ const AdminSettings = () => {
                   color: "#334155",
                   fontFamily: FONT,
                 }}
+                {...commissionForm.register("commission")}
                 onFocus={(e) => (e.target.style.borderColor = "#fed7aa")}
                 onBlur={(e) => {
                   commissionForm.register("commission").onBlur(e);
                   e.target.style.borderColor = "#e2e8f0";
                 }}
-                {...commissionForm.register("commission")}
               />
               {commissionForm.formState.errors.commission?.message ? (
                 <p className="text-[10px] text-red-500 mt-1">

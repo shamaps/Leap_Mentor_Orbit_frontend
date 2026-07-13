@@ -36,38 +36,7 @@ const AVATAR_BG = [
 const avatarColor = (name = "") =>
   AVATAR_BG[(name.codePointAt(0) ?? 0) % AVATAR_BG.length];
 
-// ActivityBar
-ActivityBar.propTypes = {
-  value: PropTypes.number.isRequired,
-  max: PropTypes.number.isRequired,
-  color: PropTypes.string.isRequired,
-};
 
-// RequestCard
-RequestCard.propTypes = {
-  request: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
-    createdAt: PropTypes.string,
-    sessionCount: PropTypes.number,
-    mentee: PropTypes.shape({
-      name: PropTypes.string,
-      email: PropTypes.string,
-    }),
-    liveStats: PropTypes.shape({
-      totalSessions: PropTypes.number,
-      completedSessions: PropTypes.number,
-      ongoingSessions: PropTypes.number,
-    }),
-  }).isRequired,
-  onApprove: PropTypes.func.isRequired,
-  onReject: PropTypes.func.isRequired,
-  processing: PropTypes.bool,
-};
-
-// EmptyState
-EmptyState.propTypes = {
-  tab: PropTypes.string.isRequired,
-};
 // ── Activity Bar ──────────────────────────────────────────────
 const ActivityBar = ({ value, max, color }) => (
   <div className="flex items-center gap-2">
@@ -346,10 +315,10 @@ const LeapRequests = () => {
     try {
       setProcessingId(id);
       await adminAxiosInstance.patch(`/leap-requests/admin/${id}/approve`, {});
-      showToast({ message: "Approved! 500 LP credited to mentee." });
+      showToast("Request approved.");
       fetchRequests();
     } catch (err) {
-      showToast({ message: err.response?.data?.message || "Failed to approve.", type: "error" });
+      showToast(err.response?.data?.message || "Failed to approve.", "error");
     } finally {
       setProcessingId(null);
     }
@@ -361,10 +330,10 @@ const LeapRequests = () => {
       await adminAxiosInstance.patch(`/leap-requests/admin/${id}/reject`, {
         note,
       });
-      showToast({ message: "Request rejected." });
+      showToast("Request rejected.");
       fetchRequests();
     } catch (err) {
-      showToast({ message: err.response?.data?.message || "Failed to reject.", type: "error" });
+      showToast(err.response?.data?.message || "Failed to reject.", "error");
     } finally {
       setProcessingId(null);
     }
@@ -375,7 +344,7 @@ const LeapRequests = () => {
     { key: "approved", label: "Approved" },
     { key: "rejected", label: "Rejected" },
   ];
-}
+
   let requestsContent;
   if (loading) {
     requestsContent = (
@@ -470,10 +439,9 @@ const LeapRequests = () => {
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all
-              ${
-                tab === t.key
-                  ? "bg-white text-slate-800 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+              ${tab === t.key
+                ? "bg-white text-slate-800 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
               }`}
           >
             {t.label}
@@ -487,5 +455,37 @@ const LeapRequests = () => {
       </div>
     </div>
   );
+};
+// ActivityBar
+ActivityBar.propTypes = {
+  value: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
+};
 
+// RequestCard
+RequestCard.propTypes = {
+  request: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    createdAt: PropTypes.string,
+    sessionCount: PropTypes.number,
+    mentee: PropTypes.shape({
+      name: PropTypes.string,
+      email: PropTypes.string,
+    }),
+    liveStats: PropTypes.shape({
+      totalSessions: PropTypes.number,
+      completedSessions: PropTypes.number,
+      ongoingSessions: PropTypes.number,
+    }),
+  }).isRequired,
+  onApprove: PropTypes.func.isRequired,
+  onReject: PropTypes.func.isRequired,
+  processing: PropTypes.bool,
+};
+
+// EmptyState
+EmptyState.propTypes = {
+  tab: PropTypes.string.isRequired,
+};
 export default LeapRequests;

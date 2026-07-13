@@ -1,0 +1,35 @@
+// src/test/pages/LoginMentor.test.jsx
+import { describe, it, expect, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import LoginMentor from "../../pages/LoginMentor";
+
+vi.mock("../../components/auth/LoginLeftPanel", () => ({
+    default: (props) => <div data-testid="login-left-panel" data-role={props.role} />,
+}));
+
+vi.mock("../../components/auth/LoginForm", () => ({
+    default: (props) => (
+        <div
+            data-testid="login-form"
+            data-role={props.role}
+            data-placeholder={props.placeholder}
+            data-register-path={props.registerPath}
+        />
+    ),
+}));
+
+describe("LoginMentor", () => {
+    it("renders LoginLeftPanel with role='mentor'", () => {
+        render(<LoginMentor />);
+        const panel = screen.getByTestId("login-left-panel");
+        expect(panel.getAttribute("data-role")).toBe("mentor");
+    });
+
+    it("renders LoginForm with mentor-specific props", () => {
+        render(<LoginMentor />);
+        const form = screen.getByTestId("login-form");
+        expect(form.getAttribute("data-role")).toBe("mentor");
+        expect(form.getAttribute("data-placeholder")).toBe("mentor@example.com");
+        expect(form.getAttribute("data-register-path")).toBe("/register/mentor");
+    });
+});
