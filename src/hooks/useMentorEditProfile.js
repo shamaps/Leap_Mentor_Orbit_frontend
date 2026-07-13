@@ -1,13 +1,17 @@
 // src/hooks/useMentorEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux"; // ✅ ADDED
-import axiosInstance from "../utils/axiosInstance";
+import { useSelector, useDispatch } from "react-redux";
+import logger from "../utils/logger";
+import * as mentorProfileApi from "../api/mentorProfile.api";
 import getErrorMessage from "../utils/getErrorMessage";
-
+import { commonOnboardingSchema, getFirstErrorMessage } from "../schemas/onboardingSchemas";
+import { selectAuthToken } from "../store/selectors";
+import { refetchMentorProfile } from "../store/slices/mentorProfileSlice";
 const useMentorEditProfile = () => {
   const navigate = useNavigate();
-  const token = useSelector((state) => state.auth.token); // ✅ FIXED: replaces both localStorage calls
+  const dispatch = useDispatch();
+  const token = useSelector(selectAuthToken);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [msg, setMsg] = useState({ type: "", text: "" });
@@ -29,10 +33,9 @@ const useMentorEditProfile = () => {
 
   // Pre-fill form with existing profile data
   useEffect(() => {
-    // ✅ REMOVED: const token = localStorage.getItem("token"); — not needed, axiosInstance handles auth
     const fetchProfile = async () => {
       try {
-        const { data } = await axiosInstance.get("/mentor-profile/me");
+        const data = await mentorProfileApi.getMentorProfile();
         setForm({
           profilePicture: data.profilePicture || "",
           bio: data.bio || "",
@@ -43,11 +46,14 @@ const useMentorEditProfile = () => {
           hourlyRate: data.hourlyRate || "",
           skills: data.skills || [],
           communicationPreferences: data.communicationPreferences || [],
-          languages: Array.isArray(data.languages) ? data.languages.join(", ") : data.languages || "",
+          languages: Array.isArray(data.languages)
+            ? data.languages.join(", ")
+            : data.languages || "",
           linkedInUrl: data.linkedInUrl || "",
           portfolioUrl: data.portfolioUrl || "",
         });
       } catch (err) {
+        logger.warn("Failed to load mentor profile data", { message: err?.message });
         setMsg({ type: "error", text: "Failed to load profile data." });
       } finally {
         setFetchLoading(false);
@@ -65,24 +71,14 @@ const useMentorEditProfile = () => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
 
-    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
-    if (isOnlyNumbers(form.currentRole))
-      return setMsg({ type: "error", text: "Current Role cannot be a number." });
-    if (isOnlyNumbers(form.company))
-      return setMsg({ type: "error", text: "Company name cannot be a number." });
+    const validationError = getFirstErrorMessage(commonOnboardingSchema, form);
+    if (validationError)
+      return setMsg({ type: "error", text: validationError });
 
-    const isValidUrl = (val) => {
-      if (!val) return true;
-      try { new URL(val); return true; }
-      catch { return false; }
-    };
-    if (!isValidUrl(form.linkedInUrl))
-      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL." });
-    if (!isValidUrl(form.portfolioUrl))
-      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL." });
-
-    // ✅ FIXED: was localStorage.getItem("token") — now reads from Redux
-    if (!token) { navigate("/login"); return; }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -91,14 +87,22 @@ const useMentorEditProfile = () => {
         ...form,
         yearsOfExperience: Number(form.yearsOfExperience) || 0,
         hourlyRate: Number(form.hourlyRate) || 0,
-        languages: typeof form.languages === "string"
-          ? form.languages.split(",").map((s) => s.trim()).filter(Boolean)
-          : form.languages,
+        languages:
+          typeof form.languages === "string"
+            ? form.languages
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+            : form.languages,
       };
 
-      const { data } = await axiosInstance.put("/mentor-profile/me", payload);
+      await mentorProfileApi.updateMentorProfile(payload);
+      await Promise.resolve(dispatch(refetchMentorProfile()));
 
-      setMsg({ type: "success", text: "Profile updated! Redirecting to dashboard…" });
+      setMsg({
+        type: "success",
+        text: "Profile updated! Redirecting to dashboard…",
+      });
       setTimeout(() => navigate("/dashboard/mentor"), 1000);
     } catch (err) {
       const apiMsg = getErrorMessage(err);

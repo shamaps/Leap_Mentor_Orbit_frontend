@@ -4,12 +4,12 @@ import useAvailability from "../../../../hooks/useAvailability";
 import CalendarAvailabilitySection from "./CalendarAvailabilitySection";
 import TimezoneDurationSection from "./TimezoneDurationSection";
 import IntegrationsSection from "./IntegrationsSection";
-
+import PropTypes from "prop-types";
 // ─── Helper: convert "HH:MM" 24h to "h:MM AM/PM" ─────────────────────────────
 const formatSlotTime = (timeStr) => {
   if (!timeStr) return "";
   const [hhStr, mm] = timeStr.split(":");
-  let hh = parseInt(hhStr, 10);
+  let hh = Number.parseInt(hhStr, 10);
   const period = hh >= 12 ? "PM" : "AM";
   hh = hh % 12 || 12;
   return `${hh}:${mm} ${period}`;
@@ -22,29 +22,43 @@ const BusyConflictModal = ({ conflicts, onConfirm, onCancel }) => (
       {/* Icon + Title */}
       <div className="flex items-start gap-3 mb-4">
         <div className="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center shrink-0 mt-0.5">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c2410c" strokeWidth="2.5" strokeLinecap="round">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#c2410c"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
         </div>
         <div>
-          <h2 className="text-sm font-bold text-slate-800">Busy Time Conflict</h2>
+          <h2 className="text-sm font-bold text-slate-800">
+            Busy Time Conflict
+          </h2>
           <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-            Some of your selected slots overlap with events in your Google Calendar.
+            Some of your selected slots overlap with events in your Google
+            Calendar.
           </p>
         </div>
       </div>
 
       {/* Conflict list */}
       <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 mb-5 space-y-2 max-h-48 overflow-y-auto">
-        {conflicts.map((c, i) => (
-          <div key={i} className="flex items-start gap-2">
+        {conflicts.map((c) => (
+          <div key={`${c.dateLabel}-${c.slotTime}`} className="flex items-start gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0" />
             <div>
-              <span className="text-xs font-bold text-orange-800">{c.dateLabel}</span>
+              <span className="text-xs font-bold text-orange-800">
+                {c.dateLabel}
+              </span>
               <span className="text-xs text-orange-700 ml-1">
-                {c.slotTime} conflicts with <span className="font-semibold">{c.busyTime}</span>
+                {c.slotTime} conflicts with{" "}
+                <span className="font-semibold">{c.busyTime}</span>
               </span>
             </div>
           </div>
@@ -52,7 +66,8 @@ const BusyConflictModal = ({ conflicts, onConfirm, onCancel }) => (
       </div>
 
       <p className="text-xs text-slate-600 mb-5 leading-relaxed">
-        Do you still want to save? Mentees may be able to book you during these times even though you have other events scheduled.
+        Do you still want to save? Mentees may be able to book you during these
+        times even though you have other events scheduled.
       </p>
 
       {/* Actions */}
@@ -84,21 +99,30 @@ const collectBusyConflicts = (specificDates, busySlots) => {
 
   for (const dateEntry of specificDates) {
     const dateStr = dateEntry.date;
-    const dateLabel = new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-      weekday: "short", month: "short", day: "numeric",
-    });
+    const dateLabel = new Date(dateStr + "T00:00:00").toLocaleDateString(
+      "en-US",
+      {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      },
+    );
 
     for (const slot of dateEntry.slots) {
       const slotStart = new Date(`${dateStr}T${slot.startTime}:00`);
-      const slotEnd   = new Date(`${dateStr}T${slot.endTime}:00`);
+      const slotEnd = new Date(`${dateStr}T${slot.endTime}:00`);
 
       for (const busy of busySlots) {
         const busyStart = new Date(busy.start);
-        const busyEnd   = new Date(busy.end);
+        const busyEnd = new Date(busy.end);
 
         if (slotStart < busyEnd && slotEnd > busyStart) {
           const fmt = (iso) =>
-            new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+            new Date(iso).toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            });
 
           conflicts.push({
             dateLabel,
@@ -113,7 +137,13 @@ const collectBusyConflicts = (specificDates, busySlots) => {
 
   return conflicts;
 };
-
+BusyConflictModal.propTypes = {
+  conflicts: PropTypes.arrayOf(
+    PropTypes.shape({ date: PropTypes.string, startTime: PropTypes.string, endTime: PropTypes.string }),
+  ).isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
 // ─── AvailabilityTab ──────────────────────────────────────────────────────────
 const AvailabilityTab = () => {
   const {
@@ -130,14 +160,17 @@ const AvailabilityTab = () => {
   } = useAvailability();
 
   // busySlots are lifted up from CalendarAvailabilitySection via callback
-  const [busySlots,          setBusySlots]          = useState([]);
-  const [showModal,          setShowModal]          = useState(false);
-  const [pendingConflicts,   setPendingConflicts]   = useState([]);
+  const [busySlots, setBusySlots] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [pendingConflicts, setPendingConflicts] = useState([]);
   // ── NEW: track whether all calendar slots pass validation ──────────────────
   const [isAvailabilityValid, setIsAvailabilityValid] = useState(true);
 
   const handleConnectionChange = (connected) => {
-    setAvailability((prev) => ({ ...prev, googleCalendarConnected: connected }));
+    setAvailability((prev) => ({
+      ...prev,
+      googleCalendarConnected: connected,
+    }));
   };
 
   // Intercept save — block if slot errors exist, then check for busy conflicts
@@ -146,7 +179,9 @@ const AvailabilityTab = () => {
     if (!isAvailabilityValid) return;
 
     const today = new Date().toISOString().split("T")[0];
-    const futureDates = (availability.specificDates || []).filter((d) => d.date >= today);
+    const futureDates = (availability.specificDates || []).filter(
+      (d) => d.date >= today,
+    );
     const conflicts = collectBusyConflicts(futureDates, busySlots);
 
     if (conflicts.length > 0) {
@@ -172,7 +207,9 @@ const AvailabilityTab = () => {
       <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
-          <p className="text-sm font-medium text-slate-500">Loading availability...</p>
+          <p className="text-sm font-medium text-slate-500">
+            Loading availability...
+          </p>
         </div>
       </div>
     );
@@ -180,7 +217,6 @@ const AvailabilityTab = () => {
 
   return (
     <div className="space-y-5">
-
       {/* Busy conflict confirmation modal */}
       {showModal && (
         <BusyConflictModal
@@ -193,7 +229,9 @@ const AvailabilityTab = () => {
       {/* Header row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Availability Settings</h1>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Availability Settings
+          </h1>
           <p className="text-sm text-blue-900 mt-0.5">
             Manage your calendar availability and integrations.
           </p>
@@ -208,7 +246,7 @@ const AvailabilityTab = () => {
           >
             {saving ? (
               <>
-                <span className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                <span className="w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" />{" "}
                 Saving...
               </>
             ) : (

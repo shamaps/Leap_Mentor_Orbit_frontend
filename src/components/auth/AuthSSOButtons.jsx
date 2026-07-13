@@ -1,15 +1,19 @@
 // src/components/auth/AuthSSOButtons.jsx
 import { GoogleIcon, LinkedInIcon } from "./AuthIcons";
-
+import PropTypes from "prop-types";
 const AuthSSOButtons = ({ googleBtnRef, loading, clerkLoaded, onLinkedIn }) => {
   return (
     <div className="flex gap-2.5">
       {/* Google */}
-      <div className={`flex-1 ${loading ? "opacity-60 pointer-events-none" : ""}`}>
+      <div
+        className={`flex-1 ${loading ? "opacity-60 pointer-events-none" : ""}`}
+      >
         <div ref={googleBtnRef} className="hidden" />
         <button
           type="button"
-          onClick={() => googleBtnRef.current?.querySelector("div[role=button]")?.click()}
+          onClick={() =>
+            googleBtnRef.current?.querySelector("div[role=button]")?.click()
+          }
           className="w-full flex items-center justify-center gap-2 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 bg-white hover:bg-slate-50 transition-colors"
         >
           <GoogleIcon />
@@ -29,6 +33,12 @@ const AuthSSOButtons = ({ googleBtnRef, loading, clerkLoaded, onLinkedIn }) => {
       </button>
     </div>
   );
+};
+AuthSSOButtons.propTypes = {
+  googleBtnRef: PropTypes.shape({ current: PropTypes.any }).isRequired,
+  loading: PropTypes.bool,
+  clerkLoaded: PropTypes.bool,
+  onLinkedIn: PropTypes.func.isRequired,
 };
 
 export default AuthSSOButtons;

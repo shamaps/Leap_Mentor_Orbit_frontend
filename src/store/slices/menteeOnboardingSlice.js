@@ -9,13 +9,12 @@ export const submitMenteeOnboarding = createAsyncThunk(
   "menteeOnboarding/submit",
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/mentee-profile", payload, {
-      });
+      const res = await axiosInstance.post("/mentee-profile", payload, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err));
     }
-  }
+  },
 );
 
 // ✅ STEP 2 — slice second (can now safely reference the thunk above)

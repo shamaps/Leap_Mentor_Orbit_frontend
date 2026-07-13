@@ -1,6 +1,6 @@
 // src/hooks/useConnectRequest.js
 import { useState, useRef } from "react";
-import axiosInstance from "../utils/axiosInstance";
+import { sendConnectRequest } from "../api/connectRequests.api";
 import getErrorMessage from "../utils/getErrorMessage";
 
 const useConnectRequest = () => {
@@ -9,7 +9,13 @@ const useConnectRequest = () => {
   const [error, setError] = useState("");
   const inFlightRef = useRef(false); // ← synchronous in-flight guard
 
-  const sendRequest = async ({ mentorId, message, selectedSlots, sessionRate, sessionCount }) => {
+  const sendRequest = async ({
+    mentorId,
+    message,
+    selectedSlots,
+    sessionRate,
+    sessionCount,
+  }) => {
     if (inFlightRef.current) return false; // ← blocks any concurrent call immediately
 
     setError("");
@@ -31,12 +37,12 @@ const useConnectRequest = () => {
         sessionCount,
       };
 
-      await axiosInstance.post("/connect-requests", payload);
+       await sendConnectRequest(payload);
       setSuccess(true);
       return true;
     } catch (err) {
       const apiMsg = getErrorMessage(err, "Failed to send request.");
-      setError(apiMsg); 
+      setError(apiMsg);
       return false;
     } finally {
       inFlightRef.current = false; // ← release lock

@@ -1,8 +1,8 @@
 // src/hooks/useAvailability.js
 import { useState, useEffect } from "react";
-import axiosInstance from "../utils/axiosInstance";
+import * as availabilityApi from "../api/availability.api";
 import getErrorMessage from "../utils/getErrorMessage";
-
+import { HTTP_STATUS } from "../constants/httpStatus";
 const useAvailability = () => {
   const [availability, setAvailability] = useState({
     timezone: "Asia/Kolkata",
@@ -12,24 +12,23 @@ const useAvailability = () => {
   });
 
   const [loading, setLoading] = useState(true);
-  const [saving,  setSaving]  = useState(false);
-  const [msg,     setMsg]     = useState({ type: "", text: "" });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState({ type: "", text: "" });
 
   // Fetch existing availability on mount
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get("/availability/me");
-        const { ...data } = res.data;
+        const data = await availabilityApi.getMyAvailability();
         setAvailability((prev) => ({
           ...prev,
           ...data,
           specificDates: data.specificDates || [],
         }));
       } catch (err) {
-        if (err?.response?.status !== 404) {
-          setMsg({ type: "error", text: "Failed to load availability." });
+        if (err?.response?.status !== HTTP_STATUS.NOT_FOUND) {
+          setMsg({ type: "error", text: getErrorMessage(err, "Failed to load availability.") });
         }
       } finally {
         setLoading(false);
@@ -59,9 +58,8 @@ const useAvailability = () => {
   const setSpecificDates = (updater) => {
     setAvailability((prev) => ({
       ...prev,
-      specificDates: typeof updater === "function"
-        ? updater(prev.specificDates)
-        : updater,
+      specificDates:
+        typeof updater === "function" ? updater(prev.specificDates) : updater,
     }));
   };
 
@@ -70,12 +68,11 @@ const useAvailability = () => {
     setMsg({ type: "", text: "" });
     try {
       setSaving(true);
-      await axiosInstance.patch("/availability/me",
-        {
-          timezone:         availability.timezone,
-          sessionDurations: availability.sessionDurations,
-          specificDates:    availability.specificDates,
-        });
+      await availabilityApi.saveMyAvailability({
+        timezone: availability.timezone,
+        sessionDurations: availability.sessionDurations,
+        specificDates: availability.specificDates,
+      });
       setMsg({ type: "success", text: "Availability saved successfully!" });
     } catch (err) {
       const apiMsg = getErrorMessage(err, "Failed to save.");
@@ -89,8 +86,7 @@ const useAvailability = () => {
   const cancelChanges = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get("/availability/me");
-      const { ...data } = res.data;
+      const data = await availabilityApi.getMyAvailability();
       setAvailability((prev) => ({
         ...prev,
         ...data,

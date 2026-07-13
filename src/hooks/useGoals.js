@@ -1,7 +1,12 @@
 // src/hooks/useGoals.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useToast } from "../context/ToastContext";
-import axiosInstance from "../utils/axiosInstance";
+import * as goalsApi from "../api/goals.api";
+const replaceMilestone = (prev, milestone) =>
+  prev.map((m) => (m._id === milestone._id ? milestone : m));
+
+const removeMilestoneById = (prev, milestoneId) =>
+  prev.filter((m) => m._id !== milestoneId);
 
 const useGoals = (connectRequestId) => {
   const [goal, setGoal] = useState(null);
@@ -28,11 +33,13 @@ const useGoals = (connectRequestId) => {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await axiosInstance.get(`/goals/${connectRequestId}`);
+      const data = await goalsApi.getGoal(connectRequestId);
       setGoal(data.goal);
       setMilestones(data.milestones || []);
     } catch (err) {
-      setError(err?.response?.data?.message || err.message || "Failed to load goal");
+      setError(
+        err?.response?.data?.message || err.message || "Failed to load goal",
+      );
     } finally {
       setLoading(false);
     }
@@ -91,9 +98,7 @@ const useGoals = (connectRequestId) => {
         pendingOwnMilestoneToggle.current.delete(milestone._id);
         return;
       }
-      setMilestones((prev) =>
-        prev.map((m) => (m._id === milestone._id ? milestone : m)),
-      );
+      setMilestones((prev) => replaceMilestone(prev, milestone));
       showToastRef.current({
         type: milestone.isCompleted ? "success" : "warning",
         title: milestone.isCompleted ? "Milestone Completed!" : "Milestone Reopened",
@@ -106,33 +111,32 @@ const useGoals = (connectRequestId) => {
         pendingOwnMilestoneDelete.current.delete(milestoneId);
         return;
       }
-      setMilestones((prev) => prev.filter((m) => m._id !== milestoneId));
+      setMilestones((prev) => removeMilestoneById(prev, milestoneId));
       showToastRef.current({
         type: "warning",
         title: "Milestone Removed",
         message: "A milestone was deleted",
       });
     };
-
     const waitForSocket = setInterval(() => {
-      if (window.__leapSocket?.connected) {
+      if (globalThis.__leapSocket?.connected) {
         clearInterval(waitForSocket);
-        window.__leapSocket.emit("join_room", { connectRequestId });
-        window.__leapSocket.on("goal_created", handleGoalCreated);
-        window.__leapSocket.on("goal_updated", handleGoalUpdated);
-        window.__leapSocket.on("milestone_added", handleMilestoneAdded);
-        window.__leapSocket.on("milestone_updated", handleMilestoneUpdated);
-        window.__leapSocket.on("milestone_deleted", handleMilestoneDeleted);
+        globalThis.__leapSocket.emit("join_room", { connectRequestId });
+        globalThis.__leapSocket.on("goal_created", handleGoalCreated);
+        globalThis.__leapSocket.on("goal_updated", handleGoalUpdated);
+        globalThis.__leapSocket.on("milestone_added", handleMilestoneAdded);
+        globalThis.__leapSocket.on("milestone_updated", handleMilestoneUpdated);
+        globalThis.__leapSocket.on("milestone_deleted", handleMilestoneDeleted);
       }
     }, 200);
 
     return () => {
       clearInterval(waitForSocket);
-      window.__leapSocket?.off("goal_created", handleGoalCreated);
-      window.__leapSocket?.off("goal_updated", handleGoalUpdated);
-      window.__leapSocket?.off("milestone_added", handleMilestoneAdded);
-      window.__leapSocket?.off("milestone_updated", handleMilestoneUpdated);
-      window.__leapSocket?.off("milestone_deleted", handleMilestoneDeleted);
+      globalThis.__leapSocket?.off("goal_created", handleGoalCreated);
+      globalThis.__leapSocket?.off("goal_updated", handleGoalUpdated);
+      globalThis.__leapSocket?.off("milestone_added", handleMilestoneAdded);
+      globalThis.__leapSocket?.off("milestone_updated", handleMilestoneUpdated);
+      globalThis.__leapSocket?.off("milestone_deleted", handleMilestoneDeleted);
     };
   }, [connectRequestId]);
 
@@ -143,19 +147,16 @@ const useGoals = (connectRequestId) => {
       setError(null);
       pendingOwnGoalCreate.current += 1;
       try {
-        const { data } = await axiosInstance.post("/goals", {
-          connectRequestId,
-          title,
-          description,
-          startDate,
-          endDate,
-        });
+        const data = await goalsApi.createGoal({ connectRequestId, title, description, startDate, endDate });
         setGoal(data.goal);
         setMilestones([]);
         return { success: true };
       } catch (err) {
         pendingOwnGoalCreate.current -= 1;
-        const msg = err?.response?.data?.message || err.message || "Failed to create goal";
+        const msg =
+          err?.response?.data?.message ||
+          err.message ||
+          "Failed to create goal";
         setError(msg);
         return { success: false, error: msg };
       } finally {
@@ -171,12 +172,13 @@ const useGoals = (connectRequestId) => {
     setError(null);
     pendingOwnGoalUpdate.current += 1;
     try {
-      const { data } = await axiosInstance.patch(`/goals/${goalId}`, fields);
+      const data = await goalsApi.updateGoal(goalId, fields);
       setGoal(data.goal);
       return { success: true };
     } catch (err) {
       pendingOwnGoalUpdate.current -= 1;
-      const msg = err?.response?.data?.message || err.message || "Failed to update goal";
+      const msg =
+        err?.response?.data?.message || err.message || "Failed to update goal";
       setError(msg);
       return { success: false, error: msg };
     } finally {
@@ -190,15 +192,15 @@ const useGoals = (connectRequestId) => {
     setError(null);
     pendingOwnMilestoneAdd.current += 1;
     try {
-      const { data } = await axiosInstance.post(`/goals/${goalId}/milestones`, {
-        title,
-        dueDate,
-      });
+      const data = await goalsApi.addMilestone(goalId, { title, dueDate });
       setMilestones((prev) => [...prev, data.milestone]);
       return { success: true };
     } catch (err) {
       pendingOwnMilestoneAdd.current -= 1;
-      const msg = err?.response?.data?.message || err.message || "Failed to add milestone";
+      const msg =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to add milestone";
       setError(msg);
       return { success: false, error: msg };
     } finally {
@@ -213,10 +215,7 @@ const useGoals = (connectRequestId) => {
       prev.map((m) => (m._id === milestoneId ? { ...m, isCompleted } : m)),
     );
     try {
-      const { data } = await axiosInstance.patch(
-        `/goals/milestones/${milestoneId}`,
-        { isCompleted },
-      );
+      const data = await goalsApi.toggleMilestone(milestoneId, isCompleted);
       setMilestones((prev) =>
         prev.map((m) => (m._id === milestoneId ? data.milestone : m)),
       );
@@ -227,7 +226,11 @@ const useGoals = (connectRequestId) => {
           m._id === milestoneId ? { ...m, isCompleted: !isCompleted } : m,
         ),
       );
-      setError(err?.response?.data?.message || err.message || "Failed to update milestone");
+      setError(
+        err?.response?.data?.message ||
+          err.message ||
+          "Failed to update milestone",
+      );
     }
   }, []);
 
@@ -240,12 +243,15 @@ const useGoals = (connectRequestId) => {
       return prev.filter((m) => m._id !== milestoneId);
     });
     try {
-      await axiosInstance.delete(`/goals/milestones/${milestoneId}`);
+      await goalsApi.deleteMilestone(milestoneId);
       return { success: true };
     } catch (err) {
       pendingOwnMilestoneDelete.current.delete(milestoneId);
-      setMilestones(prevMilestones);
-      const msg = err?.response?.data?.message || err.message || "Failed to delete milestone";
+      setMilestones((prev) => prevMilestones ?? prev);
+      const msg =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to delete milestone";
       setError(msg);
       return { success: false, error: msg };
     }

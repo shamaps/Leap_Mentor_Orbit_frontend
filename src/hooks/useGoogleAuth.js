@@ -1,7 +1,7 @@
 // src/hooks/useGoogleAuth.js
 import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";                        // ✅ ADDED
-import { setUser } from "../store/slices/authSlice";             // ✅ ADDED
+import { useDispatch } from "react-redux"; // ✅ ADDED
+import { setUser } from "../store/slices/authSlice"; // ✅ ADDED
 import axiosInstance from "../utils/axiosInstance";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -14,8 +14,8 @@ const callbackRef = {
   onLoadingChange: null,
   rolesRef: null,
   termsAcceptedRef: null,
-  dispatch: null,      // ✅ ADDED
-  setUser: null,       // ✅ ADDED
+  dispatch: null, // ✅ ADDED
+  setUser: null, // ✅ ADDED
 };
 
 const useGoogleAuth = ({
@@ -26,7 +26,7 @@ const useGoogleAuth = ({
   onError,
   onLoadingChange,
 }) => {
-  const dispatch = useDispatch();                                 // ✅ ADDED — hook-level, not passed as prop
+  const dispatch = useDispatch(); // ✅ ADDED — hook-level, not passed as prop
   const rolesRef = useRef(roles);
 
   useEffect(() => {
@@ -40,8 +40,8 @@ const useGoogleAuth = ({
   callbackRef.onLoadingChange = onLoadingChange;
   callbackRef.rolesRef = rolesRef;
   callbackRef.termsAcceptedRef = termsAcceptedRef;
-  callbackRef.dispatch = dispatch;                               // ✅ kept fresh
-  callbackRef.setUser = setUser;                                 // ✅ kept fresh
+  callbackRef.dispatch = dispatch; // ✅ kept fresh
+  callbackRef.setUser = setUser; // ✅ kept fresh
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
@@ -53,8 +53,8 @@ const useGoogleAuth = ({
       if (!btnRef.current) return;
 
       // Only initialize once for the entire app lifetime
-      if (!window.__googleInitialized) {
-        window.google.accounts.id.initialize({
+      if (!globalThis.__googleInitialized) {
+        globalThis.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: async (response) => {
             const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
@@ -81,7 +81,7 @@ const useGoogleAuth = ({
                   callbackRef.setUser({
                     token: res.data.accessToken || res.data.token,
                     user: res.data.user || null,
-                  })
+                  }),
                 );
               }
 
@@ -98,12 +98,12 @@ const useGoogleAuth = ({
             }
           },
         });
-        window.__googleInitialized = true;
+        globalThis.__googleInitialized = true;
       }
 
       // Always re-render the button — safe to call multiple times
       btnRef.current.innerHTML = "";
-      window.google.accounts.id.renderButton(btnRef.current, {
+      globalThis.google.accounts.id.renderButton(btnRef.current, {
         theme: "outline",
         size: "large",
         width: 400,
@@ -111,8 +111,8 @@ const useGoogleAuth = ({
       });
     };
 
-    if (window.google) {
-      if ("requestIdleCallback" in window) {
+    if (globalThis.google) {
+      if ("requestIdleCallback" in globalThis) {
         requestIdleCallback(initGoogle, { timeout: 2000 });
       } else {
         setTimeout(initGoogle, 200);

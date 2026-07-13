@@ -1,17 +1,17 @@
 // src/hooks/usePrivateNotes.js
 import { useState, useEffect, useCallback } from "react";
 import {
-  createPrivateNote  as apiCreate,
-  getPrivateNotes    as apiGetAll,
-  updatePrivateNote  as apiUpdate,
-  deletePrivateNote  as apiDelete,
+  createPrivateNote as apiCreate,
+  getPrivateNotes as apiGetAll,
+  updatePrivateNote as apiUpdate,
+  deletePrivateNote as apiDelete,
 } from "../api/privateNotes.api";
 
 const usePrivateNotes = (connectRequestId) => {
-  const [notes,   setNotes]   = useState([]);
+  const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [saving,  setSaving]  = useState(false);
-  const [error,   setError]   = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
   // ── Fetch all notes ───────────────────────────────────────
   const fetchNotes = useCallback(async () => {
@@ -28,25 +28,30 @@ const usePrivateNotes = (connectRequestId) => {
     }
   }, [connectRequestId]);
 
-  useEffect(() => { fetchNotes(); }, [fetchNotes]);
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   // ── Create a note ─────────────────────────────────────────
-  const createNote = useCallback(async (title = "Untitled Note", content = "") => {
-    if (!connectRequestId) return;
-    try {
-      setSaving(true);
-      setError(null);
-      const data = await apiCreate(connectRequestId, title, content);
-      setNotes((prev) => [data.note, ...prev]);
-      return { success: true, note: data.note };
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to create note.";
-      setError(msg);
-      return { success: false, message: msg };
-    } finally {
-      setSaving(false);
-    }
-  }, [connectRequestId]);
+  const createNote = useCallback(
+    async (title = "Untitled Note", content = "") => {
+      if (!connectRequestId) return;
+      try {
+        setSaving(true);
+        setError(null);
+        const data = await apiCreate(connectRequestId, title, content);
+        setNotes((prev) => [data.note, ...prev]);
+        return { success: true, note: data.note };
+      } catch (err) {
+        const msg = err?.response?.data?.message || "Failed to create note.";
+        setError(msg);
+        return { success: false, message: msg };
+      } finally {
+        setSaving(false);
+      }
+    },
+    [connectRequestId],
+  );
 
   // ── Update a note ─────────────────────────────────────────
   const updateNote = useCallback(async (noteId, title, content) => {
@@ -54,9 +59,7 @@ const usePrivateNotes = (connectRequestId) => {
       setSaving(true);
       setError(null);
       const data = await apiUpdate(noteId, title, content);
-      setNotes((prev) =>
-        prev.map((n) => (n._id === noteId ? data.note : n))
-      );
+      setNotes((prev) => prev.map((n) => (n._id === noteId ? data.note : n)));
       return { success: true, note: data.note };
     } catch (err) {
       const msg = err?.response?.data?.message || "Failed to save note.";
@@ -82,8 +85,13 @@ const usePrivateNotes = (connectRequestId) => {
   }, []);
 
   return {
-    notes, loading, saving, error,
-    createNote, updateNote, deleteNote,
+    notes,
+    loading,
+    saving,
+    error,
+    createNote,
+    updateNote,
+    deleteNote,
     refetch: fetchNotes,
   };
 };

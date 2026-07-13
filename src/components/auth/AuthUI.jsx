@@ -1,4 +1,5 @@
 // src/components/auth/AuthUI.jsx
+import PropTypes from "prop-types";
 
 /**
  * Message banner for success / info / error states.
@@ -14,12 +15,17 @@ export const AuthMessageBanner = ({ type, text }) => {
   };
 
   return (
-    <div className={`rounded-lg px-4 py-2.5 text-sm mb-4 leading-relaxed ${classes[type] || classes.error}`}>
+    <div
+      className={`rounded-lg px-4 py-2.5 text-sm mb-4 leading-relaxed ${classes[type] || classes.error}`}
+    >
       {text}
     </div>
   );
 };
-
+AuthMessageBanner.propTypes = {
+  type: PropTypes.oneOf(["success", "info", "error"]),
+  text: PropTypes.string,
+};
 /**
  * "Or sign up/in with" divider.
  * Props: label (string, default "Or sign up with")
@@ -27,10 +33,15 @@ export const AuthMessageBanner = ({ type, text }) => {
 export const AuthDivider = ({ label = "Or sign up with" }) => (
   <div className="flex items-center gap-3 my-5">
     <div className="flex-1 h-px bg-slate-200" />
-    <span className="text-xs font-semibold text-slate-700 whitespace-nowrap">{label}</span>
+    <span className="text-xs font-semibold text-slate-700 whitespace-nowrap">
+      {label}
+    </span>
     <div className="flex-1 h-px bg-slate-200" />
   </div>
 );
+AuthDivider.propTypes = {
+  label: PropTypes.string,
+};
 /**
  * Reusable labeled input field.
  * Props: label, all standard <input> props
@@ -45,7 +56,10 @@ export const AuthField = ({ label, hint, ...inputProps }) => (
     {hint && <p className="text-xs text-slate-400">{hint}</p>}
   </div>
 );
-
+AuthField.propTypes = {
+  label: PropTypes.string.isRequired,
+  hint: PropTypes.string,
+};
 /**
  * Brand header row — logo + "LeapMentor" text.
  * Props: logo (JSX element)
@@ -53,6 +67,11 @@ export const AuthField = ({ label, hint, ...inputProps }) => (
 export const AuthBrand = ({ logo }) => (
   <div className="flex items-center gap-2.5 mb-7">
     {logo}
-    <span className="text-xl font-bold text-slate-900 tracking-tight">LeapMentor</span>
+    <span className="text-xl font-bold text-slate-900 tracking-tight">
+      LeapMentor
+    </span>
   </div>
 );
+AuthBrand.propTypes = {
+  logo: PropTypes.node,
+};

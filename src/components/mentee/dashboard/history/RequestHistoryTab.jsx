@@ -4,47 +4,44 @@ import { useEffect } from "react";
 import { TABS } from "./constants";
 import HistoryTable from "./HistoryTable";
 import DetailDrawer from "./DetailDrawer";
-
+import TabLoader from "../../../common/TabLoader";
 const RequestHistoryTab = () => {
   const {
-    filtered, counts, loading, error,
-    activeTab, setActiveTab,
-    selected, setSelected,
+    filtered,
+    counts,
+    loading,
+    error,
+    activeTab,
+    setActiveTab,
+    selected,
+    setSelected,
     deleteRequest,
     updateRequest,
     fetchRequests,
   } = useRequestHistory();
 
   useEffect(() => {
-  const handleRequestChanged = () => fetchRequests();
+    const handleRequestChanged = () => fetchRequests();
 
-  const waitForSocket = setInterval(() => {
-    if (window.__leapSocket?.connected) {
+    const waitForSocket = setInterval(() => {
+      if (globalThis.__leapSocket?.connected) {
+        clearInterval(waitForSocket);
+        globalThis.__leapSocket.on("request_status_changed", handleRequestChanged);
+      }
+    }, 200);
+
+    return () => {
       clearInterval(waitForSocket);
-      window.__leapSocket.on("request_status_changed", handleRequestChanged);
-    }
-  }, 200);
-
-  return () => {
-    clearInterval(waitForSocket);
-    window.__leapSocket?.off("request_status_changed", handleRequestChanged);
-  };
-}, [fetchRequests]);
+      globalThis.__leapSocket?.off("request_status_changed", handleRequestChanged);
+    };
+  }, [fetchRequests]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-4 border-blue-100 border-t-blue-900 animate-spin" />
-          <p className="text-sm text-slate-400 font-medium">Loading your history...</p>
-        </div>
-      </div>
-    );
+    return <TabLoader message="Loading your history..." />;
   }
 
   return (
     <div className="space-y-5">
-
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Request History</h1>
@@ -64,18 +61,28 @@ const RequestHistoryTab = () => {
       <div className="w-full border-b border-slate-100">
         <div className="flex w-full">
           {TABS.map((tab) => (
-            <button key={tab.key} type="button"
-              onClick={() => { setActiveTab(tab.key); setSelected(null); }}
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => {
+                setActiveTab(tab.key);
+                setSelected(null);
+              }}
               className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-semibold transition-all duration-150 border-b-2 ${
                 activeTab === tab.key
                   ? "text-blue-900 border-blue-900 bg-blue-50/50"
                   : "text-slate-700 border-transparent hover:text-blue-900 hover:bg-slate-50"
-              }`}>
+              }`}
+            >
               {tab.label}
               {counts[tab.key] > 0 && (
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  activeTab === tab.key ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-500"
-                }`}>
+                <span
+                  className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                    activeTab === tab.key
+                      ? "bg-blue-900 text-white"
+                      : "bg-slate-100 text-slate-500"
+                  }`}
+                >
                   {counts[tab.key]}
                 </span>
               )}
@@ -99,7 +106,6 @@ const RequestHistoryTab = () => {
         onDelete={deleteRequest}
         onUpdateRequest={updateRequest}
       />
-
     </div>
   );
 };

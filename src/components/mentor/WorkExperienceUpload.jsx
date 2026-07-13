@@ -1,7 +1,8 @@
 // components/mentor/verification/WorkExperienceUpload.jsx
-
-const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
+import PropTypes from "prop-types";
+const ACCEPTED_TYPES = new Set(["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"]);
 const MAX_FILES = 3;
+const MAX_SIZE = 10 * 1024 * 1024; // 10MB per file
 
 const WorkExperienceUpload = ({ files, onChange, error }) => {
 
@@ -14,9 +15,15 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
       return;
     }
 
-    const invalid = selected.find((f) => !ACCEPTED_TYPES.includes(f.type));
+    const invalid = selected.find((f) => !ACCEPTED_TYPES.has(f.type));
     if (invalid) {
       onChange(files, "Only PDF, JPG, PNG, WEBP files are allowed");
+      return;
+    }
+
+    const tooLarge = selected.find((f) => f.size > MAX_SIZE);
+    if (tooLarge) {
+      onChange(files, "Each file must be under 10MB");
       return;
     }
 
@@ -34,9 +41,14 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
       onChange(files, `Maximum ${MAX_FILES} files allowed`);
       return;
     }
-    const invalid = dropped.find((f) => !ACCEPTED_TYPES.includes(f.type));
+    const invalid = dropped.find((f) => !ACCEPTED_TYPES.has(f.type));
     if (invalid) {
       onChange(files, "Only PDF, JPG, PNG, WEBP files are allowed");
+      return;
+    }
+    const tooLarge = dropped.find((f) => f.size > MAX_SIZE);
+    if (tooLarge) {
+      onChange(files, "Each file must be under 10MB");
       return;
     }
     onChange(combined, null);
@@ -69,7 +81,7 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
           <div className="space-y-2">
             {files.map((file, index) => (
               <div
-                key={index}
+                key={`${file.name}-${file.size}-${index}`}
                 className="flex items-center justify-between gap-3 border border-green-200 bg-green-50 rounded-xl px-4 py-3"
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -101,6 +113,7 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
         {/* Drop zone — hide when max reached */}
         {files.length < MAX_FILES && (
           <label
+            aria-label="Upload work experience files"
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
             className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl px-6 py-6 cursor-pointer transition-all duration-150
@@ -142,6 +155,11 @@ const WorkExperienceUpload = ({ files, onChange, error }) => {
       </div>
     </div>
   );
+};
+WorkExperienceUpload.propTypes = {
+  files: PropTypes.arrayOf(PropTypes.instanceOf(File)).isRequired,
+  onChange: PropTypes.func.isRequired,
+  error: PropTypes.string,
 };
 
 export default WorkExperienceUpload;

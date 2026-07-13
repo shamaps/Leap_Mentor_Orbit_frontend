@@ -26,10 +26,15 @@ export const formatDateSeparator = (dateStr) => {
 
   if (date.toDateString() === today.toDateString()) return "Today";
   if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
-  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 };
 
-export const isSameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
+export const isSameDay = (a, b) =>
+  new Date(a).toDateString() === new Date(b).toDateString();
 
 // ← REMOVED getMyId() — was reading token from localStorage which is always null now.
 // userId is now passed as a parameter from the component which reads it from Redux.

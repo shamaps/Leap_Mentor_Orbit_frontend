@@ -1,5 +1,7 @@
 // src/components/ui/connects/ConnectsLayout.jsx
-
+import EmptyState from "../../common/EmptyState";
+import PropTypes from "prop-types";
+import TabLoader from "../../common/TabLoader";
 // ── Skeleton card ─────────────────────────────────────────────
 const SkeletonCard = () => (
   <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 animate-pulse">
@@ -25,38 +27,6 @@ const SkeletonCard = () => (
   </div>
 );
 
-// ── Empty state ───────────────────────────────────────────────
-const EmptyState = ({ message, subMessage, actionLabel, onAction }) => (
-  <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-20 text-center space-y-4">
-    <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200
-      flex items-center justify-center text-slate-300">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    </div>
-    <div className="space-y-1">
-      <p className="text-sm font-bold text-slate-700">{message}</p>
-      {subMessage && (
-        <p className="text-xs text-slate-400 max-w-xs leading-relaxed">{subMessage}</p>
-      )}
-    </div>
-    {actionLabel && onAction && (
-      <button
-        type="button"
-        onClick={onAction}
-        className="px-4 py-2 rounded-xl bg-blue-900 text-white text-xs font-bold
-          hover:bg-blue-700 transition-all"
-      >
-        {actionLabel}
-      </button>
-    )}
-  </div>
-);
-
 // ── Section divider ───────────────────────────────────────────
 const SectionDivider = ({ label, count }) => (
   <div className="flex items-center gap-3 col-span-1 md:col-span-2 lg:col-span-3">
@@ -67,24 +37,28 @@ const SectionDivider = ({ label, count }) => (
     <div className="flex-1 h-px bg-slate-100" />
   </div>
 );
-
+SectionDivider.propTypes = {
+  label: PropTypes.string.isRequired,
+  count: PropTypes.number,
+};
 // ── Main Layout ───────────────────────────────────────────────
 const ConnectsLayout = ({
   title,
   subtitle,
-  count,           // active count
+  count, // active count
   loading,
   error,
   emptyState,
-  children,        // active ConnectCards
+  children, // active ConnectCards
   completedChildren, // ✅ completed ConnectCards
-  completedCount,    // ✅ completed count
+  completedCount, // ✅ completed count
 }) => {
   const hasCompleted = completedCount > 0;
-
+  if (loading) {
+    return <TabLoader message="Loading your connects..." />;
+  }
   return (
     <div className="space-y-6">
-
       {/* ── Header ── */}
       <div className="flex items-start justify-between">
         <div>
@@ -96,8 +70,10 @@ const ConnectsLayout = ({
 
         {/* Active count badge */}
         {!loading && count > 0 && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full
-            bg-blue-50 border border-blue-100 text-blue-900 text-xs font-bold shrink-0">
+          <div
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full
+            bg-blue-50 border border-blue-100 text-blue-900 text-xs font-bold shrink-0"
+          >
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
             {count} Active {count === 1 ? "Session" : "Sessions"}
           </div>
@@ -106,8 +82,10 @@ const ConnectsLayout = ({
 
       {/* ── Error ── */}
       {error && (
-        <div className="flex items-center gap-2 text-sm bg-red-50 border border-red-200
-          text-red-600 rounded-xl px-4 py-3">
+        <div
+          className="flex items-center gap-2 text-sm bg-red-50 border border-red-200
+          text-red-600 rounded-xl px-4 py-3"
+        >
           <span>⚠</span> {error}
         </div>
       )}
@@ -115,17 +93,9 @@ const ConnectsLayout = ({
       {/* ── Active grid ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-        {/* Loading skeletons */}
-        {loading && (
-          <>
-            <SkeletonCard />
-            <SkeletonCard />
-          </>
-        )}
-
         {/* Empty state — only show if no active AND no completed */}
         {!loading && !error && count === 0 && !hasCompleted && (
-          <EmptyState {...emptyState} />
+          <EmptyState {...emptyState} fullWidth />
         )}
 
         {/* Active cards */}
@@ -139,9 +109,18 @@ const ConnectsLayout = ({
           </>
         )}
       </div>
-
     </div>
   );
 };
-
+ConnectsLayout.propTypes = {
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+  count: PropTypes.number,
+  loading: PropTypes.bool,
+  error: PropTypes.string,
+  emptyState: PropTypes.object,
+  children: PropTypes.node,
+  completedChildren: PropTypes.node,
+  completedCount: PropTypes.number,
+};
 export default ConnectsLayout;

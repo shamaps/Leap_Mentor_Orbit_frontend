@@ -1,14 +1,13 @@
 // src/hooks/useUnreadCount.js
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "../utils/axiosInstance";
-
+import * as notificationsApi from "../api/notifications.api";
 const useUnreadCount = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const res = await axiosInstance.get("/notifications");
-      const count = (res.data.notifications || []).filter(
+      const data = await notificationsApi.getNotifications();
+      const count = (data.notifications || []).filter(
         (n) => !n.read,
       ).length;
       setUnreadCount(count);
@@ -17,15 +16,15 @@ const useUnreadCount = () => {
     }
   }, []);
 
-  // ✅ fetch once on mount only
+  //fetch once on mount only
   useEffect(() => {
-  const load = async () => {
-    await fetchUnreadCount();
-  };
-  load();
-}, [fetchUnreadCount]);
+    const load = async () => {
+      await fetchUnreadCount();
+    };
+    load();
+  }, [fetchUnreadCount]);
 
-  // ✅ increment badge when socket/push notification arrives
+  //increment badge when socket/push notification arrives
   const incrementBadge = useCallback(() => {
     setUnreadCount((prev) => prev + 1);
   }, []);

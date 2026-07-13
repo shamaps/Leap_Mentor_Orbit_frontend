@@ -1,16 +1,117 @@
-# React + Vite
+# LeapMentor — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend for **LeapMentor**, a full-stack mentorship platform connecting mentors, mentees, and admins. Built with React 19, Vite, and Redux Toolkit, with real-time features via Socket.io.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Framework:** React 19 + Vite 7
+- **Routing:** React Router v7
+- **State Management:** Redux Toolkit + React Redux
+- **Forms & Validation:** React Hook Form + Zod
+- **Styling:** Tailwind CSS 4
+- **Auth:** Clerk (SSO) + Google Auth
+- **Real-time:** Socket.io Client
+- **Charts:** Recharts
+- **Monitoring:** Sentry
+- **Testing:** Vitest + React Testing Library + MSW (mock service worker)
+- **Icons:** Lucide React
 
-## React Compiler
+## Project Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── api/          # API request functions (auth, sessions, goals, escrow, notifications, etc.)
+├── components/   # Reusable UI components, grouped by domain
+│   ├── admin/
+│   ├── auth/
+│   ├── common/
+│   ├── mentee/
+│   ├── mentor/
+│   ├── shared-dashboard/
+│   └── ui/
+├── config/       # Static config (e.g. onboarding field definitions)
+├── constants/    # App-wide constants (HTTP status codes, images, mentorship prefs)
+├── context/      # React Context providers (onboarding forms, toasts)
+├── hooks/        # Custom hooks (sessions, goals, mentor search, connect requests, etc.)
+├── mappers/      # Data mappers between API responses and UI models
+├── pages/        # Route-level page components
+│   └── admin/
+├── schemas/      # Zod validation schemas
+├── store/        # Redux store, slices, and selectors
+├── test/         # Test setup and utilities
+├── ui/           # Landing page / marketing UI (Hero, Navbar, Footer, Testimonials, etc.)
+├── utils/        # Utilities (axios instances, logger, error mapping)
+├── App.jsx
+└── main.jsx
+```
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Prerequisites
+
+- Node.js >= 20.0.0
+- npm >= 10.0.0
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development
+
+```bash
+npm run dev
+```
+
+Starts the Vite dev server with hot module replacement (HMR).
+
+### Build
+
+```bash
+npm run build
+```
+
+Produces a production build.
+
+### Preview
+
+```bash
+npm run preview
+```
+
+Serves the production build locally for a final check.
+
+### Linting
+
+```bash
+npm run lint
+```
+
+## Testing
+
+This project uses **Vitest** and **React Testing Library** for unit and component testing, with **MSW** for mocking API calls.
+
+```bash
+npm run test           # Run all tests once
+npm run test:watch     # Run tests in watch mode
+npm run test:coverage  # Run tests with coverage report (v8)
+```
+
+Coverage results are also reported via `vitest-sonar-reporter` for SonarQube integration.
+
+## Key Features
+
+- Separate onboarding, dashboards, and flows for **mentors** and **mentees**, plus an **admin** panel for verifications and moderation
+- Real-time updates (goals, milestones, connect requests, session status) over Socket.io
+- Escrow-based session payments
+- In-app AI chat widget (**LeapBuddy**)
+
+## Environment Variables
+
+This project expects environment variables (e.g. API base URL, Clerk publishable key, Socket.io endpoint) to be defined in a `.env` file at the project root, consumed via Vite's `import.meta.env`.
+
+## Code Quality
+
+- **SonarQube** integration is configured via `sonar-project.properties`
+- **ESLint** is configured for React best practices and hooks rules

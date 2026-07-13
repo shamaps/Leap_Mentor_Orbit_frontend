@@ -10,10 +10,11 @@ export const payEscrow = async ({
   sessionRate,
   sessionCount,
 }) => {
-  const res = await axiosInstance.post(
-    "/escrow/pay",
-    { connectRequestId, sessionRate, sessionCount }
-  );
+  const res = await axiosInstance.post("/escrow/pay", {
+    connectRequestId,
+    sessionRate,
+    sessionCount,
+  });
   return res.data;
 };
 
@@ -22,10 +23,9 @@ export const payEscrow = async ({
 // Mentee confirms session complete — tokens go to mentor
 // ─────────────────────────────────────────────────────────────
 export const releaseEscrow = async (requestId) => {
-  const res = await axiosInstance.post(
-    `/escrow/release/${requestId}`,
-    {}
-  );
+  const res = await axiosInstance.patch(`/escrow/${requestId}`, {
+    action: "release",
+  });
   return res.data;
 };
 
@@ -34,10 +34,9 @@ export const releaseEscrow = async (requestId) => {
 // Either party cancels — tokens return to mentee
 // ─────────────────────────────────────────────────────────────
 export const refundEscrow = async (requestId) => {
-  const res = await axiosInstance.post(
-    `/escrow/refund/${requestId}`,
-    {}
-  );
+  const res = await axiosInstance.patch(`/escrow/${requestId}`, {
+    action: "refund",
+  });
   return res.data;
 };
 
@@ -54,15 +53,25 @@ export const getEscrowStatus = async (requestId) => {
 // POST /escrow/pay-additional
 // Mentee locks tokens for a single additional session slot
 // ─────────────────────────────────────────────────────────────
-export const payAdditionalEscrow = async ({ connectRequestId, sessionRate, slotId }) => {
-  const res = await axiosInstance.post(
-    "/escrow/pay-additional",
-    { connectRequestId, sessionRate, slotId }
-  );
+export const payAdditionalEscrow = async ({
+  connectRequestId,
+  sessionRate,
+  slotId,
+}) => {
+  const res = await axiosInstance.post("/escrow/pay-additional", {
+    connectRequestId,
+    sessionRate,
+    slotId,
+  });
   return res.data;
 };
 // GET /escrow/commission-rate
 export const getPlatformCommissionRate = async () => {
   const res = await axiosInstance.get("/escrow/commission-rate");
+  return res.data;
+};
+// GET /escrow/wallet
+export const getWallet = async () => {
+  const res = await axiosInstance.get("/escrow/wallet");
   return res.data;
 };

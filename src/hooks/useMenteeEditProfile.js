@@ -1,7 +1,8 @@
 // src/hooks/useMenteeEditProfile.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../utils/axiosInstance";
+import * as menteeProfileApi from "../api/menteeProfile.api";
+import { menteeOnboardingSchema, getFirstErrorMessage } from "../schemas/onboardingSchemas";
 
 const useMenteeEditProfile = () => {
   const navigate = useNavigate();
@@ -10,17 +11,25 @@ const useMenteeEditProfile = () => {
   const [msg, setMsg] = useState({ type: "", text: "" });
 
   const [form, setForm] = useState({
-    currentRole: "", industry: "", company: "",
-    yearsOfExperience: "", bio: "", profilePicture: "",
-    linkedInUrl: "", portfolioUrl: "",
-    skills: [], interestedFields: [],
-    communicationPreferences: [], languages: [],
+    currentRole: "",
+    industry: "",
+    company: "",
+    yearsOfExperience: "",
+    bio: "",
+    profilePicture: "",
+    linkedInUrl: "",
+    portfolioUrl: "",
+    skills: [],
+    interestedFields: [],
+    communicationPreferences: [],
+    languages: [],
   });
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfile = async (signal) => {
+      setFetchLoading(true);
       try {
-        const { data } = await axiosInstance.get("/mentee-profile/me");
+        const data = await menteeProfileApi.getMenteeProfile(signal);
         setForm({
           currentRole: data.currentRole || "",
           industry: data.industry || "",
@@ -36,12 +45,16 @@ const useMenteeEditProfile = () => {
           languages: data.languages || [],
         });
       } catch (err) {
-        setMsg({ type: "error", text: "Failed to load profile data." });
+        if (err.name !== "CanceledError" && err.name !== "AbortError") {
+          setMsg({ type: "error", text: "Failed to load profile data." });
+        }
       } finally {
-        setFetchLoading(false);
+        if (!controller.signal.aborted) setFetchLoading(false);
       }
     };
-    fetchProfile();
+    const controller = new AbortController();
+    fetchProfile(controller.signal);
+    return () => controller.abort();
   }, []);
 
   const handleChange = (e) => {
@@ -54,40 +67,18 @@ const useMenteeEditProfile = () => {
     setLoading(true);
     setMsg({ type: "", text: "" });
 
-    // ✅ Required field validations
-    if (!form.currentRole.trim())
-      return setMsg({ type: "error", text: "Current Role is required." });
-    if (!form.yearsOfExperience)
-      return setMsg({ type: "error", text: "Years of Experience is required." });
-    if (!form.industry)
-      return setMsg({ type: "error", text: "Industry is required." });
-    if (!form.interestedFields.length)
-      return setMsg({ type: "error", text: "Please add at least one Field of Interest." });
-    if (!form.skills.length)
-      return setMsg({ type: "error", text: "Please add at least one Skill of Interest." });
-
-    const isOnlyNumbers = (val) => val && /^\d+$/.test(val.trim());
-    if (isOnlyNumbers(form.currentRole))
-      return setMsg({ type: "error", text: "Current Role cannot be a number." });
-    if (isOnlyNumbers(form.company))
-      return setMsg({ type: "error", text: "Company name cannot be a number." });
-
-    const isValidUrl = (val) => {
-      if (!val) return true;
-      try { new URL(val); return true; }
-      catch { return false; }
-    };
-    if (!isValidUrl(form.linkedInUrl))
-      return setMsg({ type: "error", text: "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)." });
-    if (!isValidUrl(form.portfolioUrl))
-      return setMsg({ type: "error", text: "Please enter a valid Portfolio URL (e.g. https://yoursite.com)." });
+    const validationError = getFirstErrorMessage(menteeOnboardingSchema, form);
+    if (validationError) {
+      setLoading(false);
+      return setMsg({ type: "error", text: validationError });
+    }
 
     try {
       const payload = {
         ...form,
-        yearsOfExperience: form.yearsOfExperience, // ✅ keep as string
+        yearsOfExperience: form.yearsOfExperience,
       };
-      await axiosInstance.put("/mentee-profile/me", payload);
+      await menteeProfileApi.updateMenteeProfile(payload);
       setMsg({ type: "success", text: "Profile updated successfully!" });
       setTimeout(() => navigate("/dashboard/mentee"), 1500);
     } catch (err) {

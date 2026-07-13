@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+@theme {
+    --font-dmsans: "DM Sans", sans-serif;
+    --font-dmmono: "DM Mono", monospace;
+
+    /* ── Brand colors ── */
+    --color-brand-primary: var(--color-blue-900);
+    /* was raw bg-blue-900 / text-blue-900, 128+112 occurrences */
+    --color-brand-primary-light: var(--color-blue-50);
+    --color-brand-primary-hover: var(--color-blue-700);
+
+    /* ── Neutral / surface colors ── */
+    --color-surface-muted: var(--color-slate-50);
+    --color-surface-border: var(--color-slate-200);
+    --color-surface-border-light: var(--color-slate-100);
+
+    /* ── Text colors ── */
+    --color-text-primary: var(--color-slate-800);
+    --color-text-secondary: var(--color-slate-600);
+    --color-text-tertiary: var(--color-slate-500);
+    --color-text-muted: var(--color-slate-400);
+
+    /* ── Status colors ── */
+    --color-danger: var(--color-red-500);
+    --color-danger-light: var(--color-red-50);
+    --color-danger-border: var(--color-red-200);
+}

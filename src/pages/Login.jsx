@@ -5,9 +5,9 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 import useGoogleAuth from "../hooks/useGoogleAuth";
-import { useDispatch } from "react-redux";         // ← ADDED
+import { useDispatch } from "react-redux"; // ← ADDED
 import { setUser } from "../store/slices/authSlice"; // ← ADDED
-
+import { ssoFlags } from "../utils/storage";
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor") && roles.includes("mentee")) {
     navigate("/dashboard/mentor");
@@ -25,7 +25,7 @@ const CLERK_STRATEGY = {
 
 const Login = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();  // ← ADDED
+  const dispatch = useDispatch(); // ← ADDED
   const googleBtnRef = useRef(null);
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
   const { signOut } = useClerk();
@@ -39,8 +39,14 @@ const Login = () => {
     termsAcceptedRef: null,
     roles: [],
     onSuccess: (data) => {
-      setMsg({ type: "success", text: "Google login successful! Redirecting..." });
-      setTimeout(() => redirectByRole(data?.user?.roles || [], navigate, setMsg), 700);
+      setMsg({
+        type: "success",
+        text: "Google login successful! Redirecting...",
+      });
+      setTimeout(
+        () => redirectByRole(data?.user?.roles || [], navigate),
+        700,
+      );
     },
     onError: (text) => setMsg({ type: "error", text }),
     onLoadingChange: setLoading,
@@ -59,19 +65,17 @@ const Login = () => {
       setLoading(true);
 
       // ✅ Force sign out and wait fully before proceeding
-      await signOut({ redirectUrl: window.location.href });
+      await signOut({ redirectUrl: globalThis.location.href });
 
-      localStorage.setItem("sso_role", "existing");
-      localStorage.setItem("sso_terms", "true");
+      ssoFlags.set("existing", true);
 
       await signIn.authenticateWithRedirect({
         strategy: CLERK_STRATEGY[provider],
-        redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: `${window.location.origin}/sso-callback-sync`,
+        redirectUrl: `${globalThis.location.origin}/sso-callback`,
+        redirectUrlComplete: `${globalThis.location.origin}/sso-callback-sync`,
       });
     } catch (err) {
-      localStorage.removeItem("sso_role");
-      localStorage.removeItem("sso_terms");
+      ssoFlags.clear();
       setMsg({ type: "error", text: err.message || "SSO failed. Try again." });
       setLoading(false);
     }
@@ -90,33 +94,41 @@ const Login = () => {
 
       // ← FIXED: was localStorage.setItem("token") — backend now returns accessToken not token
       if (res.data?.accessToken) {
-        dispatch(setUser({ token: res.data.accessToken, user: res.data.user || null }));
+        dispatch(
+          setUser({ token: res.data.accessToken, user: res.data.user || null }),
+        );
       }
 
       setMsg({ type: "success", text: "Login successful! Redirecting..." });
-      setTimeout(() => redirectByRole(res.data?.user?.roles || [], navigate), 800);
+      setTimeout(
+        () => redirectByRole(res.data?.user?.roles || [], navigate),
+        800,
+      );
     } catch (err) {
-      const apiMsg = err?.response?.data?.message || err?.message || "Invalid credentials";
+      const apiMsg =
+        err?.response?.data?.message || err?.message || "Invalid credentials";
       setMsg({ type: "error", text: apiMsg });
     } finally {
       setLoading(false);
     }
   };
-
+  let msgBannerClass = "bg-red-50 text-red-700";
+  if (msg.type === "success") {
+    msgBannerClass = "bg-green-50 text-green-700";
+  } else if (msg.type === "info") {
+    msgBannerClass = "bg-blue-50 text-blue-900";
+  }
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md border rounded-xl p-6">
         <h1 className="text-2xl font-semibold">Login</h1>
-        <p className="text-sm text-gray-500 mt-1">Welcome back to LeapMentor.</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Welcome back to LeapMentor.
+        </p>
 
         {msg.text && (
           <div
-            className={`mt-4 text-sm rounded-md p-3 ${msg.type === "success"
-              ? "bg-green-50 text-green-700"
-              : msg.type === "info"
-                ? "bg-blue-50 text-blue-900"
-                : "bg-red-50 text-red-700"
-              }`}
+            className={`mt-4 text-sm rounded-md p-3 ${msgBannerClass}`}
           >
             {msg.text}
           </div>
@@ -152,8 +164,9 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="text-sm">Email</label>
+            <label htmlFor="login-email" className="text-sm">Email</label>
             <input
+              id="login-email"
               name="email"
               type="email"
               value={form.email}
@@ -164,8 +177,9 @@ const Login = () => {
             />
           </div>
           <div>
-            <label className="text-sm">Password</label>
+            <label htmlFor="login-password" className="text-sm">Password</label>
             <input
+              id="login-password"
               name="password"
               type="password"
               value={form.password}
@@ -187,9 +201,13 @@ const Login = () => {
 
         <p className="text-sm text-gray-600 mt-4">
           Don't have an account?{" "}
-          <span className="underline cursor-pointer" onClick={() => navigate("/register/mentee")}>
+          <button
+            type="button"
+            className="underline cursor-pointer bg-transparent border-none p-0"
+            onClick={() => navigate("/register/mentee")}
+          >
             Register
-          </span>
+          </button>
         </p>
       </div>
     </div>

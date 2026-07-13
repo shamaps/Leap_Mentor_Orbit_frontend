@@ -7,13 +7,12 @@ export const submitMentorOnboarding = createAsyncThunk(
   "mentorOnboarding/submit",
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/mentor-profile", payload, {
-      });
+      const res = await axiosInstance.post("/mentor-profile", payload, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(getErrorMessage(err, "Something went wrong."));
     }
-  }
+  },
 );
 
 const mentorOnboardingSlice = createSlice({

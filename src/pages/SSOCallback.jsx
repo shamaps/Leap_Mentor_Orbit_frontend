@@ -1,71 +1,76 @@
 // src/pages/SSOCallback.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";                          // ✅ ADDED
-import { setUser } from "../store/slices/authSlice";               // ✅ ADDED
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/slices/authSlice";
 import { AuthenticateWithRedirectCallback, useAuth } from "@clerk/clerk-react";
 import axiosInstance from "../utils/axiosInstance";
+import logger from "../utils/logger";
+import { ssoFlags } from "../utils/storage";
 
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor")) {
-    localStorage.setItem("role", "mentor");
     navigate("/dashboard/mentor");
   } else {
-    localStorage.setItem("role", "mentee");
     navigate("/dashboard/mentee");
   }
 };
 
 // ── Inner component — only runs AFTER Clerk finishes OAuth ──
-const SyncWithBackend = () => {
+export const SyncWithBackend = () => {
   const { getToken } = useAuth();
   const navigate = useNavigate();
-  const dispatch = useDispatch();                                   // ✅ ADDED
+  const dispatch = useDispatch();
   const [error, setError] = useState("");
 
   useEffect(() => {
     const sync = async () => {
       try {
         const clerkToken = await getToken();
-        console.log("✅ Clerk token:", clerkToken ? "YES" : "NO");
-
-        const role = localStorage.getItem("sso_role");
-        const termsAccepted = localStorage.getItem("sso_terms") === "true";
-        console.log("Role:", role);
+        logger.debug("Clerk token retrieved", { hasToken: Boolean(clerkToken) });
+        const flow = ssoFlags.get();
+        const role = flow?.role || null;
+        const termsAccepted = flow?.termsAccepted ?? false;
+        logger.debug("SSO role resolved", { role });
 
         const res = await axiosInstance.post("/auth/clerk-sso", {
           clerkToken,
           roles: role && role !== "existing" ? [role] : undefined,
-          termsAccepted: role !== "existing" ? termsAccepted : true,
+          termsAccepted: role === "existing" ? true : termsAccepted,
         });
 
-        console.log("✅ Backend response:", res.data);
+        logger.info("SSO backend sync succeeded", {
+          isNewUser: res.data?.isNewUser,
+          hasUser: Boolean(res.data?.user),
+        });
 
-        // ✅ FIXED: was localStorage.setItem("token", res.data.token)
-        // Token is now in the HttpOnly cookie set by the backend.
+        // Token is in the HttpOnly cookie set by the backend.
         // We only dispatch into Redux memory — never store in localStorage.
         if (res.data?.accessToken || res.data?.token) {
-          dispatch(setUser({
-            token: res.data.accessToken || res.data.token,
-            user: res.data.user || null,
-          }));
+          dispatch(
+            setUser({
+              token: res.data.accessToken || res.data.token,
+              user: res.data.user || null,
+            }),
+          );
         }
 
-        localStorage.removeItem("sso_role");
-        localStorage.removeItem("sso_terms");
+        ssoFlags.clear();
 
         if (res.data?.isNewUser) {
-          const onboardingRole = role && role !== "existing" ? role : res.data.user.roles[0];
+          const onboardingRole =
+            role && role !== "existing" ? role : res.data.user.roles[0];
           navigate(`/onboarding/${onboardingRole}`);
         } else {
           redirectByRole(res.data?.user?.roles || [], navigate);
         }
-
       } catch (err) {
-        console.error("❌ Error:", err?.response?.data || err.message);
+        logger.error("SSO sync failed", {
+          status: err?.response?.status,
+          message: err?.response?.data?.message || err.message,
+        });
         setError(err?.response?.data?.message || err.message || "SSO failed");
-        localStorage.removeItem("sso_role");
-        localStorage.removeItem("sso_terms");
+        ssoFlags.clear();
       }
     };
 
@@ -100,10 +105,11 @@ const SyncWithBackend = () => {
 const SSOCallback = () => {
   return (
     <AuthenticateWithRedirectCallback
-      afterSignInUrl="/sso-callback-sync"
-      afterSignUpUrl="/sso-callback-sync"
+      signInFallbackRedirectUrl="/sso-callback-sync"
+      signUpFallbackRedirectUrl="/sso-callback-sync"
     />
   );
 };
+
 
 export default SSOCallback;

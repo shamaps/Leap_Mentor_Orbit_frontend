@@ -1,6 +1,6 @@
 // src/hooks/useOngoingConnects.js
 import { useState, useEffect, useCallback } from "react";
-import axiosInstance from "../utils/axiosInstance";
+import { getOngoingConnects } from "../api/connectRequests.api";
 
 const useOngoingConnects = () => {
   const [ongoing, setOngoing] = useState([]);
@@ -12,11 +12,11 @@ const useOngoingConnects = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosInstance.get("/connect-requests/ongoing");
+      const data = await getOngoingConnects();
 
-      const all = res.data.connects || [];
+      const all = data.connects || [];
 
-      // ✅ Split into ongoing and completed
+      //  Split into ongoing and completed
       setOngoing(all.filter((c) => c.status === "ongoing"));
       setCompleted(all.filter((c) => c.status === "completed"));
     } catch (err) {
@@ -32,7 +32,7 @@ const useOngoingConnects = () => {
 
   // Keep connects for backward compat (ongoing only)
   return {
-    connects: ongoing,   // backward compat
+    connects: ongoing, // backward compat
     ongoing,
     completed,
     loading,

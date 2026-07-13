@@ -1,0 +1,46 @@
+// src/api/connectRequests.api.js
+import axiosInstance from "../utils/axiosInstance";
+import { mapConnectRequestList } from "../mappers/connectRequestMapper";
+
+export const getMyRequests = async () => {
+    const res = await axiosInstance.get("/connect-requests/my-requests");
+    return { requests: mapConnectRequestList(res.data.requests) };
+};
+
+export const getOngoingConnects = async () => {
+    const res = await axiosInstance.get("/connect-requests/ongoing");
+    return { connects: mapConnectRequestList(res.data.connects) };
+};
+
+export const sendConnectRequest = async ({
+    mentorId,
+    message,
+    selectedSlots,
+    sessionRate,
+    sessionCount,
+}) => {
+    await axiosInstance.post("/connect-requests", {
+        mentorId,
+        message,
+        selectedSlots,
+        sessionRate,
+        sessionCount,
+    });
+};
+
+export const respondToRequest = async (requestId, { status, confirmedSlot }) => {
+    await axiosInstance.patch(`/connect-requests/${requestId}`, {
+        status,
+        confirmedSlot,
+    });
+};
+
+export const referRequest = async (requestId, referToMentorId) => {
+    await axiosInstance.patch(`/connect-requests/${requestId}/refer`, {
+        referToMentorId,
+    });
+};
+export const getSimilarMentors = async (requestId) => {
+    const res = await axiosInstance.get(`/connect-requests/${requestId}/similar-mentors`);
+    return res.data;
+};
