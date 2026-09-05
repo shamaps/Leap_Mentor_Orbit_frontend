@@ -67,12 +67,12 @@ describe("Notes Utility Helpers Full Coverage Suite", () => {
 
     describe("isSameDay() Operations", () => {
         it("should return true when date elements share identical calendar windows", () => {
-            // ✅ Use uniform local time strings to prevent global UTC shifting variations
+            // Use uniform local time strings to prevent global UTC shifting variations
             expect(isSameDay("2026-07-12T02:00:00", "2026-07-12T22:00:00")).toBe(true);
         });
 
         it("should return false when date elements cross calendar horizons", () => {
-            // ✅ Absolute boundary check using local time components explicitly
+            // Absolute boundary check using local time components explicitly
             expect(isSameDay("2026-07-12T23:59:00", "2026-07-13T00:01:00")).toBe(false);
         });
     });

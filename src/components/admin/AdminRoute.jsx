@@ -18,11 +18,7 @@ const PageLoader = () => (
 );
 
 const AdminRoute = ({ children }) => {
-  // ── UPDATED: cannot check localStorage anymore — token is in httpOnly cookie ──
-  // Instead we call /admin/auth/me which the backend validates via the cookie
-  // If the cookie is valid → admin object returned → allow access
-  // If cookie missing/expired → 401 → redirect to login
-
+ 
   const [status, setStatus] = useState("checking"); // "checking" | "allowed" | "denied"
 
   useEffect(() => {

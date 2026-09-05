@@ -21,7 +21,7 @@ export const STATUS_STYLES = {
 
 export const STATUS_LABELS = {
   pending: "⏳ Waiting for mentor response",
-  accepted: "✅ Mentor accepted — payment required",
+  accepted: "Mentor accepted — payment required",
   rejected: "❌ Mentor declined your request",
   referred: "↪️ Referred to another mentor",
   ongoing: "🔵 Session in progress — payment held in escrow",

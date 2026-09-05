@@ -22,7 +22,7 @@ const RATINGS = [
   { label: "Any", value: "" },
 ];
 
-// ✅ Experience range options
+// Experience range options
 const EXPERIENCE_RANGES = [
   { label: "Any", value: "" },
   { label: "0–2 yrs", value: "0-2" },
@@ -36,14 +36,14 @@ const PRICE_DEBOUNCE_MS = 600;
 const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // ✅ Local price state — so typing doesn't fire updateFilter on every keystroke
+  // Local price state — so typing doesn't fire updateFilter on every keystroke
   const [localMin, setLocalMin] = useState(filters.minPrice);
   const [localMax, setLocalMax] = useState(filters.maxPrice);
 
   const minTimer = useRef(null);
   const maxTimer = useRef(null);
 
-  // ✅ Sync local state if filters are reset externally (e.g. "Clear all filters")
+  // Sync local state if filters are reset externally (e.g. "Clear all filters")
   useEffect(() => {
     setLocalMin(filters.minPrice);
   }, [filters.minPrice]);
@@ -72,7 +72,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
     filters.minPrice,
     filters.maxPrice,
     filters.minRating,
-    filters.experience, // ✅ included in badge count
+    filters.experience, 
   ].filter(Boolean).length;
 
   return (
@@ -195,7 +195,7 @@ const FilterPanel = ({ filters, updateFilter, resetFilters }) => {
             </div>
           </div>
 
-          {/* ✅ Experience — new filter, full width on its own row */}
+          {/* Experience — new filter, full width on its own row */}
             <fieldset className="md:col-span-3 border-0 p-0 m-0">
               <legend className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
                 Experience

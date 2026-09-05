@@ -6,12 +6,6 @@ import { HTTP_STATUS } from "../constants/httpStatus";
 import { setGlobalError } from "../store/slices/uiSlice";
 
 // ── Store injection ────────────────────────────────────────
-// axiosInstance must NOT import { store } from "../store" directly:
-// store/index.js imports the slices, the slices import axiosInstance,
-// and axiosInstance importing store back would re-enter store/index.js
-// while it's still mid-evaluation (circular import → TDZ crash on the
-// reducer bindings). Instead, store/index.js calls injectStore(store)
-// once, right after it's created, and this module holds a reference.
 let store;
 export const injectStore = (_store) => {
   store = _store;

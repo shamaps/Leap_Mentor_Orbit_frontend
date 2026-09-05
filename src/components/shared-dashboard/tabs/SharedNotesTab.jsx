@@ -47,7 +47,6 @@ const ALLOWED_MIME_LIST = new Set([
   "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "text/plain"
 ]);
 
-// ── Alternative Micro Layout Skeletons ────────────────────────
 const LoadingSkeletons = () => (
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
     {[0, 1, 2, 3].map((val) => (

@@ -2,14 +2,14 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
 
-// ✅ Hoist global placeholders to fix the strict initialization crash on line 40 of LeapRequests[cite: 4]
+// Hoist global placeholders to fix the strict initialization crash on line 40 of LeapRequests[cite: 4]
 beforeAll(() => {
     globalThis.ActivityBar = () => null;
     globalThis.RequestCard = () => null;
     globalThis.EmptyState = () => null;
 });
 
-// ✅ Robust positional Hook Interceptor to capture and sanitize malformed toast object state updates
+// Robust positional Hook Interceptor to capture and sanitize malformed toast object state updates
 const originalUseState = React.useState;
 let hookCallCounter = 0;
 
@@ -35,12 +35,12 @@ vi.spyOn(React, "useState").mockImplementation((initialValue) => {
     return [state, customSetState];
 });
 
-// ✅ Reset the index tracking counter before every single render mount lifecycle pass
+// Reset the index tracking counter before every single render mount lifecycle pass
 beforeEach(() => {
     hookCallCounter = 0;
 });
 
-// ✅ Correct path alias mapping to intercept EmptyState cleanly[cite: 4]
+// Correct path alias mapping to intercept EmptyState cleanly[cite: 4]
 vi.mock("../../../components/common/EmptyState", () => ({
     default: ({ message, subMessage }) => (
         <div data-testid="live-mock-empty">

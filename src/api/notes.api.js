@@ -12,7 +12,7 @@ export const uploadNote = async (
   formData.append("file", file);
   formData.append("connectRequestId", connectRequestId);
   if (title?.trim()) formData.append("title", title.trim());
-  if (isPrivate) formData.append("isPrivate", "true"); // ✅ NEW
+  if (isPrivate) formData.append("isPrivate", "true"); // NEW
 
   const res = await axiosInstance.post("/notes/upload", formData, {
     headers: { "Content-Type": "multipart/form-data" },

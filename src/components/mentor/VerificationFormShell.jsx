@@ -79,7 +79,7 @@ const VerificationFormShell = () => {
       className="min-h-screen bg-[#f0f4ff]"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
-      {/* ✅ 3. MODAL — right here, first thing inside the root div */}
+      {/* 3. MODAL — right here, first thing inside the root div */}
       {showModal && (
         <VerificationInstructionsModal onClose={() => setShowModal(false)} />
       )}

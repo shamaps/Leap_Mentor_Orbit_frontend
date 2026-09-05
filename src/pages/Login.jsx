@@ -1,12 +1,11 @@
 // src/pages/Login.jsx
-// NON FUNCTIONAL AS ITS DIVIDED INTO LOGINMENTEE AND LOGINMENTOR PAGES
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 import useGoogleAuth from "../hooks/useGoogleAuth";
-import { useDispatch } from "react-redux"; // ← ADDED
-import { setUser } from "../store/slices/authSlice"; // ← ADDED
+import { useDispatch } from "react-redux"; 
+import { setUser } from "../store/slices/authSlice"; 
 import { ssoFlags } from "../utils/storage";
 const redirectByRole = (roles, navigate) => {
   if (roles.includes("mentor") && roles.includes("mentee")) {
@@ -25,7 +24,7 @@ const CLERK_STRATEGY = {
 
 const Login = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // ← ADDED
+  const dispatch = useDispatch(); 
   const googleBtnRef = useRef(null);
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
   const { signOut } = useClerk();
@@ -57,14 +56,14 @@ const Login = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ LinkedIn + Apple via Clerk — FIXED redirect URLs
+  //  LinkedIn + Apple via Clerk — FIXED redirect URLs
   const handleClerkSSO = async (provider) => {
     if (!clerkLoaded) return;
 
     try {
       setLoading(true);
 
-      // ✅ Force sign out and wait fully before proceeding
+      // Force sign out and wait fully before proceeding
       await signOut({ redirectUrl: globalThis.location.href });
 
       ssoFlags.set("existing", true);
@@ -92,7 +91,7 @@ const Login = () => {
         password: form.password,
       });
 
-      // ← FIXED: was localStorage.setItem("token") — backend now returns accessToken not token
+      
       if (res.data?.accessToken) {
         dispatch(
           setUser({ token: res.data.accessToken, user: res.data.user || null }),

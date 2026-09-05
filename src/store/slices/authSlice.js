@@ -167,7 +167,7 @@ const authSlice = createSlice({
   initialState: {
     user: null,
     token: null,
-    // accessToken now lives in memory only — never persisted
+    // accessToken now lives in memory only 
     isBootstrapping: true, // true until /auth/refresh attempt completes on page load
     loading: false,
     sending: false,
@@ -186,7 +186,7 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
     },
-    // ← ADD: used by axiosInstance interceptor to save refreshed accessToken
+    // used by axiosInstance interceptor to save refreshed accessToken
     setToken(state, action) {
       state.token = action.payload;
     },
@@ -208,7 +208,7 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.accessToken || null; // ← CHANGED: was .token
+        state.token = action.payload.accessToken || null; 
         state.user = action.payload.user || null;
         state.successMsg = "Account created! Please verify your email.";
       })
@@ -226,7 +226,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.accessToken || null; // ← CHANGED: was .token
+        state.token = action.payload.accessToken || null;
         state.user = action.payload.user || null;
         state.successMsg = "Login successful!";
       })
@@ -235,7 +235,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // ── Send OTP ── (unchanged)
+    // ── Send OTP ── 
     builder
       .addCase(sendOtp.pending, (state) => {
         state.sending = true;
@@ -251,7 +251,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // ── Verify Email ── (unchanged)
+    // ── Verify Email ── 
     builder
       .addCase(verifyEmail.pending, (state) => {
         state.loading = true;
@@ -267,7 +267,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // ── Verify Magic Link ── (unchanged)
+    // ── Verify Magic Link ──  
     builder
       .addCase(verifyMagicLink.pending, (state) => {
         state.loading = true;
@@ -284,7 +284,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // ── Forgot Password ── (unchanged)
+    // ── Forgot Password ──  
     builder
       .addCase(forgotPassword.pending, (state) => {
         state.loading = true;
@@ -300,7 +300,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // ── Verify Reset OTP ── (unchanged)
+    // ── Verify Reset OTP ──  
     builder
       .addCase(verifyResetOtp.pending, (state) => {
         state.loading = true;
@@ -316,7 +316,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // ── Reset Password ── (unchanged)
+    // ── Reset Password ──  
     builder
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;

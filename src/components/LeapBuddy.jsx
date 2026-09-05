@@ -601,7 +601,7 @@ export default function LeapBuddy({
                     >
                       {tStatus === "sent" ? (
                         <div style={{ color: "#16a34a", fontWeight: 600 }}>
-                          ✅ Ticket submitted! We'll reply within 24 hours.
+                          Ticket submitted! We'll reply within 24 hours.
                         </div>
                       ) : (
                         <>

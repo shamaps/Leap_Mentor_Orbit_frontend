@@ -34,6 +34,7 @@ const buildSearchParams = (currentSkill, currentFilters, currentPage) => {
   params.set("limit", LIMIT);
   return params;
 };
+
 const useMentorSearch = () => {
   const [skill, setSkill] = useState("");
   const [filters, setFilters] = useState({
@@ -53,15 +54,19 @@ const useMentorSearch = () => {
   const [totalCount, setTotalCount] = useState(0);
 
   const debounceTimer = useRef(null);
+  const latestRequestId = useRef(0);
 
   const fetchMentors = useCallback(
     async (currentSkill, currentFilters, currentPage, append = false) => {
+      const thisRequestId = ++latestRequestId.current;
+
       try {
         append ? setLoadingMore(true) : setLoading(true);
         setError("");
 
         const params = buildSearchParams(currentSkill, currentFilters, currentPage);
         const data = await searchMentorsApi(params);
+        if (thisRequestId !== latestRequestId.current) return;
 
         const { mentors: newMentors, pagination } = data;
         setMentors(append ? (prev) => [...prev, ...newMentors] : newMentors);
@@ -69,19 +74,17 @@ const useMentorSearch = () => {
         setTotalCount(pagination.totalCount);
         setHasSearched(true);
       } catch (err) {
+        if (thisRequestId !== latestRequestId.current) return;
         setError(err?.response?.data?.message || err.message || "Search failed.");
       } finally {
-        setLoading(false);
-        setLoadingMore(false);
+        if (thisRequestId === latestRequestId.current) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
     },
     [],
-  );// eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Single unified effect for both skill typing + filter changes ──
-  // Fixes: experience/industry/etc filters not working because the old
-  // separate filter effect didn't include `skill` in its deps, causing
-  // fetchMentors to receive a stale empty skill value.
+  );  
   useEffect(() => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
@@ -89,15 +92,12 @@ const useMentorSearch = () => {
       fetchMentors(skill, filters, 1, false);
     }, DEBOUNCE_MS);
     return () => clearTimeout(debounceTimer.current);
-  }, [skill, filters]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [skill, filters]); 
 
-  // Wrapped setSkill — clears stale error on new search input
   const handleSetSkill = (value) => {
     setError("");
     setSkill(value);
   };
-
-  // updateFilter — clears stale error on any filter change
   const updateFilter = (key, value) => {
     setError("");
     setFilters((prev) => ({ ...prev, [key]: value }));

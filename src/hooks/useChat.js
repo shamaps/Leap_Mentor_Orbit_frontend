@@ -35,7 +35,7 @@ const useChat = (connectRequestId) => {
       params: { page: pageNum, limit: PAGE_LIMIT },
     });
     return res.data;
-  }, []); // ✅ stable — no dependencies
+  }, []); 
 
   // ── Initial history load ──────────────────────────────────
   useEffect(() => {
@@ -68,7 +68,7 @@ const useChat = (connectRequestId) => {
   }, [connectRequestId, fetchHistory]);
 
   // ── Socket setup ──────────────────────────────────────────
-  // In useChat.js — REPLACE the socket setup useEffect with this:
+  
   useEffect(() => {
     if (!connectRequestId) return;
 
@@ -117,11 +117,6 @@ const useChat = (connectRequestId) => {
       socketRef.current = null;
     };
   }, [connectRequestId]);
-
-  // ✅ Remove these:
-  // import { io } from "socket.io-client"  ← remove
-  // import SOCKET_URL  ← remove
-  // The socket.on("connect") joinRoom call is now handled above
 
   // ── Load more (older messages) ────────────────────────────
   const loadMore = useCallback(async () => {

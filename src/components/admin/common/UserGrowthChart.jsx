@@ -50,7 +50,7 @@ const UserGrowthChart = ({ data = [] }) => {
 
   const values = sliced.map((d) => d.count);
 
-  // ✅ ONE consistent scale used for BOTH the line and Y-axis labels
+  // ONE consistent scale used for BOTH the line and Y-axis labels
   const scaleMin = 0;
   const scaleMax =
     Math.max(...values) <= 0 ? 10 : Math.ceil(Math.max(...values) * 1.2);
@@ -61,7 +61,7 @@ const UserGrowthChart = ({ data = [] }) => {
   const { line, xs, ys } = result;
   const area = `${line} L ${xs[xs.length - 1]} ${H} L ${xs[0]} ${H} Z`;
 
-  // ✅ Y-axis ticks use the exact same scaleMin/scaleMax as the line
+  // Y-axis ticks use the exact same scaleMin/scaleMax as the line
   const yTicks = Array.from({ length: Y_TICKS }, (_, i) => {
     const fraction = i / (Y_TICKS - 1);
     const value = Math.round(scaleMin + fraction * (scaleMax - scaleMin));
