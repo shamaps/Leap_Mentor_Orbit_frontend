@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import React from "react";
 import { BrowserRouter, useNavigate } from "react-router-dom";
 import AdminLayout from "../../../components/admin/AdminLayout";
-import adminAxiosInstance from "../../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../../utils/axiosInstance";
 
 // Mock subcomponents and routing packages
 const mockNavigate = vi.fn();
@@ -16,7 +16,7 @@ vi.mock("react-router-dom", async () => {
     };
 });
 
-vi.mock("../../../utils/adminAxiosInstance", () => ({
+vi.mock("../../../utils/axiosInstance", () => ({
     default: {
         get: vi.fn((url) => {
             if (url === "/admin/auth/me") {

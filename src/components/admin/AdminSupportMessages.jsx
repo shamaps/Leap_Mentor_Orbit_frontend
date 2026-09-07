@@ -1,6 +1,6 @@
 // src/components/admin/AdminSupportMessages.jsx
 import { useEffect, useState } from "react";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import ErrorState from "../common/ErrorState";
 import FilterTabs from "../common/FilterTabs";
 const STATUS_STYLES = {

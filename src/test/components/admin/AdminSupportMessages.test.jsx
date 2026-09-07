@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
 import AdminSupportMessages from "../../../components/admin/AdminSupportMessages";
-import adminAxiosInstance from "../../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../../utils/axiosInstance";
 
 // Mock admin axios network pipelines
-vi.mock("../../../utils/adminAxiosInstance", () => ({
+vi.mock("../../../utils/axiosInstance", () => ({
     default: {
         get: vi.fn(() => Promise.resolve({ data: { messages: [] } })),
         patch: vi.fn(() => Promise.resolve({ data: {} })),

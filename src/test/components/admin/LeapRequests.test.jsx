@@ -51,7 +51,7 @@ vi.mock("../../../components/common/EmptyState", () => ({
 }));
 
 // Mock admin axios instance network layout[cite: 4]
-vi.mock("../../../utils/adminAxiosInstance", () => ({
+vi.mock("../../../utils/axiosInstance", () => ({
     default: {
         get: vi.fn(() => Promise.resolve({ data: { requests: [] } })),
         patch: vi.fn(() => Promise.resolve({ data: {} })),
@@ -66,7 +66,7 @@ vi.mock("../../../utils/logger", () => ({
 }));
 
 import LeapRequests from "../../../components/admin/LeapRequests";
-import adminAxiosInstance from "../../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../../utils/axiosInstance";
 
 describe("LeapRequests Component Suite", () => {
     const baseIsoDate = "2026-07-12T12:00:00.000Z";

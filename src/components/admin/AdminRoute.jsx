@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import PropTypes from "prop-types";
 const PageLoader = () => (
   <div

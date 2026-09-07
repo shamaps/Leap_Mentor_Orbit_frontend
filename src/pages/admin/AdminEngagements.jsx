@@ -1,6 +1,6 @@
 // src/pages/admin/AdminEngagements.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import StatCard from "@/components/common/StatCard";
 import StatusBadge from "../../components/common/StatusBadge";
 import { useToast } from "../../context/ToastContext";

@@ -1,9 +1,10 @@
 // src/components/admin/AdminLayout.jsx
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, Outlet } from "react-router-dom";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import { IMAGES } from "../../constants/images";
 import logger from "../../utils/logger";
+import RouteErrorBoundary from "../common/RouteErrorBoundary";
 const NAV_ITEMS = [
   {
     group: "MAIN MENU",
@@ -475,7 +476,9 @@ const AdminLayout = () => {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto px-4 lg:px-8 py-4 lg:py-6">
-          <Outlet />  
+          <RouteErrorBoundary>
+            <Outlet />
+          </RouteErrorBoundary>  
         </main>
       </div>
     </div>

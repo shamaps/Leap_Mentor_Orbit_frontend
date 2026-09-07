@@ -1,6 +1,6 @@
 // src/pages/admin/AdminWalletRequests.jsx
 import { useState, useEffect, useCallback } from "react";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import { useToast } from "../../context/ToastContext";
 import EmptyState from "../../components/common/EmptyState";
 import logger from "../../utils/logger";

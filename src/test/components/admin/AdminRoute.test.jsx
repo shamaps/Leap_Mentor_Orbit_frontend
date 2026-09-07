@@ -3,7 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { Navigate } from "react-router-dom";
 import AdminRoute from "../../../components/admin/AdminRoute";
-import adminAxiosInstance from "../../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../../utils/axiosInstance";
 
 // Mock Navigate to trace routing redirects cleanly
 vi.mock("react-router-dom", () => ({
@@ -11,7 +11,7 @@ vi.mock("react-router-dom", () => ({
 }));
 
 // Mock custom admin axios instance pipelines
-vi.mock("../../../utils/adminAxiosInstance", () => ({
+vi.mock("../../../utils/axiosInstance", () => ({
     default: {
         get: vi.fn(() => Promise.resolve({ data: {} })),
     },

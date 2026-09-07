@@ -1,7 +1,7 @@
 // src/pages/admin/AdminReports.jsx
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import StatCard from "@/components/common/StatCard";
 import { useToast } from "../../context/ToastContext";
 import PropTypes from "prop-types";
