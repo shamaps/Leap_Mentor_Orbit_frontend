@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { MENTEE_ONBOARDING_FIELDS, MENTOR_ONBOARDING_FIELDS } from "../../config/onboardingFields";
+import { MENTEE_ONBOARDING_FIELDS, MENTOR_ONBOARDING_FIELDS } from "../../features/mentee/config/onboardingFields";
 
 describe("Onboarding Fields Configuration Suite", () => {
     describe("Mentee Onboarding Fields Matrix", () => {

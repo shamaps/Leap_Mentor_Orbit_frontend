@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import TrackEarningsTab from "../../../../../components/mentor/dashboard/earnings/TrackEarningsTab";
-import useTrackEarnings from "../../../../../hooks/useTrackEarnings";
+import TrackEarningsTab from "../../../../../features/mentor/view/components/dashboard/earnings/TrackEarningsTab";
+import useTrackEarnings from "../../../../../features/mentor/presenter/useTrackEarnings";
 
 // ── Mock Recharts Components to Completely Silencing Casing Warnings ──
 vi.mock("recharts", () => ({
@@ -16,12 +16,12 @@ vi.mock("recharts", () => ({
 }));
 
 // ── Mock Local Custom Hook State Machine ──
-vi.mock("../../../../../hooks/useTrackEarnings", () => ({
+vi.mock("../../../../../features/mentor/presenter/useTrackEarnings", () => ({
     default: vi.fn(),
 }));
 
 // ── Mock Shared UI Common Elements ──
-vi.mock("../../../../../components/common/ErrorState", () => ({
+vi.mock("../../../../../shared/components/ErrorState", () => ({
     default: ({ message, onAction }) => (
         <div data-testid="mock-error-state">
             <span>{message}</span>
@@ -30,11 +30,11 @@ vi.mock("../../../../../components/common/ErrorState", () => ({
     ),
 }));
 
-vi.mock("@/components/common/StatusBadge", () => ({
+vi.mock("@/shared/components/StatusBadge", () => ({
     default: ({ status, variant }) => <span data-testid="mock-status-badge" data-variant={variant}>{status}</span>,
 }));
 
-vi.mock("@/components/common/StatCard", () => ({
+vi.mock("@/shared/components/StatCard", () => ({
     default: ({ label, value, sub }) => (
         <div data-testid={`stat-${label.replace(/\s+/g, "-").toLowerCase()}`}>
             <h3>{label}</h3>
@@ -44,7 +44,7 @@ vi.mock("@/components/common/StatCard", () => ({
     ),
 }));
 
-vi.mock("../../../../../components/common/EmptyState", () => ({
+vi.mock("../../../../../shared/components/EmptyState", () => ({
     default: ({ message, subMessage }) => (
         <div data-testid="mock-empty-state">
             <h3>{message}</h3>

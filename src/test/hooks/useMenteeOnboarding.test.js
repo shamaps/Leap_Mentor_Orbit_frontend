@@ -6,22 +6,22 @@ import { useDispatch, useSelector } from "react-redux";
 import {
     submitMenteeOnboarding,
     clearOnboardingMessages,
-} from "../../store/slices/menteeOnboardingSlice";
-import { getFirstErrorMessage } from "../../schemas/onboardingSchemas";
-import { sessionStore } from "../../utils/storage";
-import useMenteeOnboarding from "../../hooks/useMenteeOnboarding";
+} from "../../app/store/slices/menteeOnboardingSlice";
+import { getFirstErrorMessage } from "../../features/mentee/schemas/onboardingSchemas";
+import { sessionStore } from "../../shared/utils/storage";
+import useMenteeOnboarding from "../../features/mentee/presenter/useMenteeOnboarding";
 
 vi.mock("react-router-dom");
 vi.mock("react-redux");
-vi.mock("../../store/slices/menteeOnboardingSlice", () => ({
+vi.mock("../../app/store/slices/menteeOnboardingSlice", () => ({
     submitMenteeOnboarding: vi.fn((payload) => ({ type: "submitMenteeOnboarding", payload })),
     clearOnboardingMessages: vi.fn(() => ({ type: "clearOnboardingMessages" })),
 }));
-vi.mock("../../schemas/onboardingSchemas", () => ({
+vi.mock("../../features/mentee/schemas/onboardingSchemas", () => ({
     menteeOnboardingSchema: {},
     getFirstErrorMessage: vi.fn(),
 }));
-vi.mock("../../utils/storage", () => ({
+vi.mock("../../shared/utils/storage", () => ({
     sessionStore: {
         getJSON: vi.fn(),
         setJSON: vi.fn(),

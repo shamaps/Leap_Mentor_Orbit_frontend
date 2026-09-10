@@ -3,9 +3,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useMenteeHomeData } from "../../../../hooks/useMenteeHomeData";
-import { useLeapPointsRequest } from "../../../../hooks/useLeapPointsRequest";
-import HomeTab from "../../../../components/mentee/dashboard/HomeTab";
+import { useMenteeHomeData } from "../../../../features/mentee/presenter/useMenteeHomeData";
+import { useLeapPointsRequest } from "../../../../features/mentee/presenter/useLeapPointsRequest";
+import HomeTab from "../../../../features/mentee/view/components/dashboard/HomeTab";
 
 vi.mock("react-redux", () => ({
     useSelector: vi.fn(),
@@ -13,16 +13,16 @@ vi.mock("react-redux", () => ({
 vi.mock("react-router-dom", () => ({
     useNavigate: vi.fn(),
 }));
-vi.mock("../../../../store/selectors", () => ({
+vi.mock("../../../../app/store/selectors", () => ({
     selectMenteeProfile: vi.fn((state) => state),
 }));
-vi.mock("../../../../hooks/useMenteeHomeData", () => ({
+vi.mock("../../../../features/mentee/presenter/useMenteeHomeData", () => ({
     useMenteeHomeData: vi.fn(),
 }));
-vi.mock("../../../../hooks/useLeapPointsRequest", () => ({
+vi.mock("../../../../features/mentee/presenter/useLeapPointsRequest", () => ({
     useLeapPointsRequest: vi.fn(),
 }));
-vi.mock("../../../../components/mentee/dashboard/findMentors/MentorProfileModal", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/findMentors/MentorProfileModal", () => ({
     default: ({ mentor, onClose }) => (
         <div data-testid="mentor-modal">
             <p>{mentor.user?.name}</p>
@@ -30,13 +30,13 @@ vi.mock("../../../../components/mentee/dashboard/findMentors/MentorProfileModal"
         </div>
     ),
 }));
-vi.mock("../../../../components/LeapBuddy", () => ({
+vi.mock("../../../../shared/components/LeapBuddy", () => ({
     default: () => <div data-testid="leap-buddy">LeapBuddy</div>,
 }));
-vi.mock("@/components/common/MentorCardSkeleton", () => ({
+vi.mock("@/shared/components/MentorCardSkeleton", () => ({
     default: () => <div data-testid="mentor-skeleton" />,
 }));
-vi.mock("@/components/common/StatusBadge", () => ({
+vi.mock("@/shared/components/StatusBadge", () => ({
     default: ({ status }) => <span data-testid="status-badge">{status}</span>,
 }));
 

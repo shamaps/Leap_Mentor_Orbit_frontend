@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../mswServer";
-import axiosInstance, { injectStore } from "../../utils/axiosInstance";
+import axiosInstance, { injectStore } from "../../shared/utils/axiosInstance";
 import * as Sentry from "@sentry/react";
-import * as storage from "../../utils/storage";
-import logger from "../../utils/logger";
+import * as storage from "../../shared/utils/storage";
+import logger from "../../shared/utils/logger";
 import {
     registerUser,
     loginUser,
@@ -16,7 +16,7 @@ import {
     resetPassword,
     logoutUser,
     logout,
-} from "../../store/slices/authSlice";
+} from "../../app/store/slices/authSlice";
 
 const { mockSetUser, mockAddBreadcrumb } = vi.hoisted(() => ({
     mockSetUser: vi.fn(),

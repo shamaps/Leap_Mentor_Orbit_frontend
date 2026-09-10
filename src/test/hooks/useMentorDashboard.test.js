@@ -5,8 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
     fetchMentorDashboard
-} from "../../store/slices/mentorProfileSlice";
-import useMentorDashboard from "../../hooks/useMentorDashboard";
+} from "../../app/store/slices/mentorProfileSlice";
+import useMentorDashboard from "../../features/mentor/presenter/useMentorDashboard";
 
 vi.mock("react-redux", () => ({
     useDispatch: vi.fn(),

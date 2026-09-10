@@ -1,7 +1,7 @@
 // src/test/pages/SSOCallback.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
-import SSOCallback, { SyncWithBackend } from "../../pages/SSOCallback";
+import SSOCallback, { SyncWithBackend } from "../../features/auth/view/pages/SSOCallback";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({
@@ -13,7 +13,7 @@ vi.mock("react-redux", () => ({
     useDispatch: () => mockDispatch,
 }));
 
-vi.mock("../../store/slices/authSlice", () => ({
+vi.mock("../../app/store/slices/authSlice", () => ({
     setUser: vi.fn((payload) => ({ type: "auth/setUser", payload })),
 }));
 
@@ -31,17 +31,17 @@ vi.mock("@clerk/clerk-react", () => ({
 }));
 
 let mockPost;
-vi.mock("../../utils/axiosInstance", () => ({
+vi.mock("../../shared/utils/axiosInstance", () => ({
     default: { post: (...args) => mockPost(...args) },
     injectStore: vi.fn(),
 }));
-vi.mock("../../utils/logger", () => ({
+vi.mock("../../shared/utils/logger", () => ({
     default: { debug: vi.fn(), info: vi.fn(), error: vi.fn() },
 }));
 
 const mockSsoGet = vi.fn();
 const mockSsoClear = vi.fn();
-vi.mock("../../utils/storage", () => ({
+vi.mock("../../shared/utils/storage", () => ({
     ssoFlags: {
         get: (...args) => mockSsoGet(...args),
         clear: (...args) => mockSsoClear(...args),
@@ -293,7 +293,7 @@ describe("SyncWithBackend", () => {
     });
 
     it("logs debug info with token presence and resolved role during sync", async () => {
-        const loggerModule = await import("../../utils/logger");
+        const loggerModule = await import("../../shared/utils/logger");
         mockSsoGet.mockReturnValue({ role: "mentee", termsAccepted: true });
         mockPost = vi.fn().mockResolvedValue({
             data: { isNewUser: false, user: { roles: ["mentee"] }, accessToken: "tok" },

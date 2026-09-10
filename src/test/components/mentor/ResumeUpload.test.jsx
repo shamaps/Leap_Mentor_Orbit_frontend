@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import ResumeUpload from "../../../components/mentor/ResumeUpload";
+import ResumeUpload from "../../../features/mentor/view/components/ResumeUpload";
 
 describe("ResumeUpload Component Suite", () => {
     it("should accept valid PDF file selection streams via traditional file input channels", () => {

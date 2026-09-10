@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect } from "vitest";
-import ReportSuccessModal from "../../../../components/shared-dashboard/tabs/ReportSuccessModal";
+import ReportSuccessModal from "../../../../features/shared-dashboard/view/components/tabs/ReportSuccessModal";
 
 describe("ReportSuccessModal Component", () => {
     it("should render structural contents and header status correctly", () => {

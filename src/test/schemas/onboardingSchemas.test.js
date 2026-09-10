@@ -5,7 +5,7 @@ import {
     mentorOnboardingSchema,
     getFieldErrorMap,
     getFirstErrorMessage,
-} from "../../schemas/onboardingSchemas";
+} from "../../features/mentee/schemas/onboardingSchemas";
 
 const validCommonFields = {
     currentRole: "Software Engineer",

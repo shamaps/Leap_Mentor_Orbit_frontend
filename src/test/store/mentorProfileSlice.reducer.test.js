@@ -3,7 +3,7 @@ import reducer, {
     resetMentorProfile,
     fetchMentorDashboard,
     refetchMentorProfile,
-} from "../../store/slices/mentorProfileSlice";
+} from "../../app/store/slices/mentorProfileSlice";
 
 const initialState = {
     user: null,

@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import EscrowSuccessModal from "../../../../../components/mentee/dashboard/history/EscrowSuccessModal";
+import EscrowSuccessModal from "../../../../../features/mentee/view/components/dashboard/history/EscrowSuccessModal";
 
 describe("EscrowSuccessModal Component Suite", () => {
     const mockDone = vi.fn();

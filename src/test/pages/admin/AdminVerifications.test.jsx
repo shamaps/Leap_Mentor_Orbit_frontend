@@ -2,10 +2,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, within, act, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import adminAxiosInstance from "../../../utils/axiosInstance";
-import AdminVerifications from "../../../pages/admin/AdminVerifications";
+import adminAxiosInstance from "../../../shared/utils/axiosInstance";
+import AdminVerifications from "../../../features/admin/view/pages/AdminVerifications";
 
-vi.mock("../../../utils/axiosInstance");
+vi.mock("../../../shared/utils/axiosInstance");
 
 const baseMentor = {
     _id: "m1",

@@ -2,8 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import MenteeConnectsTab from "../../../../../components/mentee/dashboard/connects/MenteeConnectsTab";
-import useOngoingConnects from "../../../../../hooks/useOngoingConnects";
+import MenteeConnectsTab from "../../../../../features/connects/view/MenteeConnectsTab";
+import useOngoingConnects from "../../../../../features/mentee/presenter/useOngoingConnects";
 
 // ── Mock router ──
 const mockNavigate = vi.fn();
@@ -12,12 +12,12 @@ vi.mock("react-router-dom", () => ({
 }));
 
 // ── Mock data hook ──
-vi.mock("../../../../../hooks/useOngoingConnects", () => ({
+vi.mock("../../../../../features/mentee/presenter/useOngoingConnects", () => ({
     default: vi.fn(),
 }));
 
 // ── Mock layout: expose props via testids so we can assert on them ──
-vi.mock("../../../../../components/ui/connects/ConnectsLayout", () => ({
+vi.mock("../../../../../features/connects/view/ConnectsLayout", () => ({
     default: ({
         title,
         subtitle,
@@ -51,7 +51,7 @@ vi.mock("../../../../../components/ui/connects/ConnectsLayout", () => ({
 }));
 
 // ── Mock card: expose props for assertion + trigger dashboard click ──
-vi.mock("../../../../../components/ui/connects/ConnectCard", () => ({
+vi.mock("../../../../../features/connects/view/ConnectCard", () => ({
     default: ({ name, tokenLabel, isCompleted, onDashboardClick }) => (
         <div data-testid="mock-connect-card">
             <span>{name}</span>

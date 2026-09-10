@@ -8,7 +8,7 @@ import {
     ALLOWED_FILE_TYPES,
     FILE_ICON_STYLES,
     FILE_ICON_LABELS,
-} from "../../../../../components/shared-dashboard/tabs/utils/notesHelpers";
+} from "../../../../../features/shared-dashboard/view/components/tabs/helpers/notesHelpers";
 
 describe("Notes Utility Helpers Full Coverage Suite", () => {
 

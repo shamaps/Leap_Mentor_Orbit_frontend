@@ -1,9 +1,9 @@
 // src/test/pages/RegisterMentor.test.jsx
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import RegisterMentor from "../../pages/RegisterMentor";
+import RegisterMentor from "../../features/auth/view/pages/RegisterMentor";
 
-vi.mock("../../components/auth/AuthLeftPanel", () => ({
+vi.mock("../../features/auth/view/components/AuthLeftPanel", () => ({
     default: (props) => (
         <div data-testid="auth-left-panel" data-props={JSON.stringify({
             imageSrc: props.imageSrc,
@@ -18,7 +18,7 @@ vi.mock("../../components/auth/AuthLeftPanel", () => ({
     ),
 }));
 
-vi.mock("../../components/auth/RegisterForm", () => ({
+vi.mock("../../features/auth/view/components/RegisterForm", () => ({
     default: (props) => <div data-testid="register-form" data-role={props.role} />,
 }));
 

@@ -1,0 +1,55 @@
+// src/hooks/useMenteeDashboard.jsx
+import { useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMenteeDashboard } from "@/app/store/slices/menteeProfileSlice";
+import { selectAuthToken, selectMenteeProfile } from "@/app/store/selectors";
+
+const useMenteeDashboard = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const isEditPage = location.pathname.includes("/edit-profile");
+  const token = useSelector(selectAuthToken);
+  const { user, profile, loading, error } = useSelector(selectMenteeProfile);
+  const hasFetched = useRef(false);
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
+    dispatch(fetchMenteeDashboard()).then((result) => {
+      if (fetchMenteeDashboard.rejected.match(result)) {
+        const reason = result.payload?.reason;
+
+        if (reason === "wrong-role") {
+          navigate("/dashboard/mentor");
+          return;
+        }
+        if (reason === "no-profile") {
+          if (!isEditPage) navigate("/onboarding/mentee");
+          return;
+        }
+        if (reason === "unauthorized") {
+          navigate("/login");
+          return;
+        }
+        return;
+      }
+
+      const profileData = result.payload.profile;
+      if (!profileData?.isProfileComplete && !isEditPage) {
+        navigate("/onboarding/mentee");
+      }
+    });
+  }, []);
+
+  return { user, profile, loading, error };
+};
+
+export default useMenteeDashboard;

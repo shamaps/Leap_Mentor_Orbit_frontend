@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import FeedbackModal from "../../../../components/shared-dashboard/tabs/FeedbackModal";
-import useReport from "../../../../hooks/useReport";
+import FeedbackModal from "../../../../features/shared-dashboard/view/components/tabs/FeedbackModal";
+import useReport from "../../../../features/shared-dashboard/presenter/useReport";
 
-// ✅ Mock the useReport custom layout hook
+// Mock the useReport custom layout hook
 const mockSubmitFeedback = vi.fn();
-vi.mock("../../../../hooks/useReport", () => ({
+vi.mock("../../../../features/shared-dashboard/presenter/useReport", () => ({
     default: vi.fn(() => ({
         submitFeedback: mockSubmitFeedback,
         submitting: false,
@@ -15,7 +15,7 @@ vi.mock("../../../../hooks/useReport", () => ({
 }));
 
 // Mock the Spinner component out of layout streams
-vi.mock("../../common/Spinner", () => ({
+vi.mock("../../../../shared/components/Spinner", () => ({
     default: () => <div data-testid="mock-spinner">Loading...</div>,
 }));
 
@@ -139,7 +139,7 @@ describe("FeedbackModal Component Suite", () => {
             vi.useFakeTimers();
             mockSubmitFeedback.mockResolvedValueOnce({ success: true });
 
-            // ✅ Pass slotIndex={0} here so the component logic perfectly forwards 0 to the mock implementation hook
+            // Pass slotIndex={0} here so the component logic perfectly forwards 0 to the mock implementation hook
             render(<FeedbackModal connect={baseConnectMentee} onClose={mockClose} slotIndex={0} />);
 
             // Select 4 Stars and write description text

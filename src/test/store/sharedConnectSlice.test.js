@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import reducer, {
     resetSharedConnect,
     fetchSharedConnect,
-} from "../../store/slices/sharedConnectSlice";
+} from "../../app/store/slices/sharedConnectSlice";
 
 const initialState = { connect: null, loading: true, error: null };
 

@@ -1,7 +1,7 @@
 // src/test/hooks/useMountLogger.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useMountLogger } from "../../hooks/useMountLogger";
+import { useMountLogger } from "../../shared/hooks/useMountLogger";
 
 describe("useMountLogger", () => {
     let logSpy;

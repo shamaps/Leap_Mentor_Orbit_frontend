@@ -2,41 +2,41 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { useSelector } from "react-redux";
-import ProfileTab from "../../../../components/mentee/dashboard/ProfileTab";
+import ProfileTab from "../../../../features/mentee/view/components/dashboard/ProfileTab";
 
 vi.mock("react-redux", () => ({
     useSelector: vi.fn(),
 }));
 
-vi.mock("../../../../store/selectors", () => ({
+vi.mock("../../../../app/store/selectors", () => ({
     selectMenteeProfile: vi.fn((state) => state),
 }));
 vi.mock("react-router-dom", () => ({
     useNavigate: vi.fn(() => vi.fn()),
 }));
-vi.mock("../../../../components/mentee/dashboard/ProfileHeroCard", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/ProfileHeroCard", () => ({
     default: ({ user, profile }) => (
         <div data-testid="hero-card">{user?.name ?? "no-user"}|{profile?.bio ?? "no-bio"}</div>
     ),
 }));
-vi.mock("../../../../components/mentee/dashboard/ProfessionalDetailsCard", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/ProfessionalDetailsCard", () => ({
     default: ({ profile }) => (
         <div data-testid="professional-card">{profile?.currentRole ?? "no-role"}</div>
     ),
 }));
-vi.mock("../../../../components/mentee/dashboard/InterestedFieldsCard", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/InterestedFieldsCard", () => ({
     default: ({ profile }) => (
         <div data-testid="interested-fields-card">
             {profile?.interestedFields?.join(",") ?? "no-fields"}
         </div>
     ),
 }));
-vi.mock("../../../../components/mentee/dashboard/SocialPresenceCard", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/SocialPresenceCard", () => ({
     default: ({ profile }) => (
         <div data-testid="social-card">{profile?.linkedInUrl ?? "no-linkedin"}</div>
     ),
 }));
-vi.mock("@/components/mentor/dashboard/MentorshipPrefsCard", () => ({
+vi.mock("@/features/mentor/view/components/dashboard/MentorshipPrefsCard", () => ({
     default: ({ profile }) => (
         <div data-testid="mentorship-prefs-card">{profile?.timezone ?? "no-timezone"}</div>
     ),

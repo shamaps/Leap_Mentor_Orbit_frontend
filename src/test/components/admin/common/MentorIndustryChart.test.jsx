@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import MentorIndustryChart from "../../../../components/admin/common/MentorIndustryChart";
+import MentorIndustryChart from "../../../../features/admin/view/charts/MentorIndustryChart";
 
 // This injects the missing props into CustomTooltip, CustomXTick, and ColoredBar to hit 100% coverage
 vi.mock("recharts", async () => {

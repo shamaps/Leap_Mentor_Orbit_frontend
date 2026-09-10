@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import VerificationInstructionsModal from "../../../components/mentor/VerificationInstructionsModal";
+import VerificationInstructionsModal from "../../../features/mentor/view/components/VerificationInstructionsModal";
 
 describe("VerificationInstructionsModal Component Suite", () => {
     it("should iterate through the instruction steps and call onClose when completed", () => {

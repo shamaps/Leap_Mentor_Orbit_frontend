@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import GlobalErrorBanner from "../../../components/common/GlobalErrorBanner";
-import { clearGlobalError } from "../../../store/slices/uiSlice";
+import GlobalErrorBanner from "../../../shared/components/GlobalErrorBanner";
+import { clearGlobalError } from "../../../app/store/slices/uiSlice";
 
 // ── Mock Redux Bindings ──
 vi.mock("react-redux", () => ({
@@ -11,7 +11,7 @@ vi.mock("react-redux", () => ({
     useDispatch: vi.fn(),
 }));
 
-vi.mock("../../../store/slices/uiSlice", () => ({
+vi.mock("../../../app/store/slices/uiSlice", () => ({
     clearGlobalError: vi.fn(() => ({ type: "ui/clearGlobalError-mock" })),
 }));
 

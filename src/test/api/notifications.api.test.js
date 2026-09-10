@@ -4,7 +4,7 @@ import { server } from "../mswServer";
 import {
     getNotifications, markAllNotificationsRead, clearAllNotifications,
     markNotificationRead, deleteNotification, subscribeToPush,
-} from "../../api/notifications.api";
+} from "../../features/notifications/model/notifications.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect } from "vitest";
-import FilterTabs from "../../../components/common/FilterTabs";
+import FilterTabs from "../../../shared/components/FilterTabs";
 
 describe("FilterTabs Component", () => {
     const options = ["all", "active", "completed"];

@@ -1,7 +1,7 @@
 // src/test/components/mentor/dashboard/requests/RequestCard.test.jsx
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import RequestCard from "../../../../../components/mentor/dashboard/requests/RequestCard";
+import RequestCard from "../../../../../features/mentor/view/components/dashboard/requests/RequestCard";
 
 const baseRequest = {
     mentee: { name: "Jordan Lee", email: "jordan@example.com" },

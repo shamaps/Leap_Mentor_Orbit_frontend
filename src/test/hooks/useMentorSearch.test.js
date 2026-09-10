@@ -1,10 +1,10 @@
 // src/test/hooks/useMentorSearch.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import useMentorSearch from "../../hooks/useMentorSearch";
-import { searchMentors as searchMentorsApi } from "../../api/mentorSearch.api";
+import useMentorSearch from "../../features/mentee/presenter/useMentorSearch";
+import { searchMentors as searchMentorsApi } from "../../features/mentee/model/mentorSearch.api";
 
-vi.mock("../../api/mentorSearch.api", () => ({
+vi.mock("../../features/mentee/model/mentorSearch.api", () => ({
     searchMentors: vi.fn(),
 }));
 

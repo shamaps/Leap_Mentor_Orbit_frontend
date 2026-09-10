@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import React from "react";
-import HelpCenter from "../../../components/common/HelpCenter";
-import axiosInstance from "../../../utils/axiosInstance";
+import HelpCenter from "../../../shared/components/HelpCenter";
+import axiosInstance from "../../../shared/utils/axiosInstance";
 import { useLocation } from "react-router-dom";
 
-vi.mock("../../../utils/axiosInstance", () => ({
+vi.mock("../../../shared/utils/axiosInstance", () => ({
     default: { post: vi.fn() },
 }));
 
@@ -13,7 +13,7 @@ vi.mock("react-router-dom", () => ({
     useLocation: vi.fn(),
 }));
 
-vi.mock("../../../components/common/FilterTabs", () => ({
+vi.mock("../../../shared/components/FilterTabs", () => ({
     default: ({ options, active, onChange }) => (
         <div data-testid="filter-tabs">
             {options.map((opt) => (

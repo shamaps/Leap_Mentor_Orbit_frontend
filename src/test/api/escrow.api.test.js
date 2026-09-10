@@ -4,7 +4,7 @@ import { server } from "../mswServer";
 import {
     payEscrow, releaseEscrow, refundEscrow, getEscrowStatus,
     payAdditionalEscrow, getPlatformCommissionRate, getWallet,
-} from "../../api/escrow.api";
+} from "../../features/shared-dashboard/model/escrow.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

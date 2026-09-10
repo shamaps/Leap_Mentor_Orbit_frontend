@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
 import React from "react";
-import PersonIcon from "../../../components/common/PersonIcon";
+import PersonIcon from "../../../shared/components/PersonIcon";
 
 describe("PersonIcon Component Suite", () => {
     it("should mount smoothly and fallback safely onto standard default props attributes", () => {

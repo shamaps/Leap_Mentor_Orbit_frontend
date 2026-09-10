@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import MentorCard from "../../../../../components/mentee/dashboard/findMentors/MentorCard";
+import MentorCard from "../../../../../features/mentee/view/components/dashboard/findMentors/MentorCard";
 
 describe("MentorCard Component Suite", () => {
     const mockViewProfile = vi.fn();

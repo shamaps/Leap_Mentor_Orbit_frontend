@@ -2,19 +2,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import PersonalInfoSection from "../../../../components/mentee/onboarding/PersonalInfoSection";
+import PersonalInfoSection from "../../../../features/mentee/view/components/onboarding/PersonalInfoSection";
 
 const mockUseMenteeOnboardingForm = vi.fn();
-vi.mock("../../../../context/MenteeOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentee/context/MenteeOnboardingFormContext", () => ({
     useMenteeOnboardingForm: (...args) => mockUseMenteeOnboardingForm(...args),
 }));
 
 const mockUseProfilePhotoUpload = vi.fn();
-vi.mock("../../../../hooks/useProfilePhotoUpload", () => ({
+vi.mock("../../../../features/uploads/model/useProfilePhotoUpload", () => ({
     useProfilePhotoUpload: (...args) => mockUseProfilePhotoUpload(...args),
 }));
 
-vi.mock("../../../../common/PersonIcon", () => ({
+vi.mock("../../../../shared/components/PersonIcon", () => ({
     default: ({ size }) => <svg data-testid="person-icon" data-size={size} />,
 }));
 

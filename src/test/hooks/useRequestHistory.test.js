@@ -1,12 +1,12 @@
 // src/test/hooks/useRequestHistory.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
-import axiosInstance from "../../utils/axiosInstance";
-import logger from "../../utils/logger";
-import useRequestHistory from "../../hooks/useRequestHistory";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import logger from "../../shared/utils/logger";
+import useRequestHistory from "../../features/mentee/presenter/useRequestHistory";
 
-vi.mock("../../utils/axiosInstance");
-vi.mock("../../utils/logger");
+vi.mock("../../shared/utils/axiosInstance");
+vi.mock("../../shared/utils/logger");
 
 const sampleRequests = [
     { _id: "1", status: "pending" },

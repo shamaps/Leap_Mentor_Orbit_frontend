@@ -16,7 +16,7 @@ vi.mock("@sentry/react", () => ({
     ErrorBoundary: ({ children }) => children,
 }));
 
-vi.mock("../store/index.js", () => ({
+vi.mock("../app/store/index", () => ({
     default: { getState: () => ({}), dispatch: vi.fn(), subscribe: vi.fn() },
 }));
 
@@ -28,11 +28,11 @@ vi.mock("@clerk/clerk-react", () => ({
     ClerkProvider: ({ children }) => children,
 }));
 
-vi.mock("../context/ToastContext.jsx", () => ({
+vi.mock("../shared/context/ToastContext", () => ({
     ToastProvider: ({ children }) => children,
 }));
 
-vi.mock("../App.jsx", () => ({
+vi.mock("../app/App", () => ({
     default: () => null,
 }));
 
@@ -50,7 +50,7 @@ describe("main.jsx entry point", () => {
     });
 
     it("initializes Sentry with the DSN and environment from env vars", async () => {
-        await import("../main.jsx");
+        await import("../app/main");
 
         expect(mockSentryInit).toHaveBeenCalledTimes(1);
         const config = mockSentryInit.mock.calls[0][0];
@@ -63,7 +63,7 @@ describe("main.jsx entry point", () => {
 
     it("disables Sentry when not in production", async () => {
         vi.stubEnv("PROD", false);
-        await import("../main.jsx");
+        await import("../app/main");
 
         const config = mockSentryInit.mock.calls[0][0];
         expect(config.enabled).toBe(false);
@@ -71,7 +71,7 @@ describe("main.jsx entry point", () => {
 
     it("does not include the replay integration when not in production", async () => {
         vi.stubEnv("PROD", false);
-        await import("../main.jsx");
+        await import("../app/main");
 
         const config = mockSentryInit.mock.calls[0][0];
         expect(config.integrations).toHaveLength(1);
@@ -80,7 +80,7 @@ describe("main.jsx entry point", () => {
 
     it("includes the replay integration when in production", async () => {
         vi.stubEnv("PROD", true);
-        await import("../main.jsx");
+        await import("../app/main");
 
         const config = mockSentryInit.mock.calls[0][0];
         expect(config.integrations).toHaveLength(2);
@@ -93,13 +93,13 @@ describe("main.jsx entry point", () => {
     it("throws if VITE_CLERK_PUBLISHABLE_KEY is missing", async () => {
         vi.stubEnv("VITE_CLERK_PUBLISHABLE_KEY", "");
 
-        await expect(import("../main.jsx")).rejects.toThrow(
+        await expect(import("../app/main")).rejects.toThrow(
             "Missing VITE_CLERK_PUBLISHABLE_KEY in .env"
         );
     });
 
     it("calls createRoot on the #root element and renders", async () => {
-        await import("../main.jsx");
+        await import("../app/main");
 
         expect(mockCreateRoot).toHaveBeenCalledTimes(1);
         expect(mockCreateRoot).toHaveBeenCalledWith(document.getElementById("root"));

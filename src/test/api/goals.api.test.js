@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 import { server } from "../mswServer";
 import {
     getGoal, createGoal, updateGoal, addMilestone, toggleMilestone, deleteMilestone,
-} from "../../api/goals.api";
+} from "../../features/shared-dashboard/model/goals.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

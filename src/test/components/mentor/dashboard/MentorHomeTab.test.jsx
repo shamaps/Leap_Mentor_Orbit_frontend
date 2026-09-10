@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import MentorHomeTab from "../../../../components/mentor/dashboard/MentorHomeTab";
-import axiosInstance from "../../../../utils/axiosInstance";
+import MentorHomeTab from "../../../../features/mentor/view/components/dashboard/MentorHomeTab";
+import axiosInstance from "../../../../shared/utils/axiosInstance";
 
 // ── 1. DIRECTLY MOCK SELECTORS FILE FOR TOTAL STATE CONTROL ──
 let mockSelectorsData;
@@ -39,7 +39,7 @@ const resetMockSelectors = () => {
     };
 };
 
-vi.mock("../../../../store/selectors", () => ({
+vi.mock("../../../../app/store/selectors", () => ({
     selectMentorProfile: () => mockSelectorsData.mentorProfile,
     selectActiveSessions: () => mockSelectorsData.activeSessions,
     selectPendingCount: () => mockSelectorsData.pendingCount,
@@ -55,11 +55,11 @@ vi.mock("react-redux", () => ({
 }));
 
 // Mock dependent UI child layouts
-vi.mock("../../../../components/LeapBuddy", () => ({ default: () => <div data-testid="leap-buddy" /> }));
-vi.mock("@/components/common/StatCard", () => ({ default: ({ label, value }) => <div data-testid="stat-card">{label}: {value}</div> }));
+vi.mock("../../../../shared/components/LeapBuddy", () => ({ default: () => <div data-testid="leap-buddy" /> }));
+vi.mock("@/shared/components/StatCard", () => ({ default: ({ label, value }) => <div data-testid="stat-card">{label}: {value}</div> }));
 
 // Mock Axios Network Framework Instantiations
-vi.mock("../../../../utils/axiosInstance", () => ({
+vi.mock("../../../../shared/utils/axiosInstance", () => ({
     default: { get: vi.fn() },
 }));
 

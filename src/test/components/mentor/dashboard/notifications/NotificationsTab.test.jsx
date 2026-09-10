@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import NotificationsTab from "../../../../../components/mentor/dashboard/notifications/NotificationsTab";
-import { useNotifications } from "../../../../../hooks/useNotifications";
+import NotificationsTab from "../../../../../features/notifications/view/NotificationsTabMentor";
+import { useNotifications } from "../../../../../features/notifications/presenter/useNotifications";
 
-vi.mock("../../../../../hooks/useNotifications", () => ({
+vi.mock("../../../../../features/notifications/presenter/useNotifications", () => ({
     useNotifications: vi.fn(),
 }));
 
-vi.mock("@/components/common/StatCard", () => ({
+vi.mock("@/shared/components/StatCard", () => ({
     default: ({ label, value }) => (
         <div data-testid={`stat-${label.replace(/\s+/g, "-").toLowerCase()}`}>
             <h3>{label}</h3>
@@ -17,7 +17,7 @@ vi.mock("@/components/common/StatCard", () => ({
     ),
 }));
 
-vi.mock("../../../../../components/common/ErrorState", () => ({
+vi.mock("../../../../../shared/components/ErrorState", () => ({
     default: ({ message, onAction }) => (
         <div data-testid="mock-error-state">
             <span>{message}</span>
@@ -26,7 +26,7 @@ vi.mock("../../../../../components/common/ErrorState", () => ({
     ),
 }));
 
-vi.mock("@/components/common/TabLoader", () => ({
+vi.mock("@/shared/components/TabLoader", () => ({
     default: ({ message }) => <div data-testid="mock-loader">{message}</div>,
 }));
 

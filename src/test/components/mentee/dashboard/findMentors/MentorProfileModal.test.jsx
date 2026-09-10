@@ -2,24 +2,24 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import MentorProfileModal from "../../../../../components/mentee/dashboard/findMentors/MentorProfileModal";
-import { useMentorSlots } from "../../../../../hooks/useMentorSlots";
-import useConnectRequest from "../../../../../hooks/useConnectRequest";
-import useSlotLock from "../../../../../hooks/useSlotLock";
+import MentorProfileModal from "../../../../../features/mentee/view/components/dashboard/findMentors/MentorProfileModal";
+import { useMentorSlots } from "../../../../../features/mentor/presenter/useMentorSlots";
+import useConnectRequest from "../../../../../features/connects/presenter/useConnectRequest";
+import useSlotLock from "../../../../../features/shared-dashboard/presenter/useSlotLock";
 
-vi.mock("../../../../../hooks/useMentorSlots", () => ({
+vi.mock("../../../../../features/mentor/presenter/useMentorSlots", () => ({
     useMentorSlots: vi.fn(),
 }));
 
-vi.mock("../../../../../hooks/useConnectRequest", () => ({
+vi.mock("../../../../../features/connects/presenter/useConnectRequest", () => ({
     default: vi.fn(),
 }));
 
-vi.mock("../../../../../hooks/useSlotLock", () => ({
+vi.mock("../../../../../features/shared-dashboard/presenter/useSlotLock", () => ({
     default: vi.fn(),
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/findMentors/ConnectSucessModal", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/findMentors/ConnectSucessModal", () => ({
     default: ({ mentorName, onBackToDashboard }) => (
         <div data-testid="mock-success-modal">
             <span>{mentorName}</span>

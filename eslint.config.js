@@ -16,7 +16,6 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
         ecmaVersion: "latest",
@@ -29,7 +28,7 @@ export default defineConfig([
     },
     rules: {
       "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
-      "react/prop-types": "warn", // start as "warn" — 81 existing violations; flip to "error" once cleared
+      "react/prop-types": "warn", // start as "warn"
       "react/react-in-jsx-scope": "off", // Vite/modern JSX transform doesn't need React in scope
     },
   },

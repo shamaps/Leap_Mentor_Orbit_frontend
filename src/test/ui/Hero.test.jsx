@@ -1,7 +1,7 @@
 // src/test/ui/Hero.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import Hero from "../../ui/Hero";
+import Hero from "../../shared/marketing/Hero";
 
 describe("Hero", () => {
     beforeEach(() => {

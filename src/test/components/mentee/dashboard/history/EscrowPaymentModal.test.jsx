@@ -2,19 +2,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import EscrowPaymentModal from "../../../../../components/mentee/dashboard/history/EscrowPaymentModal";
-import { payEscrow, getEscrowStatus } from "../../../../../api/escrow.api";
+import EscrowPaymentModal from "../../../../../features/mentee/view/components/dashboard/history/EscrowPaymentModal";
+import { payEscrow, getEscrowStatus } from "../../../../../features/shared-dashboard/model/escrow.api";
 
-vi.mock("../../../../../api/escrow.api", () => ({
+vi.mock("../../../../../features/shared-dashboard/model/escrow.api", () => ({
     payEscrow: vi.fn(),
     getEscrowStatus: vi.fn(),
 }));
 
-vi.mock("../../../../../utils/logger", () => ({
+vi.mock("../../../../../shared/utils/logger", () => ({
     default: { warn: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/history/EscrowSuccessModal", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/history/EscrowSuccessModal", () => ({
     default: ({ totalAmount, mentorName, onDone }) => (
         <div data-testid="mock-escrow-success">
             <span>{totalAmount}</span>

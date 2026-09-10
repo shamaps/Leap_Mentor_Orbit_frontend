@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import axiosInstance from "../../utils/axiosInstance";
-import logger from "../../utils/logger";
-import { logoutUser } from "../../store/slices/authSlice";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import logger from "../../shared/utils/logger";
+import { logoutUser } from "../../app/store/slices/authSlice";
 import {
     fetchMentorDashboard,
     refetchMentorProfile,
-} from "../../store/slices/mentorProfileSlice";
+} from "../../app/store/slices/mentorProfileSlice";
 
-vi.mock("../../utils/axiosInstance");
-vi.mock("../../utils/logger");
-vi.mock("../../store/slices/authSlice", async () => {
-    const actual = await vi.importActual("../../store/slices/authSlice");
+vi.mock("../../shared/utils/axiosInstance");
+vi.mock("../../shared/utils/logger");
+vi.mock("../../app/store/slices/authSlice", async () => {
+    const actual = await vi.importActual("../../app/store/slices/authSlice");
     return { ...actual, logoutUser: vi.fn(() => ({ type: "auth/logoutUser/pending" })) };
 });
 

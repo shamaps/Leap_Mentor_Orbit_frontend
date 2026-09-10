@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import PrefsCardHeader from "../../../components/common/PrefsCardHeader";
+import PrefsCardHeader from "../../../shared/components/PrefsCardHeader";
 
 describe("PrefsCardHeader Component Suite", () => {
     it("should mount and resolve default textual entries within card variant style classes cleanly", () => {

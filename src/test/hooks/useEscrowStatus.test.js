@@ -1,12 +1,12 @@
 // src/test/hooks/useEscrowStatus.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import axiosInstance from "../../utils/axiosInstance";
-import logger from "../../utils/logger";
-import { useEscrowStatus } from "../../hooks/useEscrowStatus";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import logger from "../../shared/utils/logger";
+import { useEscrowStatus } from "../../features/mentee/presenter/useEscrowStatus";
 
-vi.mock("../../utils/axiosInstance");
-vi.mock("../../utils/logger");
+vi.mock("../../shared/utils/axiosInstance");
+vi.mock("../../shared/utils/logger");
 
 describe("useEscrowStatus", () => {
     beforeEach(() => {

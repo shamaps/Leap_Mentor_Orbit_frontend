@@ -1,13 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import ConnectsLayout from "../../../../components/ui/connects/ConnectsLayout";
+import ConnectsLayout from "../../../../features/connects/view/ConnectsLayout";
 import React from "react";
 
-vi.mock("@/components/common/EmptyState", () => ({
+vi.mock("@/shared/components/EmptyState", () => ({
     default: (props) => <div data-testid="empty-state">{props.title || "No data available"}</div>,
 }));
 
-vi.mock("@/components/common/TabLoader", () => ({
+vi.mock("@/shared/components/TabLoader", () => ({
     default: ({ message }) => <div data-testid="tab-loader">{message}</div>,
 }));
 
@@ -114,7 +114,7 @@ describe("ConnectsLayout Component Suite", () => {
 
     describe("SkeletonCard Visual Component Coverage", () => {
         it("should mount and pass coverage tracking for the internal SkeletonCard structure layout", () => {
-            const fileModules = import.meta.glob("../../../../components/ui/connects/ConnectsLayout.jsx", { eager: true });
+            const fileModules = import.meta.glob("../../../../features/connects/view/ConnectsLayout.jsx", { eager: true });
             const modulePath = Object.keys(fileModules)[0];
             const layoutModule = fileModules[modulePath];
 
@@ -128,7 +128,7 @@ describe("ConnectsLayout Component Suite", () => {
                 render(<ConnectsLayout {...defaultProps} />);
             }
 
-            // ✅ Corrected assertion path to safely pass execution checks
+            // Corrected assertion path to safely pass execution checks
             expect(screen).toBeDefined();
         });
     });

@@ -1,12 +1,12 @@
 // src/test/hooks/useGoals.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useToast } from "../../context/ToastContext";
-import * as goalsApi from "../../api/goals.api";
-import useGoals from "../../hooks/useGoals";
+import { useToast } from "../../shared/context/ToastContext";
+import * as goalsApi from "../../features/shared-dashboard/model/goals.api";
+import useGoals from "../../features/shared-dashboard/presenter/useGoals";
 
-vi.mock("../../context/ToastContext");
-vi.mock("../../api/goals.api");
+vi.mock("../../shared/context/ToastContext");
+vi.mock("../../features/shared-dashboard/model/goals.api");
 
 // Flushes pending microtasks — safe regardless of fake-timer state.
 const flush = async () => {

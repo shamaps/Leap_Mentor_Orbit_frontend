@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { sessionStore, localStore, ssoFlags } from "../../utils/storage";
+import { sessionStore, localStore, ssoFlags } from "../../shared/utils/storage";
 
 describe("sessionStore", () => {
     beforeEach(() => {
@@ -107,7 +107,7 @@ describe("isBrowser = false branch", () => {
         delete globalThis.window;
 
         const { sessionStore: freshSessionStore, localStore: freshLocalStore } = await import(
-            "../../utils/storage"
+            "../../shared/utils/storage"
         );
 
         expect(freshSessionStore.get("anything")).toBeNull();

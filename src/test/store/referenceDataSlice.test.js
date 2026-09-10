@@ -4,7 +4,7 @@ import reducer, {
     invalidateIndustries,
     fetchMentorIndustries,
     fetchMentorList,
-} from "../../store/slices/referenceDataSlice";
+} from "../../app/store/slices/referenceDataSlice";
 
 const initialState = {
     industries: [],

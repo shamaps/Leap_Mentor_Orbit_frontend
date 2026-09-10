@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import SkillsCard from "../../../../components/mentor/dashboard/SkillsCard";
+import SkillsCard from "../../../../features/mentor/view/components/dashboard/SkillsCard";
 
 describe("SkillsCard", () => {
     it("renders the card heading", () => {

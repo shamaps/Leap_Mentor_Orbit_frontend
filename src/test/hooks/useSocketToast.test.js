@@ -3,16 +3,16 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
-import { useToast } from "../../context/ToastContext";
-import useUnreadCount from "../../hooks/useUnreadCount";
-import logger from "../../utils/logger";
-import useSocketToast from "../../hooks/useSocketToast";
+import { useToast } from "../../shared/context/ToastContext";
+import useUnreadCount from "../../features/shared-dashboard/presenter/useUnreadCount";
+import logger from "../../shared/utils/logger";
+import useSocketToast from "../../features/shared-dashboard/presenter/useSocketToast";
 
 vi.mock("react-redux");
 vi.mock("socket.io-client");
-vi.mock("../../context/ToastContext");
-vi.mock("../../hooks/useUnreadCount");
-vi.mock("../../utils/logger");
+vi.mock("../../shared/context/ToastContext");
+vi.mock("../../features/shared-dashboard/presenter/useUnreadCount");
+vi.mock("../../shared/utils/logger");
 
 // Builds a fake socket with an internal handler registry so tests can
 // manually fire events the same way the real server would.

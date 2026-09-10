@@ -1,7 +1,7 @@
 // src/test/components/mentor/dashboard/availability/AvailabilityTab.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import AvailabilityTab from "../../../../../components/mentor/dashboard/availability/AvailabilityTab";
+import AvailabilityTab from "../../../../../features/mentor/view/components/dashboard/availability/AvailabilityTab";
 
 const { mockUseAvailability, mockUseAvailabilityReturn } = vi.hoisted(() => {
     const mockUseAvailabilityReturn = {
@@ -27,11 +27,11 @@ const { mockUseAvailability, mockUseAvailabilityReturn } = vi.hoisted(() => {
     };
 });
 
-vi.mock("../../../../../hooks/useAvailability", () => ({
+vi.mock("../../../../../features/mentor/presenter/useAvailability", () => ({
     default: mockUseAvailability,
 }));
 
-vi.mock("../../../../../components/mentor/dashboard/availability/CalendarAvailabilitySection", () => ({
+vi.mock("../../../../../features/mentor/view/components/dashboard/availability/CalendarAvailabilitySection", () => ({
     default: (props) => (
         <div data-testid="calendar-availability-section-stub">
             <button type="button" data-testid="stub-mark-invalid" onClick={() => props.onValidationChange(false)}>mark invalid</button>
@@ -50,11 +50,11 @@ vi.mock("../../../../../components/mentor/dashboard/availability/CalendarAvailab
         </div>
     ),
 }));
-vi.mock("../../../../../components/mentor/dashboard/availability/TimezoneDurationSection", () => ({
+vi.mock("../../../../../features/mentor/view/components/dashboard/availability/TimezoneDurationSection", () => ({
     default: () => <div data-testid="timezone-duration-section-stub" />,
 }));
 
-vi.mock("../../../../../components/mentor/dashboard/availability/IntegrationsSection", () => ({
+vi.mock("../../../../../features/mentor/view/components/dashboard/availability/IntegrationsSection", () => ({
     default: (props) => (
         <div data-testid="integrations-section-stub">
             <button

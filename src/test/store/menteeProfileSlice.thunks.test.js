@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import axiosInstance from "../../utils/axiosInstance";
-import { fetchMenteeDashboard } from "../../store/slices/menteeProfileSlice";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import { fetchMenteeDashboard } from "../../app/store/slices/menteeProfileSlice";
 
-vi.mock("../../utils/axiosInstance");
+vi.mock("../../shared/utils/axiosInstance");
 
 const run = () => fetchMenteeDashboard()(vi.fn(), () => ({}), undefined);
 

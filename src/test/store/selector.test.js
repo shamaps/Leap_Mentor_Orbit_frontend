@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 
-vi.mock("../../store/slices/connectRequestsSlice", () => ({
+vi.mock("../../app/store/slices/connectRequestsSlice", () => ({
     selectIncomingRequests: (state) => state.connectRequests.incomingRequests,
 }));
 
@@ -48,7 +48,7 @@ import {
     selectActiveSessions,
     selectPendingCount,
     selectCompletedCount,
-} from "../../store/selectors";
+} from "../../app/store/selectors";
 
 const buildState = (overrides = {}) => ({
     auth: {

@@ -5,7 +5,7 @@ import {
     registerUser, loginUser, sendOtp, verifyEmailOtp, verifyMagicLink,
     forgotPassword, verifyResetOtp, resetPassword, logoutRequest,
     getCurrentUser, changePassword,
-} from "../../api/auth.api";
+} from "@/features/auth/model/auth.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

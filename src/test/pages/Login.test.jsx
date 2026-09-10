@@ -1,9 +1,9 @@
 // src/test/pages/Login.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
-import Login from "../../pages/Login";
-import axiosInstance from "../../utils/axiosInstance";
-import { ssoFlags } from "../../utils/storage";
+import Login from "../../features/auth/view/pages/Login";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import { ssoFlags } from "../../shared/utils/storage";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({
@@ -15,15 +15,15 @@ vi.mock("react-redux", () => ({
     useDispatch: () => mockDispatch,
 }));
 
-vi.mock("../../store/slices/authSlice", () => ({
+vi.mock("../../app/store/slices/authSlice", () => ({
     setUser: (payload) => ({ type: "auth/setUser", payload }),
 }));
 
-vi.mock("../../utils/axiosInstance", () => ({
+vi.mock("../../shared/utils/axiosInstance", () => ({
     default: { post: vi.fn() },
 }));
 
-vi.mock("../../utils/storage", () => ({
+vi.mock("../../shared/utils/storage", () => ({
     ssoFlags: { set: vi.fn(), clear: vi.fn() },
 }));
 
@@ -42,7 +42,7 @@ vi.mock("@clerk/clerk-react", () => ({
 // trigger onSuccess/onError/onLoadingChange directly, the same way the
 // real Google button click flow would.
 let googleAuthCallbacks;
-vi.mock("../../hooks/useGoogleAuth", () => ({
+vi.mock("../../features/auth/presenter/useGoogleAuth", () => ({
     default: (opts) => {
         googleAuthCallbacks = opts;
     },

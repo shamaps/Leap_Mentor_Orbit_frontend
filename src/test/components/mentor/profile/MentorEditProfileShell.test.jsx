@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import MentorEditProfileShell from "../../../../components/mentor/profile/MentorEditProfileShell";
+import MentorEditProfileShell from "../../../../features/mentor/view/components/profile/MentorEditProfileShell";
 
 // ── Hook mock control state ──
 const mockHandleChange = vi.fn();
@@ -11,7 +11,7 @@ let mockLoading = false;
 let mockFetchLoading = false;
 let mockMsg = { type: "", text: "" };
 
-vi.mock("../../../../hooks/useMentorEditProfile", () => ({
+vi.mock("../../../../features/mentor/presenter/useMentorEditProfile", () => ({
     default: () => ({
         form: mockForm,
         loading: mockLoading,
@@ -29,24 +29,24 @@ vi.mock("react-router-dom", () => ({
 
 // ── Context mock: keep the real context object so Provider/consumer wiring
 // still works, but we don't need consumers to assert on it directly here ──
-vi.mock("../../../../context/MentorOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentor/context/MentorOnboardingFormContext", () => ({
     MentorOnboardingFormContext: React.createContext(null),
 }));
 
 // ── Section stubs ──
-vi.mock("../../../../components/mentor/onboarding/PersonalInfoSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/PersonalInfoSection", () => ({
     default: () => <div data-testid="section-personal-info">Personal Info</div>,
 }));
-vi.mock("../../../../components/mentor/onboarding/ProfessionalInfoSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/ProfessionalInfoSection", () => ({
     default: () => <div data-testid="section-professional-info">Professional Info</div>,
 }));
-vi.mock("../../../../components/mentor/onboarding/SkillsSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/SkillsSection", () => ({
     default: () => <div data-testid="section-skills">Skills</div>,
 }));
-vi.mock("../../../../components/mentor/onboarding/PreferencesSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/PreferencesSection", () => ({
     default: () => <div data-testid="section-preferences">Preferences</div>,
 }));
-vi.mock("../../../../components/mentor/onboarding/SocialLinksSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/SocialLinksSection", () => ({
     default: () => <div data-testid="section-social-links">Social Links</div>,
 }));
 

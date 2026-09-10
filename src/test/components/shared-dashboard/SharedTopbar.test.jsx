@@ -1,14 +1,14 @@
 // src/test/components/shared-dashboard/SharedTopbar.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act, fireEvent } from "@testing-library/react";
-import SharedTopbar from "../../../components/shared-dashboard/SharedTopbar";
+import SharedTopbar from "../../../features/shared-dashboard/view/components/SharedTopbar";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({
     useNavigate: () => mockNavigate,
 }));
 
-vi.mock("../../../constants/images", () => ({
+vi.mock("../../../shared/constants/images", () => ({
     IMAGES: { logo: "logo.png" },
 }));
 

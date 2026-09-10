@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import PhoneNumberField from "../../../components/mentor/PhoneNumberField";
+import PhoneNumberField from "../../../features/mentor/view/components/PhoneNumberField";
 
 // Mock the internal modules of react-phone-number-input to bypass upstream network lookup checks
 vi.mock("react-phone-number-input", () => {

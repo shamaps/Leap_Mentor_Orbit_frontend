@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mapUser, mapAuthResponse } from "../../mappers/authMapper";
+import { mapUser, mapAuthResponse } from "../../features/auth/model/authMapper";
 
 describe("mapUser", () => {
     it("returns null when given a falsy value", () => {

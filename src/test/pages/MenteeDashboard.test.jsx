@@ -1,9 +1,9 @@
 // src/test/pages/MenteeDashboard.test.jsx
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import MenteeDashboard from "../../pages/MenteeDashboard";
+import MenteeDashboard from "../../features/mentee/view/pages/MenteeDashboard";
 
-vi.mock("../../components/mentee/dashboard/DashboardLayout", () => ({
+vi.mock("../../features/mentee/view/components/dashboard/DashboardLayout", () => ({
     default: () => <div data-testid="mentee-dashboard-layout" />,
 }));
 

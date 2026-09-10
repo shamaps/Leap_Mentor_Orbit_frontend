@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import logger from "../../utils/logger";
+import logger from "../../shared/utils/logger";
 
 describe("logger — module-load-time branches", () => {
     afterEach(() => {
@@ -12,7 +12,7 @@ describe("logger — module-load-time branches", () => {
         vi.stubEnv("VITE_BETTERSTACK_SOURCE_TOKEN", "");
         const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: true });
 
-        const { default: freshLogger } = await import("../../utils/logger");
+        const { default: freshLogger } = await import("../../shared/utils/logger");
         freshLogger.error("no token configured", { a: 1 });
         await new Promise((r) => setTimeout(r, 0));
 
@@ -25,7 +25,7 @@ describe("logger — module-load-time branches", () => {
         vi.stubEnv("VITE_BETTERSTACK_SOURCE_TOKEN", "test-token");
         const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: true });
 
-        const { default: freshLogger } = await import("../../utils/logger");
+        const { default: freshLogger } = await import("../../shared/utils/logger");
         const deep = { l1: { l2: { l3: { l4: { l5: { token: "secret" } } } } } };
         freshLogger.error("deep context", deep);
         await new Promise((r) => setTimeout(r, 0));
@@ -65,7 +65,7 @@ describe("logger", () => {
         const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => { });
         const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: true });
 
-        const { default: freshLogger } = await import("../../utils/logger");
+        const { default: freshLogger } = await import("../../shared/utils/logger");
         freshLogger.error("prod error", { a: 1 });
         await new Promise((r) => setTimeout(r, 0));
 

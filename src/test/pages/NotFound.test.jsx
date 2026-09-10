@@ -1,7 +1,7 @@
 // src/test/pages/NotFound.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import NotFound from "../../pages/NotFound";
+import NotFound from "../../shared/marketing/NotFound";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({

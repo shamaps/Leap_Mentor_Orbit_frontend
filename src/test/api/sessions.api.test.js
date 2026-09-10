@@ -4,7 +4,7 @@ import { server } from "../mswServer";
 import {
     getSlots, setSlotMeetingLink, markSlotComplete, addSlot,
     cancelSlot, rescheduleSlot, lockSlot, unlockSlot, unlockAllSlots,
-} from "../../api/sessions.api";
+} from "../../features/shared-dashboard/model/sessions.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

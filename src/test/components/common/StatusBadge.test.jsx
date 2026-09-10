@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import StatusBadge from "../../../components/common/StatusBadge";
+import StatusBadge from "../../../shared/components/StatusBadge";
 
 describe("StatusBadge Component Suite", () => {
     it("should render the admin variant (default) with dot and label for a known status", () => {

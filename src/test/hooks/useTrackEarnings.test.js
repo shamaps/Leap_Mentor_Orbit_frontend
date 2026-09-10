@@ -1,14 +1,14 @@
 // src/test/hooks/useTrackEarnings.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import useTrackEarnings from "../../hooks/useTrackEarnings";
-import axiosInstance from "../../utils/axiosInstance";
-import logger from "../../utils/logger";
+import useTrackEarnings from "../../features/mentor/presenter/useTrackEarnings";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import logger from "../../shared/utils/logger";
 
-vi.mock("../../utils/axiosInstance", () => ({
+vi.mock("../../shared/utils/axiosInstance", () => ({
     default: { get: vi.fn(), post: vi.fn() },
 }));
-vi.mock("../../utils/logger", () => ({
+vi.mock("../../shared/utils/logger", () => ({
     default: { warn: vi.fn(), error: vi.fn() },
 }));
 

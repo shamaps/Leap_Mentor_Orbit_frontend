@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React, { createRef } from "react";
-import FormField from "../../../components/common/FormField";
+import FormField from "../../../shared/components/FormField";
 
 describe("FormField Component Suite", () => {
     it("should render a default input element with minimal props", () => {

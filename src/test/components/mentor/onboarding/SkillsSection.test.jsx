@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import SkillsSection from "../../../../components/mentor/onboarding/SkillsSection";
+import SkillsSection from "../../../../features/mentor/view/components/onboarding/SkillsSection";
 
 const mockOnChange = vi.fn();
 let mockForm = { skills: [] };
 let mockErrors = {};
 
-vi.mock("../../../../context/MentorOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentor/context/MentorOnboardingFormContext", () => ({
     useMentorOnboardingForm: () => ({
         form: mockForm,
         onChange: mockOnChange,

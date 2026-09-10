@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import ProfessionalInfoCard from "../../../../components/mentor/dashboard/ProfessionalInfoCard";
+import ProfessionalInfoCard from "../../../../features/mentor/view/components/dashboard/ProfessionalInfoCard";
 
 let mockMentorProfile;
 
-vi.mock("../../../../store/selectors", () => ({
+vi.mock("../../../../app/store/selectors", () => ({
     selectMentorProfile: () => mockMentorProfile,
 }));
 

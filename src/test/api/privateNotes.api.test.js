@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 import { server } from "../mswServer";
 import {
     createPrivateNote, getPrivateNotes, updatePrivateNote, deletePrivateNote,
-} from "../../api/privateNotes.api";
+} from "../../features/shared-dashboard/model/privateNotes.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

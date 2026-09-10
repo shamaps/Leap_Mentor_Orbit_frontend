@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import LeapBuddy from "../../components/LeapBuddy";
-import axiosInstance from "../../utils/axiosInstance";
+import LeapBuddy from "../../shared/components/LeapBuddy";
+import axiosInstance from "../../shared/utils/axiosInstance";
 
 // Polyfill missing browser element layout methods inside JSDOM environment scope
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
-vi.mock("../../utils/axiosInstance", () => ({
+vi.mock("../../shared/utils/axiosInstance", () => ({
     default: {
         post: vi.fn(() => Promise.resolve({ data: {} })),
     },
@@ -208,7 +208,7 @@ describe("LeapBuddy AI Assistant Component Suite", () => {
             expect(axiosInstance.post).not.toHaveBeenCalled();
         });
 
-        // ✅ Forces all remaining internal branches to run by passing alternative missing parameter contexts
+        //  Forces all remaining internal branches to run by passing alternative missing parameter contexts
         it("should trace the complete FAQ data structures and alternative profile combinations", async () => {
             axiosInstance.post.mockResolvedValue({ data: { content: [{ text: "Acknowledged" }] } });
 
@@ -227,7 +227,7 @@ describe("LeapBuddy AI Assistant Component Suite", () => {
             fireEvent.change(screen.getByPlaceholderText("Ask LeapBuddy anything..."), { target: { value: "Ping Mentor FAQ" } });
             fireEvent.click(screen.getByText("➤"));
 
-            // ✅ Re-render passing completely blank arrays and fields to force lines 323-324, 396-399, 545-548 to run
+            // Re-render passing completely blank arrays and fields to force lines 323-324, 396-399, 545-548 to run
             const sparseProfile = {
                 name: null,
                 email: null,

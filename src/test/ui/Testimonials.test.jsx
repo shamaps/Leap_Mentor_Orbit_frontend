@@ -1,7 +1,7 @@
 // src/test/ui/Testimonials.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
-import Testimonials from "../../ui/Testimonials";
+import Testimonials from "../../shared/marketing/Testimonials";
 
 describe("Testimonials", () => {
     beforeEach(() => {

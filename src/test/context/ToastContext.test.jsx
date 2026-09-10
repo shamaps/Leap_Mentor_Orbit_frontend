@@ -1,7 +1,7 @@
 // src/test/context/ToastContext.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, act, fireEvent } from "@testing-library/react";
-import { ToastProvider, useToast } from "../../context/ToastContext";
+import { ToastProvider, useToast } from "../../shared/context/ToastContext";
 
 const ThrowingConsumer = () => {
     useToast();

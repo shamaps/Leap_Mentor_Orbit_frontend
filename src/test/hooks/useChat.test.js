@@ -1,10 +1,10 @@
 // src/test/hooks/useChat.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import axiosInstance from "../../utils/axiosInstance";
-import useChat from "../../hooks/useChat";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import useChat from "../../features/shared-dashboard/presenter/useChat";
 
-vi.mock("../../utils/axiosInstance");
+vi.mock("../../shared/utils/axiosInstance");
 
 // Flushes pending microtasks (promise chains) without relying on real
 // or fake timers — safe to use regardless of vi.useFakeTimers() state.

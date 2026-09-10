@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import LoginForm from "../../../components/auth/LoginForm";
-import { HTTP_STATUS } from "../../../constants/httpStatus";
+import LoginForm from "../../../features/auth/view/components/LoginForm";
+import { HTTP_STATUS } from "../../../shared/constants/httpStatus";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({
@@ -15,7 +15,7 @@ vi.mock("react-redux", () => ({
 }));
 
 let mockLoginUserImpl;
-vi.mock("../../../store/slices/authSlice", () => ({
+vi.mock("../../../app/store/slices/authSlice", () => ({
     loginUser: Object.assign((...args) => mockLoginUserImpl(...args), {
         fulfilled: { match: (res) => res?.__type === "fulfilled" },
     }),
@@ -33,13 +33,13 @@ vi.mock("@clerk/clerk-react", () => ({
     useClerk: () => ({ signOut: mockSignOut }),
 }));
 
-vi.mock("../../../hooks/useGoogleAuth", () => ({
+vi.mock("../../../features/auth/presenter/useGoogleAuth", () => ({
     default: vi.fn(),
 }));
 
 const mockSsoSet = vi.fn();
 const mockSsoClear = vi.fn();
-vi.mock("../../../utils/storage", () => ({
+vi.mock("../../../shared/utils/storage", () => ({
     ssoFlags: {
         set: (...args) => mockSsoSet(...args),
         clear: (...args) => mockSsoClear(...args),

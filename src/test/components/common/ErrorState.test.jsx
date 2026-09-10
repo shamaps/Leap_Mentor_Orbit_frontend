@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import ErrorState from "../../../components/common/ErrorState";
+import ErrorState from "../../../shared/components/ErrorState";
 
 describe("ErrorState Component Suite", () => {
     it("should render the message with minimal required props", () => {

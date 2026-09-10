@@ -1,7 +1,7 @@
 // components/mentee/dashboard/__tests__/ProfessionalDetailsCard.test.jsx
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import ProfessionalDetailsCard from "../../../../components/mentee/dashboard/ProfessionalDetailsCard";
+import ProfessionalDetailsCard from "../../../../features/mentee/view/components/dashboard/ProfessionalDetailsCard";
 
 describe("ProfessionalDetailsCard", () => {
     it("renders em-dash fallbacks for every field when profile is undefined", () => {

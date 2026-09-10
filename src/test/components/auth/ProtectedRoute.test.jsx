@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
-import ProtectedRoute from "../../../components/auth/ProtectedRoute";
+import ProtectedRoute from "../../../features/auth/view/components/ProtectedRoute";
 
 vi.mock("react-redux", () => ({
     useSelector: vi.fn(),

@@ -2,15 +2,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import NotificationsTab from "../../../../components/mentee/notifications/NotificationsTab";
+import NotificationsTab from "../../../../features/notifications/view/NotificationsTab";
 
 // ── Mocks ───────────────────────────────────────────────────
 const mockUseNotifications = vi.fn();
-vi.mock("../../../../hooks/useNotifications", () => ({
+vi.mock("../../../../features/notifications/presenter/useNotifications", () => ({
     useNotifications: (...args) => mockUseNotifications(...args),
 }));
 
-vi.mock("../../../../components/common/StatCard", () => ({
+vi.mock("../../../../shared/components/StatCard", () => ({
     default: ({ label, value }) => (
         <div data-testid="stat-card">
             {label}: {value}
@@ -18,7 +18,7 @@ vi.mock("../../../../components/common/StatCard", () => ({
     ),
 }));
 
-vi.mock("../../../../components/common/TabLoader", () => ({
+vi.mock("../../../../shared/components/TabLoader", () => ({
     default: ({ message }) => <div data-testid="tab-loader">{message}</div>,
 }));
 

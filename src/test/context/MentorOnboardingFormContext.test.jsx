@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import {
     MentorOnboardingFormContext,
     useMentorOnboardingForm,
-} from "../../context/MentorOnboardingFormContext";
+} from "../../features/mentor/context/MentorOnboardingFormContext";
 
 const Consumer = () => {
     const { form } = useMentorOnboardingForm();

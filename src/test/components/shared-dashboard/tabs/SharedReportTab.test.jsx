@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import SharedReportTab from "../../../../components/shared-dashboard/tabs/SharedReportTab";
-import useReport from "../../../../hooks/useReport";
+import SharedReportTab from "../../../../features/shared-dashboard/view/components/tabs/SharedReportTab";
+import useReport from "../../../../features/shared-dashboard/presenter/useReport";
 
-// ✅ Hoist the missing global component to prevent the source code's ReferenceError crash[cite: 8]
+// Hoist the missing global component to prevent the source code's ReferenceError crash[cite: 8]
 beforeAll(() => {
     globalThis.EmptyState = ({ message, subMessage, icon }) => (
         <div data-testid="mock-empty-state">
@@ -15,9 +15,9 @@ beforeAll(() => {
     );
 });
 
-// ✅ Mock the useReport custom hook layout paths
+// Mock the useReport custom hook layout paths
 const mockSubmitFeedback = vi.fn();
-vi.mock("../../../../hooks/useReport", () => ({
+vi.mock("../../../../features/shared-dashboard/presenter/useReport", () => ({
     default: vi.fn(() => ({
         myFeedback: null,
         theirFeedback: null,
@@ -29,8 +29,8 @@ vi.mock("../../../../hooks/useReport", () => ({
     })),
 }));
 
-// ✅ Fix absolute path mappings for sub-modals relative to the source module location[cite: 8]
-vi.mock("../../../../components/shared-dashboard/tabs/ReportModal", () => ({
+// Fix absolute path mappings for sub-modals relative to the source module location[cite: 8]
+vi.mock("../../../../features/shared-dashboard/view/components/tabs/ReportModal", () => ({
     default: ({ onClose, onSuccess }) => (
         <div data-testid="mock-report-modal">
             <button onClick={onClose}>Close Report</button>
@@ -39,7 +39,7 @@ vi.mock("../../../../components/shared-dashboard/tabs/ReportModal", () => ({
     ),
 }));
 
-vi.mock("../../../../components/shared-dashboard/tabs/ReportSuccessModal", () => ({
+vi.mock("../../../../features/shared-dashboard/view/components/tabs/ReportSuccessModal", () => ({
     default: ({ onBack }) => (
         <div data-testid="mock-success-modal">
             <p>Report Submitted Successfully</p>

@@ -1,7 +1,7 @@
 // components/mentee/dashboard/__tests__/InterestedFieldsCard.test.jsx
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import InterestedFieldsCard from "../../../../components/mentee/dashboard/InterestedFieldsCard";
+import InterestedFieldsCard from "../../../../features/mentee/view/components/dashboard/InterestedFieldsCard";
 
 describe("InterestedFieldsCard", () => {
     it("renders empty-state copy when no fields and no skills are provided", () => {

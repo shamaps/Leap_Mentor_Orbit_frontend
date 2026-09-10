@@ -1,10 +1,10 @@
 // src/test/hooks/useMentorSlots.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
-import axiosInstance from "../../utils/axiosInstance";
-import { useMentorSlots } from "../../hooks/useMentorSlots";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import { useMentorSlots } from "../../features/mentor/presenter/useMentorSlots";
 
-vi.mock("../../utils/axiosInstance");
+vi.mock("../../shared/utils/axiosInstance");
 
 describe("useMentorSlots", () => {
     let setSelectedDuration;

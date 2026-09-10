@@ -2,14 +2,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import SocialLinksSection from "../../../../components/mentee/onboarding/SocialLinksSection";
+import SocialLinksSection from "../../../../features/mentee/view/components/onboarding/SocialLinksSection";
 
 const mockUseMenteeOnboardingForm = vi.fn();
-vi.mock("../../../../context/MenteeOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentee/context/MenteeOnboardingFormContext", () => ({
     useMenteeOnboardingForm: (...args) => mockUseMenteeOnboardingForm(...args),
 }));
 
-vi.mock("@/components/common/FormField", () => ({
+vi.mock("@/shared/components/FormField", () => ({
     default: ({ label, name, value, onChange, onBlur, placeholder, icon }) => (
         <div data-testid={`field-${name}`}>
             <label htmlFor={name}>{label}</label>

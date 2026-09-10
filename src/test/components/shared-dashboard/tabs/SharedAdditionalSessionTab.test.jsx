@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import SharedAdditionalSessionTab from "../../../../components/shared-dashboard/tabs/SharedAdditionalSessionTab";
-import { useEscrowStatus } from "../../../../hooks/useEscrowStatus";
-import { useRescheduleAvailability } from "../../../../hooks/useRescheduleAvailability";
-import useSessions from "../../../../hooks/useSessions";
-import { payAdditionalEscrow } from "../../../../api/escrow.api";
+import SharedAdditionalSessionTab from "../../../../features/shared-dashboard/view/components/tabs/SharedAdditionalSessionTab";
+import { useEscrowStatus } from "../../../../features/mentee/presenter/useEscrowStatus";
+import { useRescheduleAvailability } from "../../../../features/mentor/presenter/useRescheduleAvailability";
+import useSessions from "../../../../features/shared-dashboard/presenter/useSessions";
+import { payAdditionalEscrow } from "../../../../features/shared-dashboard/model/escrow.api";
 import { useSelector } from "react-redux";
 
 // ── Mock Redux Selector ──
@@ -14,12 +14,12 @@ vi.mock("react-redux", () => ({
 }));
 
 // ── Mock API Methods ──
-vi.mock("../../../../api/escrow.api", () => ({
+vi.mock("../../../../features/shared-dashboard/model/escrow.api", () => ({
     payAdditionalEscrow: vi.fn(),
 }));
 
 // ── Mock Dependency Modules ──
-vi.mock("../../../../components/mentee/dashboard/history/EscrowSuccessModal", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/history/EscrowSuccessModal", () => ({
     default: ({ onDone }) => (
         <div data-testid="mock-escrow-success">
             <p>Escrow Successful</p>
@@ -29,9 +29,9 @@ vi.mock("../../../../components/mentee/dashboard/history/EscrowSuccessModal", ()
 }));
 
 // ── Mock Custom Hooks ──
-vi.mock("../../../../hooks/useEscrowStatus", () => ({ useEscrowStatus: vi.fn() }));
-vi.mock("../../../../hooks/useRescheduleAvailability", () => ({ useRescheduleAvailability: vi.fn() }));
-vi.mock("../../../../hooks/useSessions", () => ({ default: vi.fn() }));
+vi.mock("../../../../features/mentee/presenter/useEscrowStatus", () => ({ useEscrowStatus: vi.fn() }));
+vi.mock("../../../../features/mentor/presenter/useRescheduleAvailability", () => ({ useRescheduleAvailability: vi.fn() }));
+vi.mock("../../../../features/shared-dashboard/presenter/useSessions", () => ({ default: vi.fn() }));
 
 describe("SharedAdditionalSessionTab Component Suite", () => {
     const mockTabChange = vi.fn();
@@ -132,7 +132,7 @@ describe("SharedAdditionalSessionTab Component Suite", () => {
             });
 
             const { container } = render(<SharedAdditionalSessionTab />);
-            // ✅ Corrected invalid Chai assertion typo to valid Vitest expectation check
+            // Corrected invalid Chai assertion typo to valid Vitest expectation check
             expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
         });
 
@@ -267,7 +267,7 @@ describe("SharedAdditionalSessionTab Component Suite", () => {
         });
 
         it("should report internal errors if payment rates values return invalid or empty arrays", async () => {
-            // ✅ Set hourlyRate to 0 to verify button attribute disables accurately[cite: 9]
+            //  Set hourlyRate to 0 to verify button attribute disables accurately[cite: 9]
             useSelector.mockReturnValue({ ...baseConnectMentee, mentorProfile: { hourlyRate: 0 } });
             useRescheduleAvailability.mockReturnValue({ availability: [{ date: "2026-08-20", day: "Thursday", slots: [selectedSlot] }], sessionDurations: [60] });
             mockAddSlot.mockResolvedValueOnce({ success: true, slotId: "slot-000" });

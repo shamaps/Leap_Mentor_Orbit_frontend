@@ -3,7 +3,7 @@ import {
     mapMentorCard,
     mapMentorSearchResponse,
     mapMentorFullProfile,
-} from "../../mappers/mentorMapper";
+} from "../../features/mentor/model/mentorMapper";
 
 describe("mapMentorCard", () => {
     it("returns null when given a falsy value", () => {

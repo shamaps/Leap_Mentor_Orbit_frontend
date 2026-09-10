@@ -1,8 +1,8 @@
 // src/test/pages/SharedDashboardPage.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import SharedDashboardPage from "../../pages/SharedDashboardPage";
-import { fetchSharedConnect } from "../../store/slices/sharedConnectSlice";
+import SharedDashboardPage from "../../features/shared-dashboard/view/pages/SharedDashboardPage";
+import { fetchSharedConnect } from "../../app/store/slices/sharedConnectSlice";
 
 const mockNavigate = vi.fn();
 let mockConnectRequestId = "507f1f77bcf86cd799439011"; // valid 24-char hex ObjectId
@@ -22,7 +22,7 @@ vi.mock("react-redux", () => ({
     useDispatch: () => mockDispatch,
 }));
 
-vi.mock("../../store/slices/sharedConnectSlice", () => {
+vi.mock("../../app/store/slices/sharedConnectSlice", () => {
     const fetchSharedConnect = vi.fn((id) => ({
         type: "sharedConnect/fetchSharedConnect",
         meta: { arg: id },
@@ -31,11 +31,11 @@ vi.mock("../../store/slices/sharedConnectSlice", () => {
     return { fetchSharedConnect };
 });
 
-vi.mock("../../pages/NotFound", () => ({
+vi.mock("../../shared/marketing/NotFound", () => ({
     default: () => <div>not-found-page</div>,
 }));
 
-vi.mock("../../components/shared-dashboard/SharedDashboardLayout", () => ({
+vi.mock("../../features/shared-dashboard/view/components/SharedDashboardLayout", () => ({
     default: ({ onAllComplete, activeTab, setActiveTab }) => (
         <div>
             <span>layout-active-tab:{activeTab}</span>

@@ -1,12 +1,12 @@
 // src/test/hooks/useRespondToRequest.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { respondToRequest, referRequest } from "../../api/connectRequests.api";
-import { useToast } from "../../context/ToastContext";
-import useRespondToRequest from "../../hooks/useRespondToRequest";
+import { respondToRequest, referRequest } from "../../features/connects/model/connectRequests.api";
+import { useToast } from "../../shared/context/ToastContext";
+import useRespondToRequest from "../../features/mentor/presenter/useRespondToRequest";
 
-vi.mock("../../api/connectRequests.api");
-vi.mock("../../context/ToastContext");
+vi.mock("../../features/connects/model/connectRequests.api");
+vi.mock("../../shared/context/ToastContext");
 
 describe("useRespondToRequest", () => {
     let showToast;

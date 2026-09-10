@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import axiosInstance from "../../utils/axiosInstance";
-import { fetchMentorIndustries, fetchMentorList } from "../../store/slices/referenceDataSlice";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import { fetchMentorIndustries, fetchMentorList } from "../../app/store/slices/referenceDataSlice";
 
-vi.mock("../../utils/axiosInstance");
+vi.mock("../../shared/utils/axiosInstance");
 
 describe("fetchMentorIndustries thunk", () => {
     beforeEach(() => vi.clearAllMocks());

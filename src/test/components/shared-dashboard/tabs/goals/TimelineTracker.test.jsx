@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import TimelineTracker from "../../../../../components/shared-dashboard/tabs/goals/TimelineTracker";
+import TimelineTracker from "../../../../../features/shared-dashboard/view/components/tabs/goals/TimelineTracker";
 
 describe("TimelineTracker Component Suite", () => {
     const mockUpdate = vi.fn();

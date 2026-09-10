@@ -1,7 +1,7 @@
 // src/test/components/mentor/dashboard/availability/TimezoneDurationSection.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import TimezoneDurationSection from "../../../../../components/mentor/dashboard/availability/TimezoneDurationSection";
+import TimezoneDurationSection from "../../../../../features/mentor/view/components/dashboard/availability/TimezoneDurationSection";
 
 describe("TimezoneDurationSection Component Suite", () => {
     let updateTimezone;

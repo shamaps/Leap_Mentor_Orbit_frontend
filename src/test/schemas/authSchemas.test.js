@@ -6,7 +6,7 @@ import {
     otpStepSchema,
     newPasswordStepSchema,
     verifyEmailSchema,
-} from "../../schemas/authSchemas";
+} from "../../shared/schemas/authSchemas";
 
 describe("loginSchema", () => {
     it("passes with a valid email and password", () => {

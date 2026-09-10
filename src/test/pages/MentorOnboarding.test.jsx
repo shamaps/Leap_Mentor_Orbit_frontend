@@ -1,9 +1,9 @@
 // src/test/pages/MentorOnboarding.test.jsx
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import MentorOnboarding from "../../pages/MentorOnboarding";
+import MentorOnboarding from "../../features/mentor/view/pages/MentorOnboarding";
 
-vi.mock("../../components/mentor/onboarding/OnboardingFormShell", () => ({
+vi.mock("../../features/mentor/view/components/onboarding/OnboardingFormShell", () => ({
     default: () => <div data-testid="onboarding-form-shell" />,
 }));
 

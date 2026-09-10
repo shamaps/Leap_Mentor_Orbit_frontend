@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import Spinner from "../../../components/common/Spinner";
+import Spinner from "../../../shared/components/Spinner";
 
 describe("Spinner Component Suite", () => {
     it("should render with default props (sm size, dark border, no label)", () => {

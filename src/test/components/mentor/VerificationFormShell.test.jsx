@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import VerificationFormShell from "../../../components/mentor/VerificationFormShell";
+import VerificationFormShell from "../../../features/mentor/view/components/VerificationFormShell";
 
-// ✅ Declare tracking hooks using an absolute isolated mock control payload registry
+// Declare tracking hooks using an absolute isolated mock control payload registry
 const mockSubmitVerification = vi.fn();
 let mockLoading = false;
 let mockMsg = { type: "", text: "" };
 
-vi.mock("../../../hooks/useVerificationSubmit", () => ({
+vi.mock("../../../features/mentor/presenter/useVerificationSubmit", () => ({
     useVerificationSubmit: () => ({
         loading: mockLoading,
         msg: mockMsg,
@@ -21,7 +21,7 @@ vi.mock("react-router-dom", () => ({
 }));
 
 // Mock subcomponents cleanly to track data transmissions safely without schema locks
-vi.mock("../../../components/mentor/PhoneNumberField", () => ({
+vi.mock("../../../features/mentor/view/components/PhoneNumberField", () => ({
     default: ({ value, onChange, error }) => (
         <div>
             <input
@@ -34,7 +34,7 @@ vi.mock("../../../components/mentor/PhoneNumberField", () => ({
     ),
 }));
 
-vi.mock("../../../components/mentor/ResumeUpload", () => ({
+vi.mock("../../../features/mentor/view/components/ResumeUpload", () => ({
     default: ({ onChange, error }) => (
         <div>
             <button
@@ -49,7 +49,7 @@ vi.mock("../../../components/mentor/ResumeUpload", () => ({
     ),
 }));
 
-vi.mock("../../../components/mentor/WorkExperienceUpload", () => ({
+vi.mock("../../../features/mentor/view/components/WorkExperienceUpload", () => ({
     default: ({ onChange, error }) => (
         <div>
             <button
@@ -64,7 +64,7 @@ vi.mock("../../../components/mentor/WorkExperienceUpload", () => ({
     ),
 }));
 
-vi.mock("../../../components/mentor/VerificationInstructionsModal", () => ({
+vi.mock("../../../features/mentor/view/components/VerificationInstructionsModal", () => ({
     default: ({ onClose }) => (
         <div data-testid="instructions-modal-stub">
             <button onClick={onClose}>Dismiss Guide</button>
@@ -72,7 +72,7 @@ vi.mock("../../../components/mentor/VerificationInstructionsModal", () => ({
     ),
 }));
 
-vi.mock("@/components/common/FullScreenLoader", () => ({
+vi.mock("@/shared/components/FullScreenLoader", () => ({
     default: ({ message }) => <div data-testid="shell-loader-stub">{message}</div>,
 }));
 
@@ -112,7 +112,7 @@ describe("VerificationFormShell Component Suite", () => {
     });
 
     it("should handle error loops gracefully if server communication lines reject payloads", async () => {
-        // ✅ Re-map global mock message properties before running initial instantiation renders
+        // Re-map global mock message properties before running initial instantiation renders
         mockMsg = { type: "error", text: "Database cluster synchronization failure." };
 
         render(<VerificationFormShell />);

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { mapServerErrorsToForm } from "../../utils/mapServerErrorsToForm";
+import { mapServerErrorsToForm } from "../../shared/utils/mapServerErrorsToForm";
 
 describe("mapServerErrorsToForm", () => {
     it("maps each field-specific error to setError", () => {

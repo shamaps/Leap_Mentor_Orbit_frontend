@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
-import ConnectCard from "../../../../components/ui/connects/ConnectCard";
+import ConnectCard from "../../../../features/connects/view/ConnectCard";
 
 describe("ConnectCard Component Suite", () => {
     const mockOnDashboardClick = vi.fn();

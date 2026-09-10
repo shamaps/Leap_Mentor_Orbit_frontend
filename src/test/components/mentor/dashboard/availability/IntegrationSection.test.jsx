@@ -1,7 +1,7 @@
 // src/test/components/mentor/dashboard/availability/IntegrationsSection.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import IntegrationsSection from "../../../../../components/mentor/dashboard/availability/IntegrationsSection";
+import IntegrationsSection from "../../../../../features/mentor/view/components/dashboard/availability/IntegrationsSection";
 
 const { mockGetGoogleCalendarAuthUrl, mockGetGoogleCalendarStatus, mockDisconnectGoogleCalendar, mockLoggerError } =
     vi.hoisted(() => ({
@@ -11,13 +11,13 @@ const { mockGetGoogleCalendarAuthUrl, mockGetGoogleCalendarStatus, mockDisconnec
         mockLoggerError: vi.fn(),
     }));
 
-vi.mock("../../../../../api/availability.api", () => ({
+vi.mock("../../../../../features/mentor/model/availability.api", () => ({
     getGoogleCalendarAuthUrl: mockGetGoogleCalendarAuthUrl,
     getGoogleCalendarStatus: mockGetGoogleCalendarStatus,
     disconnectGoogleCalendar: mockDisconnectGoogleCalendar,
 }));
 
-vi.mock("../../../../../utils/logger", () => ({
+vi.mock("../../../../../shared/utils/logger", () => ({
     default: { error: mockLoggerError },
 }));
 

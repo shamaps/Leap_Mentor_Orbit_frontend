@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, within, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import adminAxiosInstance from "../../../utils/axiosInstance";
-import { useToast } from "../../../context/ToastContext";
-import AdminWalletRequests from "../../../pages/admin/AdminWalletRequests";
+import adminAxiosInstance from "../../../shared/utils/axiosInstance";
+import { useToast } from "../../../shared/context/ToastContext";
+import AdminWalletRequests from "../../../features/admin/view/pages/AdminWalletRequests";
 
-vi.mock("../../../utils/axiosInstance");
-vi.mock("../../../context/ToastContext");
+vi.mock("../../../shared/utils/axiosInstance");
+vi.mock("../../../shared/context/ToastContext");
 
 const baseRequest = {
     _id: "req-1",

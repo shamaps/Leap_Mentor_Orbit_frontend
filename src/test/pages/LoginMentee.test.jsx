@@ -1,13 +1,13 @@
 // src/test/pages/LoginMentee.test.jsx
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import LoginMentee from "../../pages/LoginMentee";
+import LoginMentee from "../../features/auth/view/pages/LoginMentee";
 
-vi.mock("../../components/auth/LoginLeftPanel", () => ({
+vi.mock("../../features/auth/view/components/LoginLeftPanel", () => ({
     default: (props) => <div data-testid="login-left-panel" data-role={props.role} />,
 }));
 
-vi.mock("../../components/auth/LoginForm", () => ({
+vi.mock("../../features/auth/view/components/LoginForm", () => ({
     default: (props) => (
         <div
             data-testid="login-form"

@@ -1,7 +1,7 @@
 // src/test/components/shared-dashboard/SharedSidebar.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import SharedSidebar from "../../../components/shared-dashboard/SharedSidebar";
+import SharedSidebar from "../../../features/shared-dashboard/view/components/SharedSidebar";
 
 describe("SharedSidebar", () => {
     beforeEach(() => {

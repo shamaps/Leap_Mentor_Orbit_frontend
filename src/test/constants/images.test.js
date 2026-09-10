@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { IMAGES } from "../../constants/images";
+import { IMAGES } from "../../shared/constants/images";
 
 describe("Centralized Images Constants Suite", () => {
 

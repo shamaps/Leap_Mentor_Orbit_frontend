@@ -1,15 +1,15 @@
 // components/mentee/dashboard/__tests__/DashboardLayout.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
-import useMenteeDashboard from "../../../../hooks/useMenteeDashboard";
-import useUnreadCount from "../../../../hooks/useUnreadCount";
-import useSocketToast from "../../../../hooks/useSocketToast";
+import useMenteeDashboard from "../../../../features/mentee/presenter/useMenteeDashboard";
+import useUnreadCount from "../../../../features/shared-dashboard/presenter/useUnreadCount";
+import useSocketToast from "../../../../features/shared-dashboard/presenter/useSocketToast";
 import { useSearchParams } from "react-router-dom";
-import DashboardLayout from "../../../../components/mentee/dashboard/DashboardLayout";
+import DashboardLayout from "../../../../features/mentee/view/components/dashboard/DashboardLayout";
 
-vi.mock("../../../../hooks/useMenteeDashboard");
-vi.mock("../../../../hooks/useUnreadCount");
-vi.mock("../../../../hooks/useSocketToast");
+vi.mock("../../../../features/mentee/presenter/useMenteeDashboard");
+vi.mock("../../../../features/shared-dashboard/presenter/useUnreadCount");
+vi.mock("../../../../features/shared-dashboard/presenter/useSocketToast");
 
 const mockSetSearchParams = vi.fn();
 let mockSearchParamsValue = new URLSearchParams();
@@ -18,7 +18,7 @@ vi.mock("react-router-dom", () => ({
     useSearchParams: vi.fn(),
 }));
 
-vi.mock("../../../../components/common/DashboardTopbar", () => ({
+vi.mock("../../../../shared/components/DashboardTopbar", () => ({
     default: ({ onMenuToggle, onLogoClick }) => (
         <div data-testid="topbar">
             <button onClick={onMenuToggle}>menu</button>
@@ -26,13 +26,13 @@ vi.mock("../../../../components/common/DashboardTopbar", () => ({
         </div>
     ),
 }));
-vi.mock("../../../../components/mentee/dashboard/HomeTab", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/HomeTab", () => ({
     default: () => <div data-testid="home-tab">HomeTab</div>,
 }));
-vi.mock("../../../../components/mentee/dashboard/ProfileTab", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/ProfileTab", () => ({
     default: () => <div data-testid="profile-tab">ProfileTab</div>,
 }));
-vi.mock("../../../../components/mentee/notifications/NotificationsTab", () => ({
+vi.mock("../../../../features/notifications/view/NotificationsTab", () => ({
     default: ({ setActiveTab }) => (
         <div data-testid="notifications-tab">
             <button onClick={() => setActiveTab("history")}>go-to-history</button>
@@ -40,20 +40,20 @@ vi.mock("../../../../components/mentee/notifications/NotificationsTab", () => ({
     ),
 }));
 
-vi.mock("../../../../components/mentee/dashboard/findMentors/FindMentorsTab", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/findMentors/FindMentorsTab", () => ({
     default: () => <div data-testid="find-mentors-tab">FindMentorsTab</div>,
 }));
-vi.mock("../../../../components/mentee/dashboard/history/RequestHistoryTab", () => ({
+vi.mock("../../../../features/mentee/view/components/dashboard/history/RequestHistoryTab", () => ({
     default: () => <div data-testid="history-tab">RequestHistoryTab</div>,
 }));
 
-vi.mock("../../../../components/mentee/dashboard/connects/MenteeConnectsTab", () => ({
+vi.mock("../../../../features/connects/view/MenteeConnectsTab", () => ({
     default: () => <div data-testid="connects-tab">MenteeConnectsTab</div>,
 }));
-vi.mock("../../../../components/common/HelpCenter", () => ({
+vi.mock("../../../../shared/components/HelpCenter", () => ({
     default: () => <div data-testid="help-center">HelpCenter</div>,
 }));
-vi.mock("../../../../components/common/DashboardSidebar", () => ({
+vi.mock("../../../../shared/components/DashboardSidebar", () => ({
     default: ({ navItems, activeTab, setActiveTab, isOpen, onClose }) => (
         <div data-testid="sidebar" data-open={isOpen} data-active={activeTab}>
             {navItems.map((item) => (
@@ -65,7 +65,7 @@ vi.mock("../../../../components/common/DashboardSidebar", () => ({
         </div>
     ),
 }));
-vi.mock("../../../../components/common/ErrorState", () => ({
+vi.mock("../../../../shared/components/ErrorState", () => ({
     default: ({ message, onAction }) => (
         <div data-testid="error-state">
             <p>{message}</p>

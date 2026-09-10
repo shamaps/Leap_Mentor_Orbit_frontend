@@ -1,14 +1,14 @@
 // src/test/components/shared-dashboard/tabs/SharedHomeTab.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import SharedHomeTab from "../../../../components/shared-dashboard/tabs/SharedHomeTab";
+import SharedHomeTab from "../../../../features/shared-dashboard/view/components/tabs/SharedHomeTab";
 
 let mockState;
 vi.mock("react-redux", () => ({
     useSelector: (selectorFn) => selectorFn(mockState),
 }));
 
-vi.mock("../../../../components/shared-dashboard/tabs/ReportModal", () => ({
+vi.mock("../../../../features/shared-dashboard/view/components/tabs/ReportModal", () => ({
     default: ({ onClose, onSuccess }) => (
         <div>
             <span>report-modal</span>
@@ -18,7 +18,7 @@ vi.mock("../../../../components/shared-dashboard/tabs/ReportModal", () => ({
     ),
 }));
 
-vi.mock("../../../../components/shared-dashboard/tabs/ReportSuccessModal", () => ({
+vi.mock("../../../../features/shared-dashboard/view/components/tabs/ReportSuccessModal", () => ({
     default: ({ onBack }) => (
         <div>
             <span>report-success-modal</span>

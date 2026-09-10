@@ -3,21 +3,21 @@ import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../../../../test/mswServer"; // adjust relative path to your shared MSW server
-import PrivateNotesTab from "../../../../components/shared-dashboard/tabs/PrivateNotesTab";
-import useNotes from "../../../../hooks/useNotes";
-import usePrivateNotes from "../../../../hooks/usePrivateNotes";
+import PrivateNotesTab from "../../../../features/shared-dashboard/view/components/tabs/PrivateNotesTab";
+import useNotes from "../../../../features/shared-dashboard/presenter/useNotes";
+import usePrivateNotes from "../../../../features/shared-dashboard/presenter/usePrivateNotes";
 
 // Mock dependent custom hooks
-vi.mock("../../../../hooks/useNotes", () => ({
+vi.mock("../../../../features/shared-dashboard/presenter/useNotes", () => ({
     default: vi.fn(),
 }));
 
-vi.mock("../../../../hooks/usePrivateNotes", () => ({
+vi.mock("../../../../features/shared-dashboard/presenter/usePrivateNotes", () => ({
     default: vi.fn(),
 }));
 
 // Mock child or external atomic elements
-vi.mock("../../../../components/common/EmptyState", () => ({
+vi.mock("../../../../shared/components/EmptyState", () => ({
     default: vi.fn(({ message, actionLabel, onAction }) => (
         <div data-testid="empty-state">
             <p>{message}</p>

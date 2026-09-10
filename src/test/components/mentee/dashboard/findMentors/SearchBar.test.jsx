@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import SearchBar from "../../../../../components/mentee/dashboard/findMentors/SearchBar";
+import SearchBar from "../../../../../features/mentee/view/components/dashboard/findMentors/SearchBar";
 
 describe("SearchBar Component Suite", () => {
     const mockSetSkill = vi.fn();

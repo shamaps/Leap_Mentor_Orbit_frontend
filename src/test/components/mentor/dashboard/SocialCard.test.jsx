@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import SocialCard from "../../../../components/mentor/dashboard/SocialCard";
+import SocialCard from "../../../../features/mentor/view/components/dashboard/SocialCard";
 
 describe("SocialCard", () => {
     it("renders the card heading", () => {
