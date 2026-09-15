@@ -1,5 +1,5 @@
 // src/test/ui/TermsAndConditionsModal.test.jsx
-import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeAll, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import TermsAndConditionsModal from "../../shared/marketing/TermsAndConditionsModal";
 

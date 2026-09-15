@@ -1,19 +1,20 @@
-import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import React from "react";
 import SharedReportTab from "../../../../features/shared-dashboard/view/components/tabs/SharedReportTab";
 import useReport from "../../../../features/shared-dashboard/presenter/useReport";
 
-// Hoist the missing global component to prevent the source code's ReferenceError crash[cite: 8]
-beforeAll(() => {
-    globalThis.EmptyState = ({ message, subMessage, icon }) => (
+// Mock the shared EmptyState component so we can assert on its props
+// without depending on its real internal markup.
+vi.mock("@/shared/components/EmptyState", () => ({
+    default: ({ message, subMessage, icon }) => (
         <div data-testid="mock-empty-state">
             <div data-testid="mock-icon">{icon}</div>
             <h3>{message}</h3>
             <p>{subMessage}</p>
         </div>
-    );
-});
+    ),
+}));
 
 // Mock the useReport custom hook layout paths
 const mockSubmitFeedback = vi.fn();

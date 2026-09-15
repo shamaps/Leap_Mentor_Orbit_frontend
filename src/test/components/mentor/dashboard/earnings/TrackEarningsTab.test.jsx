@@ -58,6 +58,7 @@ describe("TrackEarningsTab Component Suite", () => {
     const mockGoNext = vi.fn();
     const mockGoPrev = vi.fn();
     const mockSetSearch = vi.fn();
+    const mockFetchStats = vi.fn();
 
     const mockDefaultStats = {
         totalEarnings: 15450.75,
@@ -93,6 +94,7 @@ describe("TrackEarningsTab Component Suite", () => {
         handleChartPeriod: mockHandleChartPeriod,
         goNext: mockGoNext,
         goPrev: mockGoPrev,
+        fetchStats: mockFetchStats,
     };
 
     beforeEach(() => {
@@ -198,14 +200,12 @@ describe("TrackEarningsTab Component Suite", () => {
                 error: "Failed to establish database synchronization layer link",
             });
 
-            global.fetchStats = vi.fn();
-
             render(<TrackEarningsTab />);
             expect(screen.getByTestId("mock-error-state")).toBeInTheDocument();
 
             const retryBtn = screen.getByRole("button", { name: /Retry Fetch/i });
             fireEvent.click(retryBtn);
-            expect(global.fetchStats).toHaveBeenCalled();
+            expect(mockFetchStats).toHaveBeenCalled();
         });
     });
 

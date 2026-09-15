@@ -17,10 +17,10 @@ const importHook = async (clientId = "test-client-id") => {
     return mod.default;
 };
 
-const flush = async () => {
+const _flush = async () => {
     await act(async () => {
         for (let i = 0; i < 5; i += 1) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await Promise.resolve();
         }
     });

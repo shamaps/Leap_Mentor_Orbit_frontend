@@ -4,7 +4,7 @@ import { render, screen, fireEvent, act, waitFor } from "@testing-library/react"
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import VerifyEmail from "../../features/auth/view/pages/VerifyEmail";
-import { sendOtp, verifyEmail, verifyMagicLink, clearMessages } from "../../app/store/slices/authSlice";
+import { sendOtp, verifyEmail, verifyMagicLink } from "../../app/store/slices/authSlice";
 
 vi.mock("react-router-dom", () => ({
     useNavigate: vi.fn(),

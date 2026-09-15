@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../mswServer";
-import axiosInstance, { injectStore } from "../../shared/utils/axiosInstance";
+import { injectStore } from "../../shared/utils/axiosInstance";
 import * as Sentry from "@sentry/react";
 import * as storage from "../../shared/utils/storage";
 import logger from "../../shared/utils/logger";

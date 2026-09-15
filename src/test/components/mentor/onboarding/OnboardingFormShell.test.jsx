@@ -88,7 +88,9 @@ vi.mock("../../../../features/mentor/view/components/onboarding/ProfessionalInfo
     default: () => <div data-testid="section-professional">Professional</div>,
 }));
 vi.mock("../../../../features/mentor/view/components/onboarding/SkillsSection", () => ({
-    default: React.forwardRef((_, ref) => <div ref={ref} data-testid="section-skills">Skills</div>),
+    default: React.forwardRef(function SkillsSectionStub(_, ref) {
+        return <div ref={ref} data-testid="section-skills">Skills</div>;
+    }),
 }));
 vi.mock("../../../../features/mentor/view/components/onboarding/PreferencesSection", () => ({
     default: () => <div data-testid="section-preferences">Preferences</div>,

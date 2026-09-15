@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import axiosInstance from "../../shared/utils/axiosInstance";
 import logger from "../../shared/utils/logger";
-import { logoutUser } from "../../app/store/slices/authSlice";
 import {
     fetchMentorDashboard,
     refetchMentorProfile,

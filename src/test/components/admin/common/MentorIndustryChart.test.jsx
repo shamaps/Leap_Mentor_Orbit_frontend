@@ -6,7 +6,6 @@ import MentorIndustryChart from "../../../../features/admin/view/charts/MentorIn
 // This injects the missing props into CustomTooltip, CustomXTick, and ColoredBar to hit 100% coverage
 vi.mock("recharts", async () => {
     const original = await vi.importActual("recharts");
-    const React = require("react");
 
     return {
         ...original,

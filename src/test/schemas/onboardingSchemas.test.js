@@ -68,7 +68,7 @@ describe("commonOnboardingSchema", () => {
     });
 
     it("passes when company is omitted entirely (optional)", () => {
-        const { company, ...rest } = validCommonFields;
+        const { company: _company, ...rest } = validCommonFields;
         expect(commonOnboardingSchema.safeParse(rest).success).toBe(true);
     });
 

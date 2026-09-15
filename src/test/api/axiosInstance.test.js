@@ -1,6 +1,6 @@
 // src/test/api/axiosInstance.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { http, HttpResponse, delay as mswDelay } from "msw";
+import { http, HttpResponse } from "msw";
 import { server } from "../mswServer";
 import axiosInstance, { injectStore } from "../../shared/utils/axiosInstance";
 import logger from "../../shared/utils/logger";

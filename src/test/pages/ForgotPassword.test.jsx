@@ -1,7 +1,7 @@
 // src/test/pages/ForgotPassword.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import ForgotPassword from "../../features/auth/view/pages/ForgotPassword";
 import {
@@ -51,7 +51,7 @@ describe("ForgotPassword Component Suite", () => {
     // no tag) never consume a value meant for an actual thunk call.
     let thunkResults;
 
-    const setThunkResult = (thunkName, value) => {
+    const _setThunkResult = (thunkName, value) => {
         thunkResults[thunkName] = value;
     };
 
@@ -235,7 +235,7 @@ describe("ForgotPassword Component Suite", () => {
             verifyResetOtp.fulfilled = { match: () => false };
             mockDispatch.mockResolvedValueOnce({ type: "auth/verifyResetOtp/rejected", payload: "Bad Token" });
 
-            "123456".split("").forEach((digit, idx) => {
+            "123456".split("").forEach((digit) => {
                 fireEvent.change(document.getElementById(`otp-${digit - 1}`), { target: { value: digit } });
             });
 

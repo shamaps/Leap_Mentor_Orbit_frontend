@@ -1,6 +1,6 @@
 // src/test/components/mentee/dashboard/findMentors/MentorProfileModal.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import React from "react";
 import MentorProfileModal from "../../../../../features/mentee/view/components/dashboard/findMentors/MentorProfileModal";
 import { useMentorSlots } from "../../../../../features/mentor/presenter/useMentorSlots";

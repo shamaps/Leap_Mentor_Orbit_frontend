@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -11,7 +14,7 @@ export default defineConfig({
     },
   },
   test: {
-    testTimeout:10000,
+    testTimeout: 10000,
     environment: "jsdom",
     globals: true,
     setupFiles: "./src/test/setup.js",
@@ -20,12 +23,16 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "html", "lcov"],
       reportsDirectory: "./coverage",
-      include: ["src/**/*.{js,jsx}"],
-      exclude: [
-        "src/test/**",
-        "src/**/*.test.{js,jsx}",
-       
-      ],
+      coverage: {
+        provider: "v8",
+        reporter: ["text", "html", "lcov"],
+        reportsDirectory: "./coverage",
+        include: ["src/**/*.{js,jsx,ts,tsx}"],
+        exclude: [
+          "src/test/**",
+          "src/**/*.test.{js,jsx,ts,tsx}",
+        ],
+      },
     },
   },
   build: {

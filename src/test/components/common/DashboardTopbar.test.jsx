@@ -13,6 +13,7 @@ vi.mock("react-router-dom", () => ({
 
 vi.mock("react-redux", () => ({
     useDispatch: vi.fn(),
+    useSelector: vi.fn(),
 }));
 
 vi.mock("../../../app/store/slices/authSlice", () => ({
