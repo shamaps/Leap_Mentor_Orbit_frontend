@@ -1,7 +1,7 @@
-// src/hooks/useConnectRequest.ts
+// src/features/connects/presenter/useConnectRequest.ts
 import { useState, useRef } from "react";
 import { sendConnectRequest } from "@/features/connects/model/connectRequests.api";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
+import { normalizeApiError } from "@/shared/utils/apiError";
 
 interface SendRequestArgs {
   mentorId: string;
@@ -15,7 +15,8 @@ const useConnectRequest = () => {
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-  const inFlightRef = useRef(false); // ← synchronous in-flight guard
+  const [isRetryable, setIsRetryable] = useState(false); // new — enables a "Retry" button in the UI
+  const inFlightRef = useRef(false);
 
   const sendRequest = async ({
     mentorId,
@@ -24,10 +25,11 @@ const useConnectRequest = () => {
     sessionRate,
     sessionCount,
   }: SendRequestArgs): Promise<boolean> => {
-    if (inFlightRef.current) return false; // ← blocks any concurrent call immediately
+    if (inFlightRef.current) return false;
 
     setError("");
     setSuccess(false);
+    setIsRetryable(false);
 
     if (!selectedSlots || selectedSlots.length === 0) {
       setError("Please select at least one available slot before sending.");
@@ -35,25 +37,20 @@ const useConnectRequest = () => {
     }
 
     try {
-      inFlightRef.current = true; // ← lock before async starts
+      inFlightRef.current = true;
       setSending(true);
-      const payload = {
-        mentorId,
-        message,
-        selectedSlots,
-        sessionRate,
-        sessionCount,
-      };
+      const payload = { mentorId, message, selectedSlots, sessionRate, sessionCount };
 
       await sendConnectRequest(payload);
       setSuccess(true);
       return true;
     } catch (err) {
-      const apiMsg = getErrorMessage(err, "Failed to send request.");
-      setError(apiMsg);
+      const normalized = normalizeApiError(err, "Failed to send request.");
+      setError(normalized.message);
+      setIsRetryable(normalized.isRetryable);
       return false;
     } finally {
-      inFlightRef.current = false; // ← release lock
+      inFlightRef.current = false;
       setSending(false);
     }
   };
@@ -63,9 +60,10 @@ const useConnectRequest = () => {
     setSending(false);
     setSuccess(false);
     setError("");
+    setIsRetryable(false);
   };
 
-  return { sending, success, error, sendRequest, reset };
+  return { sending, success, error, isRetryable, sendRequest, reset };
 };
 
 export default useConnectRequest;

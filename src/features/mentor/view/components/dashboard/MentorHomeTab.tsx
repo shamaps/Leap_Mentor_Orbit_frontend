@@ -13,6 +13,7 @@ import {
   selectConnectRequestsInitialLoad,
 } from "@/app/store/selectors";
 import logger from "@/shared/utils/logger";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 import { getEarningsStats } from "@/features/mentor/model/earnings.api";
 import LeapBuddy from "@/shared/components/LeapBuddy";
 import StatCard from "@/shared/components/StatCard";
@@ -203,8 +204,8 @@ const MentorHomeTab = ({ setActiveTab }: { setActiveTab: (tab: string) => void }
           pendingPayout: res.data.pendingPayout || 0,
           walletBalance: res.data.walletBalance || 0,
         });
-      } catch (err) {
-        logger.error("MentorHomeTab earnings error", { message: err.message });
+      } catch (err: unknown) {
+        logger.warn("MentorHomeTab earnings error", { message: getErrorMessage(err, "Failed to load earnings.") });
         setEarnings({ totalEarnings: 0, sessionsThisMonth: 0, pendingPayout: 0, walletBalance: 0 });
       } finally {
         setLoadingEarnings(false);

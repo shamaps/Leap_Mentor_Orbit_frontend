@@ -20,29 +20,30 @@ The frontend for **LeapMentor**, a full-stack mentorship platform connecting men
 
 ```
 src/
-├── api/          # API request functions (auth, sessions, goals, escrow, notifications, etc.)
-├── components/   # Reusable UI components, grouped by domain
+├── app/                 # App shell and global wiring
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── store/           # Redux store, slices, hooks, selectors
+├── features/            # Feature modules, each split into model/presenter/view
 │   ├── admin/
 │   ├── auth/
-│   ├── common/
-│   ├── mentee/
-│   ├── mentor/
+│   ├── connects/
+│   ├── mentee/          
+│   ├── mentor/          
+│   ├── notifications/
 │   ├── shared-dashboard/
-│   └── ui/
-├── config/       # Static config (e.g. onboarding field definitions)
-├── constants/    # App-wide constants (HTTP status codes, images, mentorship prefs)
-├── context/      # React Context providers (onboarding forms, toasts)
-├── hooks/        # Custom hooks (sessions, goals, mentor search, connect requests, etc.)
-├── mappers/      # Data mappers between API responses and UI models
-├── pages/        # Route-level page components
-│   └── admin/
-├── schemas/      # Zod validation schemas
-├── store/        # Redux store, slices, and selectors
-├── test/         # Test setup and utilities
-├── ui/           # Landing page / marketing UI (Hero, Navbar, Footer, Testimonials, etc.)
-├── utils/        # Utilities (axios instances, logger, error mapping)
-├── App.jsx
-└── main.jsx
+│   └── uploads/
+├── shared/              # Cross-feature code
+│   ├── api/             # API request functions
+│   ├── components/      # Reusable UI components 
+│   ├── constants/       # App-wide constants
+│   ├── context/         # Shared React Context providers (toasts)
+│   ├── hooks/           # Shared custom hooks
+│   ├── marketing/       # Landing page / marketing UI (Hero, Navbar, Footer, Testimonials, etc.)
+│   ├── schemas/         # Zod validation schemas
+│   └── utils/           # Utilities (axios instance, logger, error mapping)
+├── assets/              # Static assets
+└── test/                # Test setup, utilities, and mirrored test suites
 ```
 
 ## Getting Started

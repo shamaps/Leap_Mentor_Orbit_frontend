@@ -15,6 +15,7 @@ export default defineConfig({
   },
   test: {
     testTimeout: 10000,
+    // bail: 1,
     environment: "jsdom",
     globals: true,
     setupFiles: "./src/test/setup.js",
@@ -23,16 +24,11 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "html", "lcov"],
       reportsDirectory: "./coverage",
-      coverage: {
-        provider: "v8",
-        reporter: ["text", "html", "lcov"],
-        reportsDirectory: "./coverage",
-        include: ["src/**/*.{js,jsx,ts,tsx}"],
-        exclude: [
-          "src/test/**",
-          "src/**/*.test.{js,jsx,ts,tsx}",
-        ],
-      },
+      include: ["src/**/*.{js,jsx,ts,tsx}"],
+      exclude: [
+        "src/test/**",
+        "src/**/*.test.{js,jsx,ts,tsx}",
+      ],
     },
   },
   build: {
