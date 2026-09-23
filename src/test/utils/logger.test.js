@@ -33,7 +33,7 @@ describe("logger — module-load-time branches", () => {
         expect(fetchSpy).toHaveBeenCalledTimes(1);
         const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
         // depth 4 is the cutoff — l5 (depth 5) is returned as-is, unredacted
-        expect(body.context.l1.l2.l3.l4).toEqual({ l5: { token: "secret" } });
+        expect(body.labels.l1.l2.l3.l4).toEqual({ l5: { token: "secret" } });
         fetchSpy.mockRestore();
     });
 });
@@ -123,9 +123,10 @@ describe("logger", () => {
         expect(options.keepalive).toBe(true);
 
         const body = JSON.parse(options.body);
-        expect(body.level).toBe("error");
+        expect(body["log.level"]).toBe("error");
         expect(body.message).toBe("test");
-        expect(body.context).toEqual({ a: 1, token: "[REDACTED]" });
-        expect(body.app).toBe("leapmentor-frontend");
+        expect(body["ecs.version"]).toBeTruthy();
+        expect(body.labels).toEqual({ a: 1, token: "[REDACTED]" });
+        expect(body.service.name).toBe("leapmentor-frontend");
     });
 });

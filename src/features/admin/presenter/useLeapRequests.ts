@@ -27,7 +27,7 @@ export const useLeapRequests = () => {
       const res = await getAllLeapRequests();
       setRequests(res.data.requests || []);
     } catch (err) {
-      logger.error("LeapRequests fetch error", { message: err.message });
+      logger.warn("LeapRequests fetch error", { message: err.message });
     } finally {
       setLoading(false);
     }

@@ -39,7 +39,7 @@ export const useMenteeHomeData = (profile: MenteeHomeProfile | null | undefined)
                 const data = await searchMentors({ skill: skillTerm, limit: 4 });
                 setMentors(data.mentors || []);
             } catch (err) {
-                logger.error("Mentor search fetch failed", { message: err?.message });
+                logger.warn("Mentor search fetch failed", { message: err?.message });
             } finally {
                 setLoadingMentors(false);
             }
@@ -58,7 +58,7 @@ export const useMenteeHomeData = (profile: MenteeHomeProfile | null | undefined)
                     });
                 setSessions(upcoming);
             } catch (err) {
-                logger.error("Sessions fetch failed", { message: err?.message });
+                logger.warn("Sessions fetch failed", { message: err?.message });
             } finally {
                 setLoadingSessions(false);
             }
@@ -71,7 +71,7 @@ export const useMenteeHomeData = (profile: MenteeHomeProfile | null | undefined)
                 setBalance(data.balance ?? 0);
                 setEscrow(data.escrow ?? 0);
             } catch (err) {
-                logger.error("Wallet fetch failed", { message: err?.message });
+                logger.warn("Wallet fetch failed", { message: err?.message });
             } finally {
                 setLoadingWallet(false);
             }

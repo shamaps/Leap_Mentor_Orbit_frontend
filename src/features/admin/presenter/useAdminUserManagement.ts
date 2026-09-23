@@ -45,7 +45,7 @@ export const useAdminUserManagement = () => {
       const res = await getUserStats();
       setStats(res.data);
     } catch (err) {
-      logger.error("Error fetching stats", { err });
+      logger.warn("Error fetching stats", { err });
     }
   }, []);
 
@@ -54,7 +54,7 @@ export const useAdminUserManagement = () => {
       const res = await getUserGrowthData();
       setGrowthData(res.data);
     } catch (err) {
-      logger.error("Failed to fetch growth data", { err });
+      logger.warn("Failed to fetch growth data", { err });
     }
   }, []);
 
@@ -63,7 +63,7 @@ export const useAdminUserManagement = () => {
       const res = await getMentorIndustryStats();
       setIndustryData(res.data);
     } catch (err) {
-      logger.error("Failed to fetch industry data", { err });
+      logger.warn("Failed to fetch industry data", { err });
     }
   }, []);
 
