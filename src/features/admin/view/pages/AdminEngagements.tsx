@@ -4,7 +4,7 @@ import StatCard from "@/shared/components/StatCard";
 // StatCard is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
- 
+
 const StatCardAny = StatCard as any;
 import StatusBadge from "@/shared/components/StatusBadge";
 const FONT = "'DM Sans', sans-serif";

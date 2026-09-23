@@ -1,71 +1,78 @@
 // src/features/admin/presenter/useAdminEngagements.js
-import { useState, useEffect, useCallback, useRef } from "react";
-import { getEngagementStats, getEngagements } from "../model/admin.api";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useLoaderData, useSearchParams, useNavigation } from "react-router-dom";
 import { useToast } from "@/shared/context/ToastContext";
 
 export const useAdminEngagements = () => {
-  const [stats, setStats] = useState<any>(null);
-  const [engagements, setEngagements] = useState<any[]>([]);
-  const [pagination, setPagination] = useState({ total: 0, page: 1, totalPages: 1 });
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Initial (and every subsequent filter/page) fetch is done by
+  // adminEngagementsLoader — see App.tsx's "/admin/engagements" route.
+  const { engagements, pagination, stats, error } = useLoaderData() as {
+    engagements: any[];
+    pagination: { total: number; page: number; totalPages: number };
+    stats: any;
+    error: string | null;
+  };
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigation = useNavigation();
   const { showToast } = useToast();
 
-  // ── Fetch stats ───────────────────────────────────────────
-  const fetchStats = useCallback(async () => {
-    try {
-      const res = await getEngagementStats();
-      setStats(res.data);
-    } catch { showToast({ message: "Failed to load stats.", type: "error" }); }
-  }, []);
+  const search = searchParams.get("search") ?? "";
+  const statusFilter = searchParams.get("status") ?? "";
+  const dateFrom = searchParams.get("dateFrom") ?? "";
+  const dateTo = searchParams.get("dateTo") ?? "";
+  const loading = navigation.state !== "idle";
 
-  // ── Fetch engagements ─────────────────────────────────────
-  const fetchEngagements = useCallback(async (
-    page = 1,
-    q = search,
-    status = statusFilter,
-    from = dateFrom,
-    to = dateTo,
-  ) => {
-    try {
-      setLoading(true);
-      const params: { page: number; limit: number; search?: string; status?: string; dateFrom?: string; dateTo?: string } = { page, limit: 15 };
-      if (q) params.search = q;
-      if (status) params.status = status;
-      if (from) params.dateFrom = from;
-      if (to) params.dateTo = to;
-      const res = await getEngagements(params);
-      setEngagements(res.data.engagements);
-      setPagination(res.data.pagination);
-    } catch {
-      showToast({ type: "error", message: "Failed to load engagements." });
-    } finally {
-      setLoading(false);
-    }
-  }, [search, statusFilter, dateFrom, dateTo]);
+  const [searchInput, setSearchInput] = useState(search);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => { fetchStats(); fetchEngagements(); }, []);
+  useEffect(() => {
+    if (error) showToast({ message: error, type: "error" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
+
+  const updateParams = useCallback(
+    (next: { page?: number; search?: string; status?: string; dateFrom?: string; dateTo?: string }) => {
+      const params = new URLSearchParams(searchParams);
+      if (next.page !== undefined) params.set("page", String(next.page));
+      if (next.search !== undefined) {
+        if (next.search) params.set("search", next.search);
+        else params.delete("search");
+      }
+      if (next.status !== undefined) {
+        if (next.status) params.set("status", next.status);
+        else params.delete("status");
+      }
+      if (next.dateFrom !== undefined) {
+        if (next.dateFrom) params.set("dateFrom", next.dateFrom);
+        else params.delete("dateFrom");
+      }
+      if (next.dateTo !== undefined) {
+        if (next.dateTo) params.set("dateTo", next.dateTo);
+        else params.delete("dateTo");
+      }
+      setSearchParams(params);
+    },
+    [searchParams, setSearchParams],
+  );
+
+  const fetchEngagements = useCallback(
+    (page = 1) => updateParams({ page }),
+    [updateParams],
+  );
 
   const handleSearch = (val: string) => {
-    setSearch(val);
+    setSearchInput(val);
     if (searchTimer.current) clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => fetchEngagements(1, val, statusFilter, dateFrom, dateTo), 400);
+    searchTimer.current = setTimeout(() => updateParams({ page: 1, search: val }), 400);
   };
 
   const handleStatusFilter = (s: string) => {
-    setStatusFilter(s);
-    fetchEngagements(1, search, s, dateFrom, dateTo);
+    updateParams({ page: 1, status: s });
   };
 
   const handleDateFilter = (from: string, to: string) => {
-    setDateFrom(from);
-    setDateTo(to);
-    fetchEngagements(1, search, statusFilter, from, to);
+    updateParams({ page: 1, dateFrom: from, dateTo: to });
   };
 
   const toggleExpand = (id: string) => setExpandedId((prev) => (prev === id ? null : id));
@@ -74,7 +81,7 @@ export const useAdminEngagements = () => {
     stats,
     engagements,
     pagination,
-    search,
+    search: searchInput,
     statusFilter,
     dateFrom,
     dateTo,

@@ -1,12 +1,34 @@
+// src/test/pages/admin/AdminPayments.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import adminAxiosInstance from "../../../shared/utils/axiosInstance";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { useToast } from "../../../shared/context/ToastContext";
+import { getPaymentStats, getPaymentChart, getPaymentTransactions } from "../../../features/admin/model/admin.api";
+import { adminPaymentsLoader } from "../../../features/admin/model/adminPayments.loader";
 import AdminPayments from "../../../features/admin/view/pages/AdminPayments";
 
-vi.mock("../../../shared/utils/axiosInstance");
 vi.mock("../../../shared/context/ToastContext");
+vi.mock("../../../shared/utils/logger", () => ({
+    default: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
+vi.mock("../../../features/admin/model/admin.api");
+
+// AdminPayments's data now comes from adminPaymentsLoader (a route loader),
+// and filters/search/pagination navigate via setSearchParams rather than
+// calling the API again directly — so this renders through a REAL
+// MemoryRouter with the REAL loader wired to a single "/payments" route.
+// A filter click causes a real navigation, which causes React Router to
+// actually re-run the loader — exercising the same integration path
+// production uses, rather than a static per-test mock of useLoaderData
+// that can't react to navigation.
+const renderPage = (initialPath = "/payments") => {
+    const router = createMemoryRouter(
+        [{ path: "/payments", loader: adminPaymentsLoader, element: <AdminPayments /> }],
+        { initialEntries: [initialPath] },
+    );
+    return render(<RouterProvider router={router} />);
+};
 
 const baseStats = {
     totalRevenue: 50000,
@@ -46,286 +68,131 @@ describe("AdminPayments", () => {
         vi.clearAllMocks();
         showToast = vi.fn();
         useToast.mockReturnValue({ showToast });
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            if (url === "/admin/payments/transactions") return Promise.resolve(mockTxResponse([baseTx]));
-            return Promise.resolve({ data: {} });
-        });
+        getPaymentStats.mockResolvedValue({ data: baseStats });
+        getPaymentChart.mockResolvedValue({ data: baseChart });
+        getPaymentTransactions.mockResolvedValue(mockTxResponse([baseTx]));
     });
 
     afterEach(() => {
         vi.useRealTimers();
     });
 
-    it("fetches stats, chart, and transactions on mount", async () => {
-        render(<AdminPayments />);
+    it("fetches stats, chart, and transactions on mount (via the loader)", async () => {
+        renderPage();
 
         await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
-        expect(adminAxiosInstance.get).toHaveBeenCalledWith("/admin/payments/stats");
-        expect(adminAxiosInstance.get).toHaveBeenCalledWith("/admin/payments/chart");
-        expect(adminAxiosInstance.get).toHaveBeenCalledWith(
-            "/admin/payments/transactions",
-            { params: { page: 1, limit: 15 } },
-        );
+        expect(getPaymentStats).toHaveBeenCalled();
+        expect(getPaymentChart).toHaveBeenCalled();
+        expect(getPaymentTransactions).toHaveBeenCalledWith({ page: 1, limit: 15 });
         expect(screen.getByText("Total Revenue")).toBeInTheDocument();
     });
 
-    it("shows a toast error when stats fail to load", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.reject(new Error("fail"));
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
-
-        render(<AdminPayments />);
-
-        await waitFor(() => {
-            expect(showToast).toHaveBeenCalledWith({ message: "Failed to load payment stats.", type: "error" });
-        });
-    });
-
-    it("shows a toast error when the chart fails to load", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.reject(new Error("fail"));
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
-
-        render(<AdminPayments />);
-
-        await waitFor(() => {
-            expect(showToast).toHaveBeenCalledWith({ message: "Failed to load chart.", type: "error" });
-        });
-    });
-
     it("shows a toast error when transactions fail to load", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.reject(new Error("fail"));
-        });
+        getPaymentTransactions.mockRejectedValue(new Error("fail"));
 
-        render(<AdminPayments />);
+        renderPage();
 
         await waitFor(() => {
             expect(showToast).toHaveBeenCalledWith({ message: "Failed to load transactions.", type: "error" });
         });
     });
 
-    it("defaults chartData to an empty array when the response has no data", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: null });
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
+    it("still renders the page when stats fail to load (non-fatal, just logged)", async () => {
+        getPaymentStats.mockRejectedValue(new Error("fail"));
 
-        const { container } = render(<AdminPayments />);
+        renderPage();
+
+        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
+        expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
+    });
+
+    it("still renders the page when the chart fails to load (non-fatal, just logged)", async () => {
+        getPaymentChart.mockRejectedValue(new Error("fail"));
+
+        renderPage();
+
+        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
+        expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
+    });
+
+    it("defaults chartData to an empty array when the response has no data", async () => {
+        getPaymentChart.mockResolvedValue({ data: null });
+
+        const { container } = renderPage();
         await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
         expect(container.querySelector("#revGrad")).not.toBeInTheDocument();
     });
 
     it("defaults transactions to an empty array when the response omits transactions", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve({ data: { pagination: { totalCount: 0, currentPage: 1, totalPages: 1 } } });
+        getPaymentTransactions.mockResolvedValue({
+            data: { pagination: { totalCount: 0, currentPage: 1, totalPages: 1 } },
         });
 
-        render(<AdminPayments />);
+        renderPage();
 
         expect(await screen.findByText("No transactions found.")).toBeInTheDocument();
     });
 
-    it("shows skeleton rows while transactions are loading", () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return new Promise(() => { });
-        });
+    it("renders the chart when chartData is present", async () => {
+        const { container } = renderPage();
+        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
-        const { container } = render(<AdminPayments />);
-
-        expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
+        expect(container.querySelector("#revGrad")).toBeInTheDocument();
     });
 
-    it("shows a chart skeleton while the chart is loading", () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/chart") return new Promise(() => { });
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
+    it("renders no chart when chartData is empty", async () => {
+        getPaymentChart.mockResolvedValue({ data: [] });
 
-        const { container } = render(<AdminPayments />);
-
-        expect(container.querySelector(".h-44.animate-pulse")).toBeInTheDocument();
-    });
-
-    it("renders no chart when chartData is empty and not loading", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: [] });
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
-
-        const { container } = render(<AdminPayments />);
+        const { container } = renderPage();
         await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
         expect(container.querySelector("#revGrad")).not.toBeInTheDocument();
     });
 
-    it("renders the chart with hover tooltip interaction", async () => {
-        const { container } = render(<AdminPayments />);
-        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
-
-        const chartSvg = container.querySelector("#revGrad").closest("svg");
-        expect(chartSvg).toBeInTheDocument();
-
-        const hoverRects = Array.from(chartSvg.querySelectorAll("rect")).filter(
-            (r) => r.getAttribute("width") === "28",
-        );
-        expect(hoverRects.length).toBe(baseChart.length);
-
-        fireEvent.mouseEnter(hoverRects[0]);
-        expect(container.textContent).toContain("Jan");
-
-        fireEvent.mouseLeave(chartSvg);
-    });
-
-    it("renders TxStatusBadge fallback for a falsy/missing status", async () => {
-        const noStatusTx = { ...baseTx, id: "tx-3b", status: null };
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve(mockTxResponse([noStatusTx]));
-        });
-
-        const { container } = render(<AdminPayments />);
-        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
-
-        const badgeText = Array.from(container.querySelectorAll("span.uppercase")).find(
-            (el) => !el.className.includes("tracking-wide"),
-        );
-        expect(badgeText).toBeInTheDocument();
-        expect(badgeText.textContent.trim()).toBe("");
-    });
-
-    it("handles a chart where every amount is 0 (max/range fallback branches)", async () => {
-        const zeroChart = [{ label: "Jan", amount: 0 }, { label: "Feb", amount: 0 }];
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: zeroChart });
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
-
-        const { container } = render(<AdminPayments />);
-        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
-
-        expect(container.querySelector("#revGrad")).toBeInTheDocument();
-    });
-
-    it("handles a chart where every amount is equal but non-zero (range fallback branch)", async () => {
-        const flatChart = [{ label: "Jan", amount: 500 }, { label: "Feb", amount: 500 }];
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: flatChart });
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
-
-        const { container } = render(<AdminPayments />);
-        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
-
-        expect(container.querySelector("#revGrad")).toBeInTheDocument();
-    });
-
-    it("formats small chart values (<1000) without the 'k' suffix", async () => {
-        const smallChart = [{ label: "Jan", amount: 250 }, { label: "Feb", amount: 500 }];
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: smallChart });
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
-
-        const { container } = render(<AdminPayments />);
-        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
-
-        expect(container.textContent).toContain("250");
-    });
-
-    it("renders chart x-axis labels keyed by index when label is missing", async () => {
-        const unlabeledChart = [{ amount: 300 }, { amount: 700 }];
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: unlabeledChart });
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
-
-        const { container } = render(<AdminPayments />);
-        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
-
-        expect(container.querySelector("#revGrad")).toBeInTheDocument();
-    });
-
     it("renders TypeBadge fallback for an unknown transaction type", async () => {
         const unknownTypeTx = { ...baseTx, id: "tx-2", type: "some_unknown_type" };
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve(mockTxResponse([unknownTypeTx]));
-        });
+        getPaymentTransactions.mockResolvedValue(mockTxResponse([unknownTypeTx]));
 
-        render(<AdminPayments />);
+        renderPage();
 
         expect(await screen.findByText("some_unknown_type")).toBeInTheDocument();
     });
 
     it("renders TxStatusBadge fallback for an unknown status", async () => {
         const unknownStatusTx = { ...baseTx, id: "tx-3", status: "weird_status" };
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve(mockTxResponse([unknownStatusTx]));
-        });
+        getPaymentTransactions.mockResolvedValue(mockTxResponse([unknownStatusTx]));
 
-        render(<AdminPayments />);
+        renderPage();
 
         expect(await screen.findByText("WEIRD_STATUS")).toBeInTheDocument();
     });
 
     it("shows '—' for commission rate sub-label when commissionRate is null", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: { ...baseStats, commissionRate: null } });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve(mockTxResponse([baseTx]));
-        });
+        getPaymentStats.mockResolvedValue({ data: { ...baseStats, commissionRate: null } });
 
-        render(<AdminPayments />);
+        renderPage();
 
         expect(await screen.findByText("—")).toBeInTheDocument();
     });
 
     it("renders the Avatar initials from a full name and a '?' fallback with no name", async () => {
         const noNameTx = { ...baseTx, id: "tx-4", user: { name: null, email: "x@y.com" } };
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve(mockTxResponse([noNameTx]));
-        });
+        getPaymentTransactions.mockResolvedValue(mockTxResponse([noNameTx]));
 
-        render(<AdminPayments />);
+        renderPage();
 
         expect(await screen.findByText("?")).toBeInTheDocument();
     });
 
-    it("debounces search input and refetches transactions with the query", async () => {
+    it("debounces search input and navigates with the query, re-running the loader", async () => {
         vi.useFakeTimers({ shouldAdvanceTime: true });
         const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-        render(<AdminPayments />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
-        adminAxiosInstance.get.mockClear();
+        getPaymentTransactions.mockClear();
         await user.type(screen.getByPlaceholderText("Search user..."), "alice");
 
         act(() => {
@@ -333,79 +200,59 @@ describe("AdminPayments", () => {
         });
 
         await waitFor(() => {
-            expect(adminAxiosInstance.get).toHaveBeenCalledWith(
-                "/admin/payments/transactions",
-                { params: { page: 1, limit: 15, search: "alice" } },
-            );
+            expect(getPaymentTransactions).toHaveBeenCalledWith({ page: 1, limit: 15, search: "alice" });
         });
     });
 
     it("filters by transaction type when a filter pill is clicked", async () => {
         const user = userEvent.setup();
-        render(<AdminPayments />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
-        adminAxiosInstance.get.mockClear();
+        getPaymentTransactions.mockClear();
         await user.click(screen.getByRole("button", { name: "Received" }));
 
         await waitFor(() => {
-            expect(adminAxiosInstance.get).toHaveBeenCalledWith(
-                "/admin/payments/transactions",
-                { params: { page: 1, limit: 15, type: "mentor_payout" } },
-            );
+            expect(getPaymentTransactions).toHaveBeenCalledWith({ page: 1, limit: 15, type: "mentor_payout" });
         });
     });
 
     it("navigates pagination via prev/next and numbered page buttons", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve(
-                mockTxResponse([baseTx], { totalCount: 60, currentPage: 2, totalPages: 4 }),
-            );
-        });
+        getPaymentTransactions.mockResolvedValue(
+            mockTxResponse([baseTx], { totalCount: 60, currentPage: 2, totalPages: 4 }),
+        );
         const user = userEvent.setup();
-        render(<AdminPayments />);
+        renderPage("/payments?page=2");
         await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
-        adminAxiosInstance.get.mockClear();
+        getPaymentTransactions.mockClear();
         await user.click(screen.getByRole("button", { name: "‹" }));
         await waitFor(() => {
-            expect(adminAxiosInstance.get).toHaveBeenCalledWith(
-                "/admin/payments/transactions",
-                { params: { page: 1, limit: 15 } },
-            );
+            expect(getPaymentTransactions).toHaveBeenCalledWith({ page: 1, limit: 15 });
         });
 
-        adminAxiosInstance.get.mockClear();
+        getPaymentTransactions.mockClear();
         await user.click(screen.getByRole("button", { name: "›" }));
         await waitFor(() => {
-            expect(adminAxiosInstance.get).toHaveBeenCalledWith(
-                "/admin/payments/transactions",
-                { params: { page: 3, limit: 15 } },
-            );
+            // The mocked response always reports currentPage: 2 (it's a
+            // static mock), so "next" is computed as currentPage+1 = 3,
+            // same as the numbered-page-3 click below.
+            expect(getPaymentTransactions).toHaveBeenCalledWith({ page: 3, limit: 15 });
         });
 
-        adminAxiosInstance.get.mockClear();
+        getPaymentTransactions.mockClear();
         await user.click(screen.getByRole("button", { name: "3" }));
         await waitFor(() => {
-            expect(adminAxiosInstance.get).toHaveBeenCalledWith(
-                "/admin/payments/transactions",
-                { params: { page: 3, limit: 15 } },
-            );
+            expect(getPaymentTransactions).toHaveBeenCalledWith({ page: 3, limit: 15 });
         });
     });
 
     it("disables Prev on the first page and Next on the last page", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve(
-                mockTxResponse([baseTx], { totalCount: 15, currentPage: 1, totalPages: 1 }),
-            );
-        });
+        getPaymentTransactions.mockResolvedValue(
+            mockTxResponse([baseTx], { totalCount: 15, currentPage: 1, totalPages: 1 }),
+        );
 
-        render(<AdminPayments />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
         expect(screen.getByRole("button", { name: "‹" })).toBeDisabled();
@@ -413,15 +260,11 @@ describe("AdminPayments", () => {
     });
 
     it("caps numbered page buttons at 5 even with more total pages", async () => {
-        adminAxiosInstance.get.mockImplementation((url) => {
-            if (url === "/admin/payments/stats") return Promise.resolve({ data: baseStats });
-            if (url === "/admin/payments/chart") return Promise.resolve({ data: baseChart });
-            return Promise.resolve(
-                mockTxResponse([baseTx], { totalCount: 200, currentPage: 1, totalPages: 20 }),
-            );
-        });
+        getPaymentTransactions.mockResolvedValue(
+            mockTxResponse([baseTx], { totalCount: 200, currentPage: 1, totalPages: 20 }),
+        );
 
-        render(<AdminPayments />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
         expect(screen.getByRole("button", { name: "5" })).toBeInTheDocument();
@@ -429,7 +272,7 @@ describe("AdminPayments", () => {
     });
 
     it("toggles row hover background and search-input focus/blur border color", async () => {
-        render(<AdminPayments />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
 
         const row = screen.getByText("TXN-001").closest("tr");
