@@ -29,12 +29,26 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY in .env");
 }
 
+// Sentry is only actually active when enabled (PROD) and a DSN is
+// configured — don't claim "our team has been notified" otherwise.
+const SENTRY_ACTIVE = Boolean(import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN);
+
 // eslint-disable-next-line react-refresh/only-export-components -- app entry point, not a hot-reloaded component module
 const SentryErrorFallback = () => (
   <div className="min-h-screen flex items-center justify-center">
-    <p className="text-slate-500 text-sm">
-      Something went wrong. Our team has been notified.
-    </p>
+    <div className="flex flex-col items-center gap-4 text-center max-w-sm px-4">
+      <p className="text-slate-500 text-sm">
+        {SENTRY_ACTIVE
+          ? "Something went wrong. Our team has been notified."
+          : "Something went wrong. Please reload the page."}
+      </p>
+      <button
+        onClick={() => window.location.reload()}
+        className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+      >
+        Reload page
+      </button>
+    </div>
   </div>
 );
 
