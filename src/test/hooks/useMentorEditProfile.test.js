@@ -85,6 +85,7 @@ describe("useMentorEditProfile", () => {
                 profilePicture: "",
                 bio: "",
                 currentRole: "",
+                education: "",
                 industry: "",
                 company: "",
                 yearsOfExperience: "",

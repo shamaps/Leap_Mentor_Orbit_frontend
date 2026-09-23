@@ -72,7 +72,7 @@ const transformPayloadItem = (item: RawNotificationPayload): NotificationItem =>
 };
 
 export const useNotifications = (staticFallback: NotificationItem[]) => {
-    const [notifications, setNotifications] = useState < NotificationItem[] > ([]);
+    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [useStatic, setUseStatic] = useState(false);
@@ -104,7 +104,7 @@ export const useNotifications = (staticFallback: NotificationItem[]) => {
             if (!useStatic) await notificationsApi.markAllNotificationsRead();
             setNotifications((currentList) => currentList.map((item) => ({ ...item, read: true })));
         } catch (err: any) {
-            logger.warn("Failed to mark all notifications read", { message: err?.message });
+            logger.error("Failed to mark all notifications read", { message: err?.message });
             setError("Failed to mark all as read. Please try again.");
         }
     };
@@ -114,7 +114,7 @@ export const useNotifications = (staticFallback: NotificationItem[]) => {
             if (!useStatic) await notificationsApi.clearAllNotifications();
             setNotifications([]);
         } catch (err: any) {
-            logger.warn("Failed to clear notifications", { message: err?.message });
+            logger.error("Failed to clear notifications", { message: err?.message });
             setError("Failed to clear notifications. Please try again.");
         }
     };
@@ -126,7 +126,7 @@ export const useNotifications = (staticFallback: NotificationItem[]) => {
                 currentList.map((item) => (item.id === targetId ? { ...item, read: true } : item)),
             );
         } catch (err: any) {
-            logger.warn("Failed to mark notification read", { message: err?.message, targetId });
+            logger.error("Failed to mark notification read", { message: err?.message, targetId });
             setError("Failed to mark as read. Please try again.");
         }
     };
@@ -136,7 +136,7 @@ export const useNotifications = (staticFallback: NotificationItem[]) => {
             if (!useStatic) await notificationsApi.deleteNotification(targetId);
             setNotifications((currentList) => currentList.filter((item) => item.id !== targetId));
         } catch (err: any) {
-            logger.warn("Failed to delete notification", { message: err?.message, targetId });
+            logger.error("Failed to delete notification", { message: err?.message, targetId });
             setError("Failed to delete notification. Please try again.");
         }
     };

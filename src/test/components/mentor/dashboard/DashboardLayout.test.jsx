@@ -5,6 +5,19 @@ import DashboardLayout from "../../../../features/mentor/view/components/dashboa
 import useMentorDashboard from "../../../../features/mentor/presenter/useMentorDashboard";
 import useUnreadCount from "../../../../features/shared-dashboard/presenter/useUnreadCount";
 
+// DashboardLayout calls useNavigation() to drive a top-level nav indicator.
+// useNavigation only works under a data router (createBrowserRouter/
+// createMemoryRouter); this test renders under a plain <BrowserRouter>, so
+// the hook must be stubbed. useSearchParams and everything else from
+// react-router-dom stay real.
+vi.mock("react-router-dom", async () => {
+    const actual = await vi.importActual("react-router-dom");
+    return {
+        ...actual,
+        useNavigation: () => ({ state: "idle" }),
+    };
+});
+
 // Mock dependent hooks
 vi.mock("../../../../features/mentor/presenter/useMentorDashboard", () => ({ default: vi.fn() }));
 vi.mock("../../../../features/shared-dashboard/presenter/useUnreadCount", () => ({ default: vi.fn() }));

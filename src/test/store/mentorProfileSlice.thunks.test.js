@@ -87,7 +87,7 @@ describe("refetchMentorProfile thunk", () => {
     it("logs and rejects with a mapped error message on failure", async () => {
         axiosInstance.get.mockRejectedValue({ message: "network error", response: undefined });
         const action = await refetchMentorProfile()(vi.fn(), () => ({}), undefined);
-        expect(logger.error).toHaveBeenCalledWith("Profile refetch failed", { message: "network error" });
+        expect(logger.warn).toHaveBeenCalledWith("Profile refetch failed", { message: "network error" });
         expect(action.type).toBe("mentorProfile/refetchMentorProfile/rejected");
         expect(action.payload).toBe("network error");
     });

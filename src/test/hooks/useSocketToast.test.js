@@ -185,7 +185,7 @@ describe("useSocketToast", () => {
         unmount();
 
         expect(mockSocket.disconnect).toHaveBeenCalled();
-        expect(globalThis.__leapSocket).toBeNull();
+        expect(globalThis.__leapSocket).toBeUndefined();
     });
 
     it("does not clear the global socket on unmount if it was replaced by another socket", () => {

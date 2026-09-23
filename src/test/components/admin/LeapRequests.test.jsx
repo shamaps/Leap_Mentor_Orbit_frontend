@@ -61,7 +61,7 @@ vi.mock("../../../shared/utils/axiosInstance", () => ({
 // Mock logger out of terminal console streams[cite: 4]
 vi.mock("../../../shared/utils/logger", () => ({
     default: {
-        error: vi.fn(),
+        warn: vi.fn(),
     },
 }));
 

@@ -49,6 +49,7 @@ vi.mock("../features/auth/view/components/ProtectedRoute", () => ({
 
 vi.mock("@sentry/react", () => ({
     setUser: vi.fn(),
+    captureException: vi.fn(),
     ErrorBoundary: ({ children }) => children,
 }));
 
@@ -65,23 +66,40 @@ vi.mock("../app/store/selectors", () => ({
 }));
 
 vi.mock("../app/store/slices/authSlice", () => ({
+    default: (state = { token: null, user: null, isBootstrapped: false }) => state,
     setToken: (payload) => ({ type: "auth/setToken", payload }),
     setUser: (payload) => ({ type: "auth/setUser", payload }),
     setBootstrapped: () => ({ type: "auth/setBootstrapped" }),
 }));
 
 const mockPost = vi.fn();
+// `get` is needed too: navigating to /admin/* renders AdminRoute, which calls
+// getCurrentAdmin() (a GET) on mount to verify the session. Without a `get`
+// handler here that call throws, the session check reports "denied", and
+// AdminRoute redirects to /admin/login before AdminLayout ever renders.
+const mockGet = vi.fn(() => Promise.resolve({ data: {} }));
 vi.mock("../shared/utils/axiosInstance", () => ({
-    default: { post: (...args) => mockPost(...args) },
+    default: { post: (...args) => mockPost(...args), get: (...args) => mockGet(...args) },
+    injectStore: vi.fn(),
 }));
 
 import App from "../app/App";
+
+// createBrowserRouter's internal history only reacts to real `popstate`
+// events, not to raw history.pushState() calls. Since router.tsx creates
+// the router once at module scope (shared across every test in this file),
+// each test must fire a popstate event after pushState so the router
+// actually re-evaluates the new location.
+const navigateTo = (path) => {
+    window.history.pushState({}, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+};
 
 describe("App", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockToken = null;
-        window.history.pushState({}, "", "/");
+        navigateTo("/");
     });
 
     it("renders the GlobalErrorBanner", async () => {
@@ -144,7 +162,7 @@ describe("App", () => {
 
     it("renders the Home page at the root path", async () => {
         mockToken = "token";
-        window.history.pushState({}, "", "/");
+        navigateTo("/");
         render(<App />);
 
         await waitFor(() => {
@@ -154,7 +172,7 @@ describe("App", () => {
 
     it("renders NotFound for an unmatched route", async () => {
         mockToken = "token";
-        window.history.pushState({}, "", "/this-route-does-not-exist");
+        navigateTo("/this-route-does-not-exist");
         render(<App />);
 
         await waitFor(() => {
@@ -164,7 +182,7 @@ describe("App", () => {
 
     it("renders the shared dashboard route without wrapping it in ProtectedRoute", async () => {
         mockToken = "token";
-        window.history.pushState({}, "", "/shared-dashboard/req-123");
+        navigateTo("/shared-dashboard/req-123");
         render(<App />);
 
         await waitFor(() => {
@@ -175,7 +193,7 @@ describe("App", () => {
 
     it("wraps the mentor dashboard route in ProtectedRoute", async () => {
         mockToken = "token";
-        window.history.pushState({}, "", "/dashboard/mentor");
+        navigateTo("/dashboard/mentor");
         render(<App />);
 
         await waitFor(() => {
@@ -186,7 +204,7 @@ describe("App", () => {
 
     it("wraps admin routes in AdminRoute and AdminLayout", async () => {
         mockToken = "token";
-        window.history.pushState({}, "", "/admin/users");
+        navigateTo("/admin/users");
         render(<App />);
 
         await waitFor(() => {

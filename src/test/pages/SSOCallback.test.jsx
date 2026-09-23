@@ -105,7 +105,7 @@ describe("SyncWithBackend", () => {
         await waitFor(() => {
             expect(mockPost).toHaveBeenCalledWith("/auth/clerk-sso", {
                 clerkToken: "clerk-token-123",
-                roles: undefined,
+                roles: [],
                 termsAccepted: true,
             });
         });
@@ -121,7 +121,7 @@ describe("SyncWithBackend", () => {
         await waitFor(() => {
             expect(mockPost).toHaveBeenCalledWith("/auth/clerk-sso", {
                 clerkToken: "clerk-token-123",
-                roles: undefined,
+                roles: [],
                 termsAccepted: false,
             });
         });

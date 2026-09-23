@@ -1,5 +1,5 @@
 // src/features/admin/view/components/AdminLayout.jsx
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigation } from "react-router-dom";
 import { useAdminLayout } from "../../presenter/useAdminLayout";
 import { IMAGES } from "@/shared/constants/images";
 import RouteErrorBoundary from "@/shared/components/RouteErrorBoundary";
@@ -184,6 +184,11 @@ const AdminLayout = () => {
     handleLogout,
     closeSidebar,
   } = useAdminLayout();
+  // Distinguishes "navigating to another admin page / re-running a loader"
+  // from the app's one-time first-paint Suspense fallback in App.tsx — a
+  // thin top bar instead of blanking the whole page on every nav.
+  const navigation = useNavigation();
+  const isNavigating = navigation.state !== "idle";
 
   return (
     <div
@@ -376,6 +381,14 @@ const AdminLayout = () => {
           MAIN CONTENT
       ══════════════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Top navigation-pending bar — shown while a loader/action for
+            this admin subtree is in flight (filter/page change, a mutation
+            revalidating, or a route transition). */}
+        {isNavigating && (
+          <div className="h-0.5 w-full bg-blue-100 overflow-hidden flex-shrink-0">
+            <div className="h-full w-1/3 bg-blue-600 animate-pulse" />
+          </div>
+        )}
         {/* Top bar */}
         <header
           className="flex items-center justify-between px-4 lg:px-8 py-4 flex-shrink-0"

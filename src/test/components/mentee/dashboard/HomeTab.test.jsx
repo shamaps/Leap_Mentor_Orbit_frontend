@@ -191,16 +191,14 @@ describe("HomeTab", () => {
         const event = dispatchSpy.mock.calls.at(-1)[0];
         expect(event.type).toBe("setDashboardTab");
         expect(event.detail).toBe("findMentors");
-    });
-
-    it("renders mentor cards and opens the mentor modal on click", () => {
+    }); it("renders mentor cards and opens the mentor modal on click", () => {
         setSelector();
         useMenteeHomeData.mockReturnValue({
             ...baseHomeData,
             mentors: [
                 {
                     id: "m1",
-                    user: { name: "Alex Ray" },
+                    name: "Alex Ray",
                     currentRole: "Senior Engineer",
                     company: "Acme",
                     skills: ["React", "Node", "SQL"],

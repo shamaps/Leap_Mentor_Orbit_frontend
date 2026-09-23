@@ -22,6 +22,3 @@ export const deleteNotification = async (id: string): Promise<void> => {
     await axiosInstance.delete(`/notifications/${id}`);
 };
 
-export const subscribeToPush = async (subscription: PushSubscription): Promise<void> => {
-    await axiosInstance.post("/push/subscribe", { subscription });
-};

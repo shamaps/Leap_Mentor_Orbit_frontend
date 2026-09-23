@@ -83,7 +83,16 @@ describe("SharedNotesTab", () => {
         const { container } = render(<SharedNotesTab />);
         expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
     });
+    it("hides the uploading spinner and re-enables the button after upload completes", () => {
+        mockUseNotesReturn = { ...mockUseNotesReturn, notes: [makeNote()], uploading: true };
+        const { rerender } = render(<SharedNotesTab />);
+        fireEvent.click(screen.getByText("Upload File", { selector: "button:not([disabled])" }));
+        expect(screen.getByText("Uploading...")).toBeInTheDocument();
 
+        mockUseNotesReturn = { ...mockUseNotesReturn, notes: [makeNote()], uploading: false };
+        rerender(<SharedNotesTab />);
+        expect(screen.queryByText("Uploading...")).not.toBeInTheDocument();
+    });
     it("renders a note card with title, uploader tag, size and date", () => {
         mockUseNotesReturn = { ...mockUseNotesReturn, notes: [makeNote()] };
         render(<SharedNotesTab />);

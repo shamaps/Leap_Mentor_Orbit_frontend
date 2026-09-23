@@ -4,7 +4,7 @@ import useMentorDashboard from "@/features/mentor/presenter/useMentorDashboard";
 import useUnreadCount from "@/features/shared-dashboard/presenter/useUnreadCount";
 import DashboardTopbar from "@/shared/components/DashboardTopbar";
 import useSocketToast from "@/features/shared-dashboard/presenter/useSocketToast";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigation } from "react-router-dom";
 import { Home, User, Calendar, Bell, MessageSquare, Users, DollarSign } from "lucide-react";
 import DashboardSidebar from "@/shared/components/DashboardSidebar";
 import ErrorState from "@/shared/components/ErrorState";
@@ -57,6 +57,8 @@ const DashboardLayout = () => {
   const { unreadCount, clearBadge } = useUnreadCount();
   useSocketToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigation = useNavigation();
+  const isNavigating = navigation.state !== "idle";
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -116,6 +118,15 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Route-level navigation pending indicator — shown while navigating
+          away from this page (e.g. to /dashboard/mentor/edit-profile),
+          same pattern as AdminLayout's. Tab switches don't trigger this,
+          since they're local state, not a route navigation. */}
+      {isNavigating && (
+        <div className="h-0.5 w-full bg-blue-100 overflow-hidden flex-shrink-0">
+          <div className="h-full w-1/3 bg-blue-600 animate-pulse" />
+        </div>
+      )}
       <DashboardTopbar onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
       <div className="flex flex-1">
         <DashboardSidebar navItems={MENTOR_NAV_ITEMS} activeTab={activeTab} setActiveTab={handleSetTab} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} unreadCount={unreadCount} />

@@ -79,7 +79,7 @@ describe("useSessions", () => {
     });
 
     it("falls back to the generic load-error message when the server gives none", async () => {
-        sessionsApi.getSlots.mockRejectedValueOnce(new Error("network down"));
+        sessionsApi.getSlots.mockRejectedValueOnce({});
         const { result } = renderHook(() => useSessions(CR_ID));
         await flush();
 
@@ -213,7 +213,7 @@ describe("useSessions", () => {
     });
 
     it("setMeetingLink: falls back to the generic save-error message", async () => {
-        sessionsApi.setSlotMeetingLink.mockRejectedValueOnce(new Error("boom"));
+        sessionsApi.setSlotMeetingLink.mockRejectedValueOnce({});
         const { result } = renderHook(() => useSessions(CR_ID));
         await flush();
 
@@ -262,7 +262,7 @@ describe("useSessions", () => {
     });
 
     it("markSlotComplete: falls back to the generic complete-error message", async () => {
-        sessionsApi.markSlotComplete.mockRejectedValueOnce(new Error("boom"));
+        sessionsApi.markSlotComplete.mockRejectedValueOnce({});
         const { result } = renderHook(() => useSessions(CR_ID));
         await flush();
 
@@ -342,7 +342,7 @@ describe("useSessions", () => {
     });
 
     it("addSlot: falls back to the generic add-error message", async () => {
-        sessionsApi.addSlot.mockRejectedValueOnce(new Error("boom"));
+        sessionsApi.addSlot.mockRejectedValueOnce({});
         const { result } = renderHook(() => useSessions(CR_ID));
         await flush();
 
@@ -407,7 +407,7 @@ describe("useSessions", () => {
     });
 
     it("cancelSlot: falls back to the generic cancel-error message", async () => {
-        sessionsApi.cancelSlot.mockRejectedValueOnce(new Error("boom"));
+        sessionsApi.cancelSlot.mockRejectedValueOnce({});
         const { result } = renderHook(() => useSessions(CR_ID));
         await flush();
 
@@ -466,7 +466,7 @@ describe("useSessions", () => {
     });
 
     it("rescheduleSlot: falls back to the generic reschedule-error message", async () => {
-        sessionsApi.rescheduleSlot.mockRejectedValueOnce(new Error("boom"));
+        sessionsApi.rescheduleSlot.mockRejectedValueOnce({});
         const { result } = renderHook(() => useSessions(CR_ID));
         await flush();
 

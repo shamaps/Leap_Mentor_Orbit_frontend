@@ -45,8 +45,12 @@ describe("MentorshipPrefsCard", () => {
     it("falls back to the Redux mentor profile when no profile prop is passed", () => {
         render(<MentorshipPrefsCard />);
 
-        expect(screen.getByText("email")).toBeInTheDocument();
-        expect(screen.getByText("chat")).toBeInTheDocument();
+        expect(
+            screen.getByText((text, node) => node.tagName === "SPAN" && node.textContent === "📧 email")
+        ).toBeInTheDocument();
+        expect(
+            screen.getByText((text, node) => node.tagName === "SPAN" && node.textContent === "💬 chat")
+        ).toBeInTheDocument();
         expect(screen.getByText("English, Spanish")).toBeInTheDocument();
     });
 
@@ -58,22 +62,30 @@ describe("MentorshipPrefsCard", () => {
 
         render(<MentorshipPrefsCard profile={overrideProfile} variant="mentee" />);
 
-        expect(screen.getByText("video")).toBeInTheDocument();
+        expect(
+            screen.getByText((text, node) => node.tagName === "SPAN" && node.textContent === "💬 video")
+        ).toBeInTheDocument();
         expect(screen.getByText("French")).toBeInTheDocument();
-        expect(screen.queryByText("email")).not.toBeInTheDocument();
+        expect(
+            screen.queryByText((text, node) => node.tagName === "SPAN" && node.textContent?.includes("email"))
+        ).not.toBeInTheDocument();
     });
 
     it("renders known icons for communication preferences and a default for unknown ones", () => {
         mockMentorProfile.profile.communicationPreferences = ["email", "video"];
         render(<MentorshipPrefsCard />);
 
-        const emailBadge = screen.getByText("email").closest("span");
+        const emailBadge = screen.getByText(
+            (text, node) => node.tagName === "SPAN" && node.textContent === "📧 email"
+        );
         expect(emailBadge).toHaveTextContent("📧");
 
-        const videoBadge = screen.getByText("video").closest("span");
+        const videoBadge = screen.getByText(
+            (text, node) => node.tagName === "SPAN" && node.textContent === "💬 video"
+        );
         expect(videoBadge).toHaveTextContent("💬");
     });
-
+    
     it("shows em dash placeholders when there are no communication prefs or languages", () => {
         mockMentorProfile.profile.communicationPreferences = [];
         mockMentorProfile.profile.languages = [];

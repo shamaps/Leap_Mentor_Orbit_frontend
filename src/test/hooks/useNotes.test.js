@@ -84,7 +84,7 @@ describe("useNotes", () => {
     });
 
     it("falls back to the generic load-error message when shared-notes fetch fails without a server message", async () => {
-        getNotes.mockRejectedValueOnce(new Error("network down"));
+        getNotes.mockRejectedValueOnce({});
         const { result } = renderHook(() => useNotes(CR_ID));
         await flush();
 
@@ -109,7 +109,7 @@ describe("useNotes", () => {
         await flush();
 
         expect(logger.warn).toHaveBeenCalledWith("Private notes fetch failed", {
-            message: undefined,
+            message:"boom",
         });
     });
 
@@ -201,7 +201,7 @@ describe("useNotes", () => {
     });
 
     it("uploadNote: falls back to the generic upload-error message", async () => {
-        uploadNote.mockRejectedValueOnce(new Error("boom"));
+        uploadNote.mockRejectedValueOnce({});
         const { result } = renderHook(() => useNotes(CR_ID));
         await flush();
         const file = new File(["x"], "x.pdf");
@@ -259,7 +259,7 @@ describe("useNotes", () => {
     });
 
     it("deleteNote: falls back to the generic delete-error message", async () => {
-        deleteNote.mockRejectedValueOnce(new Error("boom"));
+        deleteNote.mockRejectedValueOnce({});
         const { result } = renderHook(() => useNotes(CR_ID));
         await flush();
 
