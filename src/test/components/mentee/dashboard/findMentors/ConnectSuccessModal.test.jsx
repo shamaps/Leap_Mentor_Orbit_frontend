@@ -28,4 +28,16 @@ describe("ConnectSuccessModal Component Suite", () => {
         fireEvent.click(screen.getByRole("button", { name: /Back to Dashboard/i }));
         expect(mockBack).toHaveBeenCalledTimes(1);
     });
+
+    it("should call onBackToDashboard when Escape is pressed (Radix Dialog behavior — not possible with the old plain div overlay)", () => {
+        render(<ConnectSuccessModal mentorName="Rahul" onBackToDashboard={mockBack} />);
+        fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
+        expect(mockBack).toHaveBeenCalledTimes(1);
+    });
+
+    it("should expose an accessible dialog role and label the heading for screen readers", () => {
+        render(<ConnectSuccessModal mentorName="Rahul" onBackToDashboard={mockBack} />);
+        const dialog = screen.getByRole("dialog");
+        expect(dialog).toHaveAccessibleName("Request Sent!");
+    });
 });
