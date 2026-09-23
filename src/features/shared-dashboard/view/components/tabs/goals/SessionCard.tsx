@@ -5,90 +5,22 @@ import Spinner from "@/shared/components/Spinner";
 // Spinner is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
- 
+
 const SpinnerAny = Spinner as any;
 import { useRescheduleAvailability } from "@/features/mentor/presenter/useRescheduleAvailability";
 
-interface Slot {
-  date?: string;
-  startTime?: string;
-  endTime?: string;
-  meetingLink?: string;
-  status?: string;
-  menteeMarked?: boolean;
-  mentorMarked?: boolean;
-  cancellationReason?: string;
-  cancelledBy?: string;
-  isRescheduled?: boolean;
-}
-
-interface AvailabilityGroup {
-  day?: string;
-  date: string;
-  slots: Slot[];
-}
-
-interface NewSlotSelection {
-  day?: string;
-  date: string;
-  startTime?: string;
-  endTime?: string;
-}
-
-const formatSlotDate = (slot?: Slot | null): string => {
-  if (!slot?.date) return "";
-  return new Date(slot.date + "T00:00:00").toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-const formatTime = (t?: string | null): string => {
-  if (!t) return "";
-  const [h, m] = t.split(":");
-  const hour = Number.parseInt(h);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  return `${hour % 12 || 12}:${m} ${ampm}`;
-};
-const formatTimeShort = formatTime;
-const isMoreThan12HrsAway = (slot?: Slot | null): boolean => {
-  if (!slot?.date || !slot?.startTime) return false;
-  const sessionDateTime = new Date(`${slot.date}T${slot.startTime}`);
-  const diffMs = sessionDateTime.getTime() - Date.now();
-  return diffMs > 12 * 60 * 60 * 1000;
-};
-
-const getSessionStatus = (cancelled: boolean, bothDone: boolean | undefined, slot?: Slot | null): string => {
-  if (cancelled) return "cancelled";
-  if (bothDone) return "completed";
-  if (slot?.menteeMarked || slot?.mentorMarked) return "in_progress";
-  return "pending";
-};
-const isActive = (slot?: Slot | null): boolean => !slot?.status || slot?.status !== "cancelled";
-// ── Meeting link validator ─────────────────────────────────────
-const ALLOWED_MEETING_DOMAINS = [
-  "meet.google.com",
-  "zoom.us",
-  "teams.microsoft.com",
-  "whereby.com",
-  "meet.jit.si",
-  "webex.com",
-];
-
-const isValidMeetingLink = (rawUrl: string): boolean => {
-  try {
-    const url = new URL(rawUrl);
-    if (url.protocol !== "https:") return false;
-    const host = url.hostname.toLowerCase();
-    return ALLOWED_MEETING_DOMAINS.some(
-      (d) => host === d || host.endsWith(`.${d}`),
-    );
-  } catch {
-    return false;
-  }
-};
+import {
+  type Slot,
+  type AvailabilityGroup,
+  type NewSlotSelection,
+  formatSlotDate,
+  formatTime,
+  formatTimeShort,
+  isMoreThan12HrsAway,
+  getSessionStatus,
+  isActive,
+  isValidMeetingLink,
+} from "./sessionCard.utils";
 
 // ── Cancel Confirm Modal ──────────────────────────────────────
 const CancelModal = ({
@@ -657,7 +589,7 @@ const MeetingLinkSection = ({
 }: {
   slot?: Slot | null;
   viewerRole: string;
-  onSetLink: (link: string) => Promise<{ success?: boolean } | void>;
+  onSetLink: (link: string) => Promise<{ success?: boolean } | undefined>;
   saving?: boolean;
 }) => {
   const [editing, setEditing] = useState(false);
@@ -833,7 +765,7 @@ const CompletionSection = ({
   viewerRole: string;
   otherName: string;
   slotIndex: number;
-  onMarkComplete: (idx: number) => Promise<{ success?: boolean } | void>;
+  onMarkComplete: (idx: number) => Promise<{ success?: boolean } | undefined>;
   onSessionComplete?: (idx: number) => void;
 }) => {
   const [localSaving, setLocalSaving] = useState(false);
@@ -956,10 +888,10 @@ const SessionCard = ({
   viewerRole: string;
   otherName: string;
   savingSlots: Iterable<number>;
-  onSetLink: (slotIndex: number, link: string) => Promise<{ success?: boolean } | void>;
-  onMarkComplete: (idx: number) => Promise<{ success?: boolean } | void>;
-  onCancelSlot: (idx: number, reason: string) => Promise<{ success?: boolean } | void>;
-  onRescheduleSlot: (idx: number, newSlot: NewSlotSelection) => Promise<{ success?: boolean } | void>;
+  onSetLink: (slotIndex: number, link: string) => Promise<{ success?: boolean } | undefined>;
+  onMarkComplete: (idx: number) => Promise<{ success?: boolean } | undefined>;
+  onCancelSlot: (idx: number, reason: string) => Promise<{ success?: boolean } | undefined>;
+  onRescheduleSlot: (idx: number, newSlot: NewSlotSelection) => Promise<{ success?: boolean } | undefined>;
   allSlots: Slot[];
   connectRequestId: string;
   onSessionComplete?: (idx: number) => void;

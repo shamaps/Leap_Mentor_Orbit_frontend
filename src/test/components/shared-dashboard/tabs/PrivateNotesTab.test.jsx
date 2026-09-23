@@ -150,6 +150,27 @@ describe("PrivateNotesTab Component & Children", () => {
         expect(screen.queryByText("Private Files")).toBeInTheDocument();
         expect(screen.queryByText("Custom Title")).not.toBeInTheDocument();
     });
+    it("shows the uploading spinner and disables buttons while a private file uploads", async () => {
+        useNotes.mockReturnValue({ privateNotes: [], loading: false, uploading: true, error: null, uploadNote: mockUploadNote, deleteNote: mockDeleteNote });
+        const user = userEvent.setup();
+        render(<PrivateNotesTab connect={defaultConnect} />);
+        await user.click(screen.getByRole("button", { name: "Upload Private File" }));
+        expect(screen.getByText("Uploading...")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled();
+    });
+
+    it("shows the Saving spinner and disables Save while a note is saving", async () => {
+        const note = { _id: "note-1", title: "My Note", content: "Some content", updatedAt: new Date().toISOString() };
+        usePrivateNotes.mockReturnValue({
+            notes: [note], loading: false, saving: true, createNote: mockCreateNote, updateNote: mockUpdateNote, deleteNote: mockDeleteNote
+        });
+        const user = userEvent.setup();
+        render(<PrivateNotesTab connect={defaultConnect} />);
+        await user.click(screen.getByRole("button", { name: "Notepad" }));
+
+        expect(screen.getByText("Saving")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /Saving/i })).toBeDisabled();
+    });
 
     it("should offer empty states when file catalogs evaluate dry", () => {
         useNotes.mockReturnValue({ privateNotes: [], loading: false, uploading: false, error: null });
@@ -253,7 +274,21 @@ describe("PrivateNotesTab Component & Children", () => {
         fireEvent.dragLeave(dropzoneLabel);
         expect(dropzoneLabel.className).not.toContain("border-amber-400");
     });
+    it("hides the spinner once notepad hooks finish initializing", async () => {
+        usePrivateNotes.mockReturnValue({
+            notes: [], loading: true, saving: false, createNote: mockCreateNote, updateNote: mockUpdateNote, deleteNote: mockDeleteNote
+        });
+        const user = userEvent.setup();
+        const { container, rerender } = render(<PrivateNotesTab connect={defaultConnect} />);
+        await user.click(screen.getByRole("button", { name: "Notepad" }));
+        expect(container.querySelector(".animate-spin")).toBeInTheDocument();
 
+        usePrivateNotes.mockReturnValue({
+            notes: [], loading: false, saving: false, createNote: mockCreateNote, updateNote: mockUpdateNote, deleteNote: mockDeleteNote
+        });
+        rerender(<PrivateNotesTab connect={defaultConnect} />);
+        expect(container.querySelector(".animate-spin")).not.toBeInTheDocument();
+    });
     it("should validate mime classifications and reject unsupported types", async () => {
         const user = userEvent.setup();
         const { container } = render(<PrivateNotesTab connect={defaultConnect} />);
