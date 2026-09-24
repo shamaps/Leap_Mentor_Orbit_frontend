@@ -95,7 +95,7 @@ export const refetchMentorProfile = createAsyncThunk<
       const res = await axiosInstance.get("/mentor-profile/me");
       return res.data;
     } catch (err: any) {
-      logger.error("Profile refetch failed", { message: err.message });
+      logger.warn("Profile refetch failed", { message: err.message });
       return rejectWithValue(getErrorMessage(err, "Profile refetch failed."));
     }
   }

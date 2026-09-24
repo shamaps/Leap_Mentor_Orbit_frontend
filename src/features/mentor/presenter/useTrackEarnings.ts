@@ -1,6 +1,7 @@
 // src/hooks/useTrackEarnings.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getEarningsStats, getEarningsChart, getEarningsPayouts, withdrawEarnings } from "@/features/mentor/model/earnings.api";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 import logger from "@/shared/utils/logger";
 
 export interface EarningsChartPoint {
@@ -64,8 +65,8 @@ const useTrackEarnings = () => {
         pendingPayout: res.data.pendingPayout || 0,
         walletBalance: res.data.walletBalance || 0,
       });
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load earnings.");
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Failed to load earnings."));
     } finally {
       setLoadingStats(false);
     }
@@ -77,8 +78,8 @@ const useTrackEarnings = () => {
       setLoadingChart(true);
       const res = await getEarningsChart(period);
       setChartData(res.data.data || []);
-    } catch (err) {
-      logger.error("Chart fetch error", { message: err.message });
+    } catch (err: unknown) {
+      logger.warn("Chart fetch error", { message: getErrorMessage(err, "Failed to load chart.") });
     } finally {
       setLoadingChart(false);
     }
@@ -94,8 +95,8 @@ const useTrackEarnings = () => {
         setPayouts((prev) => (append ? [...prev, ...newPayouts] : newPayouts));
         setHasMore(res.data.pagination?.hasMore || false);
         setTotalCount(res.data.pagination?.totalCount || 0);
-      } catch (err) {
-        logger.error("Payouts fetch error", { message: err.message });
+      } catch (err: unknown) {
+        logger.warn("Payouts fetch error", { message: getErrorMessage(err, "Failed to load payouts.") });
       } finally {
         setLoadingPayouts(false);
       }
@@ -160,10 +161,10 @@ const useTrackEarnings = () => {
         setShowWithdraw(false);
         setWithdrawMsg({ type: "", text: "" });
       }, 1500);
-    } catch (err) {
+    } catch (err: unknown) {
       setWithdrawMsg({
         type: "error",
-        text: err?.response?.data?.message || "Withdrawal failed.",
+        text: getErrorMessage(err, "Withdrawal failed."),
       });
     } finally {
       setWithdrawing(false);

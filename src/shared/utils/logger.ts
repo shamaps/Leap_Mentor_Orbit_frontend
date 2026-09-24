@@ -48,18 +48,64 @@ const redact = (value: unknown, depth = 0): unknown => {
     return output;
 };
 
+// ── ECS shaping ────────────────────────────────────────────
+
+const ECS_VERSION = "8.11";
+
+const sanitizeLabelKeys = (value: unknown): unknown => {
+    if (value === null || typeof value !== "object") return value;
+    if (Array.isArray(value)) return value.map(sanitizeLabelKeys);
+
+    const output: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(value)) {
+        const safeKey = key.replace(/[.*\\]/g, "_");
+        output[safeKey] = sanitizeLabelKeys(val);
+    }
+    return output;
+};
+
+// redact() already flattens Error instances to { name, message, stack }.
+// Detect that shape and route it into ECS's error.* fields instead of
+// leaving it as an opaque label blob.
+const isRedactedError = (value: unknown): value is { name: unknown; message: unknown; stack: unknown } =>
+    typeof value === "object" &&
+    value !== null &&
+    "name" in value &&
+    "message" in value &&
+    "stack" in value;
+
 // ── Shipping to BetterStack
+
 const ship = (level: string, message: string, context: unknown): void => {
     if (!BETTERSTACK_SOURCE_TOKEN) return;
 
+    const safeContext = context;
+    const errorField = isRedactedError(safeContext)
+        ? {
+            error: {
+                type: safeContext.name,
+                message: safeContext.message,
+                stack_trace: safeContext.stack,
+            },
+        }
+        : {};
+    const labelsField =
+        safeContext && !isRedactedError(safeContext) && typeof safeContext === "object"
+            ? { labels: sanitizeLabelKeys(safeContext) }
+            : {};
+
     const payload = JSON.stringify({
-        dt: new Date().toISOString(),
-        level,
+        "@timestamp": new Date().toISOString(),
+        "log.level": level,
         message,
-        context: redact(context),
-        app: "leapmentor-frontend",
-        env: import.meta.env.MODE,
-        url: globalThis.location?.href,
+        "ecs.version": ECS_VERSION,
+        service: {
+            name: "leapmentor-frontend",
+            environment: import.meta.env.MODE,
+        },
+        url: { full: globalThis.location?.href },
+        ...labelsField,
+        ...errorField,
     });
 
     fetch(BETTERSTACK_INGEST_URL, {
@@ -81,7 +127,7 @@ const log = (level: string, consoleMethod: ConsoleMethod, message: string, conte
     const safeContext = redact(context);
 
     if (isDev) {
-         
+
         console[consoleMethod](`[${level.toUpperCase()}] ${message}`, safeContext ?? "");
     }
 
