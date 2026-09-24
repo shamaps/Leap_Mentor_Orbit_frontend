@@ -1,4 +1,6 @@
 // src/components/mentee/dashboard/findMentors/ConnectSuccessModal.jsx
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/shared/components/ui/dialog";
+
 interface ConnectSuccessModalProps {
   mentorName?: string;
   onBackToDashboard: () => void;
@@ -6,9 +8,12 @@ interface ConnectSuccessModalProps {
 
 const ConnectSuccessModal = ({ mentorName, onBackToDashboard }: ConnectSuccessModalProps) => {
   return (
-    // ── Overlay ──────────────────────────────────────────────
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center gap-5 animate-fade-in">
+    // Always mounted-open — parent only renders this component once the
+    // request has succeeded. Radix Dialog gives us focus trap, ESC-to-close,
+    // click-outside-to-close, and portal rendering for free; onOpenChange
+    // fires for all three, so we route them to the same "done" handler.
+    <Dialog open onOpenChange={(open) => !open && onBackToDashboard()}>
+      <DialogContent>
         {/* Success icon */}
         <div className="w-16 h-16 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
           <svg
@@ -27,14 +32,14 @@ const ConnectSuccessModal = ({ mentorName, onBackToDashboard }: ConnectSuccessMo
 
         {/* Text */}
         <div>
-          <h2 className="text-lg font-bold text-slate-800">Request Sent!</h2>
-          <p className="text-sm text-slate-500 mt-1.5 leading-relaxed">
+          <DialogTitle>Request Sent!</DialogTitle>
+          <DialogDescription>
             Your connect request has been sent to{" "}
             <span className="font-semibold text-slate-700">
               {mentorName || "the mentor"}
             </span>
             {". You'll be notified once they respond."}
-          </p>
+          </DialogDescription>
         </div>
 
         {/* Back to dashboard button */}
@@ -45,8 +50,8 @@ const ConnectSuccessModal = ({ mentorName, onBackToDashboard }: ConnectSuccessMo
         >
           Back to Dashboard
         </button>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

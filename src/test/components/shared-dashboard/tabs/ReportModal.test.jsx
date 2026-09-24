@@ -186,7 +186,29 @@ describe("ReportModal Component", () => {
         expect(screen.getByText("Submitting...")).toBeInTheDocument();
         expect(screen.getByPlaceholderText(/Please describe what happened/i)).toBeDisabled();
     });
-
+    it("hides the submitting loader and unblocks operations once submitting finishes", () => {
+        useReportComplaint.mockReturnValue({
+            submitReport: mockSubmitReport,
+            submitting: true,
+            error: null,
+            setError: mockSetError,
+        });
+        const { rerender } = render(
+            <ReportModal connect={defaultConnect} onClose={mockOnClose} onSuccess={mockOnSuccess} />
+        );
+      
+        useReportComplaint.mockReturnValue({
+            submitReport: mockSubmitReport,
+            submitting: false,
+            error: null,
+            setError: mockSetError,
+        });
+        rerender(
+            <ReportModal connect={defaultConnect} onClose={mockOnClose} onSuccess={mockOnSuccess} />
+        );
+        expect(screen.queryByText("Submitting...")).not.toBeInTheDocument();
+        expect(screen.getByPlaceholderText(/Please describe what happened/i)).not.toBeDisabled();
+    });
     it("should show submission hook errors if populated", () => {
         useReportComplaint.mockReturnValue({
             submitReport: mockSubmitReport,
