@@ -6,6 +6,7 @@ import logger from "./logger";
 import { HTTP_STATUS } from "@/shared/constants/httpStatus";
 import { setGlobalError } from "@/app/store/slices/uiSlice";
 import { formatSuccessResponse } from "./client";
+import { reportApiError } from "./apiError";
 
 // Minimal structural type for the injected Redux store — avoids a hard,
 // circular dependency on the full AppStore/RootState type from app/store
@@ -166,7 +167,7 @@ const isAuthRouteRequest = (url?: string): boolean =>
   Boolean(url?.includes("/auth/refresh") || url?.includes("/auth/login") || url?.includes("/auth/register"));
 
 const queueWhileRefreshing = (originalRequest: RetryableRequestConfig) =>
-  new Promise < string | null | undefined > ((resolve, reject) => {
+  new Promise<string | null | undefined>((resolve, reject) => {
     failedQueue.push({ resolve, reject });
   }).then(() => {
     delete originalRequest.headers["Authorization"];
@@ -178,7 +179,7 @@ const refreshTokenAndRetry = async (originalRequest: RetryableRequestConfig) => 
   isRefreshing = true;
 
   try {
-    const { data } = await apiInstance.post < { accessToken: string } > ("/auth/refresh");
+    const { data } = await apiInstance.post<{ accessToken: string }>("/auth/refresh");
     store.dispatch(setToken(data.accessToken));
     processQueue(null, data.accessToken);
     delete originalRequest.headers["Authorization"];
@@ -239,6 +240,18 @@ apiInstance.interceptors.response.use(
         if (authResult) return authResult;
       }
     }
+
+    // Report to Sentry only for genuinely unexpected failures (network,
+    // timeout, 5xx) — never for expected validation/auth/forbidden/rate-limit
+    // responses. This is the final failure point: retries and refresh-retry
+    // have already been exhausted by the time we get here.
+    reportApiError(error, {
+      method: originalRequest?.method,
+      path: originalRequest?.url,
+      status,
+      requestId,
+      admin,
+    });
 
     throw error;
   },

@@ -21,7 +21,7 @@ export const useMenteeHistoryModal = (mentee: any) => {
         );
         setEngagements(filtered);
       } catch (err) {
-        logger.error("Failed to fetch engagements", { message: err.message });
+        logger.warn("Failed to fetch engagements", { message: err.message });
       } finally {
         setLoading(false);
       }

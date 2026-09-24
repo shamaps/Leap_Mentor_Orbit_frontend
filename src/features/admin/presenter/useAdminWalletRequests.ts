@@ -19,7 +19,7 @@ export const useAdminWalletRequests = () => {
       const res = await getLeapWalletRequests();
       setRequests(res.data.requests || res.data || []);
     } catch (err) {
-      logger.error("Failed to fetch leap requests", { message: err?.message });
+      logger.warn("Failed to fetch leap requests", { message: err?.message });
       showToast({ message: "Failed to load requests.", type: "error" });
     } finally {
       setLoading(false);

@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectMentorProfile } from "@/app/store/selectors";
 import { useState } from "react";
-const ProfileCard = () => {
+
+interface ProfileCardProps {
+  onEditClick?: () => void;
+}
+
+const ProfileCard = ({ onEditClick }: ProfileCardProps) => {
   const navigate = useNavigate();
   const { user, profile } = useSelector(selectMentorProfile);
   const [imgError, setImgError] = useState(false);
@@ -53,6 +58,28 @@ const ProfileCard = () => {
             <h2 className="text-lg font-bold text-slate-800 leading-tight">
               {user?.name || "—"}
             </h2>
+
+            {onEditClick && (
+              <button
+                onClick={onEditClick}
+                aria-label="Edit profile"
+                className="text-slate-400 hover:text-blue-700 transition-colors"
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+            )}
 
             {/* Verification badge */}
             {isVerified && (
