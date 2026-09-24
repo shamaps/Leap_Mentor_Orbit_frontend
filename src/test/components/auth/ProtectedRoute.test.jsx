@@ -3,19 +3,19 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "../../../features/auth/view/components/ProtectedRoute";
-
+import { PERMISSIONS } from "../../../features/auth/model/permissions";
 vi.mock("react-redux", () => ({
     useSelector: vi.fn(),
 }));
 
-const renderWithRoute = (initialEntries = ["/protected"], role) => {
+const renderWithRoute = (initialEntries = ["/protected"], permission) => {
     return render(
         <MemoryRouter initialEntries={initialEntries}>
             <Routes>
                 <Route
                     path="/protected"
                     element={
-                        <ProtectedRoute role={role}>
+                        <ProtectedRoute permission={permission}>
                             <div>Protected Content</div>
                         </ProtectedRoute>
                     }
@@ -52,13 +52,13 @@ describe("ProtectedRoute", () => {
         expect(screen.getByText("Verify Email Page")).toBeInTheDocument();
     });
 
-    it("redirects to correct dashboard when role mismatches (mentor stored, mentee required)", () => {
+    it("redirects to correct dashboard when permission mismatches (mentor stored, mentee dashboard required)", () => {
         useSelector.mockReturnValue({
             token: "abc",
             isBootstrapping: false,
             user: { isEmailVerified: true, roles: ["mentor"] },
         });
-        renderWithRoute(["/protected"], "mentee");
+        renderWithRoute(["/protected"], PERMISSIONS.VIEW_MENTEE_DASHBOARD);
         expect(screen.getByText("Mentor Dashboard")).toBeInTheDocument();
     });
 
@@ -68,7 +68,7 @@ describe("ProtectedRoute", () => {
             isBootstrapping: false,
             user: { isEmailVerified: true, roles: ["mentor"] },
         });
-        renderWithRoute(["/protected"], "mentor");
+         renderWithRoute(["/protected"], PERMISSIONS.VIEW_MENTOR_DASHBOARD);
         expect(screen.getByText("Protected Content")).toBeInTheDocument();
     });
 
@@ -88,7 +88,7 @@ describe("ProtectedRoute", () => {
             isBootstrapping: false,
             user: { isEmailVerified: true },
         });
-        renderWithRoute(["/protected"], "mentor");
+        renderWithRoute(["/protected"]);
         expect(screen.getByText("Protected Content")).toBeInTheDocument();
     });
 
@@ -98,7 +98,7 @@ describe("ProtectedRoute", () => {
             isBootstrapping: false,
             user: null,
         });
-        renderWithRoute(["/protected"], "mentor");
+        renderWithRoute(["/protected"]);
         expect(screen.getByText("Protected Content")).toBeInTheDocument();
     });
 });

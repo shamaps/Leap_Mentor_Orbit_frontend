@@ -141,9 +141,9 @@ describe("AdminUserManagement", () => {
         render(<AdminUserManagement />);
 
         await screen.findByText("Alice Mentor");
-        expect(logger.error).toHaveBeenCalledWith("Error fetching stats", expect.any(Object));
-        expect(logger.error).toHaveBeenCalledWith("Failed to fetch growth data", expect.any(Object));
-        expect(logger.error).toHaveBeenCalledWith("Failed to fetch industry data", expect.any(Object));
+        expect(logger.warn).toHaveBeenCalledWith("Error fetching stats", expect.any(Object));
+        expect(logger.warn).toHaveBeenCalledWith("Failed to fetch growth data", expect.any(Object));
+        expect(logger.warn).toHaveBeenCalledWith("Failed to fetch industry data", expect.any(Object));
     });
 
     it("filters by role using the role chips", async () => {

@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import adminAxiosInstance from "../../../shared/utils/axiosInstance";
 import { useToast } from "../../../shared/context/ToastContext";
 import AdminEngagements from "../../../features/admin/view/pages/AdminEngagements";
+import { adminEngagementsLoader } from "../../../features/admin/model/adminEngagements.loader";
 
 vi.mock("../../../shared/utils/axiosInstance");
 vi.mock("../../../shared/context/ToastContext");
@@ -31,6 +33,26 @@ const mockEngagementsResponse = (engagements, pagination) => ({
     data: { engagements, pagination: pagination || { total: engagements.length, page: 1, totalPages: 1 } },
 });
 
+// AdminEngagements now gets its data from adminEngagementsLoader (a real
+// data-router loader — see App.tsx's "/admin/engagements" route) instead of
+// fetching directly in an effect. To exercise the page (and have filter/
+// search/pagination interactions actually re-run the loader the way they do
+// in the app) it has to be rendered under a real data router with that
+// loader wired up, rather than mounted bare.
+const renderPage = (initialPath = "/admin/engagements") => {
+    const router = createMemoryRouter(
+        [
+            {
+                path: "/admin/engagements",
+                loader: adminEngagementsLoader,
+                element: <AdminEngagements />,
+            },
+        ],
+        { initialEntries: [initialPath] },
+    );
+    return { ...render(<RouterProvider router={router} />), router };
+};
+
 describe("AdminEngagements", () => {
     let showToast;
 
@@ -54,7 +76,7 @@ describe("AdminEngagements", () => {
     });
 
     it("fetches stats and engagements on mount, and renders stat cards", async () => {
-        render(<AdminEngagements />);
+        renderPage();
 
         await waitFor(() => {
             expect(screen.getByText("Alice Mentor")).toBeInTheDocument();
@@ -69,17 +91,23 @@ describe("AdminEngagements", () => {
         expect(screen.getByText("10")).toBeInTheDocument();
     });
 
-    it("shows a toast error when stats fail to load", async () => {
+    // The loader fetches engagements and stats in parallel with
+    // Promise.allSettled: a failed stats call only logs a warning (stats
+    // renders as null/blank) rather than surfacing a toast, so "stats
+    // failed" no longer produces the "Failed to load stats." toast the old
+    // effect-based implementation used to show.
+    it("does not toast, and still renders the engagements table, when stats fail to load", async () => {
         adminAxiosInstance.get.mockImplementation((url) => {
             if (url === "/admin/engagements/stats") return Promise.reject(new Error("fail"));
             return Promise.resolve(mockEngagementsResponse([baseEngagement]));
         });
 
-        render(<AdminEngagements />);
+        renderPage();
 
         await waitFor(() => {
-            expect(showToast).toHaveBeenCalledWith({ message: "Failed to load stats.", type: "error" });
+            expect(screen.getByText("Alice Mentor")).toBeInTheDocument();
         });
+        expect(showToast).not.toHaveBeenCalled();
     });
 
     it("shows a toast error when engagements fail to load", async () => {
@@ -88,7 +116,7 @@ describe("AdminEngagements", () => {
             return Promise.reject(new Error("fail"));
         });
 
-        render(<AdminEngagements />);
+        renderPage();
 
         await waitFor(() => {
             expect(showToast).toHaveBeenCalledWith({
@@ -98,12 +126,23 @@ describe("AdminEngagements", () => {
         });
     });
 
-    it("shows skeleton rows while loading", () => {
+    it("shows skeleton rows while a filter change is loading", async () => {
+        const user = userEvent.setup();
+        renderPage();
+        await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
+
+        // Hang the *next* request so the page stays in the loader's
+        // "loading" (navigation.state !== 'idle') state long enough to
+        // observe the skeleton rows it renders during a refetch. (The
+        // initial load can't be observed this way: a data router doesn't
+        // mount the route element until its loader resolves.)
         adminAxiosInstance.get.mockImplementation(() => new Promise(() => { }));
 
-        const { container } = render(<AdminEngagements />);
+        await user.click(screen.getByRole("button", { name: "pending" }));
 
-        expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
+        await waitFor(() => {
+            expect(document.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
+        });
     });
 
     it("shows an empty state when there are no engagements", async () => {
@@ -112,14 +151,14 @@ describe("AdminEngagements", () => {
             return Promise.resolve(mockEngagementsResponse([]));
         });
 
-        render(<AdminEngagements />);
+        renderPage();
 
         expect(await screen.findByText("No engagements found.")).toBeInTheDocument();
     });
 
     it("expands a row on click to reveal slot and session details, and collapses on second click", async () => {
         const user = userEvent.setup();
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         await user.click(screen.getByText("Alice Mentor"));
@@ -152,7 +191,7 @@ describe("AdminEngagements", () => {
             return Promise.resolve(mockEngagementsResponse([minimalEng]));
         });
         const user = userEvent.setup();
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getAllByText("—").length).toBeGreaterThan(0));
 
         const row = screen.getAllByText("—")[0].closest("tr");
@@ -173,7 +212,7 @@ describe("AdminEngagements", () => {
             return Promise.resolve(mockEngagementsResponse([engNoActiveSlots]));
         });
         const user = userEvent.setup();
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         await user.click(screen.getByText("Alice Mentor"));
@@ -195,7 +234,7 @@ describe("AdminEngagements", () => {
             return Promise.resolve(mockEngagementsResponse([engNoSlotsField]));
         });
         const user = userEvent.setup();
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         await user.click(screen.getByText("Alice Mentor"));
@@ -208,7 +247,7 @@ describe("AdminEngagements", () => {
     it("debounces search input and calls fetchEngagements with the query", async () => {
         vi.useFakeTimers({ shouldAdvanceTime: true });
         const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         adminAxiosInstance.get.mockClear();
@@ -228,7 +267,7 @@ describe("AdminEngagements", () => {
 
     it("filters by status when a status pill is clicked", async () => {
         const user = userEvent.setup();
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         adminAxiosInstance.get.mockClear();
@@ -244,7 +283,7 @@ describe("AdminEngagements", () => {
 
     it("filters by date range and clears the filter", async () => {
         const user = userEvent.setup();
-        const { container } = render(<AdminEngagements />);
+        const { container } = renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         const dateInputs = container.querySelectorAll('input[type="date"]');
@@ -287,7 +326,7 @@ describe("AdminEngagements", () => {
             );
         });
         const user = userEvent.setup();
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText(/Page 2 of 3/)).toBeInTheDocument());
 
         adminAxiosInstance.get.mockClear();
@@ -316,7 +355,7 @@ describe("AdminEngagements", () => {
                 mockEngagementsResponse([baseEngagement], { total: 30, page: 1, totalPages: 2 }),
             );
         });
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText(/Page 1 of 2/)).toBeInTheDocument());
 
         expect(screen.getByRole("button", { name: /prev/i })).toBeDisabled();
@@ -324,7 +363,7 @@ describe("AdminEngagements", () => {
     });
 
     it("does not render pagination when totalPages is 1", async () => {
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         expect(screen.queryByRole("button", { name: /prev/i })).not.toBeInTheDocument();
@@ -340,7 +379,7 @@ describe("AdminEngagements", () => {
             if (url === "/admin/engagements/stats") return Promise.resolve({ data: baseStats });
             return Promise.resolve(mockEngagementsResponse([noNameEng]));
         });
-        render(<AdminEngagements />);
+        renderPage();
 
         await waitFor(() => {
             expect(screen.getByText("?")).toBeInTheDocument();
@@ -360,7 +399,7 @@ describe("AdminEngagements", () => {
             return Promise.resolve(mockEngagementsResponse([completedEng]));
         });
         const user = userEvent.setup();
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         await user.click(screen.getByText("Alice Mentor"));
@@ -372,7 +411,7 @@ describe("AdminEngagements", () => {
     });
 
     it("applies and clears row hover background on mouse enter/leave", async () => {
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         const row = screen.getByText("Alice Mentor").closest("tr");
@@ -385,7 +424,7 @@ describe("AdminEngagements", () => {
 
     it("does not change row hover background while the row is expanded", async () => {
         const user = userEvent.setup();
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         await user.click(screen.getByText("Alice Mentor"));
@@ -402,7 +441,7 @@ describe("AdminEngagements", () => {
     });
 
     it("toggles search input border color on focus/blur", async () => {
-        render(<AdminEngagements />);
+        renderPage();
         await waitFor(() => expect(screen.getByText("Alice Mentor")).toBeInTheDocument());
 
         const searchInput = screen.getByPlaceholderText("Search mentor or mentee...");

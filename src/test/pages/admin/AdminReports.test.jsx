@@ -1,10 +1,12 @@
 // src/test/pages/admin/AdminReports.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, within, act, fireEvent } from "@testing-library/react";
+import { render, screen, within, act, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import adminAxiosInstance from "../../../shared/utils/axiosInstance";
 import { useToast } from "../../../shared/context/ToastContext";
 import AdminReports from "../../../features/admin/view/pages/AdminReports";
+import { adminReportsLoader } from "../../../features/admin/model/adminReports.loader";
 
 vi.mock("../../../shared/utils/axiosInstance");
 vi.mock("../../../shared/context/ToastContext");
@@ -45,6 +47,25 @@ const mockStatsAndReports = (reports = [baseReport]) => {
     });
 };
 
+// AdminReports now gets its data from adminReportsLoader (a real data-router
+// loader — see App.tsx's "/admin/reports" route) instead of fetching
+// directly in an effect, so it has to be rendered under a real data router
+// with that loader wired up for filter/search/pagination interactions to
+// actually re-run it the way they do in the app.
+const renderPage = (initialPath = "/admin/reports") => {
+    const router = createMemoryRouter(
+        [
+            {
+                path: "/admin/reports",
+                loader: adminReportsLoader,
+                element: <AdminReports />,
+            },
+        ],
+        { initialEntries: [initialPath] },
+    );
+    return { ...render(<RouterProvider router={router} />), router };
+};
+
 // The HandleModal renders: <div fixed z-50><div bg-white (dialog box)>
 //   <div header><div titleWrap><p>Handle Report</p>...</div>...</div>
 //   ...
@@ -71,11 +92,9 @@ describe("AdminReports", () => {
         vi.useRealTimers();
     });
 
-    it("shows skeleton rows while loading, then renders fetched reports", async () => {
+    it("renders fetched reports once the loader resolves", async () => {
         mockStatsAndReports();
-        render(<AdminReports />);
-
-        expect(document.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
+        renderPage();
 
         expect(await screen.findByText("Mentee One")).toBeInTheDocument();
         expect(screen.getByText("Mentor One")).toBeInTheDocument();
@@ -88,9 +107,27 @@ describe("AdminReports", () => {
         expect(screen.getByText("12")).toBeInTheDocument();
     });
 
+    it("shows skeleton rows while a filter change is loading", async () => {
+        mockStatsAndReports();
+        renderPage();
+        await screen.findByText("Mentee One");
+
+        // Hang the *next* request so the page stays in the loader's
+        // "loading" (navigation.state !== 'idle') state long enough to
+        // observe the skeleton rows it renders during a refetch. (The
+        // initial load can't be observed this way: a data router doesn't
+        // mount the route element until its loader resolves.)
+        adminAxiosInstance.get.mockImplementation(() => new Promise(() => { }));
+        await user.click(screen.getByRole("button", { name: "Resolved" }));
+
+        await waitFor(() => {
+            expect(document.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
+        });
+    });
+
     it("renders '—' fallbacks when mentee/mentor names are missing", async () => {
         mockStatsAndReports([{ ...baseReport, mentee: "", mentor: "" }]);
-        render(<AdminReports />);
+        renderPage();
 
         const dashes = await screen.findAllByText("—");
         expect(dashes.length).toBeGreaterThan(0);
@@ -98,20 +135,27 @@ describe("AdminReports", () => {
 
     it("shows 'No reports found.' when the list is empty", async () => {
         mockStatsAndReports([]);
-        render(<AdminReports />);
+        renderPage();
 
         expect(await screen.findByText("No reports found.")).toBeInTheDocument();
     });
 
-    it("toasts an error when fetching stats fails", async () => {
+    // The loader fetches reports and stats in parallel with
+    // Promise.allSettled: a failed stats call only logs a warning (stats
+    // renders as null/blank) rather than surfacing a toast, so "stats
+    // failed" no longer produces the "Failed to load stats." toast the old
+    // effect-based implementation used to show.
+    it("does not toast, and still renders reports, when fetching stats fails", async () => {
         adminAxiosInstance.get.mockImplementation((url) => {
             if (url === "/admin/reports/stats") return Promise.reject(new Error("stats down"));
-            return Promise.resolve({ data: { reports: [], pagination: paginationPayload } });
+            return Promise.resolve({
+                data: { reports: [baseReport], pagination: paginationPayload },
+            });
         });
-        render(<AdminReports />);
+        renderPage();
 
-        await screen.findByText("No reports found.");
-        expect(showToast).toHaveBeenCalledWith({ message: "Failed to load stats.", type: "error" });
+        await screen.findByText("Mentee One");
+        expect(showToast).not.toHaveBeenCalled();
     });
 
     it("toasts an error when fetching reports fails", async () => {
@@ -119,18 +163,18 @@ describe("AdminReports", () => {
             if (url === "/admin/reports/stats") return Promise.resolve({ data: statsPayload });
             return Promise.reject(new Error("reports down"));
         });
-        render(<AdminReports />);
+        renderPage();
 
         // Stats succeeded, so "12" still renders; reports failed, so the table is empty.
         await screen.findByText("No reports found.");
         expect(screen.getByText("12")).toBeInTheDocument();
-        expect(showToast).toHaveBeenCalledWith({ type: "error", message: "Failed to update report" });
+        expect(showToast).toHaveBeenCalledWith({ type: "error", message: "Failed to load reports." });
     });
 
     it("debounces search input and refetches with the query", async () => {
         vi.useFakeTimers({ shouldAdvanceTime: true });
         mockStatsAndReports();
-        render(<AdminReports />);
+        renderPage();
 
         await act(async () => {
             await vi.advanceTimersByTimeAsync(0);
@@ -149,24 +193,28 @@ describe("AdminReports", () => {
             await vi.advanceTimersByTimeAsync(400);
         });
 
-        expect(adminAxiosInstance.get).toHaveBeenCalledWith(
-            "/admin/reports",
-            expect.objectContaining({ params: expect.objectContaining({ search: "alice" }) }),
-        );
+        await waitFor(() => {
+            expect(adminAxiosInstance.get).toHaveBeenCalledWith(
+                "/admin/reports",
+                expect.objectContaining({ params: expect.objectContaining({ search: "alice" }) }),
+            );
+        });
     });
 
     it("filters by status when a filter chip is clicked", async () => {
         mockStatsAndReports();
-        render(<AdminReports />);
+        renderPage();
         await screen.findByText("Mentee One");
 
         adminAxiosInstance.get.mockClear();
         await user.click(screen.getByRole("button", { name: "Resolved" }));
 
-        expect(adminAxiosInstance.get).toHaveBeenCalledWith(
-            "/admin/reports",
-            expect.objectContaining({ params: expect.objectContaining({ status: "resolved", page: 1 }) }),
-        );
+        await waitFor(() => {
+            expect(adminAxiosInstance.get).toHaveBeenCalledWith(
+                "/admin/reports",
+                expect.objectContaining({ params: expect.objectContaining({ status: "resolved", page: 1 }) }),
+            );
+        });
     });
 
     it("paginates forward and backward, respecting disabled boundaries", async () => {
@@ -179,7 +227,7 @@ describe("AdminReports", () => {
                 },
             });
         });
-        render(<AdminReports />);
+        renderPage();
         await screen.findByText("Mentee One");
 
         const prevBtn = screen.getByRole("button", { name: "Previous" });
@@ -190,16 +238,18 @@ describe("AdminReports", () => {
         adminAxiosInstance.get.mockClear();
         await user.click(nextBtn);
 
-        expect(adminAxiosInstance.get).toHaveBeenCalledWith(
-            "/admin/reports",
-            expect.objectContaining({ params: expect.objectContaining({ page: 2 }) }),
-        );
+        await waitFor(() => {
+            expect(adminAxiosInstance.get).toHaveBeenCalledWith(
+                "/admin/reports",
+                expect.objectContaining({ params: expect.objectContaining({ page: 2 }) }),
+            );
+        });
     });
 
     describe("HandleModal", () => {
         const openModal = async (report = baseReport) => {
             mockStatsAndReports([report]);
-            render(<AdminReports />);
+            renderPage();
             await screen.findByText(report.mentee || "—");
             await user.click(screen.getByRole("button", { name: "Handle" }));
             await screen.findByText("Handle Report");

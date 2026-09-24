@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectAuth } from "@/app/store/selectors";
+import { hasPermission, type Permission } from "@/features/auth/model/permissions";
 
 const PageLoader = () => (
   <div
@@ -18,17 +19,21 @@ const PageLoader = () => (
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  role?: "mentor" | "mentee";
+  /** Permission required to view this route. Omit for "any authenticated user". */
+  permission?: Permission;
 }
 
-const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, permission }: ProtectedRouteProps) => {
   const { token, isBootstrapping, user } = useSelector(selectAuth);
+
+  // "Which dashboard is home" stays role-based 
   let storedRole: "mentor" | "mentee" | null = null;
   if (user?.roles?.includes("mentor")) {
     storedRole = "mentor";
   } else if (user?.roles?.includes("mentee")) {
     storedRole = "mentee";
   }
+
   // Wait for /auth/refresh to finish before deciding to redirect
   if (isBootstrapping) return <PageLoader />;
 
@@ -38,8 +43,8 @@ const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
   if (user?.isEmailVerified === false) {
     return <Navigate to="/verify-email" state={{ email: user.email, role: storedRole }} replace />;
   }
-  if (role && storedRole && storedRole !== role) {
-    return <Navigate to={`/dashboard/${storedRole}`} replace />;
+  if (permission && !hasPermission(user?.roles, permission)) {
+    return <Navigate to={storedRole ? `/dashboard/${storedRole}` : "/"} replace />;
   }
 
   return children;
