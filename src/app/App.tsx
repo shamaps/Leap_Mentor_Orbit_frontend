@@ -1,6 +1,7 @@
-// src/App.jsx
+// src/app/App.tsx
 import { lazy, Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { setToken, setUser, setBootstrapped } from "./store/slices/authSlice";
 import axiosInstance from "@/shared/utils/axiosInstance";
 import * as Sentry from "@sentry/react";
@@ -11,7 +12,17 @@ import NotFound from "@/shared/marketing/NotFound";
 import AdminRoute from "@/features/admin/view/components/AdminRoute";
 import RouteErrorBoundary from "@/shared/components/RouteErrorBoundary";
 import ProtectedRoute from "@/features/auth/view/components/ProtectedRoute";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { PERMISSIONS } from "@/features/auth/model/permissions";
+import withErrorBoundary from "@/shared/utils/withErrorBoundary";
+import RouteErrorPage from "@/shared/components/RouteErrorPage";
+import { adminSettingsLoader } from "@/features/admin/model/adminSettings.loader";
+import { adminVerificationsLoader } from "@/features/admin/model/adminVerifications.loader";
+import { adminVerificationsAction } from "@/features/admin/model/adminVerifications.action";
+import { adminUserManagementLoader } from "@/features/admin/model/adminUserManagement.loader";
+import { adminEngagementsLoader } from "@/features/admin/model/adminEngagements.loader";
+import { adminReportsLoader } from "@/features/admin/model/adminReports.loader";
+import { adminPaymentsLoader } from "@/features/admin/model/adminPayments.loader";
+
 const RegisterMentee = lazy(() => import("@/features/auth/view/pages/RegisterMentee"));
 const RegisterMentor = lazy(() => import("@/features/auth/view/pages/RegisterMentor"));
 const LoginMentor = lazy(() => import("@/features/auth/view/pages/LoginMentor"));
@@ -31,6 +42,11 @@ const MenteeEditProfileShell = lazy(
 const MentorEditProfileShell = lazy(
   () => import("@/features/mentor/view/components/profile/MentorEditProfileShell"),
 );
+
+
+const SafeLoginMentee = withErrorBoundary(LoginMentee, "auth");
+const SafeMenteeEditProfileShell = withErrorBoundary(MenteeEditProfileShell, "mentee-dashboard");
+const SafeMentorEditProfileShell = withErrorBoundary(MentorEditProfileShell, "mentor-dashboard");
 
 const MentorDashboard = lazy(() => import("@/features/mentor/view/pages/MentorDashboard"));
 const MenteeDashboard = lazy(() => import("@/features/mentee/view/pages/MenteeDashboard"));
@@ -72,6 +88,267 @@ const PageLoader = () => (
   </div>
 );
 
+// ── Route tree
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: (
+      <RouteErrorBoundary zone="marketing">
+        <Home />
+      </RouteErrorBoundary>
+    ),
+    errorElement: <RouteErrorPage zone="marketing" />,
+  },
+  {
+    path: "/register/mentee",
+    element: (
+      <RouteErrorBoundary zone="auth">
+        <RegisterMentee />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/register/mentor",
+    element: (
+      <RouteErrorBoundary zone="auth">
+        <RegisterMentor />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    // HOC-wrapped example 
+    path: "/login",
+    element: <SafeLoginMentee />,
+  },
+  {
+    path: "/login/mentor",
+    element: (
+      <RouteErrorBoundary zone="auth">
+        <LoginMentor />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/login/mentee",
+    element: (
+      <RouteErrorBoundary zone="auth">
+        <LoginMentee />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/verify-email",
+    element: (
+      <RouteErrorBoundary zone="auth">
+        <VerifyEmail />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/forgot-password",
+    element: (
+      <RouteErrorBoundary zone="auth">
+        <ForgotPassword />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/sso-callback",
+    element: (
+      <RouteErrorBoundary zone="auth">
+        <SSOCallback />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/sso-callback-sync",
+    element: (
+      <RouteErrorBoundary zone="auth">
+        <SSOSync />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/onboarding/mentor",
+    element: (
+      <RouteErrorBoundary zone="onboarding">
+        <ProtectedRoute permission={PERMISSIONS.MANAGE_MENTOR_PROFILE}>
+          <MentorOnboarding />
+        </ProtectedRoute>
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/onboarding/mentor/verify-documents",
+    element: (
+      <RouteErrorBoundary zone="onboarding">
+        <ProtectedRoute permission={PERMISSIONS.UPLOAD_VERIFICATION_DOCS}>
+          <MentorVerification />
+        </ProtectedRoute>
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/onboarding/mentee",
+    element: (
+      <RouteErrorBoundary zone="onboarding">
+        <ProtectedRoute permission={PERMISSIONS.MANAGE_MENTEE_PROFILE}>
+          <MenteeOnboarding />
+        </ProtectedRoute>
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    // HOC-wrapped example
+    path: "/dashboard/mentee/edit-profile",
+    element: (
+      <ProtectedRoute permission={PERMISSIONS.MANAGE_MENTEE_PROFILE}>
+        <SafeMenteeEditProfileShell />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    // HOC-wrapped example 
+    path: "/dashboard/mentor/edit-profile",
+    element: (
+      <ProtectedRoute permission={PERMISSIONS.MANAGE_MENTOR_PROFILE}>
+        <SafeMentorEditProfileShell />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/mentor",
+    element: (
+      <RouteErrorBoundary zone="mentor-dashboard">
+        <ProtectedRoute permission={PERMISSIONS.VIEW_MENTOR_DASHBOARD}>
+          <MentorDashboard />
+        </ProtectedRoute>
+      </RouteErrorBoundary>
+    ),
+    errorElement: <RouteErrorPage zone="mentor-dashboard" />,
+  },
+  {
+    path: "/dashboard/mentee",
+    element: (
+      <RouteErrorBoundary zone="mentee-dashboard">
+        <ProtectedRoute permission={PERMISSIONS.VIEW_MENTEE_DASHBOARD}>
+          <MenteeDashboard />
+        </ProtectedRoute>
+      </RouteErrorBoundary>
+    ),
+    errorElement: <RouteErrorPage zone="mentee-dashboard" />,
+  },
+  // ── Shared Dashboard — no role restriction, auth checked inside page ──
+  {
+    path: "/shared-dashboard/:connectRequestId",
+    element: (
+      <RouteErrorBoundary zone="shared-dashboard">
+        <SharedDashboardPage />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/admin/login",
+    element: (
+      <RouteErrorBoundary zone="admin-login">
+        <AdminLogin />
+      </RouteErrorBoundary>
+    ),
+  },
+  {
+    path: "/admin",
+    element: (
+      <RouteErrorBoundary zone="admin-layout">
+        <AdminRoute>
+          <AdminLayout />
+        </AdminRoute>
+      </RouteErrorBoundary>
+    ),
+    errorElement: <RouteErrorPage zone="admin-layout" />,
+    children: [
+      {
+        path: "users",
+        loader: adminUserManagementLoader,
+        element: (
+          <RouteErrorBoundary zone="admin-child">
+            <AdminUserManagement />
+          </RouteErrorBoundary>
+        ),
+      },
+      {
+        path: "engagements",
+        loader: adminEngagementsLoader,
+        element: (
+          <RouteErrorBoundary zone="admin-child">
+            <AdminEngagements />
+          </RouteErrorBoundary>
+        ),
+      },
+      {
+        path: "reports",
+        loader: adminReportsLoader,
+        element: (
+          <RouteErrorBoundary zone="admin-child">
+            <AdminReports />
+          </RouteErrorBoundary>
+        ),
+      },
+      {
+        path: "payments",
+        loader: adminPaymentsLoader,
+        element: (
+          <RouteErrorBoundary zone="admin-child">
+            <AdminPayments />
+          </RouteErrorBoundary>
+        ),
+      },
+      {
+        path: "settings",
+        loader: adminSettingsLoader,
+        element: (
+          <RouteErrorBoundary zone="admin-child">
+            <AdminSettings />
+          </RouteErrorBoundary>
+        ),
+      },
+      {
+        path: "wallet-requests",
+        element: (
+          <RouteErrorBoundary zone="admin-child">
+            <AdminWalletRequests />
+          </RouteErrorBoundary>
+        ),
+      },
+      {
+        path: "support",
+        element: (
+          <RouteErrorBoundary zone="admin-child">
+            <AdminSupportMessages />
+          </RouteErrorBoundary>
+        ),
+      },
+      {
+        path: "verifications",
+        loader: adminVerificationsLoader,
+        action: adminVerificationsAction,
+        element: (
+          <RouteErrorBoundary zone="admin-child">
+            <AdminVerifications />
+          </RouteErrorBoundary>
+        ),
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: (
+      <RouteErrorBoundary zone="not-found">
+        <NotFound />
+      </RouteErrorBoundary>
+    ),
+  },
+]);
+
 const App = () => {
   const dispatch = useDispatch();
   const token = useSelector(selectAuthToken);
@@ -101,193 +378,10 @@ const App = () => {
   }, []); // intentionally empty — runs once on mount only
 
   return (
-    <BrowserRouter>
-      <Suspense fallback={<PageLoader />}>
-        <GlobalErrorBanner />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <RouteErrorBoundary>
-                <Home />
-              </RouteErrorBoundary>
-            }
-          />
-
-          <Route
-            path="/register/mentee"
-            element={
-              <RouteErrorBoundary>
-                <RegisterMentee />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/register/mentor"
-            element={
-              <RouteErrorBoundary>
-                <RegisterMentor />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              <RouteErrorBoundary>
-                <LoginMentee />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/login/mentor"
-            element={
-              <RouteErrorBoundary>
-                <LoginMentor />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/login/mentee"
-            element={
-              <RouteErrorBoundary>
-                <LoginMentee />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/verify-email"
-            element={
-              <RouteErrorBoundary>
-                <VerifyEmail />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/forgot-password"
-            element={
-              <RouteErrorBoundary>
-                <ForgotPassword />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/sso-callback"
-            element={
-              <RouteErrorBoundary>
-                <SSOCallback />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/sso-callback-sync"
-            element={
-              <RouteErrorBoundary>
-                <SSOSync />
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/onboarding/mentor"
-            element={
-              <RouteErrorBoundary>
-                <ProtectedRoute role="mentor">
-                  <MentorOnboarding />
-                </ProtectedRoute>
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/onboarding/mentor/verify-documents"
-            element={
-              <RouteErrorBoundary>
-                <ProtectedRoute role="mentor">
-                  <MentorVerification />
-                </ProtectedRoute>
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/onboarding/mentee"
-            element={
-              <RouteErrorBoundary>
-                <ProtectedRoute role="mentee">
-                  <MenteeOnboarding />
-                </ProtectedRoute>
-              </RouteErrorBoundary>
-            }
-          />
-
-          <Route
-            path="/dashboard/mentee/edit-profile"
-            element={
-              <RouteErrorBoundary>
-                <ProtectedRoute role="mentee">
-                  <MenteeEditProfileShell />
-                </ProtectedRoute>
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/dashboard/mentor/edit-profile"
-            element={
-              <RouteErrorBoundary>
-                <ProtectedRoute role="mentor">
-                  <MentorEditProfileShell />
-                </ProtectedRoute>
-              </RouteErrorBoundary>
-            }
-          />
-
-          <Route
-            path="/dashboard/mentor"
-            element={
-              <RouteErrorBoundary>
-                <ProtectedRoute role="mentor">
-                  <MentorDashboard />
-                </ProtectedRoute>
-              </RouteErrorBoundary>
-            }
-          />
-          <Route
-            path="/dashboard/mentee"
-            element={
-              <RouteErrorBoundary>
-                <ProtectedRoute role="mentee">
-                  <MenteeDashboard />
-                </ProtectedRoute>
-              </RouteErrorBoundary>
-            }
-          />
-
-          {/* ── Shared Dashboard — no role restriction, auth checked inside page ── */}
-          <Route
-            path="/shared-dashboard/:connectRequestId"
-            element={
-              <RouteErrorBoundary>
-                <SharedDashboardPage />
-              </RouteErrorBoundary>
-            }
-          />
-
-          <Route path="/admin/login" element={<AdminLogin />} />
-
-          <Route path="/admin" element={<RouteErrorBoundary>
-            <AdminRoute><AdminLayout /></AdminRoute>
-          </RouteErrorBoundary>}>
-            <Route path="users" element={<AdminUserManagement />} />
-            <Route path="engagements" element={<AdminEngagements />} />
-            <Route path="reports" element={<AdminReports />} />
-            <Route path="payments" element={<AdminPayments />} />
-            <Route path="settings" element={<AdminSettings />} />
-            <Route path="wallet-requests" element={<AdminWalletRequests />} />
-            <Route path="support" element={<AdminSupportMessages />} />
-            <Route path="verifications" element={<AdminVerifications />} />
-          </Route>
-
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+    <Suspense fallback={<PageLoader />}>
+      <GlobalErrorBanner />
+      <RouterProvider router={router} />
+    </Suspense>
   );
 };
 
