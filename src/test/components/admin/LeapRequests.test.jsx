@@ -4,9 +4,9 @@ import React from "react";
 
 // Hoist global placeholders to fix the strict initialization crash on line 40 of LeapRequests[cite: 4]
 beforeAll(() => {
-    globalThis.ActivityBar = () => null;
-    globalThis.RequestCard = () => null;
-    globalThis.EmptyState = () => null;
+    globalThis.ActivityBar = function ActivityBar() { return null; };
+    globalThis.RequestCard = function RequestCard() { return null; };
+    globalThis.EmptyState = function EmptyState() { return null; };
 });
 
 // Robust positional Hook Interceptor to capture and sanitize malformed toast object state updates

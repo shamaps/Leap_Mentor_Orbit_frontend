@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import GlobalErrorBanner from "../../../shared/components/GlobalErrorBanner";
-import { clearGlobalError } from "../../../app/store/slices/uiSlice";
 
 // ── Mock Redux Bindings ──
 vi.mock("react-redux", () => ({

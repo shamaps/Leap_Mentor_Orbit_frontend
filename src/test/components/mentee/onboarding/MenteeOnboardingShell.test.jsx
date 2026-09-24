@@ -43,9 +43,9 @@ vi.mock("@/features/mentee/view/components/onboarding/ProfessionalDetailsSection
     default: () => <input name="currentRole" data-testid="professional-details-stub" />,
 }));
 vi.mock("@/features/mentee/view/components/onboarding/InterestedFieldsSection", () => ({
-    default: React.forwardRef((_, ref) => (
-        <div ref={ref} data-field="interestedFields" data-testid="interested-fields-stub" />
-    )),
+    default: React.forwardRef(function InterestedFieldsStub(_, ref) {
+        return <div ref={ref} data-field="interestedFields" data-testid="interested-fields-stub" />;
+    }),
 }));
 vi.mock("@/features/mentee/view/components/onboarding/MentorshipPrefsSection", () => ({
     default: () => <div data-testid="mentorship-prefs-stub" />,

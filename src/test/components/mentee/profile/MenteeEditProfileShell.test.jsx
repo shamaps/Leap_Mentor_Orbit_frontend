@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
@@ -136,7 +136,7 @@ describe("MenteeEditProfileShell Component", () => {
     });
 
     it("should invoke form submit action and toggle a disabled loader status text while saving is active", async () => {
-        const user = userEvent.setup();
+        const _user = userEvent.setup();
         useMenteeEditProfile.mockReturnValueOnce({
             form: { name: "Test User" },
             loading: true,

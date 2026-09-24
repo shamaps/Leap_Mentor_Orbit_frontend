@@ -114,7 +114,7 @@ describe("ConnectsLayout Component Suite", () => {
 
     describe("SkeletonCard Visual Component Coverage", () => {
         it("should mount and pass coverage tracking for the internal SkeletonCard structure layout", () => {
-            const fileModules = import.meta.glob("../../../../features/connects/view/ConnectsLayout.jsx", { eager: true });
+            const fileModules = import.meta.glob("../../../../features/connects/view/ConnectsLayout.tsx", { eager: true });
             const modulePath = Object.keys(fileModules)[0];
             const layoutModule = fileModules[modulePath];
 
