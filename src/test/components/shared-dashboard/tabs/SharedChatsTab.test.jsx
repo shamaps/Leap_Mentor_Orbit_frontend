@@ -195,6 +195,16 @@ describe("SharedChatTab", () => {
         expect(screen.getByText("Loading...")).toBeDisabled();
     });
 
+    it("hides the 'Loading...' label and re-enables the button once loadingMore finishes", () => {
+        mockUseChat.mockReturnValue(makeChatState({ hasMore: true, loadingMore: true }));
+        const { rerender } = render(<SharedChatTab />);
+        expect(screen.getByText("Loading...")).toBeInTheDocument();
+
+        mockUseChat.mockReturnValue(makeChatState({ hasMore: true, loadingMore: false }));
+        rerender(<SharedChatTab />);
+        expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+    });
+    
     it("sends a message via the send button and clears the input", () => {
         const sendMessage = vi.fn();
         mockUseChat.mockReturnValue(makeChatState({ sendMessage }));

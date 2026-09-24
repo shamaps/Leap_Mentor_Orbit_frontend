@@ -76,7 +76,7 @@ describe("useMenteeHomeData", () => {
 
         await waitFor(() => expect(result.current.loadingMentors).toBe(false));
 
-        expect(logger.error).toHaveBeenCalledWith("Mentor search fetch failed", {
+        expect(logger.warn).toHaveBeenCalledWith("Mentor search fetch failed", {
             message: "mentor search down",
         });
         expect(result.current.mentors).toEqual([]);
@@ -109,7 +109,7 @@ describe("useMenteeHomeData", () => {
 
         await waitFor(() => expect(result.current.loadingSessions).toBe(false));
 
-        expect(logger.error).toHaveBeenCalledWith("Sessions fetch failed", {
+        expect(logger.warn).toHaveBeenCalledWith("Sessions fetch failed", {
             message: "sessions down",
         });
         expect(result.current.sessions).toEqual([]);
@@ -144,7 +144,7 @@ describe("useMenteeHomeData", () => {
 
         await waitFor(() => expect(result.current.loadingWallet).toBe(false));
 
-        expect(logger.error).toHaveBeenCalledWith("Wallet fetch failed", {
+        expect(logger.warn).toHaveBeenCalledWith("Wallet fetch failed", {
             message: "wallet down",
         });
         expect(result.current.balance).toBe(0);

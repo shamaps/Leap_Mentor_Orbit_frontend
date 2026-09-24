@@ -13,12 +13,12 @@ import HelpCenter from "@/shared/components/HelpCenter";
 import useSocketToast from "@/features/shared-dashboard/presenter/useSocketToast.js";
 import { Home, User, Search, Bell, History, Users } from "lucide-react";
 import DashboardSidebar from "@/shared/components/DashboardSidebar";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigation } from "react-router-dom";
 import ErrorState from "@/shared/components/ErrorState";
 // ErrorState is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
- 
+
 const ErrorStateAny = ErrorState as any;
 const MENTEE_NAV_ITEMS = [
   { key: "home", label: "Home", icon: <Home size={16} /> },
@@ -35,6 +35,8 @@ const DashboardLayout = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigation = useNavigation();
+  const isNavigating = navigation.state !== "idle";
   useEffect(() => {
     const handler = (e: Event) => setActiveTab((e as CustomEvent<string>).detail);
     globalThis.addEventListener("setDashboardTab", handler);
@@ -86,6 +88,13 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Route-level navigation pending indicator — same pattern as
+          AdminLayout's and the mentor DashboardLayout's. */}
+      {isNavigating && (
+        <div className="h-0.5 w-full bg-blue-100 overflow-hidden flex-shrink-0">
+          <div className="h-full w-1/3 bg-blue-600 animate-pulse" />
+        </div>
+      )}
       <DashboardTopbar onMenuToggle={() => setSidebarOpen(true)} onLogoClick={() => handleSetTab("home")} />
 
       <div className="flex flex-1">

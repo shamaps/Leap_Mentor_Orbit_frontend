@@ -53,22 +53,22 @@ describe("TimezoneDurationSection Component Suite", () => {
     it("should render all duration options as buttons", () => {
         setup();
         expect(screen.getByRole("button", { name: "30 min" })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "45 min" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "90 min" })).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "60 min" })).toBeInTheDocument();
     });
 
     it("should visually mark durations included in sessionDurations as selected", () => {
         setup({ sessionDurations: [30] });
         const selectedBtn = screen.getByRole("button", { name: "30 min" });
-        const unselectedBtn = screen.getByRole("button", { name: "45 min" });
+        const unselectedBtn = screen.getByRole("button", { name: "60 min" });
         expect(selectedBtn.className).toContain("bg-blue-900");
         expect(unselectedBtn.className).not.toContain("bg-blue-900");
     });
 
     it("should call toggleDuration with the correct value when a duration button is clicked", () => {
         setup();
-        fireEvent.click(screen.getByRole("button", { name: "45 min" }));
-        expect(toggleDuration).toHaveBeenCalledWith(45);
+        fireEvent.click(screen.getByRole("button", { name: "90 min" }));
+        expect(toggleDuration).toHaveBeenCalledWith(90);
     });
 
     it("should render the helper text under the duration options", () => {

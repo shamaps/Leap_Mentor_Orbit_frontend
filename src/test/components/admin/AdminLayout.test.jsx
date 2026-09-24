@@ -13,6 +13,10 @@ vi.mock("react-router-dom", async () => {
         ...actual,
         useNavigate: () => mockNavigate,
         Outlet: () => <div data-testid="mock-outlet">Mock Page Content</div>,
+        // AdminLayout reads useNavigation() for a top-bar nav indicator. That
+        // hook only works under a data router, but this suite renders under a
+        // plain <BrowserRouter>, so it must be stubbed.
+        useNavigation: () => ({ state: "idle" }),
     };
 });
 

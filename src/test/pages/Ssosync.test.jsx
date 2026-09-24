@@ -159,7 +159,7 @@ describe("SSOSync", () => {
         });
         expect(axiosInstance.post).toHaveBeenCalledWith("/auth/clerk-sso", {
             clerkToken: "clerk-token",
-            roles: undefined,
+            roles: [],
             termsAccepted: true,
         });
     });
@@ -207,7 +207,7 @@ describe("SSOSync", () => {
         });
         expect(axiosInstance.post).toHaveBeenCalledWith("/auth/clerk-sso", {
             clerkToken: "clerk-token",
-            roles: undefined,
+            roles: [],
             termsAccepted: false,
         });
     });

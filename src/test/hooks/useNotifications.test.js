@@ -182,7 +182,7 @@ describe("useNotifications", () => {
         });
 
         expect(result.current.error).toBe("Failed to mark all as read. Please try again.");
-        expect(logger.warn).toHaveBeenCalledWith(
+        expect(logger.error).toHaveBeenCalledWith(
             "Failed to mark all notifications read",
             expect.objectContaining({ message: "boom" }),
         );
@@ -217,7 +217,7 @@ describe("useNotifications", () => {
         });
 
         expect(result.current.error).toBe("Failed to clear notifications. Please try again.");
-        expect(logger.warn).toHaveBeenCalledWith(
+        expect(logger.error).toHaveBeenCalledWith(
             "Failed to clear notifications",
             expect.objectContaining({ message: "clear-fail" }),
         );
@@ -259,7 +259,7 @@ describe("useNotifications", () => {
         });
 
         expect(result.current.error).toBe("Failed to mark as read. Please try again.");
-        expect(logger.warn).toHaveBeenCalledWith(
+        expect(logger.error).toHaveBeenCalledWith(
             "Failed to mark notification read",
             expect.objectContaining({ message: "mark-fail", targetId: "1" }),
         );
@@ -300,7 +300,7 @@ describe("useNotifications", () => {
         });
 
         expect(result.current.error).toBe("Failed to delete notification. Please try again.");
-        expect(logger.warn).toHaveBeenCalledWith(
+        expect(logger.error).toHaveBeenCalledWith(
             "Failed to delete notification",
             expect.objectContaining({ message: "delete-fail", targetId: "1" }),
         );

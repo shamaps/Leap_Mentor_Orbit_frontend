@@ -173,6 +173,23 @@ describe("SharedReportTab Component Suite", () => {
             render(<SharedReportTab connect={mockConnectMentee} reportRefreshKey={1} />);
             expect(screen.getByText("Database integrity constraints block duplicate feedback updates.")).toBeInTheDocument();
         });
+        it("unlocks submit and hides the spinner once submitting goes back to false", () => {
+            useReport.mockReturnValueOnce({
+                sessionStatus: "completed",
+                loading: false,
+                submitting: true,
+            });
+            const { rerender } = render(<SharedReportTab connect={mockConnectMentee} reportRefreshKey={1} />);
+            expect(screen.getByText("Submitting...")).toBeInTheDocument();
+
+            useReport.mockReturnValueOnce({
+                sessionStatus: "completed",
+                loading: false,
+                submitting: false,
+            });
+            rerender(<SharedReportTab connect={mockConnectMentee} reportRefreshKey={1} />);
+            expect(screen.queryByText("Submitting...")).not.toBeInTheDocument();
+        });
     });
 
     describe("Submitted Review Information Cards Displays", () => {

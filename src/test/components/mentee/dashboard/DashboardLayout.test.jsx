@@ -14,10 +14,6 @@ vi.mock("../../../../features/shared-dashboard/presenter/useSocketToast");
 const mockSetSearchParams = vi.fn();
 let mockSearchParamsValue = new URLSearchParams();
 
-vi.mock("react-router-dom", () => ({
-    useSearchParams: vi.fn(),
-}));
-
 vi.mock("../../../../shared/components/DashboardTopbar", () => ({
     default: ({ onMenuToggle, onLogoClick }) => (
         <div data-testid="topbar">
@@ -76,6 +72,10 @@ vi.mock("../../../../shared/components/ErrorState", () => ({
 vi.mock("react-router-dom", () => ({
     useSearchParams: vi.fn(),
     useNavigate: vi.fn(() => vi.fn()),
+    // DashboardLayout also reads useNavigation() to show a top-level nav
+    // indicator; a plain BrowserRouter/manual mock has no data router behind
+    // it, so this must be stubbed directly rather than relying on the real hook.
+    useNavigation: () => ({ state: "idle" }),
 }));
 
 vi.mock("react-redux", () => ({

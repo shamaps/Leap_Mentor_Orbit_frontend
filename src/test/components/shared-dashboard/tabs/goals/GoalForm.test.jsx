@@ -139,7 +139,21 @@ describe("GoalForm Components Coverage Suite", () => {
                 expect(screen.getByText("End date cannot precede start date.")).toBeInTheDocument();
             });
         });
+        it("re-enables buttons and removes the spinner once saving goes back to false", async () => {
+            const { rerender } = render(<GoalForm onSave={mockSave} onCancel={mockCancel} saving={true} initial={{ title: "Valid Seeded Title" }} />);
 
+            await waitFor(() => {
+                expect(screen.getByText("Saving...")).toBeInTheDocument();
+                expect(screen.getByTestId("mock-spinner-element")).toBeInTheDocument();
+            });
+            expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled();
+
+            rerender(<GoalForm onSave={mockSave} onCancel={mockCancel} saving={false} initial={{ title: "Valid Seeded Title" }} />);
+
+            expect(screen.queryByText("Saving...")).not.toBeInTheDocument();
+            expect(screen.queryByTestId("mock-spinner-element")).not.toBeInTheDocument();
+            expect(screen.getByRole("button", { name: /Cancel/i })).not.toBeDisabled();
+        });
         it("should submit validated fields cleanly and apply parameter whitespace trim calls beforehand", async () => {
             render(<GoalForm onSave={mockSave} onCancel={mockCancel} />);
 

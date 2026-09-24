@@ -114,7 +114,7 @@ describe("useTrackEarnings", () => {
 
     it("falls back to the generic earnings-error message when stats fetch fails without a server message", async () => {
         axiosInstance.get.mockImplementation((url) => {
-            if (url === "/mentor/earnings") return Promise.reject(new Error("network down"));
+            if (url === "/mentor/earnings") return Promise.reject({});
             return Promise.resolve({ data: {} });
         });
         const { result } = renderHook(() => useTrackEarnings());
@@ -143,7 +143,7 @@ describe("useTrackEarnings", () => {
         await flush();
 
         expect(result.current.chartPeriod).toBe("weekly");
-        expect(logger.error).toHaveBeenCalledWith("Chart fetch error", { message: "chart down" });
+        expect(logger.warn).toHaveBeenCalledWith("Chart fetch error", { message: "chart down" });
         expect(result.current.loadingChart).toBe(false);
     });
 
@@ -171,7 +171,7 @@ describe("useTrackEarnings", () => {
             await Promise.resolve();
         });
 
-        expect(logger.error).toHaveBeenCalledWith("Payouts fetch error", { message: "payouts down" });
+        expect(logger.warn).toHaveBeenCalledWith("Payouts fetch error", { message: "payouts down" });
     });
 
     it("debounces search input into a single payouts fetch, resetting page to 1 and including the search param", async () => {
@@ -320,9 +320,8 @@ describe("useTrackEarnings", () => {
         });
         expect(result.current.withdrawing).toBe(false);
     });
-
     it("handleWithdraw: falls back to the generic withdrawal-failed message", async () => {
-        axiosInstance.post.mockRejectedValueOnce(new Error("boom"));
+        axiosInstance.post.mockRejectedValueOnce({});
         const { result } = renderHook(() => useTrackEarnings());
         await flush();
 

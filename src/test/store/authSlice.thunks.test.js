@@ -18,14 +18,16 @@ import {
     logout,
 } from "../../app/store/slices/authSlice";
 
-const { mockSetUser, mockAddBreadcrumb } = vi.hoisted(() => ({
+const { mockSetUser, mockAddBreadcrumb, mockCaptureException } = vi.hoisted(() => ({
     mockSetUser: vi.fn(),
     mockAddBreadcrumb: vi.fn(),
+    mockCaptureException: vi.fn(),
 }));
 
 vi.mock("@sentry/react", () => ({
     setUser: mockSetUser,
     addBreadcrumb: mockAddBreadcrumb,
+    captureException: mockCaptureException,
 }));
 const BASE = "http://localhost:5000/api/v1";
 

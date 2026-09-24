@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 import { server } from "../mswServer";
 import {
     getNotifications, markAllNotificationsRead, clearAllNotifications,
-    markNotificationRead, deleteNotification, subscribeToPush,
+    markNotificationRead, deleteNotification,
 } from "../../features/notifications/model/notifications.api";
 
 const BASE = "http://localhost:5000/api/v1";
@@ -77,20 +77,6 @@ describe("notifications.api", () => {
         const result = await deleteNotification("n1");
         expect(wasHit).toBe(true);
         expect(receivedMethod).toBe("DELETE");
-        expect(result).toBeUndefined();
-    });
-
-    it("subscribeToPush: POSTs { subscription } to /push/subscribe", async () => {
-        let receivedBody;
-        const subscription = { endpoint: "https://fcm.example.com/xyz", keys: { p256dh: "abc", auth: "def" } };
-        server.use(
-            http.post(`${BASE}/push/subscribe`, async ({ request }) => {
-                receivedBody = await request.json();
-                return envelope({});
-            }),
-        );
-        const result = await subscribeToPush(subscription);
-        expect(receivedBody).toEqual({ subscription });
         expect(result).toBeUndefined();
     });
 });
