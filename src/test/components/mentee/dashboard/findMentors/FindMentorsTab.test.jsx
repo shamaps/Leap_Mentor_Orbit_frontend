@@ -2,25 +2,25 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import FindMentorsTab from "../../../../../components/mentee/dashboard/findMentors/FindMentorsTab";
-import useMentorSearch from "../../../../../hooks/useMentorSearch";
-import { getPlatformCommissionRate } from "../../../../../api/escrow.api";
+import FindMentorsTab from "../../../../../features/mentee/view/components/dashboard/findMentors/FindMentorsTab";
+import useMentorSearch from "../../../../../features/mentee/presenter/useMentorSearch";
+import { getPlatformCommissionRate } from "../../../../../features/shared-dashboard/model/escrow.api";
 
-vi.mock("../../../../../hooks/useMentorSearch", () => ({
+vi.mock("../../../../../features/mentee/presenter/useMentorSearch", () => ({
     default: vi.fn(),
 }));
 
-vi.mock("../../../../../api/escrow.api", () => ({
+vi.mock("../../../../../features/shared-dashboard/model/escrow.api", () => ({
     getPlatformCommissionRate: vi.fn(),
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/findMentors/SearchBar", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/findMentors/SearchBar", () => ({
     default: ({ skill, setSkill }) => (
         <input data-testid="mock-search-bar" value={skill} onChange={(e) => setSkill(e.target.value)} />
     ),
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/findMentors/FilterPanel", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/findMentors/FilterPanel", () => ({
     default: ({ updateFilter }) => (
         <button data-testid="mock-filter-panel" onClick={() => updateFilter("industry", "Design")}>
             Filter
@@ -28,7 +28,7 @@ vi.mock("../../../../../components/mentee/dashboard/findMentors/FilterPanel", ()
     ),
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/findMentors/MentorGrid", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/findMentors/MentorGrid", () => ({
     default: ({ mentors, onViewProfile }) => (
         <div data-testid="mock-mentor-grid">
             {mentors.map((m) => (
@@ -40,7 +40,7 @@ vi.mock("../../../../../components/mentee/dashboard/findMentors/MentorGrid", () 
     ),
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/findMentors/MentorProfileModal", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/findMentors/MentorProfileModal", () => ({
     default: ({ mentor, onClose }) => (
         <div data-testid="mock-mentor-profile-modal">
             <span>{mentor.name}</span>
@@ -49,7 +49,7 @@ vi.mock("../../../../../components/mentee/dashboard/findMentors/MentorProfileMod
     ),
 }));
 
-vi.mock("../../../../../components/common/ErrorState", () => ({
+vi.mock("../../../../../shared/components/ErrorState", () => ({
     default: ({ message }) => <div data-testid="mock-error-state">{message}</div>,
 }));
 

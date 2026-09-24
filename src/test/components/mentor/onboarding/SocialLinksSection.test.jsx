@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import SocialLinksSection from "../../../../components/mentor/onboarding/SocialLinksSection";
+import SocialLinksSection from "../../../../features/mentor/view/components/onboarding/SocialLinksSection";
 
 const mockOnChange = vi.fn();
 const mockOnBlur = vi.fn();
 let mockForm = { portfolioUrl: "", linkedInUrl: "" };
 
-vi.mock("../../../../context/MentorOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentor/context/MentorOnboardingFormContext", () => ({
     useMentorOnboardingForm: () => ({
         form: mockForm,
         onChange: mockOnChange,
@@ -15,7 +15,7 @@ vi.mock("../../../../context/MentorOnboardingFormContext", () => ({
     }),
 }));
 
-vi.mock("@/components/common/FormField", () => ({
+vi.mock("@/shared/components/FormField", () => ({
     default: ({ label, name, value, onChange, onBlur, placeholder, icon }) => (
         <div>
             <label htmlFor={name}>{label}</label>

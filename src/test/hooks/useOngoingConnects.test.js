@@ -1,10 +1,10 @@
 // src/test/hooks/useOngoingConnects.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { getOngoingConnects } from "../../api/connectRequests.api";
-import useOngoingConnects from "../../hooks/useOngoingConnects";
+import { getOngoingConnects } from "../../features/connects/model/connectRequests.api";
+import useOngoingConnects from "../../features/mentee/presenter/useOngoingConnects";
 
-vi.mock("../../api/connectRequests.api");
+vi.mock("../../features/connects/model/connectRequests.api");
 
 describe("useOngoingConnects", () => {
     beforeEach(() => {

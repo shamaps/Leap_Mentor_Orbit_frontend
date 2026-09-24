@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import RegisterForm from "../../../components/auth/RegisterForm";
+import RegisterForm from "../../../features/auth/view/components/RegisterForm";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({
@@ -15,12 +15,12 @@ vi.mock("react-redux", () => ({
     useSelector: (selector) => selector({ auth: mockSelectAuthState }),
 }));
 
-vi.mock("../../../store/selectors", () => ({
+vi.mock("../../../app/store/selectors", () => ({
     selectAuth: (state) => state.auth,
 }));
 
 let mockRegisterUserImpl;
-vi.mock("../../../store/slices/authSlice", () => ({
+vi.mock("../../../app/store/slices/authSlice", () => ({
     registerUser: Object.assign((...args) => mockRegisterUserImpl(...args), {
         fulfilled: { match: (res) => res?.__type === "fulfilled" },
     }),
@@ -39,20 +39,20 @@ vi.mock("@clerk/clerk-react", () => ({
     useClerk: () => ({ signOut: mockSignOut }),
 }));
 
-vi.mock("../../../hooks/useGoogleAuth", () => ({
+vi.mock("../../../features/auth/presenter/useGoogleAuth", () => ({
     default: vi.fn(),
 }));
 
 const mockSsoSet = vi.fn();
 const mockSsoClear = vi.fn();
-vi.mock("../../../utils/storage", () => ({
+vi.mock("../../../shared/utils/storage", () => ({
     ssoFlags: {
         set: (...args) => mockSsoSet(...args),
         clear: (...args) => mockSsoClear(...args),
     },
 }));
 
-vi.mock("../../../ui/TermsAndConditionsModal", () => ({
+vi.mock("../../../shared/marketing/TermsAndConditionsModal", () => ({
     default: ({ isOpen, onClose, onAccept }) =>
         isOpen ? (
             <div data-testid="terms-modal">

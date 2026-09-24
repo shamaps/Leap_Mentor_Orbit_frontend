@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import reducer, {
     resetMenteeProfile,
     fetchMenteeDashboard,
-} from "../../store/slices/menteeProfileSlice";
+} from "../../app/store/slices/menteeProfileSlice";
 
 const initialState = { user: null, profile: null, loading: true, error: null };
 

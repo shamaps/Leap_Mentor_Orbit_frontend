@@ -1,10 +1,10 @@
 // src/test/hooks/useProfilePhotoUpload.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import axiosInstance from "../../utils/axiosInstance";
-import { useProfilePhotoUpload } from "../../hooks/useProfilePhotoUpload";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import { useProfilePhotoUpload } from "../../features/uploads/model/useProfilePhotoUpload";
 
-vi.mock("../../utils/axiosInstance");
+vi.mock("../../shared/utils/axiosInstance");
 
 const makeFile = (name, type, sizeBytes) => {
     const file = new File(["x".repeat(Math.min(sizeBytes, 10))], name, { type });

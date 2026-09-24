@@ -15,7 +15,7 @@ import reducer, {
     resetPassword,
     logoutUser,
     redirectByRole,
-} from "../../store/slices/authSlice";
+} from "../../app/store/slices/authSlice";
 
 const initialState = {
     user: null,

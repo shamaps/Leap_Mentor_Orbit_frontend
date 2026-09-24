@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
 import { z } from "zod";
-import GoalForm from "../../../../../components/shared-dashboard/tabs/goals/GoalForm";
+import GoalForm from "../../../../../features/shared-dashboard/view/components/tabs/goals/GoalForm";
 
 //  Re-create a real, structurally operational Zod validation schema definition
-vi.mock("../../../../../schemas/miscSchemas", () => {
+vi.mock("../../../../../shared/schemas/miscSchemas", () => {
     const schema = z.object({
         title: z.string().min(1, "Goal title is required description."),
         description: z.string().optional(),
@@ -24,7 +24,7 @@ vi.mock("../../../../../schemas/miscSchemas", () => {
 });
 
 // Mock Spinner subcomponent layout alignment
-vi.mock("../../../../../components/common/Spinner", () => ({
+vi.mock("../../../../../shared/components/Spinner", () => ({
     default: () => <span data-testid="mock-spinner-element" />
 }));
 describe("GoalForm Components Coverage Suite", () => {

@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import {
     MenteeOnboardingFormContext,
     useMenteeOnboardingForm,
-} from "../../context/MenteeOnboardingFormContext";
+} from "../../features/mentee/context/MenteeOnboardingFormContext";
 
 const Consumer = () => {
     const { form } = useMenteeOnboardingForm();

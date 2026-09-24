@@ -2,7 +2,7 @@
 import { describe, it, expect } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../mswServer";
-import { searchMentors } from "../../api/mentorSearch.api";
+import { searchMentors } from "../../features/mentee/model/mentorSearch.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

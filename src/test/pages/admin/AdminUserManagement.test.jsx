@@ -2,17 +2,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, within, act, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import adminAxiosInstance from "../../../utils/axiosInstance";
-import AdminUserManagement from "../../../pages/admin/AdminUserManagement";
+import adminAxiosInstance from "../../../shared/utils/axiosInstance";
+import AdminUserManagement from "../../../features/admin/view/pages/AdminUserManagement";
 
-vi.mock("../../../utils/axiosInstance");
-vi.mock("../../../utils/logger", () => ({
+vi.mock("../../../shared/utils/axiosInstance");
+vi.mock("../../../shared/utils/logger", () => ({
     default: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
-vi.mock("../../../components/admin/common/UserGrowthChart", () => ({
+vi.mock("../../../features/admin/view/charts/UserGrowthChart", () => ({
     default: () => <div data-testid="user-growth-chart" />,
 }));
-vi.mock("../../../components/admin/common/MentorIndustryChart", () => ({
+vi.mock("../../../features/admin/view/charts/MentorIndustryChart", () => ({
     default: () => <div data-testid="mentor-industry-chart" />,
 }));
 
@@ -130,7 +130,7 @@ describe("AdminUserManagement", () => {
     });
 
     it("logs errors (without crashing) when stats/growth/industry fetches fail", async () => {
-        const logger = (await import("../../../utils/logger")).default;
+        const logger = (await import("../../../shared/utils/logger")).default;
         adminAxiosInstance.get.mockImplementation((url) => {
             if (url === "/admin/stats") return Promise.reject(new Error("stats fail"));
             if (url === "/admin/user-growth") return Promise.reject(new Error("growth fail"));

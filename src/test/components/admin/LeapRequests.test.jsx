@@ -41,7 +41,7 @@ beforeEach(() => {
 });
 
 // Correct path alias mapping to intercept EmptyState cleanly[cite: 4]
-vi.mock("../../../components/common/EmptyState", () => ({
+vi.mock("../../../shared/components/EmptyState", () => ({
     default: ({ message, subMessage }) => (
         <div data-testid="live-mock-empty">
             <h3>{message}</h3>
@@ -51,7 +51,7 @@ vi.mock("../../../components/common/EmptyState", () => ({
 }));
 
 // Mock admin axios instance network layout[cite: 4]
-vi.mock("../../../utils/axiosInstance", () => ({
+vi.mock("../../../shared/utils/axiosInstance", () => ({
     default: {
         get: vi.fn(() => Promise.resolve({ data: { requests: [] } })),
         patch: vi.fn(() => Promise.resolve({ data: {} })),
@@ -59,14 +59,14 @@ vi.mock("../../../utils/axiosInstance", () => ({
 }));
 
 // Mock logger out of terminal console streams[cite: 4]
-vi.mock("../../../utils/logger", () => ({
+vi.mock("../../../shared/utils/logger", () => ({
     default: {
         error: vi.fn(),
     },
 }));
 
-import LeapRequests from "../../../components/admin/LeapRequests";
-import adminAxiosInstance from "../../../utils/axiosInstance";
+import LeapRequests from "../../../features/admin/view/components/LeapRequests";
+import adminAxiosInstance from "../../../shared/utils/axiosInstance";
 
 describe("LeapRequests Component Suite", () => {
     const baseIsoDate = "2026-07-12T12:00:00.000Z";

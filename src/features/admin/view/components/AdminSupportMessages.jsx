@@ -1,0 +1,286 @@
+// src/features/admin/view/components/AdminSupportMessages.jsx
+import { useAdminSupportMessages } from "../../presenter/useAdminSupportMessages";
+import ErrorState from "@/shared/components/ErrorState";
+import FilterTabs from "@/shared/components/FilterTabs";
+
+export default function AdminSupportMessages() {
+  const {
+    messages,
+    loading,
+    error,
+    filter,
+    setFilter,
+    expanded,
+    setExpanded,
+    resolving,
+    filtered,
+    openCount,
+    resolvedCount,
+    emptyFilterLabel,
+    fetchMessages,
+    markResolved,
+    STATUS_STYLES,
+  } = useAdminSupportMessages();
+
+  let statusContent = null;
+  if (loading) {
+    statusContent = (
+      <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
+        <p>Loading messages...</p>
+      </div>
+    );
+  } else if (error) {
+    statusContent = <ErrorState message={error} onAction={fetchMessages} />;
+  } else if (filtered.length === 0) {
+    statusContent = (
+      <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
+        <p>No {emptyFilterLabel} messages yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1
+          style={{
+            fontSize: 22,
+            fontWeight: 700,
+            color: "#0f172a",
+            margin: "0 0 4px",
+          }}
+        >
+          Support Messages
+        </h1>
+        <p style={{ color: "#475569", fontSize: 14, margin: 0 }}>
+          Messages sent by mentors and mentees from the Help Center.
+        </p>
+      </div>
+
+      <div
+        style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}
+      >
+        {[
+          {
+            label: "Total",
+            count: messages.length,
+            bg: "#f1f5f9",
+            color: "#334155",
+          },
+          { label: "Open", count: openCount, bg: "#fef9c3", color: "#854d0e" },
+          {
+            label: "Resolved",
+            count: resolvedCount,
+            bg: "#dcfce7",
+            color: "#166534",
+          },
+        ].map((s) => (
+          <div
+            key={s.label}
+            style={{
+              padding: "10px 20px",
+              borderRadius: 12,
+              background: s.bg,
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+            }}
+          >
+            <span style={{ fontSize: 20, fontWeight: 700, color: s.color }}>
+              {s.count}
+            </span>
+            <span style={{ fontSize: 13, color: s.color, fontWeight: 500 }}>
+              {s.label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <FilterTabs options={["all", "open", "resolved"]} active={filter} onChange={setFilter} />
+      </div>
+
+      {statusContent}
+
+      {!statusContent && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {filtered.map((msg) => {
+            const isOpen = expanded === msg._id;
+            const isResolving = resolving === msg._id;
+            const statusSt = STATUS_STYLES[msg.status] || STATUS_STYLES.open;
+
+            return (
+              <div
+                key={msg._id}
+                style={{
+                  background: "#fff",
+                  borderRadius: 14,
+                  border: `1.5px solid ${isOpen ? "#bfdbfe" : "#e2e8f0"}`,
+                  overflow: "hidden",
+                  transition: "border-color 0.2s",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setExpanded(isOpen ? null : msg._id)}
+                  aria-expanded={isOpen}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
+                    padding: "16px 20px",
+                    cursor: "pointer",
+                    width: "100%",
+                    background: "none",
+                    border: "none",
+                    textAlign: "left",
+                    font: "inherit",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "3px 10px",
+                      borderRadius: 20,
+                      flexShrink: 0,
+                      background: msg.role === "mentor" ? "#fef3c7" : "#eef2ff",
+                      color: msg.role === "mentor" ? "#b45309" : "#4f46e5",
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    {msg.role || "user"}
+                  </span>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontWeight: 600,
+                        fontSize: 14,
+                        color: "#0f172a",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {msg.subject}
+                    </p>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 12,
+                        color: "#475569",
+                        marginTop: 2,
+                      }}
+                    >
+                      {msg.email}
+                    </p>
+                  </div>
+
+                  <span
+                    style={{ fontSize: 12, color: "#94a3b8", flexShrink: 0 }}
+                  >
+                    {new Date(msg.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "3px 10px",
+                      borderRadius: 20,
+                      flexShrink: 0,
+                      background: statusSt.background,
+                      color: statusSt.color,
+                    }}
+                  >
+                    {statusSt.label}
+                  </span>
+
+                  <span
+                    style={{
+                      color: "#94a3b8",
+                      fontSize: 14,
+                      transition: "transform 0.2s",
+                      display: "inline-block",
+                      transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                    }}
+                  >
+                    ▾
+                  </span>
+                </button>
+                {isOpen && (
+                  <div
+                    style={{
+                      padding: "0 20px 20px",
+                      borderTop: "1px solid #f1f5f9",
+                    }}
+                  >
+                    <p
+                      style={{
+                        marginTop: 14,
+                        fontSize: 14,
+                        color: "#475569",
+                        lineHeight: 1.7,
+                        whiteSpace: "pre-wrap",
+                      }}
+                    >
+                      {msg.message}
+                    </p>
+                    {msg.status === "open" && (
+                      <button
+                        onClick={() => markResolved(msg._id)}
+                        disabled={isResolving}
+                        style={{
+                          marginTop: 14,
+                          padding: "8px 18px",
+                          borderRadius: 8,
+                          background: isResolving ? "#86efac" : "#16a34a",
+                          color: "#fff",
+                          border: "none",
+                          cursor: isResolving ? "not-allowed" : "pointer",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          opacity: isResolving ? 0.8 : 1,
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        {isResolving ? (
+                          <>
+                            <span
+                              style={{
+                                width: 13,
+                                height: 13,
+                                borderRadius: "50%",
+                                border: "2px solid rgba(255,255,255,0.3)",
+                                borderTopColor: "white",
+                                display: "inline-block",
+                                animation: "spin 0.7s linear infinite",
+                              }}
+                            />
+                            <span>Resolving...</span>
+                          </>
+                        ) : (
+                          "Mark as Resolved"
+                        )}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}

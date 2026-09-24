@@ -1,18 +1,18 @@
 // src/test/components/mentor/dashboard/availability/CalendarAvailabilitySection.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import CalendarAvailabilitySection from "../../../../../components/mentor/dashboard/availability/CalendarAvailabilitySection";
+import CalendarAvailabilitySection from "../../../../../features/mentor/view/components/dashboard/availability/CalendarAvailabilitySection";
 
 const { mockAxiosGet, mockLoggerError } = vi.hoisted(() => ({
     mockAxiosGet: vi.fn(),
     mockLoggerError: vi.fn(),
 }));
 
-vi.mock("../../../../../utils/axiosInstance", () => ({
+vi.mock("../../../../../shared/utils/axiosInstance", () => ({
     default: { get: mockAxiosGet },
 }));
 
-vi.mock("../../../../../utils/logger", () => ({
+vi.mock("../../../../../shared/utils/logger", () => ({
     default: { error: mockLoggerError },
 }));
 

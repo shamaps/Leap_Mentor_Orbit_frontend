@@ -1,10 +1,10 @@
 // src/test/hooks/useAvailability.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
-import * as availabilityApi from "../../api/availability.api";
-import useAvailability from "../../hooks/useAvailability";
+import * as availabilityApi from "../../features/mentor/model/availability.api";
+import useAvailability from "../../features/mentor/presenter/useAvailability";
 
-vi.mock("../../api/availability.api");
+vi.mock("../../features/mentor/model/availability.api");
 
 describe("useAvailability", () => {
     beforeEach(() => {

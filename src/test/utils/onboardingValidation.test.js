@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
     isOnlyNumbers, isValidUrl, validateCommonFields,
     validateMenteeFields, getMenteeFieldErrors, getMentorFieldErrors,
-} from "../../utils/onboardingValidation";
+} from "../../shared/utils/onboardingValidation";
 
 describe("isOnlyNumbers", () => {
     it("returns true for a string of digits", () => {

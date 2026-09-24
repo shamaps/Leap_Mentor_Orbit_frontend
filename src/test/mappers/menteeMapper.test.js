@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mapMenteeProfile } from "../../mappers/menteeMapper";
+import { mapMenteeProfile } from "../../features/mentee/model/menteeMapper";
 
 describe("mapMenteeProfile", () => {
     it("returns null when given a falsy value", () => {

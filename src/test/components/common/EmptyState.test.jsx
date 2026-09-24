@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import EmptyState from "../../../components/common/EmptyState";
+import EmptyState from "../../../shared/components/EmptyState";
 
 describe("EmptyState Component Suite", () => {
     it("should render the message with minimal required props and the default icon", () => {

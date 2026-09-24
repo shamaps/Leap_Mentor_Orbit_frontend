@@ -1,20 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import SessionCard from "../../../../../components/shared-dashboard/tabs/goals/SessionCard";
-import { useRescheduleAvailability } from "../../../../../hooks/useRescheduleAvailability";
+import SessionCard from "../../../../../features/shared-dashboard/view/components/tabs/goals/SessionCard";
+import { useRescheduleAvailability } from "../../../../../features/mentor/presenter/useRescheduleAvailability";
 
 // ── Mock Dependency Hooks ──
-vi.mock("../../../../../hooks/useRescheduleAvailability", () => ({
+vi.mock("../../../../../features/mentor/presenter/useRescheduleAvailability", () => ({
     useRescheduleAvailability: vi.fn(),
 }));
 
 // ── Mock Subcomponents ──
-vi.mock("../../../../../components/common/StatusBadge", () => ({
+vi.mock("../../../../../shared/components/StatusBadge", () => ({
     default: ({ status }) => <div data-testid="mock-status-badge">{status}</div>,
 }));
 
-vi.mock("../../../../../components/common/Spinner", () => ({
+vi.mock("../../../../../shared/components/Spinner", () => ({
     default: () => <span data-testid="mock-spinner" />,
 }));
 

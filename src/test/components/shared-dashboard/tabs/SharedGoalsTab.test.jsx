@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import SharedGoalsTab from "../../../../components/shared-dashboard/tabs/SharedGoalsTab";
-import useGoals from "../../../../hooks/useGoals";
-import useSessions from "../../../../hooks/useSessions";
-import useReport from "../../../../hooks/useReport";
+import SharedGoalsTab from "../../../../features/shared-dashboard/view/components/tabs/SharedGoalsTab";
+import useGoals from "../../../../features/shared-dashboard/presenter/useGoals";
+import useSessions from "../../../../features/shared-dashboard/presenter/useSessions";
+import useReport from "../../../../features/shared-dashboard/presenter/useReport";
 import { useSelector } from "react-redux";
 
 // ── Mock Redux Selector Layer ──
@@ -13,7 +13,7 @@ vi.mock("react-redux", () => ({
 }));
 
 // ── Mock Subcomponent Modules ──
-vi.mock("../../../../components/shared-dashboard/tabs/goals/GoalForm", () => ({
+vi.mock("../../../../features/shared-dashboard/view/components/tabs/goals/GoalForm", () => ({
     default: ({ onSave, onCancel }) => (
         <div data-testid="mock-goal-form">
             <button onClick={() => onSave({ title: "New Goal Title" })}>Save Goal</button>
@@ -22,11 +22,11 @@ vi.mock("../../../../components/shared-dashboard/tabs/goals/GoalForm", () => ({
     ),
 }));
 
-vi.mock("../../../../components/shared-dashboard/tabs/goals/TimelineTracker", () => ({
+vi.mock("../../../../features/shared-dashboard/view/components/tabs/goals/TimelineTracker", () => ({
     default: () => <div data-testid="mock-timeline-tracker">Timeline</div>,
 }));
 
-vi.mock("../../../../components/shared-dashboard/tabs/goals/MilestoneList", () => ({
+vi.mock("../../../../features/shared-dashboard/view/components/tabs/goals/MilestoneList", () => ({
     default: ({ onAdd, onToggle, onDelete }) => (
         <div data-testid="mock-milestone-list">
             <button onClick={() => onAdd("New Milestone")}>Add Milestone</button>
@@ -36,7 +36,7 @@ vi.mock("../../../../components/shared-dashboard/tabs/goals/MilestoneList", () =
     ),
 }));
 
-vi.mock("../../../../components/shared-dashboard/tabs/goals/SessionCard", () => ({
+vi.mock("../../../../features/shared-dashboard/view/components/tabs/goals/SessionCard", () => ({
     default: ({ onSessionComplete }) => (
         <div data-testid="mock-session-card">
             <button onClick={() => onSessionComplete(2)}>Complete Session Slot 2</button>
@@ -44,7 +44,7 @@ vi.mock("../../../../components/shared-dashboard/tabs/goals/SessionCard", () => 
     ),
 }));
 
-vi.mock("../../../../components/shared-dashboard/tabs/FeedbackModal", () => ({
+vi.mock("../../../../features/shared-dashboard/view/components/tabs/FeedbackModal", () => ({
     default: ({ onClose, onFeedbackSubmitted }) => (
         <div data-testid="mock-feedback-modal">
             <button onClick={onClose}>Close Feedback</button>
@@ -54,9 +54,9 @@ vi.mock("../../../../components/shared-dashboard/tabs/FeedbackModal", () => ({
 }));
 
 // ── Mock Custom Hooks ──
-vi.mock("../../../../hooks/useGoals", () => ({ default: vi.fn() }));
-vi.mock("../../../../hooks/useSessions", () => ({ default: vi.fn() }));
-vi.mock("../../../../hooks/useReport", () => ({ default: vi.fn() }));
+vi.mock("../../../../features/shared-dashboard/presenter/useGoals", () => ({ default: vi.fn() }));
+vi.mock("../../../../features/shared-dashboard/presenter/useSessions", () => ({ default: vi.fn() }));
+vi.mock("../../../../features/shared-dashboard/presenter/useReport", () => ({ default: vi.fn() }));
 
 describe("SharedGoalsTab Component Suite", () => {
     const mockConnect = {

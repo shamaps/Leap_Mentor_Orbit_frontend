@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import MentorCardSkeleton from "../../../components/common/MentorCardSkeleton";
+import MentorCardSkeleton from "../../../shared/components/MentorCardSkeleton";
 
 describe("MentorCardSkeleton Component", () => {
     it("should render the detailed variant layout by default", () => {

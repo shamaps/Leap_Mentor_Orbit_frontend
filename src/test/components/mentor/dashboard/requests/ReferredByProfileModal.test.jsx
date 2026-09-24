@@ -1,7 +1,7 @@
 // src/test/components/mentor/dashboard/requests/ReferredByProfileModal.test.jsx
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import ReferredByProfileModal from "../../../../../components/mentor/dashboard/requests/ReferredByProfileModal";
+import ReferredByProfileModal from "../../../../../features/mentor/view/components/dashboard/requests/ReferredByProfileModal";
 
 const baseMentor = {
     name: "Alex Kim",

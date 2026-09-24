@@ -2,8 +2,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { http, HttpResponse, delay as mswDelay } from "msw";
 import { server } from "../mswServer";
-import axiosInstance, { injectStore } from "../../utils/axiosInstance";
-import logger from "../../utils/logger";
+import axiosInstance, { injectStore } from "../../shared/utils/axiosInstance";
+import logger from "../../shared/utils/logger";
 
 const BASE = "http://localhost:5000/api/v1";
 

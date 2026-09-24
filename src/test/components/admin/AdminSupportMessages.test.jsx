@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import AdminSupportMessages from "../../../components/admin/AdminSupportMessages";
-import adminAxiosInstance from "../../../utils/axiosInstance";
+import AdminSupportMessages from "../../../features/admin/view/components/AdminSupportMessages";
+import adminAxiosInstance from "../../../shared/utils/axiosInstance";
 
 // Mock admin axios network pipelines
-vi.mock("../../../utils/axiosInstance", () => ({
+vi.mock("../../../shared/utils/axiosInstance", () => ({
     default: {
         get: vi.fn(() => Promise.resolve({ data: { messages: [] } })),
         patch: vi.fn(() => Promise.resolve({ data: {} })),
@@ -13,7 +13,7 @@ vi.mock("../../../utils/axiosInstance", () => ({
 }));
 
 
-vi.mock("../../../components/common/ErrorState", () => ({
+vi.mock("../../../shared/components/ErrorState", () => ({
     default: ({ message, onAction }) => (
         <div data-testid="mock-error-state">
             <p>{message}</p>
@@ -22,7 +22,7 @@ vi.mock("../../../components/common/ErrorState", () => ({
     ),
 }));
 
-vi.mock("../../../components/common/FilterTabs", () => ({
+vi.mock("../../../shared/components/FilterTabs", () => ({
     default: ({ options, active, onChange }) => (
         <div data-testid="mock-filter-tabs">
             {options.map((opt) => (

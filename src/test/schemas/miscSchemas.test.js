@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { goalSchema, reportSchema } from "../../schemas/miscSchemas";
+import { goalSchema, reportSchema } from "../../shared/schemas/miscSchemas";
 
 describe("goalSchema", () => {
     it("passes with just a valid title (description/dates optional)", () => {

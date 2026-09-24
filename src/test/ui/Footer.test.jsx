@@ -1,7 +1,7 @@
 // src/test/ui/Footer.test.jsx
 import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
-import Footer from "../../ui/Footer";
+import Footer from "../../shared/marketing/Footer";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({

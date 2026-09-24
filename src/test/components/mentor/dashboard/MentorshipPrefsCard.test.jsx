@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import MentorshipPrefsCard from "../../../../components/mentor/dashboard/MentorshipPrefsCard";
+import MentorshipPrefsCard from "../../../../features/mentor/view/components/dashboard/MentorshipPrefsCard";
 
 let mockMentorProfile;
 
-vi.mock("../../../../store/selectors", () => ({
+vi.mock("../../../../app/store/selectors", () => ({
     selectMentorProfile: () => mockMentorProfile,
 }));
 
@@ -12,14 +12,14 @@ vi.mock("react-redux", () => ({
     useSelector: (selectorFn) => selectorFn(),
 }));
 
-vi.mock("../../../../constants/mentorshipPrefs", () => ({
+vi.mock("../../../../shared/constants/mentorshipPrefs", () => ({
     COMM_ICONS: {
         email: "📧",
         chat: "💬",
     },
 }));
 
-vi.mock("../../../../components/common/PrefsCardHeader", () => ({
+vi.mock("../../../../shared/components/PrefsCardHeader", () => ({
     default: () => <div data-testid="prefs-card-header" />,
 }));
 

@@ -1,11 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import ReportModal from "../../../../components/shared-dashboard/tabs/ReportModal";
-import useReportComplaint from "../../../../hooks/useReportComplaint";
+import ReportModal from "../../../../features/shared-dashboard/view/components/tabs/ReportModal";
+import useReportComplaint from "../../../../features/shared-dashboard/presenter/useReportComplaint";
 
 // Mock the custom hook
-vi.mock("../../../../hooks/useReportComplaint", () => ({
+vi.mock("../../../../features/shared-dashboard/presenter/useReportComplaint", () => ({
     default: vi.fn(),
 }));
 

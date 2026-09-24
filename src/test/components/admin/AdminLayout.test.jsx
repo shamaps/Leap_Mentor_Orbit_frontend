@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
 import { BrowserRouter, useNavigate } from "react-router-dom";
-import AdminLayout from "../../../components/admin/AdminLayout";
-import adminAxiosInstance from "../../../utils/axiosInstance";
+import AdminLayout from "../../../features/admin/view/components/AdminLayout";
+import adminAxiosInstance from "../../../shared/utils/axiosInstance";
 
 // Mock subcomponents and routing packages
 const mockNavigate = vi.fn();
@@ -16,7 +16,7 @@ vi.mock("react-router-dom", async () => {
     };
 });
 
-vi.mock("../../../utils/axiosInstance", () => ({
+vi.mock("../../../shared/utils/axiosInstance", () => ({
     default: {
         get: vi.fn((url) => {
             if (url === "/admin/auth/me") {
@@ -31,13 +31,13 @@ vi.mock("../../../utils/axiosInstance", () => ({
     },
 }));
 
-vi.mock("../../../utils/logger", () => ({
+vi.mock("../../../shared/utils/logger", () => ({
     default: {
         error: vi.fn(),
     },
 }));
 
-vi.mock("../../../constants/images", () => ({
+vi.mock("../../../shared/constants/images", () => ({
     IMAGES: {
         logo: "mock-logo-url.png",
     },

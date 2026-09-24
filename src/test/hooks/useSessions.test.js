@@ -1,10 +1,10 @@
 // src/test/hooks/useSessions.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import useSessions from "../../hooks/useSessions";
-import * as sessionsApi from "../../api/sessions.api";
+import useSessions from "../../features/shared-dashboard/presenter/useSessions";
+import * as sessionsApi from "../../features/shared-dashboard/model/sessions.api";
 
-vi.mock("../../api/sessions.api", () => ({
+vi.mock("../../features/shared-dashboard/model/sessions.api", () => ({
     getSlots: vi.fn(),
     setSlotMeetingLink: vi.fn(),
     markSlotComplete: vi.fn(),

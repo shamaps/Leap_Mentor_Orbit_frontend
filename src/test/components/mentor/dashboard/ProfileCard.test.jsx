@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import ProfileCard from "../../../../components/mentor/dashboard/ProfileCard";
+import ProfileCard from "../../../../features/mentor/view/components/dashboard/ProfileCard";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -14,7 +14,7 @@ vi.mock("react-router-dom", async () => {
 
 let mockMentorProfile;
 
-vi.mock("../../../../store/selectors", () => ({
+vi.mock("../../../../app/store/selectors", () => ({
     selectMentorProfile: () => mockMentorProfile,
 }));
 

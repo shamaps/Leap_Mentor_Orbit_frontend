@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import MentorConnectsTab from "../../../../../components/mentor/dashboard/connects/MentorConnectsTab";
-import useOngoingConnects from "../../../../../hooks/useOngoingConnects";
+import MentorConnectsTab from "../../../../../features/connects/view/MentorConnectsTab";
+import useOngoingConnects from "../../../../../features/mentee/presenter/useOngoingConnects";
 
 // ── Mock Dependency Hooks ──
 const mockNavigate = vi.fn();
@@ -10,12 +10,12 @@ vi.mock("react-router-dom", () => ({
     useNavigate: () => mockNavigate,
 }));
 
-vi.mock("../../../../../hooks/useOngoingConnects", () => ({
+vi.mock("../../../../../features/mentee/presenter/useOngoingConnects", () => ({
     default: vi.fn(),
 }));
 
 // ── Mock Layout Subcomponents to isolate testing target cleanly ──
-vi.mock("../../../../../components/ui/connects/ConnectsLayout", () => ({
+vi.mock("../../../../../features/connects/view/ConnectsLayout", () => ({
     default: ({ children, completedChildren, title, loading, error }) => (
         <div data-testid="mock-layout">
             <h1>{title}</h1>
@@ -27,7 +27,7 @@ vi.mock("../../../../../components/ui/connects/ConnectsLayout", () => ({
     ),
 }));
 
-vi.mock("../../../../../components/ui/connects/ConnectCard", () => ({
+vi.mock("../../../../../features/connects/view/ConnectCard", () => ({
     default: ({ name, tokenLabel, onDashboardClick }) => (
         <div data-testid="mock-card">
             <p>{name}</p>

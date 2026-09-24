@@ -1,7 +1,7 @@
 // src/test/components/mentor/dashboard/requests/RequestActionModal.test.jsx
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import RequestActionModal from "../../../../../components/mentor/dashboard/requests/RequestActionModal";
+import RequestActionModal from "../../../../../features/mentor/view/components/dashboard/requests/RequestActionModal";
 
 describe("RequestActionModal Component Suite", () => {
     it("should render the accepted state with emerald styling and calendar note", () => {

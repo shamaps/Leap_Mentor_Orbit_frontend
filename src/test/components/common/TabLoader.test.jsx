@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import TabLoader from "../../../components/common/TabLoader";
+import TabLoader from "../../../shared/components/TabLoader";
 
 describe("TabLoader Component", () => {
     it("should render the component layout with the default loading message", () => {

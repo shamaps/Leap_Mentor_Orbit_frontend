@@ -5,7 +5,7 @@ import {
     getMyAvailability, saveMyAvailability, getMentorAvailabilityForReschedule,
     getGoogleCalendarAuthUrl, getGoogleCalendarStatus, disconnectGoogleCalendar,
     getGoogleCalendarBusySlots, getGoogleCalendarEvents,
-} from "../../api/availability.api";
+} from "../../features/mentor/model/availability.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

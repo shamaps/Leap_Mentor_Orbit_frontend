@@ -2,14 +2,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import MentorshipPrefsSection from "../../../../components/mentee/onboarding/MentorshipPrefsSection";
+import MentorshipPrefsSection from "../../../../features/mentee/view/components/onboarding/MentorshipPrefsSection";
 
 const mockUseMenteeOnboardingForm = vi.fn();
-vi.mock("../../../../context/MenteeOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentee/context/MenteeOnboardingFormContext", () => ({
     useMenteeOnboardingForm: (...args) => mockUseMenteeOnboardingForm(...args),
 }));
 
-vi.mock("../../../../constants/mentorshipPrefs", () => ({
+vi.mock("../../../../shared/constants/mentorshipPrefs", () => ({
     COMM_OPTIONS: [
         { value: "email", label: "Email", icon: "📧" },
         { value: "call", label: "Call", icon: "📞" },
@@ -17,8 +17,8 @@ vi.mock("../../../../constants/mentorshipPrefs", () => ({
     LANGUAGE_OPTIONS: ["English", "Hindi", "Tamil"],
 }));
 
-vi.mock("../../../../common/PrefsCardHeader", () => ({
-    default: ({ variant }) => <div data-testid="prefs-header">{variant}</div>,
+vi.mock("../../../../shared/components/PrefsCardHeader", () => ({
+    default: ({ title = "Mentorship Preferences" }) => <div data-testid="prefs-header">{title}</div>,
 }));
 
 const setup = (overrides = {}) => {

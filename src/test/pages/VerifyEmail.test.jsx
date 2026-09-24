@@ -3,8 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import VerifyEmail from "../../pages/VerifyEmail";
-import { sendOtp, verifyEmail, verifyMagicLink, clearMessages } from "../../store/slices/authSlice";
+import VerifyEmail from "../../features/auth/view/pages/VerifyEmail";
+import { sendOtp, verifyEmail, verifyMagicLink, clearMessages } from "../../app/store/slices/authSlice";
 
 vi.mock("react-router-dom", () => ({
     useNavigate: vi.fn(),
@@ -17,18 +17,18 @@ vi.mock("react-redux", () => ({
     useSelector: vi.fn(),
 }));
 
-vi.mock("../../store/slices/authSlice", () => ({
+vi.mock("../../app/store/slices/authSlice", () => ({
     sendOtp: vi.fn((arg) => ({ __thunk: "sendOtp", arg })),
     verifyEmail: vi.fn((arg) => ({ __thunk: "verifyEmail", arg })),
     verifyMagicLink: vi.fn((arg) => ({ __thunk: "verifyMagicLink", arg })),
     clearMessages: vi.fn(() => ({ type: "auth/clearMessages" })),
 }));
 
-vi.mock("../../constants/images", () => ({
+vi.mock("../../shared/constants/images", () => ({
     IMAGES: { logo: "logo.png", verifyHero: "hero.png" },
 }));
 
-vi.mock("@/components/common/FullScreenLoader", () => ({
+vi.mock("@/shared/components/FullScreenLoader", () => ({
     default: ({ message }) => <div data-testid="fs-loader">{message}</div>,
 }));
 

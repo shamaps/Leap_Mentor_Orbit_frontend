@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { HTTP_STATUS, isClientError, isServerError } from "../../constants/httpStatus";
+import { HTTP_STATUS, isClientError, isServerError } from "../../shared/constants/httpStatus";
 
 describe("HTTP Status Constants and Helpers Suite", () => {
 

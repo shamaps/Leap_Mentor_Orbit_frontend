@@ -1,7 +1,7 @@
 // src/test/ui/TermsAndConditionsModal.test.jsx
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import TermsAndConditionsModal from "../../ui/TermsAndConditionsModal";
+import TermsAndConditionsModal from "../../shared/marketing/TermsAndConditionsModal";
 
 // jsdom does not implement <dialog>'s imperative API — polyfill just enough
 // for the component's effects (showModal/close toggle the `open` property).

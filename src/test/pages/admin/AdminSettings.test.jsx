@@ -2,12 +2,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import adminAxiosInstance from "../../../utils/axiosInstance";
-import { useToast } from "../../../context/ToastContext";
-import AdminSettings from "../../../pages/admin/AdminSettings";
+import adminAxiosInstance from "../../../shared/utils/axiosInstance";
+import { useToast } from "../../../shared/context/ToastContext";
+import AdminSettings from "../../../features/admin/view/pages/AdminSettings";
 
-vi.mock("../../../utils/axiosInstance");
-vi.mock("../../../context/ToastContext");
+vi.mock("../../../shared/utils/axiosInstance");
+vi.mock("../../../shared/context/ToastContext");
 
 describe("AdminSettings", () => {
     let showToast;

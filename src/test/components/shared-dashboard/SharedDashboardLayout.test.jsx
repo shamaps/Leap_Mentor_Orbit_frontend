@@ -1,7 +1,7 @@
 // src/test/components/shared-dashboard/SharedDashboardLayout.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
-import SharedDashboardLayout from "../../../components/shared-dashboard/SharedDashboardLayout";
+import SharedDashboardLayout from "../../../features/shared-dashboard/view/components/SharedDashboardLayout";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({
@@ -16,11 +16,11 @@ vi.mock("react-redux", () => ({
 }));
 
 const mockUseSocketToast = vi.fn();
-vi.mock("../../../hooks/useSocketToast", () => ({
+vi.mock("../../../features/shared-dashboard/presenter/useSocketToast", () => ({
     default: (...args) => mockUseSocketToast(...args),
 }));
 
-vi.mock("../../../components/shared-dashboard/SharedTopbar", () => ({
+vi.mock("../../../features/shared-dashboard/view/components/SharedTopbar", () => ({
     default: ({ viewerRole, onMenuToggle, onLogoClick }) => (
         <div>
             <span>topbar-viewer-role:{viewerRole}</span>
@@ -30,7 +30,7 @@ vi.mock("../../../components/shared-dashboard/SharedTopbar", () => ({
     ),
 }));
 
-vi.mock("../../../components/shared-dashboard/SharedSidebar", () => ({
+vi.mock("../../../features/shared-dashboard/view/components/SharedSidebar", () => ({
     default: ({ activeTab, setActiveTab, isOpen, onClose, viewerRole }) => (
         <div>
             <span>sidebar-active-tab:{activeTab}</span>
@@ -42,7 +42,7 @@ vi.mock("../../../components/shared-dashboard/SharedSidebar", () => ({
     ),
 }));
 
-vi.mock("../../../components/shared-dashboard/tabs/SharedHomeTab", () => ({
+vi.mock("../../../features/shared-dashboard/view/components/tabs/SharedHomeTab", () => ({
     default: ({ onTabChange }) => (
         <div>
             <span>home-tab</span>
@@ -51,11 +51,11 @@ vi.mock("../../../components/shared-dashboard/tabs/SharedHomeTab", () => ({
     ),
 }));
 
-vi.mock("../../../components/shared-dashboard/tabs/SharedChatTab", () => ({
+vi.mock("../../../features/shared-dashboard/view/components/tabs/SharedChatTab", () => ({
     default: () => <div>chat-tab</div>,
 }));
 
-vi.mock("../../../components/shared-dashboard/tabs/SharedGoalsTab", () => ({
+vi.mock("../../../features/shared-dashboard/view/components/tabs/SharedGoalsTab", () => ({
     default: ({ onAllComplete }) => (
         <div>
             <span>goals-tab</span>
@@ -64,11 +64,11 @@ vi.mock("../../../components/shared-dashboard/tabs/SharedGoalsTab", () => ({
     ),
 }));
 
-vi.mock("../../../components/shared-dashboard/tabs/SharedNotesTab", () => ({
+vi.mock("../../../features/shared-dashboard/view/components/tabs/SharedNotesTab", () => ({
     default: () => <div>notes-tab</div>,
 }));
 
-vi.mock("../../../components/shared-dashboard/tabs/SharedAdditionalSessionTab", () => ({
+vi.mock("../../../features/shared-dashboard/view/components/tabs/SharedAdditionalSessionTab", () => ({
     default: ({ onTabChange }) => (
         <div>
             <span>add-session-tab</span>

@@ -3,21 +3,21 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import logger from "../../utils/logger";
-import * as mentorProfileApi from "../../api/mentorProfile.api";
-import { getFirstErrorMessage } from "../../schemas/onboardingSchemas";
-import { refetchMentorProfile } from "../../store/slices/mentorProfileSlice";
-import useMentorEditProfile from "../../hooks/useMentorEditProfile";
+import logger from "../../shared/utils/logger";
+import * as mentorProfileApi from "../../features/mentor/model/mentorProfile.api";
+import { getFirstErrorMessage } from "../../features/mentee/schemas/onboardingSchemas";
+import { refetchMentorProfile } from "../../app/store/slices/mentorProfileSlice";
+import useMentorEditProfile from "../../features/mentor/presenter/useMentorEditProfile";
 
 vi.mock("react-router-dom");
 vi.mock("react-redux");
-vi.mock("../../utils/logger");
-vi.mock("../../api/mentorProfile.api");
-vi.mock("../../schemas/onboardingSchemas", () => ({
+vi.mock("../../shared/utils/logger");
+vi.mock("../../features/mentor/model/mentorProfile.api");
+vi.mock("../../features/mentee/schemas/onboardingSchemas", () => ({
     commonOnboardingSchema: {},
     getFirstErrorMessage: vi.fn(),
 }));
-vi.mock("../../store/slices/mentorProfileSlice", () => ({
+vi.mock("../../app/store/slices/mentorProfileSlice", () => ({
     refetchMentorProfile: vi.fn(() => ({ type: "refetchMentorProfile" })),
 }));
 

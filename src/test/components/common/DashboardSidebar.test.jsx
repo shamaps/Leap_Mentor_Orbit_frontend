@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import DashboardSidebar from "../../../components/common/DashboardSidebar";
+import DashboardSidebar from "../../../shared/components/DashboardSidebar";
 
 describe("DashboardSidebar Component Suite", () => {
     const mockSetActiveTab = vi.fn();

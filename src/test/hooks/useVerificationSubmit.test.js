@@ -1,10 +1,10 @@
 // src/test/hooks/useVerificationSubmit.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import axiosInstance from "../../utils/axiosInstance";
-import { useVerificationSubmit } from "../../hooks/useVerificationSubmit";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import { useVerificationSubmit } from "../../features/mentor/presenter/useVerificationSubmit";
 
-vi.mock("../../utils/axiosInstance");
+vi.mock("../../shared/utils/axiosInstance");
 
 const makePayload = (overrides = {}) => ({
     phoneNumber: "  9876543210  ",

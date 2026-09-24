@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import LoginLeftPanel from "../../../components/auth/LoginLeftPanel";
+import LoginLeftPanel from "../../../features/auth/view/components/LoginLeftPanel";
 
 describe("LoginLeftPanel", () => {
     it("renders mentor copy when role is mentor", () => {

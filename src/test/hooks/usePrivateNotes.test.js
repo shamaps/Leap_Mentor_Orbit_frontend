@@ -6,10 +6,10 @@ import {
     getPrivateNotes,
     updatePrivateNote,
     deletePrivateNote,
-} from "../../api/privateNotes.api";
-import usePrivateNotes from "../../hooks/usePrivateNotes";
+} from "../../features/shared-dashboard/model/privateNotes.api";
+import usePrivateNotes from "../../features/shared-dashboard/presenter/usePrivateNotes";
 
-vi.mock("../../api/privateNotes.api");
+vi.mock("../../features/shared-dashboard/model/privateNotes.api");
 
 describe("usePrivateNotes", () => {
     beforeEach(() => {

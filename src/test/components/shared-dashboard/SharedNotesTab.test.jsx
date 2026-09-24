@@ -1,14 +1,14 @@
 // src/test/components/shared-dashboard/tabs/SharedNotesTab.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
-import SharedNotesTab from "../../../components/shared-dashboard/tabs/SharedNotesTab";
+import SharedNotesTab from "../../../features/shared-dashboard/view/components/tabs/SharedNotesTab";
 
 let mockState;
 vi.mock("react-redux", () => ({
     useSelector: (selectorFn) => selectorFn(mockState),
 }));
 
-vi.mock("../../../components/shared-dashboard/tabs/PrivateNotesTab", () => ({
+vi.mock("../../../features/shared-dashboard/view/components/tabs/PrivateNotesTab", () => ({
     default: ({ connect }) => (
         <div>private-notes-tab-{connect?._id}</div>
     ),
@@ -17,7 +17,7 @@ vi.mock("../../../components/shared-dashboard/tabs/PrivateNotesTab", () => ({
 let mockUseNotesReturn;
 const mockUploadNote = vi.fn();
 const mockDeleteNote = vi.fn();
-vi.mock("../../../hooks/useNotes", () => ({
+vi.mock("../../../features/shared-dashboard/presenter/useNotes", () => ({
     default: () => mockUseNotesReturn,
 }));
 

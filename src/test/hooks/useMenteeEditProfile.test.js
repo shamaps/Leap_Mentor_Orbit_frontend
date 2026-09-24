@@ -2,13 +2,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { useNavigate } from "react-router-dom";
-import * as menteeProfileApi from "../../api/menteeProfile.api";
-import { getFirstErrorMessage } from "../../schemas/onboardingSchemas";
-import useMenteeEditProfile from "../../hooks/useMenteeEditProfile";
+import * as menteeProfileApi from "../../features/mentee/model/menteeProfile.api";
+import { getFirstErrorMessage } from "../../features/mentee/schemas/onboardingSchemas";
+import useMenteeEditProfile from "../../features/mentee/presenter/useMenteeEditProfile";
 
 vi.mock("react-router-dom");
-vi.mock("../../api/menteeProfile.api");
-vi.mock("../../schemas/onboardingSchemas", () => ({
+vi.mock("../../features/mentee/model/menteeProfile.api");
+vi.mock("../../features/mentee/schemas/onboardingSchemas", () => ({
     menteeOnboardingSchema: {},
     getFirstErrorMessage: vi.fn(),
 }));

@@ -2,9 +2,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import MentorGrid from "../../../../../components/mentee/dashboard/findMentors/MentorGrid";
+import MentorGrid from "../../../../../features/mentee/view/components/dashboard/findMentors/MentorGrid";
 
-vi.mock("../../../../../components/mentee/dashboard/findMentors/MentorCard", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/findMentors/MentorCard", () => ({
     default: ({ mentor, onViewProfile }) => (
         <button data-testid="mock-mentor-card" onClick={() => onViewProfile(mentor)}>
             {mentor.name}
@@ -12,19 +12,19 @@ vi.mock("../../../../../components/mentee/dashboard/findMentors/MentorCard", () 
     ),
 }));
 
-vi.mock("@/components/common/MentorCardSkeleton", () => ({
+vi.mock("@/shared/components/MentorCardSkeleton", () => ({
     default: () => <div data-testid="mock-skeleton" />,
 }));
 
-vi.mock("@/components/common/TabLoader", () => ({
+vi.mock("@/shared/components/TabLoader", () => ({
     default: ({ message }) => <div data-testid="mock-tab-loader">{message}</div>,
 }));
 
-vi.mock("../../../../../hooks/useMountLogger", () => ({
+vi.mock("../../../../../shared/hooks/useMountLogger", () => ({
     useMountLogger: vi.fn(),
 }));
 
-vi.mock("../../../../../utils/withProfiler", () => ({
+vi.mock("../../../../../shared/utils/withProfiler", () => ({
     withProfiler: (Component) => Component,
 }));
 
@@ -143,7 +143,7 @@ describe("MentorGrid Component Suite", () => {
 
     // ⚠️ This test documents a real bug: MentorGrid.jsx uses `EmptyState` without
     // importing it, so this branch currently throws ReferenceError at runtime.
-    // Once the import is added (e.g. from "../../../common/EmptyState"), this
+    // Once the import is added (e.g. from "../../../../../shared/components/EmptyState"), this
     // test should pass as written.
     it.skip("should render an empty state message when a search returns zero mentors", () => {
         render(

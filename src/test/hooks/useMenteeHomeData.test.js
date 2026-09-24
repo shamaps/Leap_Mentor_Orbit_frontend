@@ -1,16 +1,16 @@
 // src/test/hooks/useMenteeHomeData.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { searchMentors } from "../../api/mentorSearch.api";
-import { getMyRequests } from "../../api/connectRequests.api";
-import { getWallet } from "../../api/escrow.api";
-import logger from "../../utils/logger";
-import { useMenteeHomeData } from "../../hooks/useMenteeHomeData";
+import { searchMentors } from "../../features/mentee/model/mentorSearch.api";
+import { getMyRequests } from "../../features/connects/model/connectRequests.api";
+import { getWallet } from "../../features/shared-dashboard/model/escrow.api";
+import logger from "../../shared/utils/logger";
+import { useMenteeHomeData } from "../../features/mentee/presenter/useMenteeHomeData";
 
-vi.mock("../../api/mentorSearch.api");
-vi.mock("../../api/connectRequests.api");
-vi.mock("../../api/escrow.api");
-vi.mock("../../utils/logger");
+vi.mock("../../features/mentee/model/mentorSearch.api");
+vi.mock("../../features/connects/model/connectRequests.api");
+vi.mock("../../features/shared-dashboard/model/escrow.api");
+vi.mock("../../shared/utils/logger");
 
 describe("useMenteeHomeData", () => {
     beforeEach(() => {

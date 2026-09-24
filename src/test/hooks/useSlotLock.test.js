@@ -1,14 +1,14 @@
 // src/test/hooks/useSlotLock.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
-import * as sessionsApi from "../../api/sessions.api";
-import logger from "../../utils/logger";
-import { useToast } from "../../context/ToastContext";
-import useSlotLock from "../../hooks/useSlotLock";
+import * as sessionsApi from "../../features/shared-dashboard/model/sessions.api";
+import logger from "../../shared/utils/logger";
+import { useToast } from "../../shared/context/ToastContext";
+import useSlotLock from "../../features/shared-dashboard/presenter/useSlotLock";
 
-vi.mock("../../api/sessions.api");
-vi.mock("../../utils/logger");
-vi.mock("../../context/ToastContext");
+vi.mock("../../features/shared-dashboard/model/sessions.api");
+vi.mock("../../shared/utils/logger");
+vi.mock("../../shared/context/ToastContext");
 
 describe("useSlotLock", () => {
     let showToast;

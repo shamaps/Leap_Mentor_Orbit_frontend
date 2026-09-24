@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import ProfileTab from "../../../../components/mentor/dashboard/ProfileTab";
+import ProfileTab from "../../../../features/mentor/view/components/dashboard/ProfileTab";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -12,7 +12,7 @@ vi.mock("react-router-dom", async () => {
     };
 });
 
-vi.mock("../../../../components/mentor/dashboard/ProfileCard", () => ({
+vi.mock("../../../../features/mentor/view/components/dashboard/ProfileCard", () => ({
     default: ({ onEditClick }) => (
         <div data-testid="profile-card">
             <button onClick={onEditClick}>card-edit</button>
@@ -20,23 +20,23 @@ vi.mock("../../../../components/mentor/dashboard/ProfileCard", () => ({
     ),
 }));
 vi.mock(
-    "../../../../components/mentor/dashboard/ProfessionalInfoCard",
+    "../../../../features/mentor/view/components/dashboard/ProfessionalInfoCard",
     () => ({
         default: () => <div data-testid="professional-info-card" />,
     })
 );
-vi.mock("../../../../components/mentor/dashboard/SkillsCard", () => ({
+vi.mock("../../../../features/mentor/view/components/dashboard/SkillsCard", () => ({
     default: () => <div data-testid="skills-card" />,
 }));
 vi.mock(
-    "../../../../components/mentor/dashboard/MentorshipPrefsCard",
+    "../../../../features/mentor/view/components/dashboard/MentorshipPrefsCard",
     () => ({
         default: ({ variant }) => (
             <div data-testid="mentorship-prefs-card">{variant}</div>
         ),
     })
 );
-vi.mock("../../../../components/mentor/dashboard/SocialCard", () => ({
+vi.mock("../../../../features/mentor/view/components/dashboard/SocialCard", () => ({
     default: () => <div data-testid="social-card" />,
 }));
 

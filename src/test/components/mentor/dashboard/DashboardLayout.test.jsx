@@ -1,17 +1,17 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import DashboardLayout from "../../../../components/mentor/dashboard/DashboardLayout";
-import useMentorDashboard from "../../../../hooks/useMentorDashboard";
-import useUnreadCount from "../../../../hooks/useUnreadCount";
+import DashboardLayout from "../../../../features/mentor/view/components/dashboard/DashboardLayout";
+import useMentorDashboard from "../../../../features/mentor/presenter/useMentorDashboard";
+import useUnreadCount from "../../../../features/shared-dashboard/presenter/useUnreadCount";
 
 // Mock dependent hooks
-vi.mock("../../../../hooks/useMentorDashboard", () => ({ default: vi.fn() }));
-vi.mock("../../../../hooks/useUnreadCount", () => ({ default: vi.fn() }));
-vi.mock("../../../../hooks/useSocketToast", () => ({ default: vi.fn() }));
+vi.mock("../../../../features/mentor/presenter/useMentorDashboard", () => ({ default: vi.fn() }));
+vi.mock("../../../../features/shared-dashboard/presenter/useUnreadCount", () => ({ default: vi.fn() }));
+vi.mock("../../../../features/shared-dashboard/presenter/useSocketToast", () => ({ default: vi.fn() }));
 
 // Mock subatomic common elements
-vi.mock("../../../../components/common/DashboardTopbar", () => ({
+vi.mock("../../../../shared/components/DashboardTopbar", () => ({
     default: ({ onMenuToggle, onLogoClick }) => (
         <div data-testid="topbar">
             <button onClick={onMenuToggle}>Open Menu</button>
@@ -20,7 +20,7 @@ vi.mock("../../../../components/common/DashboardTopbar", () => ({
     ),
 }));
 
-vi.mock("../../../../components/common/DashboardSidebar", () => ({
+vi.mock("../../../../shared/components/DashboardSidebar", () => ({
     default: ({ setActiveTab, onClose, isOpen }) => (
         <div data-testid="sidebar">
             {isOpen && <p>Sidebar Is Open</p>}
@@ -31,7 +31,7 @@ vi.mock("../../../../components/common/DashboardSidebar", () => ({
     ),
 }));
 
-vi.mock("../../../../components/common/ErrorState", () => ({
+vi.mock("../../../../shared/components/ErrorState", () => ({
     default: ({ message, onAction }) => (
         <div data-testid="error-state">
             <p>{message}</p>
@@ -41,9 +41,9 @@ vi.mock("../../../../components/common/ErrorState", () => ({
 }));
 
 // Mock Lazy Loaded Tabs
-vi.mock("../../../../components/mentor/dashboard/MentorHomeTab", () => ({ default: () => <div data-testid="home-tab" /> }));
-vi.mock("../../../../components/mentor/dashboard/ProfileTab", () => ({ default: () => <div data-testid="profile-tab" /> }));
-vi.mock("../../../../components/mentor/dashboard/notifications/NotificationsTab", () => ({ default: () => <div data-testid="notifications-tab" /> }));
+vi.mock("../../../../features/mentor/view/components/dashboard/MentorHomeTab", () => ({ default: () => <div data-testid="home-tab" /> }));
+vi.mock("../../../../features/mentor/view/components/dashboard/ProfileTab", () => ({ default: () => <div data-testid="profile-tab" /> }));
+vi.mock("../../../../features/notifications/view/NotificationsTabMentor", () => ({ default: () => <div data-testid="notifications-tab" /> }));
 
 const mockRefetchProfile = vi.fn();
 const mockClearBadge = vi.fn();

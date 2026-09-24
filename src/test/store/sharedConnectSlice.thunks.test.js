@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import axiosInstance from "../../utils/axiosInstance";
-import { fetchSharedConnect } from "../../store/slices/sharedConnectSlice";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import { fetchSharedConnect } from "../../app/store/slices/sharedConnectSlice";
 
-vi.mock("../../utils/axiosInstance");
+vi.mock("../../shared/utils/axiosInstance");
 
 const run = (id) => fetchSharedConnect(id)(vi.fn(), () => ({}), undefined);
 

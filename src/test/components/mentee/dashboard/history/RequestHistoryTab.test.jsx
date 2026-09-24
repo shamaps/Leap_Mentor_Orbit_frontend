@@ -2,18 +2,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import RequestHistoryTab from "../../../../../components/mentee/dashboard/history/RequestHistoryTab";
-import useRequestHistory from "../../../../../hooks/useRequestHistory";
+import RequestHistoryTab from "../../../../../features/mentee/view/components/dashboard/history/RequestHistoryTab";
+import useRequestHistory from "../../../../../features/mentee/presenter/useRequestHistory";
 
-vi.mock("../../../../../hooks/useRequestHistory", () => ({
+vi.mock("../../../../../features/mentee/presenter/useRequestHistory", () => ({
     default: vi.fn(),
 }));
 
-vi.mock("../../../../../components/common/TabLoader", () => ({
+vi.mock("../../../../../shared/components/TabLoader", () => ({
     default: ({ message }) => <div data-testid="mock-tab-loader">{message}</div>,
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/history/HistoryTable", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/history/HistoryTable", () => ({
     default: ({ requests, onSelect, onDelete }) => (
         <div data-testid="mock-history-table">
             {requests.map((r) => (
@@ -26,7 +26,7 @@ vi.mock("../../../../../components/mentee/dashboard/history/HistoryTable", () =>
     ),
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/history/DetailDrawer", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/history/DetailDrawer", () => ({
     default: ({ request, onClose }) =>
         request ? (
             <div data-testid="mock-detail-drawer">

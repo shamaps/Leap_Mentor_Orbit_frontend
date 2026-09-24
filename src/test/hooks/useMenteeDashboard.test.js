@@ -3,8 +3,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { fetchMenteeDashboard } from "../../store/slices/menteeProfileSlice";
-import useMenteeDashboard from "../../hooks/useMenteeDashboard.jsx";
+import { fetchMenteeDashboard } from "../../app/store/slices/menteeProfileSlice";
+import useMenteeDashboard from "../../features/mentee/presenter/useMenteeDashboard";
 
 vi.mock("react-redux", () => ({
     useDispatch: vi.fn(),

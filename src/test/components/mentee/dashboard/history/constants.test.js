@@ -7,7 +7,7 @@ import {
     formatDate,
     formatTime,
     getInitials,
-} from "../../../../../components/mentee/dashboard/history/constants";
+} from "../../../../../features/mentee/view/components/dashboard/history/constants";
 
 describe("history constants module", () => {
     describe("TABS", () => {

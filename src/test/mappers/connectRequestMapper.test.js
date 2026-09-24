@@ -4,8 +4,8 @@ import {
     mapReferredMentor,
     mapConnectRequest,
     mapConnectRequestList,
-} from "../../mappers/connectRequestMapper";
-import { mapMentorFullProfile } from "../../mappers/mentorMapper";
+} from "../../features/connects/model/connectRequestMapper";
+import { mapMentorFullProfile } from "../../features/mentor/model/mentorMapper";
 
 describe("pickDisplaySlot", () => {
     it("returns the first selectedSlot when status is pending", () => {

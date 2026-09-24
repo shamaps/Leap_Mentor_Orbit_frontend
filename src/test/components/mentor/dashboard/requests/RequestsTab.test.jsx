@@ -1,7 +1,7 @@
 // src/test/components/mentor/dashboard/requests/RequestsTab.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import RequestsTab from "../../../../../components/mentor/dashboard/requests/RequestsTab";
+import RequestsTab from "../../../../../features/mentor/view/components/dashboard/requests/RequestsTab";
 
 const { mockDispatch, mockUseSelector, mockFetchIncomingRequests, mockUpdateRequestStatus } = vi.hoisted(
     () => ({
@@ -17,19 +17,19 @@ vi.mock("react-redux", () => ({
     useSelector: mockUseSelector,
 }));
 
-vi.mock("../../../../../store/slices/connectRequestsSlice", () => ({
+vi.mock("../../../../../app/store/slices/connectRequestsSlice", () => ({
     fetchIncomingRequests: mockFetchIncomingRequests,
     updateRequestStatus: mockUpdateRequestStatus,
 }));
 
-vi.mock("../../../../../store/selectors", () => ({
+vi.mock("../../../../../app/store/selectors", () => ({
     selectIncomingRequests: (s) => s.requests,
     selectConnectRequestsLoading: (s) => s.loading,
     selectConnectRequestsInitialLoad: (s) => s.initialLoad,
     selectConnectRequestsError: (s) => s.error,
 }));
 
-vi.mock("../../../../../components/mentor/dashboard/requests/RequestCard", () => ({
+vi.mock("../../../../../features/mentor/view/components/dashboard/requests/RequestCard", () => ({
     default: (props) => (
         <div data-testid={`request-card-${props.request._id}`}>
             <button type="button" onClick={() => props.onViewProfile(props.request)}>
@@ -39,7 +39,7 @@ vi.mock("../../../../../components/mentor/dashboard/requests/RequestCard", () =>
     ),
 }));
 
-vi.mock("../../../../../components/mentor/dashboard/requests/MenteeProfileModal", () => ({
+vi.mock("../../../../../features/mentor/view/components/dashboard/requests/MenteeProfileModal", () => ({
     default: (props) => (
         <div data-testid="mentee-profile-modal-stub">
             <button type="button" data-testid="modal-close" onClick={props.onClose}>

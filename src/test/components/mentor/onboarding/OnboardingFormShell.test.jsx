@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import React from "react";
-import OnboardingFormShell from "../../../../components/mentor/onboarding/OnboardingFormShell";
+import OnboardingFormShell from "../../../../features/mentor/view/components/onboarding/OnboardingFormShell";
 
 // ── redux mocks ──
 const mockDispatch = vi.fn();
@@ -21,7 +21,7 @@ vi.mock("react-redux", () => ({
         }),
 }));
 
-vi.mock("../../../../store/selectors", () => ({
+vi.mock("../../../../app/store/selectors", () => ({
     selectAuthToken: (state) => state.__token,
     selectMentorOnboardingLoading: (state) => state.__loading,
     selectMentorOnboardingError: (state) => state.__error,
@@ -30,7 +30,7 @@ vi.mock("../../../../store/selectors", () => ({
 
 const mockSubmitMentorOnboarding = vi.fn((payload) => ({ type: "submit", payload }));
 const mockClearMentorOnboardingMessages = vi.fn(() => ({ type: "clear" }));
-vi.mock("../../../../store/slices/mentorOnboardingSlice", () => ({
+vi.mock("../../../../app/store/slices/mentorOnboardingSlice", () => ({
     submitMentorOnboarding: (payload) => mockSubmitMentorOnboarding(payload),
     clearMentorOnboardingMessages: () => mockClearMentorOnboardingMessages(),
 }));
@@ -40,21 +40,21 @@ vi.mock("react-router-dom", () => ({
     useNavigate: () => mockNavigate,
 }));
 
-vi.mock("@/components/common/FullScreenLoader", () => ({
+vi.mock("@/shared/components/FullScreenLoader", () => ({
     default: ({ message }) => <div data-testid="onboarding-loader-stub">{message}</div>,
 }));
 
-vi.mock("../../../../ui/OnboardingProgressBar", () => ({
+vi.mock("../../../../shared/marketing/OnboardingProgressBar", () => ({
     default: ({ form }) => <div data-testid="progress-bar-stub">{form.currentRole || "empty"}</div>,
 }));
 
-vi.mock("../../../../config/onboardingFields", () => ({
+vi.mock("../../../../features/mentee/config/onboardingFields", () => ({
     MENTOR_ONBOARDING_FIELDS: ["bio", "currentRole"],
 }));
 
 // ── session storage mock ──
 const storageBacking = {};
-vi.mock("../../../../utils/storage", () => ({
+vi.mock("../../../../shared/utils/storage", () => ({
     sessionStore: {
         getJSON: vi.fn((key) => storageBacking[key] || null),
         setJSON: vi.fn((key, val) => {
@@ -69,35 +69,35 @@ vi.mock("../../../../utils/storage", () => ({
 // ── schema mocks ──
 let mockFieldErrorMap = {};
 let mockFirstErrorMessage = null;
-vi.mock("../../../../schemas/onboardingSchemas", () => ({
+vi.mock("../../../../features/mentee/schemas/onboardingSchemas", () => ({
     mentorOnboardingSchema: {},
     commonOnboardingSchema: {},
     getFieldErrorMap: vi.fn(() => mockFieldErrorMap),
     getFirstErrorMessage: vi.fn(() => mockFirstErrorMessage),
 }));
 
-vi.mock("../../../../context/MentorOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentor/context/MentorOnboardingFormContext", () => ({
     MentorOnboardingFormContext: React.createContext(null),
 }));
 
 // ── section stubs, each reading/writing context to prove wiring ──
-vi.mock("../../../../components/mentor/onboarding/PersonalInfoSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/PersonalInfoSection", () => ({
     default: () => <div data-testid="section-personal">Personal</div>,
 }));
-vi.mock("../../../../components/mentor/onboarding/ProfessionalInfoSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/ProfessionalInfoSection", () => ({
     default: () => <div data-testid="section-professional">Professional</div>,
 }));
-vi.mock("../../../../components/mentor/onboarding/SkillsSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/SkillsSection", () => ({
     default: React.forwardRef((_, ref) => <div ref={ref} data-testid="section-skills">Skills</div>),
 }));
-vi.mock("../../../../components/mentor/onboarding/PreferencesSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/PreferencesSection", () => ({
     default: () => <div data-testid="section-preferences">Preferences</div>,
 }));
-vi.mock("../../../../components/mentor/onboarding/SocialLinksSection", () => ({
+vi.mock("../../../../features/mentor/view/components/onboarding/SocialLinksSection", () => ({
     default: () => <div data-testid="section-social">Social</div>,
 }));
 
-vi.mock("../../../../constants/images", () => ({
+vi.mock("../../../../shared/constants/images", () => ({
     IMAGES: { logo: "/logo.png" },
 }));
 
@@ -132,7 +132,7 @@ describe("OnboardingFormShell Component Suite", () => {
     });
 
     it("should hydrate the form from sessionStore on mount", async () => {
-        const { sessionStore } = await import("../../../../utils/storage");
+        const { sessionStore } = await import("../../../../shared/utils/storage");
         sessionStore.getJSON.mockReturnValueOnce({ currentRole: "Engineer", bio: "", industry: "", company: "", yearsOfExperience: "", hourlyRate: "", skills: [], communicationPreferences: [], languages: "", linkedInUrl: "", portfolioUrl: "", profilePicture: "" });
 
         render(<OnboardingFormShell />);
@@ -141,7 +141,7 @@ describe("OnboardingFormShell Component Suite", () => {
     });
 
     it("should persist form changes to sessionStore", async () => {
-        const { sessionStore } = await import("../../../../utils/storage");
+        const { sessionStore } = await import("../../../../shared/utils/storage");
         render(<OnboardingFormShell />);
 
         expect(sessionStore.setJSON).toHaveBeenCalledWith(
@@ -167,7 +167,7 @@ describe("OnboardingFormShell Component Suite", () => {
     });
 
     it("should show a rate-range error when hourlyRate is out of bounds", async () => {
-        const { sessionStore } = await import("../../../../utils/storage");
+        const { sessionStore } = await import("../../../../shared/utils/storage");
         sessionStore.getJSON.mockReturnValueOnce({
             profilePicture: "", bio: "valid bio text here", currentRole: "Eng", industry: "Technology",
             company: "", yearsOfExperience: "5", hourlyRate: "150", skills: ["JS"],
@@ -189,7 +189,7 @@ describe("OnboardingFormShell Component Suite", () => {
 
     it("should surface a common-schema error message and stop submission", async () => {
         mockFirstErrorMessage = "Common validation failed.";
-        const { sessionStore } = await import("../../../../utils/storage");
+        const { sessionStore } = await import("../../../../shared/utils/storage");
         sessionStore.getJSON.mockReturnValueOnce({
             profilePicture: "", bio: "valid bio text here", currentRole: "Eng", industry: "Technology",
             company: "", yearsOfExperience: "5", hourlyRate: "50", skills: ["JS"],
@@ -209,7 +209,7 @@ describe("OnboardingFormShell Component Suite", () => {
 
     it("should redirect to login when no auth token is present", async () => {
         mockToken = null;
-        const { sessionStore } = await import("../../../../utils/storage");
+        const { sessionStore } = await import("../../../../shared/utils/storage");
         sessionStore.getJSON.mockReturnValueOnce({
             profilePicture: "", bio: "valid bio text here", currentRole: "Eng", industry: "Technology",
             company: "", yearsOfExperience: "5", hourlyRate: "50", skills: ["JS"],
@@ -228,7 +228,7 @@ describe("OnboardingFormShell Component Suite", () => {
     });
 
     it("should dispatch submitMentorOnboarding with a normalized payload on valid submit", async () => {
-        const { sessionStore } = await import("../../../../utils/storage");
+        const { sessionStore } = await import("../../../../shared/utils/storage");
         sessionStore.getJSON.mockReturnValueOnce({
             profilePicture: "", bio: "valid bio text here", currentRole: "Eng", industry: "Technology",
             company: "", yearsOfExperience: "5", hourlyRate: "50", skills: ["JS"],
@@ -253,7 +253,7 @@ describe("OnboardingFormShell Component Suite", () => {
     });
 
     it("should pass through array-format languages unchanged", async () => {
-        const { sessionStore } = await import("../../../../utils/storage");
+        const { sessionStore } = await import("../../../../shared/utils/storage");
         sessionStore.getJSON.mockReturnValueOnce({
             profilePicture: "", bio: "valid bio text here", currentRole: "Eng", industry: "Technology",
             company: "", yearsOfExperience: "5", hourlyRate: "50", skills: ["JS"],
@@ -281,7 +281,7 @@ describe("OnboardingFormShell Component Suite", () => {
 
     it("should show the loader, clear storage, and redirect on success", async () => {
         mockSuccessMsg = "Saved!";
-        const { sessionStore } = await import("../../../../utils/storage");
+        const { sessionStore } = await import("../../../../shared/utils/storage");
 
         render(<OnboardingFormShell />);
 

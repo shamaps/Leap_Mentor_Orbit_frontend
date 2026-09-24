@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import reducer, { setGlobalError, clearGlobalError } from "../../store/slices/uiSlice";
+import reducer, { setGlobalError, clearGlobalError } from "../../app/store/slices/uiSlice";
 
 describe("uiSlice", () => {
     it("returns the initial state", () => {

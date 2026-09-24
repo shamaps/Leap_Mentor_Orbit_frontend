@@ -3,10 +3,10 @@ import { createRef } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import InterestedFieldsSection from "../../../../components/mentee/onboarding/InterestedFieldsSection";
+import InterestedFieldsSection from "../../../../features/mentee/view/components/onboarding/InterestedFieldsSection";
 
 const mockUseMenteeOnboardingForm = vi.fn();
-vi.mock("../../../../context/MenteeOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentee/context/MenteeOnboardingFormContext", () => ({
     useMenteeOnboardingForm: (...args) => mockUseMenteeOnboardingForm(...args),
 }));
 

@@ -2,10 +2,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useDispatch } from "react-redux";
-import axiosInstance from "../../utils/axiosInstance";
+import axiosInstance from "../../shared/utils/axiosInstance";
 
 vi.mock("react-redux");
-vi.mock("../../utils/axiosInstance");
+vi.mock("../../shared/utils/axiosInstance");
 
 // GOOGLE_CLIENT_ID is read from import.meta.env at module load time, so to
 // control it per test we stub the env var and re-import a fresh copy of the
@@ -13,7 +13,7 @@ vi.mock("../../utils/axiosInstance");
 const importHook = async (clientId = "test-client-id") => {
     vi.stubEnv("VITE_GOOGLE_CLIENT_ID", clientId);
     vi.resetModules();
-    const mod = await import("../../hooks/useGoogleAuth");
+    const mod = await import("../../features/auth/presenter/useGoogleAuth");
     return mod.default;
 };
 

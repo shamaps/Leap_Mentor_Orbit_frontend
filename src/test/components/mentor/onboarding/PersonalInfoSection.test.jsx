@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import PersonalInfoSection from "../../../../components/mentor/onboarding/PersonalInfoSection";
+import PersonalInfoSection from "../../../../features/mentor/view/components/onboarding/PersonalInfoSection";
 
 const mockOnChange = vi.fn();
 const mockOnBlur = vi.fn();
 let mockForm = { bio: "" };
 let mockErrors = {};
 
-vi.mock("../../../../context/MentorOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentor/context/MentorOnboardingFormContext", () => ({
     useMentorOnboardingForm: () => ({
         form: mockForm,
         errors: mockErrors,
@@ -24,7 +24,7 @@ const mockHandleFileChange = vi.fn();
 let mockUploading = false;
 let mockUploadErr = "";
 
-vi.mock("../../../../hooks/useProfilePhotoUpload", () => ({
+vi.mock("../../../../features/uploads/model/useProfilePhotoUpload", () => ({
     useProfilePhotoUpload: (onUploaded) => {
         capturedOnUploaded = onUploaded;
         return {
@@ -37,7 +37,7 @@ vi.mock("../../../../hooks/useProfilePhotoUpload", () => ({
     },
 }));
 
-vi.mock("../../../../common/FormField", () => ({
+vi.mock("../../../../shared/components/FormField", () => ({
     default: ({ label, name, value, onChange, onBlur, error }) => (
         <div>
             <label htmlFor={name}>{label}</label>
@@ -53,7 +53,7 @@ vi.mock("../../../../common/FormField", () => ({
     ),
 }));
 
-vi.mock("../../../../common/PersonIcon", () => ({
+vi.mock("../../../../shared/components/PersonIcon", () => ({
     default: ({ size }) => <svg data-testid="person-icon" data-size={size} />,
 }));
 

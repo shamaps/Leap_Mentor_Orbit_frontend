@@ -5,7 +5,7 @@ import {
     AuthDivider,
     AuthField,
     AuthBrand,
-} from "../../../components/auth/AuthUI";
+} from "../../../features/auth/view/components/AuthUI";
 
 describe("AuthMessageBanner", () => {
     it("returns null when no text provided", () => {

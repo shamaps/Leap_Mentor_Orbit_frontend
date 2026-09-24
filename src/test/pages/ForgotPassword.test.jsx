@@ -3,13 +3,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import ForgotPassword from "../../pages/ForgotPassword";
+import ForgotPassword from "../../features/auth/view/pages/ForgotPassword";
 import {
     forgotPassword,
     verifyResetOtp,
     resetPassword,
     clearMessages,
-} from "../../store/slices/authSlice";
+} from "../../app/store/slices/authSlice";
 
 // ── Mock Routing & Redux Hooks ───────────────────────────
 vi.mock("react-router-dom", () => ({
@@ -22,7 +22,7 @@ vi.mock("react-redux", () => ({
     useSelector: vi.fn(),
 }));
 
-vi.mock("../../store/slices/authSlice", () => ({
+vi.mock("../../app/store/slices/authSlice", () => ({
     forgotPassword: vi.fn((arg) => ({ __thunk: "forgotPassword", arg })),
     verifyResetOtp: vi.fn((arg) => ({ __thunk: "verifyResetOtp", arg })),
     resetPassword: vi.fn((arg) => ({ __thunk: "resetPassword", arg })),
@@ -30,16 +30,16 @@ vi.mock("../../store/slices/authSlice", () => ({
 }));
 
 // ── Mock Constants & Assets ──────────────────────────────
-vi.mock("../../constants/images", () => ({
+vi.mock("../../shared/constants/images", () => ({
     IMAGES: { logo: "mock-logo-url.png" },
 }));
 
 // ── Mock Sub-Components ──────────────────────────────────
-vi.mock("@/components/common/FullScreenLoader", () => ({
+vi.mock("@/shared/components/FullScreenLoader", () => ({
     default: ({ message }) => <div data-testid="fs-loader">{message}</div>,
 }));
 
-vi.mock("@/components/common/PasswordVisibilityIcon", () => ({
+vi.mock("@/shared/components/PasswordVisibilityIcon", () => ({
     default: ({ visible }) => <span>{visible ? "Hide" : "Show"}</span>,
 }));
 

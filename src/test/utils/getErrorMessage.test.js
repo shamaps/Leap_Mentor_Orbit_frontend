@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import getErrorMessage from "../../utils/getErrorMessage";
+import getErrorMessage from "../../shared/utils/getErrorMessage";
 
 describe("getErrorMessage", () => {
     it("returns the backend message for 422 responses", () => {

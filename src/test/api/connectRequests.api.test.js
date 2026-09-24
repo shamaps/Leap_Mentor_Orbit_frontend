@@ -4,7 +4,7 @@ import { server } from "../mswServer";
 import {
     getMyRequests, getOngoingConnects, sendConnectRequest,
     respondToRequest, referRequest, getSimilarMentors,
-} from "../../api/connectRequests.api";
+} from "../../features/connects/model/connectRequests.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

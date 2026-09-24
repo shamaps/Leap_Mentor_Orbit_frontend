@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import WorkExperienceUpload from "../../../components/mentor/WorkExperienceUpload";
+import WorkExperienceUpload from "../../../features/mentor/view/components/WorkExperienceUpload";
 
 describe("WorkExperienceUpload Component Suite", () => {
     it("should successfully mount file lists and clear items individually upon request click executions", () => {

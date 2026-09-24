@@ -2,11 +2,11 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import MenteeEditProfileShell from "../../../../components/mentee/profile/MenteeEditProfileShell";
-import useMenteeEditProfile from "../../../../hooks/useMenteeEditProfile";
+import MenteeEditProfileShell from "../../../../features/mentee/view/components/profile/MenteeEditProfileShell";
+import useMenteeEditProfile from "../../../../features/mentee/presenter/useMenteeEditProfile";
 
 // Mock the custom react hook
-vi.mock("../../../../hooks/useMenteeEditProfile", () => ({
+vi.mock("../../../../features/mentee/presenter/useMenteeEditProfile", () => ({
     default: vi.fn(),
 }));
 
@@ -21,11 +21,11 @@ vi.mock("react-router-dom", async () => {
 });
 
 // Mock child form sections to keep the test focused on the Shell
-vi.mock("../../../../components/mentee/onboarding/PersonalInfoSection", () => ({ default: () => <div data-testid="personal-info" /> }));
-vi.mock("../../../../components/mentee/onboarding/ProfessionalDetailsSection", () => ({ default: () => <div data-testid="professional-details" /> }));
-vi.mock("../../../../components/mentee/onboarding/InterestedFieldsSection", () => ({ default: () => <div data-testid="interested-fields" /> }));
-vi.mock("../../../../components/mentee/onboarding/MentorshipPrefsSection", () => ({ default: () => <div data-testid="mentorship-prefs" /> }));
-vi.mock("../../../../components/mentee/onboarding/SocialLinksSection", () => ({ default: () => <div data-testid="social-links" /> }));
+vi.mock("../../../../features/mentee/view/components/onboarding/PersonalInfoSection", () => ({ default: () => <div data-testid="personal-info" /> }));
+vi.mock("../../../../features/mentee/view/components/onboarding/ProfessionalDetailsSection", () => ({ default: () => <div data-testid="professional-details" /> }));
+vi.mock("../../../../features/mentee/view/components/onboarding/InterestedFieldsSection", () => ({ default: () => <div data-testid="interested-fields" /> }));
+vi.mock("../../../../features/mentee/view/components/onboarding/MentorshipPrefsSection", () => ({ default: () => <div data-testid="mentorship-prefs" /> }));
+vi.mock("../../../../features/mentee/view/components/onboarding/SocialLinksSection", () => ({ default: () => <div data-testid="social-links" /> }));
 
 describe("MenteeEditProfileShell Component", () => {
     let mockHandleChange;

@@ -4,9 +4,9 @@ import { render, screen, fireEvent, waitFor, act } from "@testing-library/react"
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
 import { useDispatch, useSelector } from "react-redux";
-import SSOSync from "../../pages/SSOSync";
-import axiosInstance from "../../utils/axiosInstance";
-import { ssoFlags } from "../../utils/storage";
+import SSOSync from "../../features/auth/view/pages/SSOSync";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import { ssoFlags } from "../../shared/utils/storage";
 
 vi.mock("react-router-dom", () => ({
     useNavigate: vi.fn(),
@@ -21,15 +21,15 @@ vi.mock("react-redux", () => ({
     useSelector: vi.fn(),
 }));
 
-vi.mock("../../store/slices/authSlice", () => ({
+vi.mock("../../app/store/slices/authSlice", () => ({
     setUser: vi.fn((payload) => ({ type: "auth/setUser", payload })),
 }));
 
-vi.mock("../../utils/axiosInstance", () => ({
+vi.mock("../../shared/utils/axiosInstance", () => ({
     default: { post: vi.fn() },
 }));
 
-vi.mock("../../utils/storage", () => ({
+vi.mock("../../shared/utils/storage", () => ({
     ssoFlags: { get: vi.fn(), clear: vi.fn() },
 }));
 

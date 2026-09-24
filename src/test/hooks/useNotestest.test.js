@@ -1,22 +1,22 @@
 // src/test/hooks/useNotes.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import useNotes from "../../hooks/useNotes";
+import useNotes from "../../features/shared-dashboard/presenter/useNotes";
 import {
     getNotes,
     uploadNote,
     deleteNote,
     getPrivateNotes,
-} from "../../api/notes.api.js";
-import logger from "../../utils/logger";
+} from "../../features/shared-dashboard/model/notes.api";
+import logger from "../../shared/utils/logger";
 
-vi.mock("../../api/notes.api.js", () => ({
+vi.mock("../../features/shared-dashboard/model/notes.api", () => ({
     getNotes: vi.fn(),
     uploadNote: vi.fn(),
     deleteNote: vi.fn(),
     getPrivateNotes: vi.fn(),
 }));
-vi.mock("../../utils/logger", () => ({
+vi.mock("../../shared/utils/logger", () => ({
     default: { warn: vi.fn(), error: vi.fn() },
 }));
 

@@ -2,23 +2,23 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import DetailDrawer from "../../../../../components/mentee/dashboard/history/DetailDrawer";
-import { useInvoiceDownload } from "../../../../../hooks/useInvoiceDownload";
-import { mapReferredMentor } from "../../../../../mappers/connectRequestMapper";
+import DetailDrawer from "../../../../../features/mentee/view/components/dashboard/history/DetailDrawer";
+import { useInvoiceDownload } from "../../../../../features/mentor/presenter/useInvoiceDownload";
+import { mapReferredMentor } from "../../../../../features/connects/model/connectRequestMapper";
 
-vi.mock("../../../../../hooks/useInvoiceDownload", () => ({
+vi.mock("../../../../../features/mentor/presenter/useInvoiceDownload", () => ({
     useInvoiceDownload: vi.fn(),
 }));
 
-vi.mock("../../../../../mappers/connectRequestMapper", () => ({
+vi.mock("../../../../../features/connects/model/connectRequestMapper", () => ({
     mapReferredMentor: vi.fn(),
 }));
 
-vi.mock("../../../../../components/common/StatusBadge", () => ({
+vi.mock("../../../../../shared/components/StatusBadge", () => ({
     default: ({ status }) => <div data-testid="mock-status-badge">{status}</div>,
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/history/EscrowPaymentModal", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/history/EscrowPaymentModal", () => ({
     default: ({ onClose, onSuccess }) => (
         <div data-testid="mock-escrow-payment-modal">
             <button onClick={onClose}>close-payment</button>
@@ -27,7 +27,7 @@ vi.mock("../../../../../components/mentee/dashboard/history/EscrowPaymentModal",
     ),
 }));
 
-vi.mock("../../../../../components/mentee/dashboard/findMentors/MentorProfileModal", () => ({
+vi.mock("../../../../../features/mentee/view/components/dashboard/findMentors/MentorProfileModal", () => ({
     default: ({ mentor, onClose }) => (
         <div data-testid="mock-mentor-profile-modal">
             <span>{mentor?.name}</span>

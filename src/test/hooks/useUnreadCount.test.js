@@ -1,10 +1,10 @@
 // src/test/hooks/useUnreadCount.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import * as notificationsApi from "../../api/notifications.api";
-import useUnreadCount from "../../hooks/useUnreadCount";
+import * as notificationsApi from "../../features/notifications/model/notifications.api";
+import useUnreadCount from "../../features/shared-dashboard/presenter/useUnreadCount";
 
-vi.mock("../../api/notifications.api");
+vi.mock("../../features/notifications/model/notifications.api");
 
 describe("useUnreadCount", () => {
     beforeEach(() => {

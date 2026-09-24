@@ -1,7 +1,7 @@
 // src/test/ui/Missions.test.jsx
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import Missions from "../../ui/Missions";
+import Missions from "../../shared/marketing/Missions";
 
 describe("Missions", () => {
     it("renders the section heading and all three feature cards", () => {

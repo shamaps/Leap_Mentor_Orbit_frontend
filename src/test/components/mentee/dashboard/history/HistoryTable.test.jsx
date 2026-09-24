@@ -2,13 +2,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import HistoryTable from "../../../../../components/mentee/dashboard/history/HistoryTable";
+import HistoryTable from "../../../../../features/mentee/view/components/dashboard/history/HistoryTable";
 
-vi.mock("../../../../../components/common/StatusBadge", () => ({
+vi.mock("../../../../../shared/components/StatusBadge", () => ({
     default: ({ status }) => <div data-testid="mock-status-badge">{status}</div>,
 }));
 
-vi.mock("../../../../../components/common/EmptyState", () => ({
+vi.mock("../../../../../shared/components/EmptyState", () => ({
     default: ({ message, subMessage }) => (
         <div data-testid="mock-empty-state">
             <p>{message}</p>

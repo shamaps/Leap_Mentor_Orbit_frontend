@@ -1,12 +1,12 @@
 // src/test/hooks/useNotifications.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import * as notificationsApi from "../../api/notifications.api";
-import logger from "../../utils/logger";
-import { useNotifications } from "../../hooks/useNotifications";
+import * as notificationsApi from "../../features/notifications/model/notifications.api";
+import logger from "../../shared/utils/logger";
+import { useNotifications } from "../../features/notifications/presenter/useNotifications";
 
-vi.mock("../../api/notifications.api");
-vi.mock("../../utils/logger", () => ({
+vi.mock("../../features/notifications/model/notifications.api");
+vi.mock("../../shared/utils/logger", () => ({
     default: {
         debug: vi.fn(),
         info: vi.fn(),

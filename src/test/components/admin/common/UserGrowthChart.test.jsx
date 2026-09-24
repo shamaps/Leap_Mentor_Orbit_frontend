@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import UserGrowthChart from "../../../../components/admin/common/UserGrowthChart";
+import UserGrowthChart from "../../../../features/admin/view/charts/UserGrowthChart";
 
 describe("UserGrowthChart Component Suite", () => {
     const generateMockGrowthData = (count) => {

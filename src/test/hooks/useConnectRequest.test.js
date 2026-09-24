@@ -1,10 +1,10 @@
 // src/test/hooks/useConnectRequest.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { sendConnectRequest } from "../../api/connectRequests.api";
-import useConnectRequest from "../../hooks/useConnectRequest";
+import { sendConnectRequest } from "../../features/connects/model/connectRequests.api";
+import useConnectRequest from "../../features/connects/presenter/useConnectRequest";
 
-vi.mock("../../api/connectRequests.api");
+vi.mock("../../features/connects/model/connectRequests.api");
 
 const validPayload = {
     mentorId: "mentor-1",

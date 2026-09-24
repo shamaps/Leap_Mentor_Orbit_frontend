@@ -1,7 +1,7 @@
 // src/test/components/shared-dashboard/tabs/SharedChatTab.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act, fireEvent } from "@testing-library/react";
-import SharedChatTab from "../../../../components/shared-dashboard/tabs/SharedChatTab";
+import SharedChatTab from "../../../../features/shared-dashboard/view/components/tabs/SharedChatTab";
 
 let mockState;
 vi.mock("react-redux", () => ({
@@ -9,7 +9,7 @@ vi.mock("react-redux", () => ({
 }));
 
 const mockUseChat = vi.fn();
-vi.mock("../../../../hooks/useChat", () => ({
+vi.mock("../../../../features/shared-dashboard/presenter/useChat", () => ({
     default: (...args) => mockUseChat(...args),
 }));
 

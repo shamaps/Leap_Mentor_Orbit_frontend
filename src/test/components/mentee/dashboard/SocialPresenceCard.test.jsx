@@ -1,7 +1,7 @@
 // components/mentee/dashboard/__tests__/SocialPresenceCard.test.jsx
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import SocialPresenceCard from "../../../../components/mentee/dashboard/SocialPresenceCard";
+import SocialPresenceCard from "../../../../features/mentee/view/components/dashboard/SocialPresenceCard";
 
 describe("SocialPresenceCard", () => {
     it("renders em-dash placeholders and no external links when profile is undefined", () => {

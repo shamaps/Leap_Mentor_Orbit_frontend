@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import StatCard from "../../../components/common/StatCard";
+import StatCard from "../../../shared/components/StatCard";
 
 describe("StatCard Component Suite", () => {
     const mockIcon = <span data-testid="mock-icon">📊</span>;

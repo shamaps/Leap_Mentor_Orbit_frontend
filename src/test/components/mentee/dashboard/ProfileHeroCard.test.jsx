@@ -1,7 +1,7 @@
 // components/mentee/dashboard/__tests__/ProfileHeroCard.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import ProfileHeroCard from "../../../../components/mentee/dashboard/ProfileHeroCard";
+import ProfileHeroCard from "../../../../features/mentee/view/components/dashboard/ProfileHeroCard";
 
 const mockNavigate = vi.fn();
 

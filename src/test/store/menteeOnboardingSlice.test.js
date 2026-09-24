@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import reducer, {
     clearOnboardingMessages,
     submitMenteeOnboarding,
-} from "../../store/slices/menteeOnboardingSlice";
+} from "../../app/store/slices/menteeOnboardingSlice";
 
 const initialState = { loading: false, error: null, successMsg: null };
 

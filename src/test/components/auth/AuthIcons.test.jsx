@@ -5,7 +5,7 @@ import {
     AppleIcon,
     GoogleIcon,
     LeapMentorLogo,
-} from "../../../components/auth/AuthIcons";
+} from "../../../features/auth/view/components/AuthIcons";
 
 describe("AuthIcons", () => {
     it("renders LinkedInIcon svg", () => {

@@ -1,21 +1,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import MenteeProfileModal from "../../../../../components/mentor/dashboard/requests/MenteeProfileModal";
+import MenteeProfileModal from "../../../../../features/mentor/view/components/dashboard/requests/MenteeProfileModal";
 
 const { mockRespondToRequest, mockLoggerError } = vi.hoisted(() => ({
     mockRespondToRequest: vi.fn(),
     mockLoggerError: vi.fn(),
 }));
 
-vi.mock("../../../../../api/connectRequests.api", () => ({
+vi.mock("../../../../../features/connects/model/connectRequests.api", () => ({
     respondToRequest: mockRespondToRequest,
 }));
 
-vi.mock("../../../../../utils/logger", () => ({
+vi.mock("../../../../../shared/utils/logger", () => ({
     default: { error: mockLoggerError },
 }));
 
-vi.mock("../../../../../components/mentor/dashboard/requests/RequestActionModal", () => ({
+vi.mock("../../../../../features/mentor/view/components/dashboard/requests/RequestActionModal", () => ({
     default: (props) => (
         <div data-testid="request-action-modal-stub">
             {props.type} - {props.menteeName}
@@ -24,7 +24,7 @@ vi.mock("../../../../../components/mentor/dashboard/requests/RequestActionModal"
     ),
 }));
 
-vi.mock("../../../../../components/mentor/dashboard/requests/ReferModal", () => ({
+vi.mock("../../../../../features/mentor/view/components/dashboard/requests/ReferModal", () => ({
     default: (props) => (
         <div data-testid="refer-modal-stub">
             <button type="button" data-testid="refer-modal-close" onClick={props.onClose}>

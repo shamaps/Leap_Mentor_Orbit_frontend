@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import React from "react";
-import DashboardTopbar from "../../../components/common/DashboardTopbar";
+import DashboardTopbar from "../../../shared/components/DashboardTopbar";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -15,11 +15,11 @@ vi.mock("react-redux", () => ({
     useDispatch: vi.fn(),
 }));
 
-vi.mock("../../../store/slices/authSlice", () => ({
+vi.mock("../../../app/store/slices/authSlice", () => ({
     logoutUser: vi.fn(() => ({ type: "auth/logout-mock-action" })),
 }));
 
-vi.mock("../../../constants/images", () => ({
+vi.mock("../../../shared/constants/images", () => ({
     IMAGES: { logo: "mock-logo-url-filepath.png" },
 }));
 

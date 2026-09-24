@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Home from "../../components/Home";
-import { selectAuthToken, selectAuthUser } from "../../store/selectors";
+import Home from "../../shared/marketing/Home";
+import { selectAuthToken, selectAuthUser } from "../../app/store/selectors";
 
 vi.mock("react-router-dom", () => ({
     useNavigate: vi.fn(),

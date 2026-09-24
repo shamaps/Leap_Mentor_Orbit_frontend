@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { COMM_OPTIONS, COMM_ICONS, LANGUAGE_OPTIONS } from "../../constants/mentorshipPrefs";
+import { COMM_OPTIONS, COMM_ICONS, LANGUAGE_OPTIONS } from "../../shared/constants/mentorshipPrefs";
 
 describe("Mentorship Preferences Constants Suite", () => {
 

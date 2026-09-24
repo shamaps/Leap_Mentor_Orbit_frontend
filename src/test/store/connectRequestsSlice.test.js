@@ -3,7 +3,7 @@ import reducer, {
     updateRequestStatus,
     fetchIncomingRequests,
     selectIncomingRequests,
-} from "../../store/slices/connectRequestsSlice";
+} from "../../app/store/slices/connectRequestsSlice";
 
 describe("connectRequestsSlice", () => {
     const getInitial = () => reducer(undefined, { type: "@@INIT" });

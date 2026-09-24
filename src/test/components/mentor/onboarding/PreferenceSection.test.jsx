@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
-import PreferencesSection from "../../../../components/mentor/onboarding/PreferencesSection";
+import PreferencesSection from "../../../../features/mentor/view/components/onboarding/PreferencesSection";
 
 const mockOnChange = vi.fn();
 let mockForm = { communicationPreferences: [], languages: "" };
 
-vi.mock("../../../../context/MentorOnboardingFormContext", () => ({
+vi.mock("../../../../features/mentor/context/MentorOnboardingFormContext", () => ({
     useMentorOnboardingForm: () => ({
         form: mockForm,
         onChange: mockOnChange,

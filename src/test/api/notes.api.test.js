@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { http, HttpResponse } from "msw";
 import { server } from "../mswServer";
 import { File } from "node:buffer";
-import { uploadNote, getNotes, getPrivateNotes, deleteNote } from "../../api/notes.api";
+import { uploadNote, getNotes, getPrivateNotes, deleteNote } from "../../features/shared-dashboard/model/notes.api";
 
 const BASE = "http://localhost:5000/api/v1";
 const envelope = (data) => HttpResponse.json({ success: true, data });

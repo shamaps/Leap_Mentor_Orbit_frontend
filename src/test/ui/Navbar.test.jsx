@@ -1,7 +1,7 @@
 // src/test/ui/Navbar.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import Navbar from "../../ui/Navbar";
+import Navbar from "../../shared/marketing/Navbar";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", () => ({

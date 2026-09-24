@@ -1,7 +1,7 @@
 // src/test/ui/OnboardingProgressBar.test.jsx
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import OnboardingProgressBar from "../../ui/OnboardingProgressBar";
+import OnboardingProgressBar from "../../shared/marketing/OnboardingProgressBar";
 
 const fields = [
     { key: "name", type: "text" },

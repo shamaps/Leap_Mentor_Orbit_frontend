@@ -3,54 +3,54 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import MenteeOnboardingShell from "../../../../components/mentee/onboarding/MenteeOnboardingShell";
+import MenteeOnboardingShell from "../../../../features/mentee/view/components/onboarding/MenteeOnboardingShell";
 
 
 const mockUseMenteeOnboarding = vi.fn();
-vi.mock("@/hooks/useMenteeOnboarding", () => ({
+vi.mock("@/features/mentee/presenter/useMenteeOnboarding", () => ({
     default: (...args) => mockUseMenteeOnboarding(...args),
 }));
 
 const mockGetFieldErrorMap = vi.fn();
-vi.mock("@/schemas/onboardingSchemas", () => ({
+vi.mock("@/features/mentee/schemas/onboardingSchemas", () => ({
     menteeOnboardingSchema: {},
     getFieldErrorMap: (...args) => mockGetFieldErrorMap(...args),
 }));
 
-vi.mock("@/ui/OnboardingProgressBar", () => ({
+vi.mock("@/shared/marketing/OnboardingProgressBar", () => ({
     default: () => <div data-testid="progress-bar" />,
 }));
 
-vi.mock("@/components/common/FullScreenLoader", () => ({
+vi.mock("@/shared/components/FullScreenLoader", () => ({
     default: ({ message }) => <div data-testid="fullscreen-loader">{message}</div>,
 }));
 
-vi.mock("@/constants/images", () => ({
+vi.mock("@/shared/constants/images", () => ({
     IMAGES: { logo: "/logo.png" },
 }));
 
-vi.mock("@/config/onboardingFields", () => ({
+vi.mock("@/features/mentee/config/onboardingFields", () => ({
     MENTEE_ONBOARDING_FIELDS: [],
 }));
 
 // Static stubs — each renders a real DOM node carrying the name/data-field
 // attributes the shell's scrollToFirstError logic looks for, without needing
 // to reach into the real context.
-vi.mock("@/components/mentee/onboarding/PersonalInfoSection", () => ({
+vi.mock("@/features/mentee/view/components/onboarding/PersonalInfoSection", () => ({
     default: () => <input name="bio" data-testid="personal-info-stub" />,
 }));
-vi.mock("@/components/mentee/onboarding/ProfessionalDetailsSection", () => ({
+vi.mock("@/features/mentee/view/components/onboarding/ProfessionalDetailsSection", () => ({
     default: () => <input name="currentRole" data-testid="professional-details-stub" />,
 }));
-vi.mock("@/components/mentee/onboarding/InterestedFieldsSection", () => ({
+vi.mock("@/features/mentee/view/components/onboarding/InterestedFieldsSection", () => ({
     default: React.forwardRef((_, ref) => (
         <div ref={ref} data-field="interestedFields" data-testid="interested-fields-stub" />
     )),
 }));
-vi.mock("@/components/mentee/onboarding/MentorshipPrefsSection", () => ({
+vi.mock("@/features/mentee/view/components/onboarding/MentorshipPrefsSection", () => ({
     default: () => <div data-testid="mentorship-prefs-stub" />,
 }));
-vi.mock("@/components/mentee/onboarding/SocialLinksSection", () => ({
+vi.mock("@/features/mentee/view/components/onboarding/SocialLinksSection", () => ({
     default: () => <div data-testid="social-links-stub" />,
 }));
 

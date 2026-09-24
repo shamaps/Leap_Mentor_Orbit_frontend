@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { commissionSchema, addAdminSchema } from "../../schemas/settingsSchemas";
+import { commissionSchema, addAdminSchema } from "../../shared/schemas/settingsSchemas";
 
 describe("commissionSchema", () => {
     it("passes with a valid commission rate", () => {

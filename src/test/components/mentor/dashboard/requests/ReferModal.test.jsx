@@ -1,14 +1,14 @@
 // src/test/components/mentor/dashboard/requests/ReferModal.test.jsx
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import ReferModal from "../../../../../components/mentor/dashboard/requests/ReferModal";
+import ReferModal from "../../../../../features/mentor/view/components/dashboard/requests/ReferModal";
 
 const { mockGetSimilarMentors, mockReferRequest } = vi.hoisted(() => ({
     mockGetSimilarMentors: vi.fn(),
     mockReferRequest: vi.fn(),
 }));
 
-vi.mock("../../../../../api/connectRequests.api", () => ({
+vi.mock("../../../../../features/connects/model/connectRequests.api", () => ({
     getSimilarMentors: mockGetSimilarMentors,
     referRequest: mockReferRequest,
 }));

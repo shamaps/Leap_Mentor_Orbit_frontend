@@ -1,10 +1,10 @@
 // src/test/hooks/useReportComplaint.test.js
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import axiosInstance from "../../utils/axiosInstance";
-import useReportComplaint from "../../hooks/useReportComplaint";
+import axiosInstance from "../../shared/utils/axiosInstance";
+import useReportComplaint from "../../features/shared-dashboard/presenter/useReportComplaint";
 
-vi.mock("../../utils/axiosInstance");
+vi.mock("../../shared/utils/axiosInstance");
 
 const payload = {
     complaintType: "harassment",

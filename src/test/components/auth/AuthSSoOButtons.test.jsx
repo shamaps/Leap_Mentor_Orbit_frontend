@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import AuthSSOButtons from "../../../components/auth/AuthSSOButtons";
+import AuthSSOButtons from "../../../features/auth/view/components/AuthSSOButtons";
 
 describe("AuthSSOButtons", () => {
     it("renders Google and LinkedIn buttons", () => {
