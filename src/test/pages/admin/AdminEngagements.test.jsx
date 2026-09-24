@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, within, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import adminAxiosInstance from "../../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../../utils/axiosInstance";
 import { useToast } from "../../../context/ToastContext";
 import AdminEngagements from "../../../pages/admin/AdminEngagements";
 
-vi.mock("../../../utils/adminAxiosInstance");
+vi.mock("../../../utils/axiosInstance");
 vi.mock("../../../context/ToastContext");
 
 const baseStats = { total: 10, pending: 2, ongoing: 3, completed: 4, rejected: 1 };

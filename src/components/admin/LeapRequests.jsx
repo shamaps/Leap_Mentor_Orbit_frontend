@@ -2,7 +2,7 @@
 // Add to AdminLayout NAV_ITEMS and route as /admin/leap-requests
 
 import { useState, useEffect, useCallback } from "react";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import PropTypes from "prop-types";
 import EmptyState from "../common/EmptyState";
 import logger from "../../utils/logger";

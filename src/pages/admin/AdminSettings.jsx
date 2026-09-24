@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import { useToast } from "../../context/ToastContext";
 import { commissionSchema, addAdminSchema } from "../../schemas/settingsSchemas";
 import PropTypes from "prop-types";

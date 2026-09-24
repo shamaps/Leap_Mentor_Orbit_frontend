@@ -1,7 +1,7 @@
 // src/pages/admin/AdminVerifications.jsx
 import { useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import ErrorState from "../../components/common/ErrorState";
 // ── Icons ────────────────────────────────────────────────
 const IconShield = () => (

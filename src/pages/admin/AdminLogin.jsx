@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import { IMAGES } from "../../constants/images";
 import { loginSchema } from "../../schemas/authSchemas";
 import { mapServerErrorsToForm } from "../../utils/mapServerErrorsToForm";

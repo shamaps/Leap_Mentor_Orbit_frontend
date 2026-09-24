@@ -3,13 +3,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useNavigate } from "react-router-dom";
-import adminAxiosInstance from "../../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../../utils/axiosInstance";
 import AdminLogin from "../../../pages/admin/AdminLogin";
 
 vi.mock("react-router-dom", () => ({
     useNavigate: vi.fn(),
 }));
-vi.mock("../../../utils/adminAxiosInstance");
+vi.mock("../../../utils/axiosInstance");
 
 describe("AdminLogin", () => {
     let navigate;

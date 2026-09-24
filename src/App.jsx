@@ -9,6 +9,7 @@ import Home from "./components/Home";
 import GlobalErrorBanner from "./components/common/GlobalErrorBanner";
 import NotFound from "./pages/NotFound";
 import AdminRoute from "./components/admin/AdminRoute";
+import RouteErrorBoundary from "./components/common/RouteErrorBoundary";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 const RegisterMentee = lazy(() => import("./pages/RegisterMentee"));
@@ -104,79 +105,175 @@ const App = () => {
       <Suspense fallback={<PageLoader />}>
         <GlobalErrorBanner />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route
+            path="/"
+            element={
+              <RouteErrorBoundary>
+                <Home />
+              </RouteErrorBoundary>
+            }
+          />
 
-          <Route path="/register/mentee" element={<RegisterMentee />} />
-          <Route path="/register/mentor" element={<RegisterMentor />} />
-          <Route path="/login" element={<LoginMentee />} />
-          <Route path="/login/mentor" element={<LoginMentor />} />
-          <Route path="/login/mentee" element={<LoginMentee />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/sso-callback" element={<SSOCallback />} />
-          <Route path="/sso-callback-sync" element={<SSOSync />} />
-
+          <Route
+            path="/register/mentee"
+            element={
+              <RouteErrorBoundary>
+                <RegisterMentee />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/register/mentor"
+            element={
+              <RouteErrorBoundary>
+                <RegisterMentor />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <RouteErrorBoundary>
+                <LoginMentee />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/login/mentor"
+            element={
+              <RouteErrorBoundary>
+                <LoginMentor />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/login/mentee"
+            element={
+              <RouteErrorBoundary>
+                <LoginMentee />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/verify-email"
+            element={
+              <RouteErrorBoundary>
+                <VerifyEmail />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <RouteErrorBoundary>
+                <ForgotPassword />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/sso-callback"
+            element={
+              <RouteErrorBoundary>
+                <SSOCallback />
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/sso-callback-sync"
+            element={
+              <RouteErrorBoundary>
+                <SSOSync />
+              </RouteErrorBoundary>
+            }
+          />
           <Route
             path="/onboarding/mentor"
             element={
+              <RouteErrorBoundary>
               <ProtectedRoute role="mentor">
                 <MentorOnboarding />
               </ProtectedRoute>
+              </RouteErrorBoundary>
             }
           />
-          <Route path="/onboarding/mentor/verify-documents" element={<ProtectedRoute role="mentor"><MentorVerification /></ProtectedRoute>} />
+          <Route
+            path="/onboarding/mentor/verify-documents"
+            element={
+              <RouteErrorBoundary>
+                <ProtectedRoute role="mentor">
+                  <MentorVerification />
+                </ProtectedRoute>
+              </RouteErrorBoundary>
+            }
+          />
           <Route
             path="/onboarding/mentee"
             element={
+              <RouteErrorBoundary>
               <ProtectedRoute role="mentee">
                 <MenteeOnboarding />
               </ProtectedRoute>
+              </RouteErrorBoundary>
             }
           />
 
           <Route
             path="/dashboard/mentee/edit-profile"
             element={
+              <RouteErrorBoundary>
               <ProtectedRoute role="mentee">
                 <MenteeEditProfileShell />
               </ProtectedRoute>
+              </RouteErrorBoundary>
             }
           />
           <Route
             path="/dashboard/mentor/edit-profile"
             element={
+              <RouteErrorBoundary>
               <ProtectedRoute role="mentor">
                 <MentorEditProfileShell />
               </ProtectedRoute>
+              </RouteErrorBoundary>
             }
           />
 
           <Route
             path="/dashboard/mentor"
             element={
+              <RouteErrorBoundary>
               <ProtectedRoute role="mentor">
                 <MentorDashboard />
               </ProtectedRoute>
+              </RouteErrorBoundary>
             }
           />
           <Route
             path="/dashboard/mentee"
             element={
+              <RouteErrorBoundary>
               <ProtectedRoute role="mentee">
                 <MenteeDashboard />
               </ProtectedRoute>
+              </RouteErrorBoundary>
             }
           />
 
           {/* ── Shared Dashboard — no role restriction, auth checked inside page ── */}
           <Route
             path="/shared-dashboard/:connectRequestId"
-            element={<SharedDashboardPage />}
+            element={
+              <RouteErrorBoundary>
+                <SharedDashboardPage />
+              </RouteErrorBoundary>
+            }
           />
 
           <Route path="/admin/login" element={<AdminLogin />} />
 
-          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+          <Route path="/admin" element={<RouteErrorBoundary>
+            <AdminRoute><AdminLayout /></AdminRoute>
+          </RouteErrorBoundary>}>
             <Route path="users" element={<AdminUserManagement />} />
             <Route path="engagements" element={<AdminEngagements />} />
             <Route path="reports" element={<AdminReports />} />

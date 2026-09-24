@@ -1,6 +1,6 @@
 // src/pages/admin/AdminUserManagement.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
-import adminAxiosInstance from "../../utils/adminAxiosInstance";
+import adminAxiosInstance from "../../utils/axiosInstance";
 import StatCard from "@/components/common/StatCard";
 import UserGrowthChart from "../../components/admin/common/UserGrowthChart";
 import MentorIndustryChart from "../../components/admin/common/MentorIndustryChart";
