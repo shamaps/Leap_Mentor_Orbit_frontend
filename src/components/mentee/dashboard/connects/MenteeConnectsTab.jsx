@@ -27,7 +27,7 @@ const MenteeConnectsTab = () => {
           ),
       }}
 
-      // ✅ Active session cards
+      // Active session cards
       completedChildren={completed.map((c) => (
         <ConnectCard
           key={c._id}

@@ -22,17 +22,6 @@ vi.mock("react-redux", () => ({
     useSelector: vi.fn(),
 }));
 
-// ── Mock Action Creators & Thunks ────────────────────────
-// Paths are resolved relative to THIS test file (src/test/pages/),
-// so they climb two levels up to reach src/store and src/constants.
-//
-// Each thunk creator returns a tagged marker object instead of the
-// raw arg. The component calls dispatch(clearMessages()) immediately
-// before every dispatch(<thunk>(...)) call, so a plain FIFO queue
-// (mockResolvedValueOnce) is unsafe: the value meant for the thunk
-// gets consumed by the preceding clearMessages() dispatch instead.
-// Tagging + inspecting the action in mockDispatch's implementation
-// sidesteps call-order entirely.
 vi.mock("../../store/slices/authSlice", () => ({
     forgotPassword: vi.fn((arg) => ({ __thunk: "forgotPassword", arg })),
     verifyResetOtp: vi.fn((arg) => ({ __thunk: "verifyResetOtp", arg })),
@@ -75,7 +64,6 @@ describe("ForgotPassword Component Suite", () => {
             if (action && action.__thunk && thunkResults[action.__thunk] !== undefined) {
                 return Promise.resolve(thunkResults[action.__thunk]);
             }
-            // clearMessages() and any un-configured thunk call: echo back.
             return Promise.resolve(action);
         });
 
@@ -124,7 +112,6 @@ describe("ForgotPassword Component Suite", () => {
             fireEvent.change(emailInput, { target: { value: "error@example.com" } });
             fireEvent.submit(screen.getByRole("button", { name: "Send OTP" }));
 
-            // Match against the component fallback string present in your DOM layout dump
             expect(await screen.findByText("Failed to send OTP.")).toBeInTheDocument();
         });
 
@@ -376,7 +363,6 @@ describe("ForgotPassword Component Suite", () => {
             fireEvent.change(screen.getByLabelText("Confirm Password"), { target: { value: "Password123!" } });
             fireEvent.submit(screen.getByRole("button", { name: "Reset Password" }));
 
-            // Align search to look explicitly for the default string handled in the component frame
             expect(await screen.findByText("Failed to reset password.")).toBeInTheDocument();
         });
     });

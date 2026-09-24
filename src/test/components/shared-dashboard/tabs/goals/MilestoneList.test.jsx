@@ -104,7 +104,7 @@ describe("MilestoneList Components Coverage Suite", () => {
 
             fireEvent.change(input, { target: { value: "Natively Injected Title String" } });
 
-            // ✅ Wrap keyboard submit state updates inside act to clear the stderr warnings[cite: 8]
+            //  Wrap keyboard submit state updates inside act to clear the stderr warnings[cite: 8]
             await act(async () => {
                 fireEvent.keyDown(input, { key: "Enter" });
             });
@@ -150,7 +150,7 @@ describe("MilestoneList Components Coverage Suite", () => {
             );
 
             expect(screen.getByText(/Overdue/i)).toBeInTheDocument();
-            // ✅ Query text contents using regex layout matching to isolate combined string templates safely[cite: 8]
+            // Query text contents using regex layout matching to isolate combined string templates safely[cite: 8]
             expect(screen.getByText(/Jul 1/i)).toBeInTheDocument();
         });
 

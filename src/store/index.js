@@ -19,9 +19,7 @@ export const store = configureStore({
     sharedConnect: sharedConnectReducer,
     connectRequests: connectRequestsReducer,
     ui: uiReducer,
-  },
+  }, devTools: true,
 });
-// Give axiosInstance a live reference now that the store exists,
-// instead of axiosInstance importing "../store" directly (circular).
 injectStore(store);
 export default store;

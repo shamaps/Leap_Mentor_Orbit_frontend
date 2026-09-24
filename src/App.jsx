@@ -81,8 +81,6 @@ const App = () => {
       dispatch(setBootstrapped());
       return;
     }
-
-    // No token in memory — try to restore from HttpOnly cookie
     axiosInstance
       .post("/auth/refresh")
       .then(({ data }) => {

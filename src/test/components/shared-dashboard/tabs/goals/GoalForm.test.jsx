@@ -4,7 +4,7 @@ import React from "react";
 import { z } from "zod";
 import GoalForm from "../../../../../components/shared-dashboard/tabs/goals/GoalForm";
 
-// ✅ Re-create a real, structurally operational Zod validation schema definition
+//  Re-create a real, structurally operational Zod validation schema definition
 vi.mock("../../../../../schemas/miscSchemas", () => {
     const schema = z.object({
         title: z.string().min(1, "Goal title is required description."),
@@ -88,7 +88,7 @@ describe("GoalForm Components Coverage Suite", () => {
         it("should lock button attributes and inject structural spinners when saving parameter evaluates to true", async () => {
             render(<GoalForm onSave={mockSave} onCancel={mockCancel} saving={true} initial={{ title: "Valid Seeded Title" }} />);
 
-            // ✅ Update the target element dynamically to trigger watch updates before asserting the layout state change
+            //  Update the target element dynamically to trigger watch updates before asserting the layout state change
             const titleInput = screen.getByLabelText(/Goal Title/i);
             fireEvent.change(titleInput, { target: { value: "Valid Seeded Title" } });
 

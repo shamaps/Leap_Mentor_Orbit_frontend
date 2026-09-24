@@ -6,7 +6,7 @@ import TimelineTracker from "../../../../../components/shared-dashboard/tabs/goa
 describe("TimelineTracker Component Suite", () => {
     const mockUpdate = vi.fn();
 
-    // ✅ Enforce matching local time components explicitly to eliminate environment offset calculations
+    // Enforce matching local time components explicitly to eliminate environment offset calculations
     const baseGoalWithTimeline = {
         _id: "g-99",
         startDate: "2026-07-01",
@@ -22,7 +22,7 @@ describe("TimelineTracker Component Suite", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // ✅ Synchronize system test clock to absolute local midnight matching the date range math boundaries
+        // Synchronize system test clock to absolute local midnight matching the date range math boundaries
         vi.setSystemTime(new Date("2026-07-11T00:00:00"));
     });
 

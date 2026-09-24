@@ -22,7 +22,7 @@ const ProfileTab = ({ user, profile }) => {
           </p>
         </div>
         <button
-          onClick={() => navigate("/dashboard/mentor/edit-profile")} // ✅ FIXED: was "/onboarding/mentor"
+          onClick={() => navigate("/dashboard/mentor/edit-profile")} // FIXED: was "/onboarding/mentor"
           className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-xl bg-blue-900 text-white hover:bg-blue-700 transition-colors duration-150 shadow-sm"
         >
           <svg
@@ -46,7 +46,7 @@ const ProfileTab = ({ user, profile }) => {
       <ProfileCard
         user={user}
         profile={profile}
-        onEditClick={() => navigate("/dashboard/mentor/edit-profile")} // ✅ FIXED: was "/onboarding/mentor"
+        onEditClick={() => navigate("/dashboard/mentor/edit-profile")} // FIXED: was "/onboarding/mentor"
       />
 
       {/* Two column grid */}

@@ -93,7 +93,7 @@ describe("DashboardSidebar Component Suite", () => {
             render(<DashboardSidebar {...baseProps} />);
 
             const helpCenterBtns = screen.getAllByRole("button", { name: /Help Center/i });
-            // ✅ Click Mobile Drawer instance (where onClose proxy prop maps)
+            // Click Mobile Drawer instance (where onClose proxy prop maps)
             fireEvent.click(helpCenterBtns[1]);
 
             expect(mockSetActiveTab).toHaveBeenCalledWith("help");
