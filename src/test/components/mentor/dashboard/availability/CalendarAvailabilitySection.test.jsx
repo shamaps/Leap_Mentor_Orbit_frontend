@@ -3,9 +3,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import CalendarAvailabilitySection from "../../../../../features/mentor/view/components/dashboard/availability/CalendarAvailabilitySection";
 
-const { mockAxiosGet, mockLoggerError } = vi.hoisted(() => ({
+const { mockAxiosGet, mockLoggerWarn } = vi.hoisted(() => ({
     mockAxiosGet: vi.fn(),
-    mockLoggerError: vi.fn(),
+    mockLoggerWarn: vi.fn(),
 }));
 
 vi.mock("../../../../../shared/utils/axiosInstance", () => ({
@@ -13,7 +13,7 @@ vi.mock("../../../../../shared/utils/axiosInstance", () => ({
 }));
 
 vi.mock("../../../../../shared/utils/logger", () => ({
-    default: { error: mockLoggerError },
+    default: { warn: mockLoggerWarn },
 }));
 
 // Fix "today" so past/future date logic and month labels are deterministic.
@@ -464,7 +464,7 @@ describe("CalendarAvailabilitySection Component Suite", () => {
         setup({ googleCalendarConnected: true });
 
         await vi.waitFor(() =>
-            expect(mockLoggerError).toHaveBeenCalledWith(
+            expect(mockLoggerWarn).toHaveBeenCalledWith(
                 "Failed to fetch busy slots:",
                 expect.objectContaining({ err: expect.any(Error) }),
             ),
@@ -479,7 +479,7 @@ describe("CalendarAvailabilitySection Component Suite", () => {
         setup({ googleCalendarConnected: true });
 
         await vi.waitFor(() =>
-            expect(mockLoggerError).toHaveBeenCalledWith(
+            expect(mockLoggerWarn).toHaveBeenCalledWith(
                 "Failed to fetch events:",
                 expect.objectContaining({ err: expect.any(Error) }),
             ),
