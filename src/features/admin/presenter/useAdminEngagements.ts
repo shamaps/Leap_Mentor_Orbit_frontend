@@ -2,14 +2,22 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useLoaderData, useSearchParams, useNavigation } from "react-router-dom";
 import { useToast } from "@/shared/context/ToastContext";
-
+import type { AdminEngagement, AdminStats } from "../model/admin.types";
+import { applyParamUpdates } from "@/shared/utils/searchParams";
+type EngagementParamUpdates = {
+  page?: number;
+  search?: string;
+  status?: string;
+  dateFrom?: string;
+  dateTo?: string;
+};
 export const useAdminEngagements = () => {
   // Initial (and every subsequent filter/page) fetch is done by
   // adminEngagementsLoader — see App.tsx's "/admin/engagements" route.
   const { engagements, pagination, stats, error } = useLoaderData() as {
-    engagements: any[];
+    engagements: AdminEngagement[];
     pagination: { total: number; page: number; totalPages: number };
-    stats: any;
+    stats: AdminStats | null;
     error: string | null;
   };
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,26 +40,8 @@ export const useAdminEngagements = () => {
   }, [error]);
 
   const updateParams = useCallback(
-    (next: { page?: number; search?: string; status?: string; dateFrom?: string; dateTo?: string }) => {
-      const params = new URLSearchParams(searchParams);
-      if (next.page !== undefined) params.set("page", String(next.page));
-      if (next.search !== undefined) {
-        if (next.search) params.set("search", next.search);
-        else params.delete("search");
-      }
-      if (next.status !== undefined) {
-        if (next.status) params.set("status", next.status);
-        else params.delete("status");
-      }
-      if (next.dateFrom !== undefined) {
-        if (next.dateFrom) params.set("dateFrom", next.dateFrom);
-        else params.delete("dateFrom");
-      }
-      if (next.dateTo !== undefined) {
-        if (next.dateTo) params.set("dateTo", next.dateTo);
-        else params.delete("dateTo");
-      }
-      setSearchParams(params);
+    (next: EngagementParamUpdates) => {
+      setSearchParams(applyParamUpdates(searchParams, next));
     },
     [searchParams, setSearchParams],
   );

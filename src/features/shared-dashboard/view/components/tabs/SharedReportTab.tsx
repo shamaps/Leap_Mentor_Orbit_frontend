@@ -5,7 +5,6 @@ import EmptyState from "@/shared/components/EmptyState";
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const EmptyStateAny = EmptyState as any;
 import useReport from "@/features/shared-dashboard/presenter/useReport";
 import ReportModal from "./ReportModal";
 import ReportSuccessModal from "./ReportSuccessModal";
@@ -97,7 +96,7 @@ const FeedbackCard = ({ feedback, label, isOwn }: { feedback: Feedback; label: s
 
 // ── Not Completed State ───────────────────────────────────────
 const NotCompletedState = () => (
-  <EmptyStateAny
+  <EmptyState
     icon={
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
         stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

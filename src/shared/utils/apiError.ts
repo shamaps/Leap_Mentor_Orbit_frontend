@@ -94,7 +94,7 @@ export const normalizeApiError = (
         status,
         message: messageFor(kind, axiosError, fallback),
         requestId,
-        isRetryable: status !== undefined ? RETRYABLE_STATUSES.has(status) : kind === "network",
+        isRetryable: status === undefined ? kind === "network" : RETRYABLE_STATUSES.has(status),
     };
 };
 
@@ -146,7 +146,7 @@ export const reportApiError = (
     Sentry.captureException(error, {
         tags: {
             apiErrorKind: normalized.kind,
-            ...(normalized.status !== undefined ? { httpStatus: normalized.status } : {}),
+            ...(normalized.status === undefined ? {} : { httpStatus: normalized.status }),
         },
         extra: sanitize({
             requestId: normalized.requestId,

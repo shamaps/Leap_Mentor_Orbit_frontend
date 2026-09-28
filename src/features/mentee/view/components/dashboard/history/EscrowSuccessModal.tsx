@@ -1,10 +1,10 @@
 // src/components/mentee/dashboard/history/EscrowSuccessModal.jsx
+import { useRef } from "react";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogDescription,
-  DialogClose,
 } from "@/shared/components/ui/dialog";
 
 const LockIcon = ({ size = 14 }) => (
@@ -39,26 +39,36 @@ const CheckIcon = () => (
   </svg>
 );
 
-// ── Props ─────────────────────────────────────────────────────
-// totalAmount  — tokens locked
-// mentorName   — mentor's name
-// onDone       — called when user clicks Done or X (patches parent + closes)
+// ── Props ────────────────────────────────────────────────
+// totalAmount  – tokens locked
+// mentorName   – mentor's name
+// onDone       – called when user clicks Done or X (patches parent + closes)
 interface EscrowSuccessModalProps {
   totalAmount: number;
   mentorName: string;
   onDone: () => void;
 }
 
-
-           
-
 const EscrowSuccessModal = ({ totalAmount, mentorName, onDone }: EscrowSuccessModalProps) => {
+  // onDone typically triggers the parent to stop rendering this modal
+  // (unmounting the Dialog). Several dismiss paths — the X button, Escape,
+  // outside click, and the Done button — all need to lead to onDone, but
+  // exactly once: this ref makes that a hard guarantee regardless of which
+  // path fires or whether more than one fires for a single interaction.
+  const doneCalledRef = useRef(false);
+  const handleDone = () => {
+    if (doneCalledRef.current) return;
+    doneCalledRef.current = true;
+    onDone();
+  };
+
   return (
-    // Always mounted-open — parent only renders this once payment has
+    // Always mounted-open – parent only renders this once payment has
     // succeeded. Radix Dialog gives us focus trap, ESC-to-close,
     // click-outside-to-close, and portal rendering for free; onOpenChange
-    // fires for all of those, so we route them to the same "done" handler.
-    <Dialog open onOpenChange={(open) => !open && onDone()}>
+    // fires for all of those, so we route them through the same guarded
+    // "done" handler used everywhere else in this component.
+    <Dialog open onOpenChange={(open) => !open && handleDone()}>
       <DialogContent className="p-0 overflow-hidden gap-0">
         {/* Header */}
         <div className="w-full flex items-center justify-between px-5 py-4 border-b border-slate-100">
@@ -66,26 +76,29 @@ const EscrowSuccessModal = ({ totalAmount, mentorName, onDone }: EscrowSuccessMo
             <LockIcon size={15} />
             <DialogTitle className="text-sm font-bold">Payment Successful</DialogTitle>
           </div>
-          <DialogClose asChild>
-            <button
-              type="button"
-              className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-              aria-label="Close"
+          {/* Plain button, not DialogClose: it calls handleDone directly
+              instead of also routing through Radix's internal close ->
+              onOpenChange path, so this interaction only ever has one way
+              to reach onDone. */}
+          <button
+            type="button"
+            onClick={handleDone}
+            className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+            aria-label="Close"
+          >
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#64748B"
+              strokeWidth="2.5"
+              strokeLinecap="round"
             >
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#64748B"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </DialogClose>
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
 
         {/* Body */}
@@ -116,7 +129,7 @@ const EscrowSuccessModal = ({ totalAmount, mentorName, onDone }: EscrowSuccessMo
           {/* Done button */}
           <button
             type="button"
-            onClick={onDone}
+            onClick={handleDone}
             className="w-full py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-700 transition-all mt-2"
           >
             Done

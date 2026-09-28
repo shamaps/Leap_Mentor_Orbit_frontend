@@ -1,6 +1,17 @@
 // src/features/admin/presenter/useAdminSupportMessages.js
 import { useEffect, useState } from "react";
 import { getSupportMessages, resolveSupportMessage } from "../model/admin.api";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
+
+export interface AdminSupportMessage {
+  _id: string;
+  status: string;
+  subject?: string;
+  role?: string;
+  email?: string;
+  message?: string;
+  createdAt: string;
+}
 
 const STATUS_STYLES = {
   open: { background: "#fef9c3", color: "#854d0e", label: "Open" },
@@ -8,7 +19,7 @@ const STATUS_STYLES = {
 };
 
 export const useAdminSupportMessages = () => {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<AdminSupportMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all");
@@ -21,12 +32,8 @@ export const useAdminSupportMessages = () => {
     try {
       const res = await getSupportMessages();
       setMessages(res.data.messages || []);
-    } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-        err.message ||
-        "Failed to load messages",
-      );
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Failed to load messages"));
     } finally {
       setLoading(false);
     }

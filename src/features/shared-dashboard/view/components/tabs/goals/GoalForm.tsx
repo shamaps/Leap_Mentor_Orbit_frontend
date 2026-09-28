@@ -1,11 +1,10 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Spinner from "@/shared/components/Spinner"
 // Spinner is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const SpinnerAny = Spinner as any;
 import { goalSchema } from "@/shared/schemas/miscSchemas";
 
 interface GoalFormValues {
@@ -19,7 +18,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }: { initial?: Partia
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<GoalFormValues>({
     resolver: zodResolver(goalSchema),
@@ -31,7 +30,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }: { initial?: Partia
     },
   });
 
-  const watchedTitle = watch("title");
+  const watchedTitle = useWatch({ control, name: "title" });
 
   // zodResolver has already validated the title + date-order rules by
   // the time this runs — no manual checks needed.
@@ -130,7 +129,7 @@ const GoalForm = ({ initial = {}, onSave, onCancel, saving }: { initial?: Partia
               : "bg-slate-100 text-slate-400 cursor-not-allowed"
             }`}
         >
-          {saving ? <><SpinnerAny size="sm" light />Saving...</> : (
+          {saving ? <><Spinner size="sm" light />Saving...</> : (
             "Save Goal"
           )}
         </button>

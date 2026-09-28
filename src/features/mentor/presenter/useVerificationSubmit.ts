@@ -1,3 +1,4 @@
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 // src/hooks/useVerificationSubmit.js
 import { useState } from "react";
 import { submitVerificationDocuments } from "@/features/mentor/model/mentorProfile.api";
@@ -30,9 +31,7 @@ export const useVerificationSubmit = () => {
         } catch (err) {
             setMsg({
                 type: "error",
-                text:
-                    err?.response?.data?.message ||
-                    "Failed to submit documents. Please try again.",
+                text: getErrorMessage(err, "Failed to submit documents. Please try again."),
             });
             return { success: false };
         } finally {

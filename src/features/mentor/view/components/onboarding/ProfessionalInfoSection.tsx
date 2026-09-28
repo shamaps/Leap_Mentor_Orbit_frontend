@@ -15,14 +15,15 @@ const INDUSTRY_OPTIONS = [
   "Engineering",
   "Other",
 ];
+type FlagLike = boolean | string | undefined;
 
-const inputClass = (hasError: boolean | string | undefined) =>
+const inputClass = (hasError: FlagLike) =>
   `w-full text-sm text-slate-800 bg-white border rounded-xl px-3.5 py-2.5 outline-none placeholder:text-slate-400 focus:ring-2 transition-all duration-150 hover:border-slate-400 ${hasError
     ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100"
     : "border-slate-300 focus:border-blue-400 focus:ring-blue-100"
   }`;
 
-const selectClass = (hasError: boolean | string | undefined, hasValue: boolean | string | undefined) => {
+const selectClass = (hasError: FlagLike, hasValue: FlagLike) => {
   if (hasError) {
     return "w-full text-sm bg-white border rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 transition-all duration-150 hover:border-slate-400 appearance-none cursor-pointer pr-8 border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-100 text-slate-800";
   }

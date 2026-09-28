@@ -8,10 +8,39 @@ import type { RootState } from "@/app/store";
 import axiosInstance from "@/shared/utils/axiosInstance";
 import getErrorMessage from "@/shared/utils/getErrorMessage";
 
+export interface ConnectPersonProfile {
+  name?: string;
+  email?: string;
+  profilePicture?: string | null;
+  currentRole?: string | null;
+  company?: string | null;
+  industry?: string | null;
+  bio?: string | null;
+  hourlyRate?: number | null;
+  avgRating?: number;
+  yearsOfExperience?: number | null;
+  skills?: string[];
+  reviewCount?: number;
+  totalSessions?: number;
+  location?: string;
+}
+
 export interface ConnectRequest {
   _id: string;
   status: string;
   respondedAt?: string;
+  requestedAt?: string;
+  mentee?: { _id?: string; name?: string; email?: string; [key: string]: unknown };
+  menteeProfile?: ConnectPersonProfile;
+  mentor?: { _id?: string; name?: string; email?: string; [key: string]: unknown };
+  mentorProfile?: ConnectPersonProfile;
+  selectedSlots?: Array<{ day?: string; date: string; startTime: string; endTime: string; status?: string; [key: string]: unknown }>;
+  confirmedSlot?: { day?: string; date: string; startTime: string; endTime: string; status?: string; [key: string]: unknown } | null;
+  message?: string;
+  referredBy?: { _id?: string; name?: string; email?: string } | null;
+  referredTo?: { _id?: string; name?: string; email?: string } | null;
+  referredByProfile?: ConnectPersonProfile;
+  referredToProfile?: ConnectPersonProfile;
   [key: string]: unknown;
 }
 

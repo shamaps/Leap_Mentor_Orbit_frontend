@@ -8,7 +8,6 @@ import MentorshipPrefsCard from "@/features/mentor/view/components/dashboard/Men
 // phase); its inferred prop types mark every prop as required. Cast locally
 // to avoid coupling this migration to that one.
  
-const MentorshipPrefsCardAny = MentorshipPrefsCard as any;
 import SocialPresenceCard from "./SocialPresenceCard";
 import { selectMenteeProfile } from "@/app/store/selectors";
 const ProfileTab = () => {
@@ -31,7 +30,7 @@ const ProfileTab = () => {
       {/* Two-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ProfessionalDetailsCard profile={profile} />
-        <MentorshipPrefsCardAny profile={profile} />
+        <MentorshipPrefsCard profile={profile} />
         <InterestedFieldsCard profile={profile} />
         <SocialPresenceCard profile={profile} />
       </div>

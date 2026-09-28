@@ -4,6 +4,8 @@ import { payEscrow, getEscrowStatus } from "@/features/shared-dashboard/model/es
 import { formatTime } from "./constants";
 import EscrowSuccessModal from "./EscrowSuccessModal";
 import logger from "@/shared/utils/logger";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
+import type { RawConnectRequest } from "@/features/connects/model/connectRequestMapper";
 const TokenIcon = ({ size = 13 }) => (
   <svg
     width={size}
@@ -37,9 +39,9 @@ const LockIcon = ({ size = 13 }) => (
 );
 
 interface EscrowPaymentModalProps {
-  request: Record<string, any>;
+  request: RawConnectRequest;
   onClose: () => void;
-  onSuccess: (patch: Record<string, any>) => void;
+  onSuccess: (patch: Partial<RawConnectRequest>) => void;
 }
 
 const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalProps) => {
@@ -48,7 +50,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalP
   const [error, setError] = useState("");
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [commissionRate, setCommissionRate] = useState(20);
-  const [successPatch, setSuccessPatch] = useState<Record<string, any> | null>(null);
+  const [successPatch, setSuccessPatch] = useState<Partial<RawConnectRequest> | null>(null);
 
   const sessionCount = request?.selectedSlots?.length || 1;
   const sessionRate = request?.mentorProfile?.hourlyRate || 0;
@@ -69,7 +71,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalP
           setCommissionRate(data.commissionRate);
       } catch (err) {
         logger.warn("Could not fetch escrow status", {
-          detail: err?.response?.data || err.message,
+          detail: getErrorMessage(err),
         });
       } finally {
         setFetching(false);
@@ -106,9 +108,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalP
         mentorPayout: mentorAmount,
       });
     } catch (err) {
-      setError(
-        err?.response?.data?.message || "Payment failed. Please try again.",
-      );
+      setError(getErrorMessage(err, "Payment failed. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -206,7 +206,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalP
                     value: `${sessionCount} session${sessionCount > 1 ? "s" : ""} (auto-filled)`,
                   },
                 ]
-                  .filter(Boolean)
+                  .filter((row): row is { label: string; value: string } => Boolean(row))
                   .map(({ label, value }) => (
                     <div
                       key={label}

@@ -1,3 +1,4 @@
+import type { AdminPerson, AdminSlot, AdminWalletRequest } from "../../model/admin.types";
 // src/features/admin/view/pages/AdminWalletRequests.jsx
 import { useMenteeHistoryModal } from "../../presenter/useMenteeHistoryModal";
 import { useAdminWalletRequests } from "../../presenter/useAdminWalletRequests";
@@ -6,7 +7,6 @@ import EmptyState from "@/shared/components/EmptyState";
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const EmptyStateAny = EmptyState as any;
 const getInitials = (name = "") =>
   name
     .split(" ")
@@ -96,18 +96,18 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 // ── Mentee History Modal ──────────────────────────────────────
-const MenteeHistoryModal = ({ mentee, onClose }: { mentee: any; onClose: () => void }) => {
+const MenteeHistoryModal = ({ mentee, onClose }: { mentee: AdminPerson; onClose: () => void }) => {
   const { engagements, loading, expandedId, toggleExpand } = useMenteeHistoryModal(mentee);
 
   const { bg, text } = getAvatarColor(mentee.name);
   const totalCompleted = engagements.reduce(
-    (acc: number, e: any) =>
+    (acc, e) =>
       acc +
-      (e.selectedSlots?.filter((s: any) => s.status === "completed").length || 0),
+      (e.selectedSlots?.filter((s) => s.status === "completed").length || 0),
     0,
   );
   const totalSlots = engagements.reduce(
-    (acc: number, e: any) => acc + (e.selectedSlots?.length || 0),
+    (acc, e) => acc + (e.selectedSlots?.length || 0),
     0,
   );
 
@@ -225,7 +225,7 @@ const MenteeHistoryModal = ({ mentee, onClose }: { mentee: any; onClose: () => v
 
             if (engagements.length === 0) {
               return (
-                <EmptyStateAny
+                <EmptyState
                   compact
                   icon={
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.6" strokeLinecap="round">
@@ -240,12 +240,12 @@ const MenteeHistoryModal = ({ mentee, onClose }: { mentee: any; onClose: () => v
 
             return (
               <>
-                {engagements.map((eng: any) => {
+                {engagements.map((eng) => {
                   const isOpen = expandedId === eng._id;
 
                   const engSlots = eng.selectedSlots || [];
                   const completed = engSlots.filter(
-                    (s: any) => s.status === "completed",
+                    (s) => s.status === "completed",
                   ).length;
                   return (
                     <div
@@ -363,7 +363,7 @@ const MenteeHistoryModal = ({ mentee, onClose }: { mentee: any; onClose: () => v
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {engSlots.map((slot: any, i: number) => (
+                                  {engSlots.map((slot: AdminSlot, i: number) => (
                                     <tr key={`${slot.date}-${slot.startTime}`} className="border-t border-slate-100 bg-white hover:bg-slate-50">
                                       <td className="px-3 py-2 font-bold text-slate-400">
                                         {i + 1}
@@ -404,11 +404,11 @@ const RequestRow = ({
   actionLoading,
   onViewHistory,
 }: {
-  req: any;
+  req: AdminWalletRequest;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   actionLoading: string | null;
-  onViewHistory: (mentee: any) => void;
+  onViewHistory: (mentee: AdminPerson) => void;
 }) => {
   const name = req.mentee?.name || "Unknown";
   const email = req.mentee?.email || "—";
@@ -563,7 +563,7 @@ const AdminWalletRequests = () => {
   if (loading) {
     content = <LoadingSpinner />;
   } else if (filtered.length === 0) {
-    content = <EmptyStateAny label={getEmptyRequestsLabel(search, activeTab)} />;
+    content = <EmptyState message={getEmptyRequestsLabel(search, activeTab)} />;
   } else {
     content = (
       <div className="overflow-x-auto">
@@ -578,7 +578,7 @@ const AdminWalletRequests = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((req: any) => (
+            {filtered.map((req) => (
               <RequestRow
                 key={req._id}
                 req={req}

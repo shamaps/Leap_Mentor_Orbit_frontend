@@ -1,3 +1,5 @@
+import { getApiResponseMessage } from "@/shared/utils/getErrorMessage";
+import type { ConnectRequest } from "@/app/store/slices/connectRequestsSlice";
 // src/components/mentor/dashboard/requests/ReferModal.jsx
 import { useState, useEffect } from "react";
 import { getSimilarMentors, referRequest } from "@/features/connects/model/connectRequests.api";
@@ -23,7 +25,7 @@ const ReferModal = ({
   onClose,
   onReferred,
 }: {
-  request: Record<string, any>;
+  request: ConnectRequest;
   onClose: () => void;
   onReferred: (id: string, status: string) => void;
 }) => {
@@ -44,9 +46,7 @@ const ReferModal = ({
         setMentors(data.mentors || []);
         setMySkills(data.mySkills || []);
       } catch (err) {
-        setError(
-          err?.response?.data?.message || "Failed to load similar mentors.",
-        );
+        setError(getApiResponseMessage(err, "Failed to load similar mentors."));
       } finally {
         setLoading(false);
       }
@@ -64,7 +64,7 @@ const ReferModal = ({
       setSuccess(true);
       onReferred(request._id, "referred");
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to refer request.");
+      setError(getApiResponseMessage(err, "Failed to refer request."));
     } finally {
       setReferring(false);
     }

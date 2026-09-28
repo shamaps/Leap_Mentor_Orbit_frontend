@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { getMyLeapRequest, createLeapRequest } from "@/features/mentee/model/menteeEngagement.api";
 import logger from "@/shared/utils/logger";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
+import getErrorMessage, { getApiErrorDetails, getHttpErrorStatus } from "@/shared/utils/getErrorMessage";
 import { HTTP_STATUS } from "@/shared/constants/httpStatus";
 
 export const useLeapPointsRequest = () => {
@@ -17,9 +17,10 @@ export const useLeapPointsRequest = () => {
                     setRequestStatus("pending");
                 }
             } catch (err) {
-                if (err.response?.status !== HTTP_STATUS.NOT_FOUND) {
+                if (getHttpErrorStatus(err) !== HTTP_STATUS.NOT_FOUND) {
+                    const details = getApiErrorDetails(err);
                     logger.warn("Leap request check failed", {
-                        detail: err.response?.data || err.message,
+                        detail: details.data || details.message,
                     });
                 }
             } finally {
@@ -35,10 +36,10 @@ export const useLeapPointsRequest = () => {
             await createLeapRequest();
             setRequestStatus("sent");
         } catch (err) {
-            const msg = err.response?.data?.message || "";
+            const msg = getErrorMessage(err, "");
             if (
                 msg.toLowerCase().includes("pending") ||
-                err.response?.status === HTTP_STATUS.CONFLICT
+                getHttpErrorStatus(err) === HTTP_STATUS.CONFLICT
             ) {
                 setRequestStatus("pending");
             } else {

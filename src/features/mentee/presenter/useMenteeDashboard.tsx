@@ -1,7 +1,8 @@
 // src/hooks/useMenteeDashboard.jsx
 import { useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "@/app/store/hooks";
 import { fetchMenteeDashboard } from "@/app/store/slices/menteeProfileSlice";
 import { selectAuthToken, selectMenteeProfile } from "@/app/store/selectors";
 
@@ -12,7 +13,7 @@ const useMenteeDashboard = () => {
   // useDispatch() isn't thunk-aware here. Cast locally rather than
   // coupling this migration to that one.
    
-  const dispatch = useDispatch() as any;
+  const dispatch = useAppDispatch();
   const isEditPage = location.pathname.includes("/edit-profile");
   const token = useSelector(selectAuthToken);
   const { user, profile, loading, error } = useSelector(selectMenteeProfile);
@@ -28,10 +29,10 @@ const useMenteeDashboard = () => {
     hasFetched.current = true;
 
      
-    dispatch(fetchMenteeDashboard()).then((result: any) => {
+    dispatch(fetchMenteeDashboard()).then((result) => {
       if (fetchMenteeDashboard.rejected.match(result)) {
          
-        const reason = (result.payload as any)?.reason;
+        const reason = result.payload?.reason;
 
         if (reason === "wrong-role") {
           navigate("/dashboard/mentor");
@@ -53,7 +54,7 @@ const useMenteeDashboard = () => {
         navigate("/onboarding/mentee");
       }
     });
-  }, []);
+  }, [dispatch, isEditPage, navigate, token]);
 
   return { user, profile, loading, error };
 };

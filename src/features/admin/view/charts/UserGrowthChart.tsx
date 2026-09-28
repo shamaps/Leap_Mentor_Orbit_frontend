@@ -24,7 +24,7 @@ const RANGE_DAYS = { "7D": 7, "30D": 30, "90D": 90 };
 interface GrowthDatum {
   count: number;
   label: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 const UserGrowthChart = ({ data = [] }: { data?: GrowthDatum[] }) => {

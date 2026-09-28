@@ -1,5 +1,5 @@
 // src/components/ui/connects/ConnectsLayout.tsx
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import EmptyState from "@/shared/components/EmptyState";
 import TabLoader from "@/shared/components/TabLoader";
 
@@ -26,7 +26,7 @@ const SectionDivider = ({ label, count }: SectionDividerProps) => (
 // EmptyState itself is still a plain JS component (migrates in Phase 3.5),
 // so its inferred prop types don't mark optional props as optional. Kept
 // loose here deliberately to avoid coupling this migration to that one.
-type EmptyStateProps = Record<string, unknown>;
+type EmptyStateProps = Omit<ComponentProps<typeof EmptyState>, "fullWidth">;
 
 interface ConnectsLayoutProps {
   title: string;
@@ -94,7 +94,7 @@ const ConnectsLayout = ({
         {/* Empty state — only show if no active AND no completed */}
         {!loading && !error && count === 0 && !hasCompleted && (
            
-          <EmptyState {...(emptyState as any)} fullWidth />
+          <EmptyState {...(emptyState ?? { message: "No active connections yet" })} fullWidth />
         )}
 
         {/* Active cards */}

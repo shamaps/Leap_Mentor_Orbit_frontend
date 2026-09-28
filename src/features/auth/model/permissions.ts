@@ -29,12 +29,12 @@ export const getPermissionsForRoles = (roles: string[] = []): Permission[] =>
     [...new Set(roles.flatMap((r) => ROLE_PERMISSIONS[r] ?? []))];
 
 export const hasPermission = (
-    roles: string[] = [],
+    roles: string[] | undefined,
     permission: Permission,
 ): boolean => getPermissionsForRoles(roles).includes(permission);
 
 export const hasAnyPermission = (
-    roles: string[] = [],
+    roles: string[] | undefined,
     permissions: Permission[],
 ): boolean => {
     const granted = getPermissionsForRoles(roles);

@@ -1,5 +1,5 @@
 // components/mentor/onboarding/PersonalInfoSection.jsx
-import { useProfilePhotoUpload } from "@/features/uploads/model/useProfilePhotoUpload";
+import { useProfilePhotoUpload } from "@/features/uploads/presenter/useProfilePhotoUpload";
 import { useMentorOnboardingForm } from "@/features/mentor/context/MentorOnboardingFormContext";
 import FormField from "@/shared/components/FormField";
 import PersonIcon from "@/shared/components/PersonIcon";

@@ -1,11 +1,13 @@
 // src/features/admin/presenter/useHandleReportModal.js
+import type { AdminReport } from "../model/admin.types";
+import { getApiResponseMessage } from "@/shared/utils/getErrorMessage";
 import { useState } from "react";
 import { updateReportStatus, refundReport, deleteReportSession } from "../model/admin.api";
 
 export const useHandleReportModal = (
-  report: any,
+  report: AdminReport,
   { onSave, onRefund, onDeleteSession, onClose }: {
-    onSave: (id: string, updated: any) => void;
+    onSave: (id: string, updated: Partial<AdminReport>) => void;
     onRefund: (id: string) => void;
     onDeleteSession: (id: string) => void;
     onClose: () => void;
@@ -30,7 +32,7 @@ export const useHandleReportModal = (
       onSave(report.id, res.data.report);
       onClose();
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to update report.");
+      setError(getApiResponseMessage(err, "Failed to update report."));
     } finally {
       setSaving(false);
     }
@@ -43,7 +45,7 @@ export const useHandleReportModal = (
       onRefund(report.id);
       onClose();
     } catch (err) {
-      setError(err?.response?.data?.message || "Refund failed.");
+      setError(getApiResponseMessage(err, "Refund failed."));
       setConfirmRefund(false);
     } finally {
       setActionLoading(false);
@@ -57,7 +59,7 @@ export const useHandleReportModal = (
       onDeleteSession(report.id);
       onClose();
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to delete session.");
+      setError(getApiResponseMessage(err, "Failed to delete session."));
       setConfirmDelete(false);
     } finally {
       setActionLoading(false);

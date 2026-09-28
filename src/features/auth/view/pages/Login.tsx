@@ -3,10 +3,11 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginRequestRaw } from "@/features/auth/model/auth.api";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
-import useGoogleAuth from "@/features/auth/presenter/useGoogleAuth";
+import useGoogleAuth, { type GoogleAuthResult } from "@/features/auth/presenter/useGoogleAuth";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/app/store/slices/authSlice";
 import { ssoFlags } from "@/shared/utils/storage";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 
 const redirectByRole = (roles: string[], navigate: (path: string) => void) => {
   if (roles.includes("mentor") && roles.includes("mentee")) {
@@ -18,10 +19,10 @@ const redirectByRole = (roles: string[], navigate: (path: string) => void) => {
   }
 };
 
-const CLERK_STRATEGY: Record<string, string> = {
+const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",
   apple: "oauth_apple",
-};
+} as const;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const Login = () => {
     btnRef: googleBtnRef,
     termsAcceptedRef: null,
     roles: [],
-    onSuccess: (data: any) => {
+    onSuccess: (data: GoogleAuthResult) => {
       setMsg({
         type: "success",
         text: "Google login successful! Redirecting...",
@@ -58,29 +59,29 @@ const Login = () => {
   };
 
   // LinkedIn + Apple via Clerk — FIXED redirect URLs
-  const handleClerkSSO = async (provider: string) => {
+  const handleClerkSSO = async (provider: keyof typeof CLERK_STRATEGY) => {
     if (!clerkLoaded) return;
 
     try {
       setLoading(true);
 
       // Force sign out and wait fully before proceeding
-      await signOut({ redirectUrl: globalThis.location.href } as any);
+      await signOut({ redirectUrl: globalThis.location.href });
 
       ssoFlags.set("existing", true);
 
-      await signIn!.authenticateWithRedirect({
-        strategy: CLERK_STRATEGY[provider] as any,
+      await signIn.authenticateWithRedirect({
+        strategy: CLERK_STRATEGY[provider],
         redirectUrl: `${globalThis.location.origin}/sso-callback`,
         redirectUrlComplete: `${globalThis.location.origin}/sso-callback-sync`,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       ssoFlags.clear();
-      setMsg({ type: "error", text: err.message || "SSO failed. Try again." });
+      setMsg({ type: "error", text: getErrorMessage(err, "SSO failed. Try again.") });
       setLoading(false);
     }
   };
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
 
@@ -101,9 +102,8 @@ const Login = () => {
         () => redirectByRole(res.data?.user?.roles || [], navigate),
         800,
       );
-    } catch (err: any) {
-      const apiMsg =
-        err?.response?.data?.message || err?.message || "Invalid credentials";
+    } catch (err: unknown) {
+      const apiMsg = getErrorMessage(err, "Invalid credentials");
       setMsg({ type: "error", text: apiMsg });
     } finally {
       setLoading(false);

@@ -2,13 +2,15 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "@/app/store/hooks";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@/shared/schemas/authSchemas";
 import useGoogleAuth from "@/features/auth/presenter/useGoogleAuth";
 import { ssoFlags } from "@/shared/utils/storage";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 import PasswordVisibilityIcon from "@/shared/components/PasswordVisibilityIcon";
 import {
   registerUser,
@@ -22,10 +24,10 @@ import { LeapMentorLogo } from "./AuthIcons";
 import TermsAndConditionsModal from "@/shared/marketing/TermsAndConditionsModal";
 import { selectAuth } from "@/app/store/selectors";
 
-const CLERK_STRATEGY: Record<string, string> = {
+const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",
   apple: "oauth_apple",
-};
+} as const;
 
 interface PasswordRule {
   keyId: string;
@@ -66,7 +68,7 @@ interface RegisterFormProps {
 
 const RegisterForm = ({ role }: RegisterFormProps) => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { signOut } = useClerk();
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
 
@@ -82,7 +84,7 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     setError,
     clearErrors,
@@ -92,8 +94,8 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
     defaultValues: { name: "", email: "", password: "", termsAccepted: false },
   });
 
-  const watchedPassword = watch("password");
-  const watchedTerms = watch("termsAccepted");
+  const watchedPassword = useWatch({ control, name: "password" });
+  const watchedTerms = useWatch({ control, name: "termsAccepted" });
 
   // useGoogleAuth reads termsAcceptedRef synchronously (outside React's
   // render cycle), so it's kept in sync with RHF's own termsAccepted
@@ -119,7 +121,7 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
     btnRef: googleBtnRef,
     termsAcceptedRef,
     roles: [role],
-    onSuccess: (data: any) => {
+    onSuccess: (data) => {
       setRedirecting(true);
       setTimeout(() => navigate(data?.isNewUser ? `/onboarding/${role}` : `/dashboard/${role}`), 700);
     },
@@ -134,26 +136,26 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
 
   const handleTermsClose = () => setShowTermsModal(false);
 
-  const handleClerkSSO = async (provider: string) => {
+  const handleClerkSSO = async (provider: keyof typeof CLERK_STRATEGY) => {
     if (!clerkLoaded) return;
     try {
-      await signOut({ redirectUrl: globalThis.location.href } as any);
+      await signOut({ redirectUrl: globalThis.location.href });
       ssoFlags.set(role, true);
-      await signIn!.authenticateWithRedirect({
-        strategy: CLERK_STRATEGY[provider] as any,
+      await signIn.authenticateWithRedirect({
+        strategy: CLERK_STRATEGY[provider],
         redirectUrl: `${globalThis.location.origin}/sso-callback`,
         redirectUrlComplete: `${globalThis.location.origin}/sso-callback-sync`,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       ssoFlags.clear();
-      setError("root", { type: "server", message: err.message || "SSO failed. Try again." });
+      setError("root", { type: "server", message: getErrorMessage(err, "SSO failed. Try again.") });
     }
   };
 
   // zodResolver has already validated name/email/password/termsAccepted
   // by the time this runs — no manual policy or terms checks needed.
   const onSubmit = async (data: { name: string; email: string; password: string; termsAccepted: boolean }) => {
-    const result: any = await Promise.resolve(
+    const result = await Promise.resolve(
       dispatch(
         registerUser({
           name: data.name.trim(),
@@ -161,7 +163,7 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
           password: data.password,
           roles: [role],
           termsAccepted: true,
-        }) as any,
+        }),
       ),
     );
 
@@ -296,7 +298,7 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
         </button>
       </p>
 
-      <TermsAndConditionsModal isOpen={showTermsModal} onClose={handleTermsClose} onAccept={handleTermsAccept} role={role} termsAccepted={watchedTerms} />
+      <TermsAndConditionsModal isOpen={showTermsModal} onClose={handleTermsClose} onAccept={handleTermsAccept} role={role} />
     </>
   );
 };

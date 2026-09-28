@@ -35,7 +35,7 @@ const useSocketToast = (onRequestChanged?: (data: unknown) => void) => {
   useEffect(() => {
     if (!token) return undefined;
 
-    if (window.__leapSocket?.connected) return undefined;
+    if (globalThis.__leapSocket?.connected) return undefined;
 
     const socket = io(BASE_URL, {
       auth: { token },
@@ -46,14 +46,14 @@ const useSocketToast = (onRequestChanged?: (data: unknown) => void) => {
     });
 
     socketRef.current = socket;
-    window.__leapSocket = socket;
+    globalThis.__leapSocket = socket;
 
     socket.on("connect_error", (err) => {
       logger.warn("Socket connection error", { message: err.message });
     });
 
     socket.on("reconnect", () => {
-      window.__leapSocket = socket;
+      globalThis.__leapSocket = socket;
     });
 
     // ── Unified Event Subscriptions (Drives duplication score to 0%) ──
@@ -79,8 +79,8 @@ const useSocketToast = (onRequestChanged?: (data: unknown) => void) => {
       socket.disconnect();
       socketRef.current = null;
 
-      if (window.__leapSocket === socket) {
-        window.__leapSocket = undefined;
+      if (globalThis.__leapSocket === socket) {
+        globalThis.__leapSocket = undefined;
       }
     };
   }, [token]);

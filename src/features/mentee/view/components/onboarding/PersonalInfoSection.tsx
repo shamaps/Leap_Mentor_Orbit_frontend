@@ -1,5 +1,5 @@
 // components/mentee/onboarding/PersonalInfoSection.jsx
-import { useProfilePhotoUpload } from "@/features/uploads/model/useProfilePhotoUpload";
+import { useProfilePhotoUpload } from "@/features/uploads/presenter/useProfilePhotoUpload";
 import { useMenteeOnboardingForm } from "@/features/mentee/context/MenteeOnboardingFormContext";
 import PersonIcon from "@/shared/components/PersonIcon";
 const PersonalInfoSection = () => {

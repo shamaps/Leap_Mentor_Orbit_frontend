@@ -206,6 +206,43 @@ const handleUserUnauthorized = (error: AxiosError, originalRequest: RetryableReq
   return refreshTokenAndRetry(originalRequest);
 };
 
+// ── Admin-side 401: single SPA redirect ──
+// The redirect itself needs the React Router instance, which lives in the app
+// layer. It is injected (like the store) so this low-level module never
+// imports app code.
+type AdminUnauthorizedHandler = () => unknown;
+let adminUnauthorizedHandler: AdminUnauthorizedHandler | null = null;
+let adminRedirectInFlight = false;
+
+export const setAdminUnauthorizedHandler = (handler: AdminUnauthorizedHandler | null): void => {
+  adminUnauthorizedHandler = handler;
+};
+
+// Admin auth endpoints (login / me / logout) report their own 401s to the
+// caller: a wrong password must show a form error, not bounce the page, and
+// the session check in requireAdminAuth already redirects on its own.
+const isAdminAuthEndpoint = (url?: string): boolean => Boolean(url?.includes("admin/auth/"));
+
+const handleAdminUnauthorized = (url?: string): void => {
+  if (isAdminAuthEndpoint(url)) return;
+
+  if (!adminUnauthorizedHandler) {
+    // No router registered (e.g. before the app mounts): fall back to a hard redirect.
+    globalThis.location.href = "/admin/login";
+    return;
+  }
+
+  // Several requests can fail with 401 at once; redirect only once.
+  if (adminRedirectInFlight) return;
+  adminRedirectInFlight = true;
+  Promise.resolve()
+    .then(adminUnauthorizedHandler)
+    .catch((err) => logger.error("Admin unauthorized handler failed", { message: String(err) }))
+    .finally(() => {
+      adminRedirectInFlight = false;
+    });
+};
+
 // ── Response interceptor
 apiInstance.interceptors.response.use(
   (response) => formatSuccessResponse(response),
@@ -234,7 +271,7 @@ apiInstance.interceptors.response.use(
 
     if (status === HTTP_STATUS.UNAUTHORIZED) {
       if (admin) {
-        globalThis.location.href = "/admin/login";
+        handleAdminUnauthorized(originalRequest?.url);
       } else {
         const authResult = await handleUserUnauthorized(error, originalRequest);
         if (authResult) return authResult;

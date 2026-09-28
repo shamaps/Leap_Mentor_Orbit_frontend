@@ -7,6 +7,7 @@ import * as Sentry from "@sentry/react";
 import logger from "@/shared/utils/logger";
 import axiosInstance from "@/shared/utils/axiosInstance";
 import { localStore, sessionStore } from "@/shared/utils/storage";
+import type { MappedAuthResponse } from "@/features/auth/model/authMapper";
 
 export interface AuthUser {
   id?: string;
@@ -48,7 +49,7 @@ interface RegisterPayload {
   termsAccepted: boolean;
 }
 
-export const registerUser = createAsyncThunk(
+export const registerUser = createAsyncThunk<MappedAuthResponse, RegisterPayload, { rejectValue: string }>(
   "auth/registerUser",
   async (
     { name, email, password, roles, termsAccepted }: RegisterPayload,
@@ -64,7 +65,7 @@ export const registerUser = createAsyncThunk(
   },
 );
 
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk<MappedAuthResponse, { email: string; password: string }, { rejectValue: string }>(
   "auth/loginUser",
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
@@ -76,7 +77,7 @@ export const loginUser = createAsyncThunk(
   },
 );
 
-export const sendOtp = createAsyncThunk(
+export const sendOtp = createAsyncThunk<unknown, { email: string }, { rejectValue: string }>(
   "auth/sendOtp",
   async ({ email }: { email: string }, { rejectWithValue }) => {
     try {
@@ -88,7 +89,7 @@ export const sendOtp = createAsyncThunk(
   },
 );
 
-export const verifyEmail = createAsyncThunk(
+export const verifyEmail = createAsyncThunk<unknown, { email: string; otp: string }, { rejectValue: string }>(
   "auth/verifyEmail",
   async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
     try {
@@ -100,7 +101,7 @@ export const verifyEmail = createAsyncThunk(
   },
 );
 
-export const verifyMagicLink = createAsyncThunk(
+export const verifyMagicLink = createAsyncThunk<unknown, { token: string; email: string }, { rejectValue: string }>(
   "auth/verifyMagicLink",
   async ({ token, email }: { token: string; email: string }, { rejectWithValue }) => {
     try {
@@ -116,7 +117,7 @@ export const verifyMagicLink = createAsyncThunk(
   },
 );
 
-export const forgotPassword = createAsyncThunk(
+export const forgotPassword = createAsyncThunk<unknown, { email: string }, { rejectValue: string }>(
   "auth/forgotPassword",
   async ({ email }: { email: string }, { rejectWithValue }) => {
     try {
@@ -128,7 +129,7 @@ export const forgotPassword = createAsyncThunk(
   },
 );
 
-export const verifyResetOtp = createAsyncThunk(
+export const verifyResetOtp = createAsyncThunk<unknown, { email: string; otp: string }, { rejectValue: string }>(
   "auth/verifyResetOtp",
   async ({ email, otp }: { email: string; otp: string }, { rejectWithValue }) => {
     try {
@@ -143,7 +144,7 @@ export const verifyResetOtp = createAsyncThunk(
   },
 );
 
-export const resetPassword = createAsyncThunk(
+export const resetPassword = createAsyncThunk<unknown, { email: string; otp: string; newPassword: string }, { rejectValue: string }>(
   "auth/resetPassword",
   async (
     { email, otp, newPassword }: { email: string; otp: string; newPassword: string },
@@ -220,7 +221,7 @@ const authSlice = createSlice({
       state.error = null;
       state.successMsg = null;
     },
-    setUser(state, action: PayloadAction<{ user: AuthUser; token: string }>) {
+    setUser(state, action: PayloadAction<{ user: AuthUser | null; token: string }>) {
       state.user = action.payload.user;
       state.token = action.payload.token;
     },

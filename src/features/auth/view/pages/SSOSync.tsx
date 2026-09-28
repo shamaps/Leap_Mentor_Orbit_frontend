@@ -2,14 +2,24 @@
 // Google users are handled entirely in useGoogleAuth.js and never land here.
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { selectAuthToken, selectAuthUser } from "@/app/store/selectors";
+import type { AuthUser } from "@/app/store/slices/authSlice";
 import { setUser } from "@/app/store/slices/authSlice";
 import { clerkSsoSync } from "@/features/auth/model/auth.api";
 import { ssoFlags } from "@/shared/utils/storage";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 
-const redirectByRole = (roles: string[], navigate: (path: string, opts?: any) => void) => {
+interface ClerkSsoSyncData {
+  accessToken?: string | null;
+  token?: string | null;
+  isNewUser?: boolean;
+  user?: AuthUser | null;
+}
+
+const redirectByRole = (roles: string[], navigate: NavigateFunction) => {
   if (roles.includes("mentor")) {
     navigate("/dashboard/mentor");
   } else {
@@ -17,11 +27,11 @@ const redirectByRole = (roles: string[], navigate: (path: string, opts?: any) =>
   }
 };
 
-const navigateAfterSync = (resData: any, role: string | null, navigate: (path: string, opts?: any) => void) => {
+const navigateAfterSync = (resData: ClerkSsoSyncData, role: string | null, navigate: NavigateFunction) => {
   const intendedRole = role && role !== "existing" ? role : null;
 
   if (resData?.isNewUser) {
-    const onboardingRole = intendedRole || resData.user.roles[0];
+    const onboardingRole = intendedRole || resData.user?.roles?.[0] || "mentee";
     navigate(`/onboarding/${onboardingRole}`, { replace: true });
     return;
   }
@@ -38,9 +48,9 @@ const navigateAfterSync = (resData: any, role: string | null, navigate: (path: s
 const SSOSync = () => {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const reduxToken = useSelector((state: any) => state.auth.token);
-  const reduxUser = useSelector((state: any) => state.auth.user);
+  const dispatch = useAppDispatch();
+  const reduxToken = useAppSelector(selectAuthToken);
+  const reduxUser = useAppSelector(selectAuthUser);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -80,26 +90,29 @@ const SSOSync = () => {
           role === "existing" ? true : termsAccepted,
         );
 
+        const responseData = res.data as ClerkSsoSyncData;
+
         // Dispatch into Redux only — HttpOnly cookie is set by backend automatically
-        if (res.data?.accessToken || res.data?.token) {
+        const token = responseData.accessToken ?? responseData.token;
+        if (token) {
           dispatch(
             setUser({
-              token: res.data.accessToken || res.data.token,
-              user: res.data.user || null,
+              token,
+              user: responseData.user ?? null,
             }),
           );
         }
 
         ssoFlags.clear();
-        navigateAfterSync(res.data, role, navigate);
-      } catch (err: any) {
-        setError(err?.response?.data?.message || err.message || "SSO failed");
+        navigateAfterSync(responseData, role, navigate);
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, "SSO failed"));
         ssoFlags.clear();
       }
     };
 
     sync();
-  }, [isLoaded, isSignedIn]);
+  }, [dispatch, getToken, isLoaded, isSignedIn, navigate, reduxToken, reduxUser?.roles]);
 
   if (error) {
     return (

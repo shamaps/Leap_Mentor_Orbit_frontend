@@ -5,11 +5,18 @@ interface ErrorLike {
     status?: number;
     data?: {
       message?: string;
+      error?: string;
       errors?: Array<{ message: string }>;
+      [key: string]: unknown;
     };
   };
   message?: string;
 }
+
+export const getHttpErrorStatus = (err: unknown): number | undefined => {
+  const error = err as ErrorLike | undefined;
+  return error?.response?.status;
+};
 
 const getErrorMessage = (err: unknown, fallback = "Something went wrong."): string => {
   const e = err as ErrorLike | undefined;
@@ -39,3 +46,24 @@ const getErrorMessage = (err: unknown, fallback = "Something went wrong."): stri
 };
 
 export default getErrorMessage;
+/** Returns an API-provided response message, or the caller's stable fallback. */
+export const getApiResponseMessage = (err: unknown, fallback: string): string => {
+  const error = err as ErrorLike | undefined;
+  return error?.response?.data?.message || fallback;
+};
+
+export const getApiErrorDetails = (err: unknown) => {
+  const error = err as ErrorLike | undefined;
+  return {
+    status: error?.response?.status,
+    data: error?.response?.data,
+    message: error?.message,
+    responseMessage: error?.response?.data?.message,
+    responseError: error?.response?.data?.error,
+  };
+};
+
+export const getApiFailureMessage = (err: unknown, fallback: string): string => {
+  const details = getApiErrorDetails(err);
+  return details.responseMessage || details.responseError || details.message || fallback;
+};

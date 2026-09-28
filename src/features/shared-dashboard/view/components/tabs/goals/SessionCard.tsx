@@ -6,7 +6,6 @@ import Spinner from "@/shared/components/Spinner";
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
 
-const SpinnerAny = Spinner as any;
 import { useRescheduleAvailability } from "@/features/mentor/presenter/useRescheduleAvailability";
 
 import {
@@ -109,7 +108,7 @@ const CancelModal = ({
               hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
               flex items-center justify-center gap-2"
           >
-            {saving ? <><SpinnerAny size="sm" light />Cancelling...</>
+            {saving ? <><Spinner size="sm" light />Cancelling...</>
               : (
                 "Yes, Cancel It"
               )}
@@ -553,7 +552,7 @@ const RescheduleModal = ({
                   transition-all disabled:opacity-50 disabled:cursor-not-allowed
                   flex items-center justify-center gap-2 bg-blue-900"
               >
-                {saving ? <><SpinnerAny size="sm" light />Rescheduling...</>
+                {saving ? <><Spinner size="sm" light />Rescheduling...</>
                   : (
                     <>
                       <svg
@@ -822,7 +821,7 @@ const CompletionSection = ({
             hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed
             flex items-center justify-center gap-2"
         >
-          {localSaving ? <><SpinnerAny size="sm" light />Marking Complete...</>
+          {localSaving ? <><Spinner size="sm" light />Marking Complete...</>
             : (
               <>
                 <svg

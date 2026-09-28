@@ -1,3 +1,4 @@
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 // src/hooks/useMentorSearch.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import { searchMentors as searchMentorsApi } from "@/features/mentee/model/mentorSearch.api";
@@ -84,11 +85,11 @@ const useMentorSearch = () => {
 
         const { mentors: newMentors, pagination } = data;
         setMentors(append ? (prev) => [...prev, ...newMentors] : newMentors);
-        setHasMore(pagination.hasMore);
-        setTotalCount(pagination.totalCount);
+        setHasMore(pagination?.hasMore ?? false);
+        setTotalCount(pagination?.totalCount ?? 0);
         setHasSearched(true);
       } catch (err) {
-        setError(err?.response?.data?.message || err.message || "Search failed.");
+        setError(getErrorMessage(err, "Search failed."));
       } finally {
         setLoading(false);
         setLoadingMore(false);

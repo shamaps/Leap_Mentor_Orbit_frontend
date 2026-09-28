@@ -25,12 +25,12 @@ const MentorshipPrefsSection = () => {
   const selectedChannels = form.communicationPreferences || [];
   // Support both string (old) and array (new) format — same duality as the
   // mentor onboarding PreferencesSection.
-  const knownLanguages: string[] = Array.isArray(form.languages)
-    ? form.languages
-    : form.languages
-      ? form.languages.split(",").map((s) => s.trim()).filter(Boolean)
-      : [];
-
+  const parseLanguages = (languages: string | string[] | null | undefined): string[] => {
+    if (Array.isArray(languages)) return languages;
+    if (!languages) return [];
+    return languages.split(",").map((s) => s.trim()).filter(Boolean);
+  };
+  const knownLanguages = parseLanguages(form.languages);
   useEffect(() => {
     const handleOutsideInteraction = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {

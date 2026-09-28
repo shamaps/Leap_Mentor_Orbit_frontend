@@ -1,10 +1,13 @@
+import type { AdminPaymentTransaction } from "./admin.types";
 // src/features/admin/model/adminPayments.loader.ts
 //
 
 import { getPaymentStats, getPaymentChart, getPaymentTransactions } from "./admin.api";
 import logger from "@/shared/utils/logger";
+import { requireAdminAuth } from "./requireAdminAuth";
 
 export const adminPaymentsLoader = async ({ request }: { request: Request }) => {
+    await requireAdminAuth();
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page") ?? "1");
     const search = url.searchParams.get("search") ?? "";
@@ -21,7 +24,7 @@ export const adminPaymentsLoader = async ({ request }: { request: Request }) => 
     ]);
 
     let error: string | null = null;
-    let transactions: any[] = [];
+    let transactions: AdminPaymentTransaction[] = [];
     let pagination = { totalCount: 0, currentPage: 1, totalPages: 1 };
     if (transactionsResult.status === "fulfilled") {
         transactions = transactionsResult.value.data.transactions || [];

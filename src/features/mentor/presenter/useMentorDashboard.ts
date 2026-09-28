@@ -60,7 +60,7 @@ const useMentorDashboard = () => {
         navigate("/onboarding/mentor");
       }
     });
-  }, []); // ← empty dep array: run once on mount only; token is checked at top
+  }, [dispatch, isEditPage, navigate, token]);
 
   return { user, profile, loading, error, refetchProfile };
 };

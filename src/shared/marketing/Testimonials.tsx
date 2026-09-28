@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 // ── Abstracted Review Dynamic Data Generator (Defeats String Block Scanners) ──
 const rawCommunityFeed = [
   ["Priya Sharma", "Software Engineer", "Google", "PS", "from-pink-500 to-rose-500", "LeapMentor completely transformed my career trajectory. My mentor helped me crack FAANG interviews in just 3 months. The 1-on-1 sessions were incredibly focused and practical."],
@@ -15,7 +15,7 @@ const testimonials = rawCommunityFeed.map(([name, role, company, avatar, gradien
 
 const STAR_KEYS = ["star-1", "star-2", "star-3", "star-4", "star-5"];
 
-function StarRating({ count }: { count: number }) {
+function StarRating({ count }: Readonly<{ count: number }>) {
   return (
     <div className="flex gap-0.5">
       {STAR_KEYS.slice(0, count).map((key) => (
@@ -31,19 +31,19 @@ export default function Testimonials() {
   const [active, setActive] = useState(0);
   const [animating, setAnimating] = useState(false);
 
-  const triggerShift = (direction: number) => {
+  const triggerShift = useCallback((direction: number) => {
     if (animating) return;
     setAnimating(true);
     setTimeout(() => {
       setActive((currentIdx) => (currentIdx + direction + testimonials.length) % testimonials.length);
       setAnimating(false);
     }, 300);
-  };
+  }, [animating]);
 
   useEffect(() => {
     const cycleTimer = setInterval(() => triggerShift(1), 4000);
     return () => clearInterval(cycleTimer);
-  }, [active, animating]);
+  }, [triggerShift]);
 
   const getVisibleCardIndices = () => {
     const leftCard = (active - 1 + testimonials.length) % testimonials.length;
@@ -157,12 +157,23 @@ const getCardStateClass = (activeCard?: boolean, dimmedCard?: boolean): string =
   if (dimmedCard) return "bg-white/70 border-gray-100 shadow-sm opacity-50 scale-95";
   return "bg-white border-gray-100 shadow-sm";
 };
+interface Testimonial {
+  readonly name: string;
+  readonly role: string;
+  readonly company: string;
+  readonly avatar: string;
+  readonly text: string;
+  readonly rating: number;
+  readonly color: string;
+}
 
-function TestimonialCard({ testimonial, activeCard, dimmedCard }: {
-  testimonial: { name: string; role: string; company: string; avatar: string; text: string; rating: number; color: string };
-  activeCard?: boolean;
-  dimmedCard?: boolean;
-}) {
+interface TestimonialCardProps {
+  readonly testimonial: Testimonial;
+  readonly activeCard?: boolean;
+  readonly dimmedCard?: boolean;
+}
+
+function TestimonialCard({ testimonial, activeCard, dimmedCard }: TestimonialCardProps) {
   return (
     <div
       className={`rounded-2xl p-6 border transition-all duration-300 ${getCardStateClass(activeCard, dimmedCard)}`}

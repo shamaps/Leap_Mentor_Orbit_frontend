@@ -1,8 +1,11 @@
+import type { AdminUser } from "./admin.types";
 // src/features/admin/model/adminUserManagement.loader.ts
 import { getUserStats, getUserGrowthData, getMentorIndustryStats, getUsers } from "./admin.api";
 import logger from "@/shared/utils/logger";
+import { requireAdminAuth } from "./requireAdminAuth";
 
 export const adminUserManagementLoader = async ({ request }: { request: Request }) => {
+    await requireAdminAuth();
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page") ?? "1");
     const search = url.searchParams.get("search") ?? "";
@@ -25,7 +28,7 @@ export const adminUserManagementLoader = async ({ request }: { request: Request 
     ]);
 
     let error: string | null = null;
-    let users: any[] = [];
+    let users: AdminUser[] = [];
     let pagination = { total: 0, page: 1, totalPages: 1 };
     if (usersResult.status === "fulfilled") {
         users = usersResult.value.data.users;

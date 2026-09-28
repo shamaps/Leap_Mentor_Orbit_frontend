@@ -27,7 +27,7 @@ export default function Home() {
         replace: true,
       });
     }
-  }, [token]); //re-runs when token appears (e.g. after bootstrapping finishes)
+  }, [navigate, role, token]);
 
   return (
     <div className="min-h-screen flex flex-col font-sans antialiased">

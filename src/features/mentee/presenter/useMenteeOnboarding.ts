@@ -1,8 +1,9 @@
 // src/hooks/useMenteeOnboarding.js
 import { useState, useEffect } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent as ReactSubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "@/app/store/hooks";
 import {
   submitMenteeOnboarding,
   clearOnboardingMessages,
@@ -15,6 +16,10 @@ import {
   selectMenteeOnboardingSuccessMsg,
 } from "@/app/store/selectors";
 import { sessionStore } from "@/shared/utils/storage";
+export interface MenteeOnboardingFieldEvent {
+  target: { name: string; value: unknown };
+}
+
 export interface MenteeOnboardingForm {
   profilePicture: string;
   bio: string;
@@ -37,7 +42,7 @@ const useMenteeOnboarding = () => {
   // useDispatch() isn't thunk-aware here. Cast locally rather than
   // coupling this migration to that one.
    
-  const dispatch = useDispatch() as any;
+  const dispatch = useAppDispatch();
 
   const loading = useSelector(selectMenteeOnboardingLoading);
   const error = useSelector(selectMenteeOnboardingError);
@@ -79,24 +84,24 @@ const useMenteeOnboarding = () => {
       setRedirecting(true);
       setTimeout(() => navigate("/dashboard/mentee"), 1500);
     }
-  }, [error, successMsg]);
+  }, [dispatch, error, navigate, successMsg]);
 
   useEffect(() => {
     return () => {
       dispatch(clearOnboardingMessages());
     };
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     sessionStore.setJSON("menteeOnboardingForm", form);
   }, [form]);
 
-  const handleChange = (e: { target: { name: string; value: unknown } }) => {
+  const handleChange = (e: MenteeOnboardingFieldEvent) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: ReactSubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
     dispatch(clearOnboardingMessages());
@@ -115,7 +120,7 @@ const useMenteeOnboarding = () => {
       return setMsg({ type: "error", text: validationError });
 
      
-    dispatch((submitMenteeOnboarding as any)({ ...form }));
+    dispatch(submitMenteeOnboarding({ ...form }));
   };
 
   return { form, loading, msg, redirecting, handleChange, handleSubmit };

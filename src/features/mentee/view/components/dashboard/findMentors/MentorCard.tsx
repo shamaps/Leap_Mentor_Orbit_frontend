@@ -104,7 +104,7 @@ const MentorCard = ({ mentor, onViewProfile }: { mentor: MentorSummary; onViewPr
         <div className="shrink-0">
           {profilePicture && !imgError ? (
             <img
-              src={mentor.profilePicture56 || profilePicture}
+              src={profilePicture}
               alt={name}
               className="w-14 h-14 rounded-full object-cover border-2 border-slate-100"
               onError={() => setImgError(true)}

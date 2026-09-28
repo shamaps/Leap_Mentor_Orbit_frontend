@@ -1,3 +1,4 @@
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 // src/features/admin/presenter/useAdminSettings.js
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -50,7 +51,7 @@ export const useAdminSettings = () => {
       addAdminForm.reset({ adminName: "", adminEmail: "" });
     } catch (err) {
       showToast({
-        message: err?.response?.data?.message || "Failed to create admin.",
+        message: getErrorMessage(err, "Failed to create admin."),
         type: "error",
       });
     } finally {
@@ -67,7 +68,7 @@ export const useAdminSettings = () => {
       showToast({ message: `Commission rate set to ${rate}%` });
     } catch (err) {
       showToast({
-        message: err?.response?.data?.message || "Failed to update commission.",
+        message: getErrorMessage(err, "Failed to update commission."),
         type: "error",
       });
     } finally {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FormEvent, FocusEvent } from "react";
+import type { SubmitEvent as ReactSubmitEvent, FocusEvent } from "react";
 import { submitSupportMessage } from "@/shared/api/support.api";
 import FilterTabs from "./FilterTabs";
 import { useLocation } from "react-router-dom";
@@ -86,7 +86,13 @@ const COLOR_CONFIG = {
 };
 
 // ── FAQ Expandable Block Item Component ───────────────────────
-function FaqItem({ item, isOpen, onToggle }: { item: { q: string; a: string }; isOpen: boolean; onToggle: () => void }) {
+interface FaqItemProps {
+  readonly item: { readonly q: string; readonly a: string };
+  readonly isOpen: boolean;
+  readonly onToggle: () => void;
+}
+
+function FaqItem({ item, isOpen, onToggle }: FaqItemProps) {
   return (
     <div
       style={{
@@ -157,8 +163,7 @@ export default function HelpCenter() {
       )
     }))
     .filter((g) => g.items.length > 0);
-
-  const handleSupportDispatch = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSupportDispatch = async (event: ReactSubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormSubmitting(true);
     setErrorBannerMsg("");

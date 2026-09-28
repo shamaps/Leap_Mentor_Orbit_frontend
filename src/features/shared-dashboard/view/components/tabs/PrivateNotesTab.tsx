@@ -5,6 +5,8 @@ import useNotes from "@/features/shared-dashboard/presenter/useNotes";
 import usePrivateNotes from "@/features/shared-dashboard/presenter/usePrivateNotes";
 import EmptyState from "@/shared/components/EmptyState";
 import { generateDateHeader } from "./privateNotes.utils";
+import type { SharedNote } from "@/features/shared-dashboard/model/types";
+import type { SharedConnect } from "@/app/store/slices/sharedConnectSlice";
 import {
   LoadingSkeletons,
   UploadModal,
@@ -16,7 +18,6 @@ import {
 // EmptyState is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
-const EmptyStateAny = EmptyState as any;
 
 // ── Notepad Action Section ────────────────────────────────────
 const NotepadSection = ({ connectId, isCompleted }: { connectId: string; isCompleted: boolean }) => {
@@ -27,7 +28,7 @@ const NotepadSection = ({ connectId, isCompleted }: { connectId: string; isCompl
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- intentionally syncing local state from an external source (prop/URL), not derivable from render inputs alone
     if (!loading && notes.length > 0 && !activeNoteId) setActiveNoteId(notes[0]._id);
-  }, [loading, notes]);
+  }, [activeNoteId, loading, notes]);
 
   const activeNote = notes.find((n) => n._id === activeNoteId) || null;
 
@@ -52,10 +53,10 @@ const NotepadSection = ({ connectId, isCompleted }: { connectId: string; isCompl
           </button>
         )}
         {notes.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-2xl"><EmptyStateAny compact icon={<span className="text-2xl">📝</span>} message="No notes yet" /></div>
+          <div className="bg-white border border-slate-200 rounded-2xl"><EmptyState compact icon={<span className="text-2xl">📝</span>} message="No notes yet" /></div>
         ) : (
           <div className="flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: "480px" }}>
-            {notes.map((note: any) => <NoteListItem key={note._id} note={note} isActive={activeNoteId === note._id} onClick={() => { setActiveNoteId(note._id); setMobileView("editor"); }} />)}
+            {notes.map((note) => <NoteListItem key={note._id} note={note} isActive={activeNoteId === note._id} onClick={() => { setActiveNoteId(note._id); setMobileView("editor"); }} />)}
           </div>
         )}
       </div>
@@ -66,7 +67,7 @@ const NotepadSection = ({ connectId, isCompleted }: { connectId: string; isCompl
         </div>
 
         {activeNote ? (
-          <NotepadEditor note={activeNote} onSave={async (id, t, c) => id ? await updateNote(id, t, c) : await createNote(t, c)} onDelete={async (id: string) => { if (globalThis.confirm("Delete this note?")) { await deleteNote(id); setActiveNoteId(notes.find((n: any) => n._id !== id)?._id || null); setMobileView("list"); } }} onClose={() => { setActiveNoteId(null); setMobileView("list"); }} saving={saving} />
+          <NotepadEditor note={activeNote} onSave={async (id, t, c) => id ? await updateNote(id, t, c) : await createNote(t, c)} onDelete={async (id: string) => { if (globalThis.confirm("Delete this note?")) { await deleteNote(id); setActiveNoteId(notes.find((n) => n._id !== id)?._id || null); setMobileView("list"); } }} onClose={() => { setActiveNoteId(null); setMobileView("list"); }} saving={saving} />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center py-16 text-center gap-4 bg-white border-2 border-dashed border-slate-200 rounded-2xl">
             <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center">
@@ -85,13 +86,17 @@ const NotepadSection = ({ connectId, isCompleted }: { connectId: string; isCompl
 };
 
 // ── Private Workspace Files Component Layout ──────────────────
-const PrivateFilesSection = ({ connect }: { connect: any }) => {
+type PrivateFileTimelineItem =
+  | { type: "separator"; dateStr: string; key: string }
+  | { type: "note"; note: SharedNote; key: string };
+
+const PrivateFilesSection = ({ connect }: { connect: SharedConnect | null }) => {
   const [showUpload, setShowUpload] = useState(false);
   const { privateNotes, loading, uploading, error, uploadNote, deleteNote } = useNotes(connect?._id);
   const isCompleted = connect?.status === "completed";
 
   const buildPartitionSequence = () => {
-    const list: any[] = [];
+    const list: PrivateFileTimelineItem[] = [];
     const internalCollection = privateNotes || [];
     let i = 0;
     while (i < internalCollection.length) {
@@ -110,7 +115,7 @@ const PrivateFilesSection = ({ connect }: { connect: any }) => {
     privateFilesContent = <LoadingSkeletons />;
   } else if ((privateNotes || []).length === 0) {
     privateFilesContent = (
-      <EmptyStateAny
+      <EmptyState
         icon={<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>}
         message="No private files yet" subMessage="Upload files that only you can access — your session partner won't see these."
         actionLabel={isCompleted ? undefined : "Upload First Private File"} onAction={isCompleted ? undefined : () => setShowUpload(true)}
@@ -119,7 +124,7 @@ const PrivateFilesSection = ({ connect }: { connect: any }) => {
   } else {
     privateFilesContent = (
       <div className="w-full grid grid-cols-2 gap-4">
-        {buildPartitionSequence().map((item: any) => {
+        {buildPartitionSequence().map((item) => {
           if (item.type === "separator") {
             return (
               <div key={item.key} className="col-span-2 flex items-center gap-3 my-2">
@@ -158,7 +163,7 @@ const PrivateFilesSection = ({ connect }: { connect: any }) => {
 };
 
 // ── Root Parent Controller Container ──────────────────────────
-const PrivateNotesTab = ({ connect }: { connect: any }) => {
+const PrivateNotesTab = ({ connect }: { connect: SharedConnect | null }) => {
   const [privateSubTab, setPrivateSubTab] = useState("files");
 
   return (
@@ -178,7 +183,7 @@ const PrivateNotesTab = ({ connect }: { connect: any }) => {
         <button onClick={() => setPrivateSubTab("notepad")} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${privateSubTab === "notepad" ? "bg-white text-slate-800 shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"}`}>Notepad</button>
       </div>
 
-      {privateSubTab === "files" ? <PrivateFilesSection connect={connect} /> : <NotepadSection connectId={connect?._id} isCompleted={connect?.status === "completed"} />}
+      {privateSubTab === "files" ? <PrivateFilesSection connect={connect} /> : <NotepadSection connectId={connect?._id ?? ""} isCompleted={connect?.status === "completed"} />}
     </div>
   );
 };

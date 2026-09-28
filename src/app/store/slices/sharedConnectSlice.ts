@@ -42,7 +42,7 @@ type FetchSharedConnectRejection =
 
 // Fetches a single connect-request's detail, mirrors SharedDashboardPage's
 // original fetchConnect(). Navigation (401/403) stays in the page component.
-export const fetchSharedConnect = createAsyncThunk(
+export const fetchSharedConnect = createAsyncThunk<SharedConnect, string, { rejectValue: FetchSharedConnectRejection }>(
   "sharedConnect/fetchSharedConnect",
   async (connectRequestId: string, { rejectWithValue }) => {
     try {

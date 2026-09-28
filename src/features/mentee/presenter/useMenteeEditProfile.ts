@@ -1,6 +1,7 @@
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 // src/hooks/useMenteeEditProfile.js
 import { useState, useEffect } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent as ReactSubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import * as menteeProfileApi from "@/features/mentee/model/menteeProfile.api";
 import { menteeOnboardingSchema, getFirstErrorMessage } from "@/features/mentee/schemas/onboardingSchemas";
@@ -47,8 +48,9 @@ const useMenteeEditProfile = () => {
           communicationPreferences: data.communicationPreferences || [],
           languages: data.languages || [],
         });
-      } catch (err) {
-        if (err.name !== "CanceledError" && err.name !== "AbortError") {
+      } catch (err: unknown) {
+        const name = err instanceof Error ? err.name : "";
+        if (name !== "CanceledError" && name !== "AbortError") {
           setMsg({ type: "error", text: "Failed to load profile data." });
         }
       } finally {
@@ -65,7 +67,8 @@ const useMenteeEditProfile = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: ReactSubmitEvent<HTMLFormElement>) => {
+
     e.preventDefault();
     setLoading(true);
     setMsg({ type: "", text: "" });
@@ -87,7 +90,7 @@ const useMenteeEditProfile = () => {
     } catch (err) {
       setMsg({
         type: "error",
-        text: err?.response?.data?.message || "Update failed.",
+        text: getErrorMessage(err, "Update failed."),
       });
     } finally {
       setLoading(false);

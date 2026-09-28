@@ -5,7 +5,6 @@ import FormField from "@/shared/components/FormField";
 // prop types (via forwardRef) resolve to no accepted props. Cast locally to
 // avoid coupling this migration to that one.
  
-const FormFieldAny = FormField as any;
 
 const SocialLinksSection = () => {
   const { form, handleChange, onBlur } = useMenteeOnboardingForm();
@@ -32,7 +31,7 @@ const SocialLinksSection = () => {
 
       <div className="px-6 py-5 space-y-4">
         {/* LinkedIn */}
-        <FormFieldAny
+        <FormField
           label="LinkedIn URL"
           name="linkedInUrl"
           value={form.linkedInUrl}
@@ -48,7 +47,7 @@ const SocialLinksSection = () => {
           }
         />
         {/* Portfolio */}
-        <FormFieldAny
+        <FormField
           label="Portfolio URL"
           name="portfolioUrl"
           value={form.portfolioUrl}

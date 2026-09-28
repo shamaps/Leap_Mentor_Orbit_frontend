@@ -1,3 +1,4 @@
+import type { ConnectRequest } from "@/app/store/slices/connectRequestsSlice";
 // src/components/mentor/dashboard/requests/RequestCard.jsx
 import { useState } from "react";
 import ReferredByProfileModal from "./ReferredByProfileModal";
@@ -64,7 +65,7 @@ const STATUS_CONFIG: Record<string, StatusConfigEntry> = {
 const getCfg = (s?: string) => (s && STATUS_CONFIG[s]) || STATUS_CONFIG.pending;
 
 // ── Slots Detail Modal ────────────────────────────────────────
-const SlotsModal = ({ request, onClose }: { request: Record<string, any>; onClose: () => void }) => {
+const SlotsModal = ({ request, onClose }: { request: ConnectRequest; onClose: () => void }) => {
   const {
     mentee,
     selectedSlots = [],
@@ -184,7 +185,7 @@ const SlotsModal = ({ request, onClose }: { request: Record<string, any>; onClos
               </span>
             </p>
             <div className="space-y-2">
-              {selectedSlots.map((slot: any, i: number) => (
+              {selectedSlots.map((slot: ConnectRequest["selectedSlots"] extends (infer Slot)[] | undefined ? Slot : never, i: number) => (
                 <div
                   key={`${slot.date}-${slot.startTime}`}
                   className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-3"
@@ -221,7 +222,7 @@ const SlotsModal = ({ request, onClose }: { request: Record<string, any>; onClos
     </div>
   );
 };// ── Main Request Card ─────────────────────────────────────────
-const RequestCard = ({ request, onViewProfile }: { request: Record<string, any>; onViewProfile: (request: Record<string, any>) => void }) => {
+const RequestCard = ({ request, onViewProfile }: { request: ConnectRequest; onViewProfile: (request: ConnectRequest) => void }) => {
   const [showSlots, setShowSlots] = useState(false);
   const [showReferredByProfile, setShowReferredByProfile] = useState(false);
 

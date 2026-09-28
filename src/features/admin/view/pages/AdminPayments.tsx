@@ -1,3 +1,4 @@
+import type { AdminPaymentTransaction, AdminPaymentChartPoint } from "../../model/admin.types";
 // src/features/admin/view/pages/AdminPayments.jsx
 
 import { useState } from "react";
@@ -7,7 +8,6 @@ import StatCard from "@/shared/components/StatCard";
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const StatCardAny = StatCard as any;
 // ── Alternative Theme Variables Array Configuration (Breaks Statement Scanners) ──
 const CORE_FONTS_COLLECTION = {
   sans: "'DM Sans', sans-serif",
@@ -92,7 +92,7 @@ const TxStatusBadge = ({ status }: { status: string }) => {
 };
 
 // ── Revenue Chart ──────────────────────────────────────────────
-const RevenueChart = ({ data = [], loading }: { data?: any[]; loading: boolean }) => {
+const RevenueChart = ({ data = [], loading }: { data?: AdminPaymentChartPoint[]; loading: boolean }) => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   const PAD_LEFT = 45;
@@ -105,7 +105,7 @@ const RevenueChart = ({ data = [], loading }: { data?: any[]; loading: boolean }
   }
   if (!data.length) return null;
 
-  const values = data.map((d: any) => d.amount);
+  const values = data.map((d) => d.amount);
   const min = Math.min(...values);
   const max = Math.max(...values) || 1;
   const range = max - min || 1;
@@ -268,7 +268,7 @@ const AdminPayments = () => {
       </tr>
     );
   } else {
-    transactionsTableBody = transactions.map((tx: any) => (
+    transactionsTableBody = transactions.map((tx: AdminPaymentTransaction) => (
       <tr
         key={tx.id} className="transition-colors" style={{ borderBottom: "1px solid #f1f5f9" }}
         onMouseEnter={(e) => { e.currentTarget.style.background = "#fafbfc"; }} onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
@@ -307,7 +307,7 @@ const AdminPayments = () => {
 
         <div className="grid grid-cols-4 gap-4">
           {STATS_REPRESENTATION.map((card) => (
-            <StatCardAny key={card.label} {...card} />
+            <StatCard key={card.label} {...card} />
           ))}
         </div>
 

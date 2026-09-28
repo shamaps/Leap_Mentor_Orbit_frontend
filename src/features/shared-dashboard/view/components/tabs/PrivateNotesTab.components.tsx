@@ -2,6 +2,7 @@
 
 
 import { useState, useRef, useEffect } from "react";
+import type { PrivateNote, SharedNote } from "@/features/shared-dashboard/model/types";
 import { downloadFileAsBlob } from "@/features/shared-dashboard/model/notes.api";
 import {
     computeByteSizeLabel,
@@ -133,7 +134,7 @@ export const UploadModal = ({ onUpload, uploading, onClose }: { onUpload: (file:
     );
 };
 
-export const PrivateFileCard = ({ note, onDelete }: { note: any; onDelete: (id: string) => Promise<any> }) => {
+export const PrivateFileCard = ({ note, onDelete }: { note: SharedNote; onDelete: (id: string) => Promise<unknown> }) => {
     const [deleting, setDeleting] = useState(false);
     const cfg = ENUMERATED_FILE_MESSAGES[note.fileType as keyof typeof ENUMERATED_FILE_MESSAGES] || ENUMERATED_FILE_MESSAGES.other;
 
@@ -161,7 +162,7 @@ export const PrivateFileCard = ({ note, onDelete }: { note: any; onDelete: (id: 
                 <div className="flex gap-2 mt-3">
                     <button type="button" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50" onClick={async () => {
                         try {
-                            const res = await downloadFileAsBlob(note.fileUrl);
+                            const res = await downloadFileAsBlob(note.fileUrl ?? "");
                             const b = await res.blob();
                             const el = document.createElement("a");
                             el.href = globalThis.URL.createObjectURL(b);
@@ -170,7 +171,7 @@ export const PrivateFileCard = ({ note, onDelete }: { note: any; onDelete: (id: 
                             el.click();
                             el.remove();
                         } catch {
-                            globalThis.open(note.fileUrl, "_blank");
+                            globalThis.open(note.fileUrl ?? "", "_blank");
                         }
                     }}>
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
@@ -192,19 +193,19 @@ export const PrivateFileCard = ({ note, onDelete }: { note: any; onDelete: (id: 
     );
 };
 
-export const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }: { note: any; onSave: (id: string | undefined, title: string, content: string) => Promise<{ success: boolean } | undefined>; onDelete: (id: string) => void; onClose: () => void; saving: boolean }) => {
-    const [title, setTitleState] = useState(note?.title || "");
+export const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }: { note: PrivateNote; onSave: (id: string | undefined, title: string, content: string) => Promise<{ success: boolean } | undefined>; onDelete: (id: string) => void; onClose: () => void; saving: boolean }) => {
+    const [title, setTitle] = useState(note?.title || "");
     const [content, setContent] = useState(note?.content || "");
     const [dirty, setDirty] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- intentionally syncing local state from an external source (prop/URL), not derivable from render inputs alone
-        setTitleState(note?.title || "");
+        setTitle(note?.title || "");
         setContent(note?.content || "");
         setDirty(false);
         setTimeout(() => textareaRef.current?.focus(), 50);
-    }, [note?._id]);
+    }, [note?._id, note?.content, note?.title]);
 
     const commitSaveEvent = async () => {
         const result = await onSave(note?._id, title, content);
@@ -256,7 +257,7 @@ export const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }: { not
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/80">
                 <input
                     value={title}
-                    onChange={(e) => { setTitleState(e.target.value); setDirty(true); }}
+                    onChange={(e) => { setTitle(e.target.value); setDirty(true); }}
                     placeholder="Note title..."
                     className="flex-1 text-base font-bold text-slate-800 bg-transparent outline-none placeholder:text-slate-300 min-w-0 mr-4"
                 />
@@ -293,7 +294,7 @@ export const NotepadEditor = ({ note, onSave, onDelete, onClose, saving }: { not
     );
 };
 
-export const NoteListItem = ({ note, isActive, onClick }: { note: any; isActive: boolean; onClick: () => void }) => {
+export const NoteListItem = ({ note, isActive, onClick }: { note: PrivateNote; isActive: boolean; onClick: () => void }) => {
     const contentPreviewSnippet = note.content?.trim()?.slice(0, 60) || "";
     return (
         <button type="button" onClick={onClick} className={`w-full text-left px-4 py-3.5 rounded-xl border transition-all duration-150 ${isActive ? "border-blue-300 bg-blue-50 shadow-sm" : "border-slate-200 bg-white hover:bg-slate-50"}`}>

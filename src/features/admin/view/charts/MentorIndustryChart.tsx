@@ -1,5 +1,6 @@
 // src/components/admin/common/MentorIndustryChart.jsx
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList, ResponsiveContainer, Rectangle } from "recharts";
+import type { ComponentProps } from "react";
 const PALETTE = [
   "#2563eb",
   "#7c3aed",
@@ -36,9 +37,12 @@ const getYAxisTicks = (maxVal: number) => {
 
 // ── Custom Tooltip ────────────────────────────────────────────
  
-const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: any[] }) => {
-  if (!active || !payload?.length) return null;
-  const { industry, count, pct } = payload[0].payload;
+interface IndustryTooltipRow { industry: string; count: number; pct: number }
+
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: IndustryTooltipRow }> }) => {
+  const tooltipRow = payload?.[0]?.payload;
+  if (!active || !tooltipRow) return null;
+  const { industry, count, pct } = tooltipRow;
   return (
     <div
       style={{
@@ -66,7 +70,8 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: any[] 
 
 // ── Custom X-Axis Tick (rotated to prevent overlap) ───────────
  
-const CustomXTick = ({ x, y, payload }: { x?: number; y?: number; payload?: any }) => {
+const CustomXTick = ({ x, y, payload }: { x?: number; y?: number; payload?: { value: string | number } }) => {
+  if (!payload) return null;
   return (
     <g transform={`translate(${x},${y})`}>
       <text
@@ -87,14 +92,14 @@ const CustomXTick = ({ x, y, payload }: { x?: number; y?: number; payload?: any 
 };
 
  
-const ColoredBar = ({ index, ...rest }: { index?: number;[key: string]: any }) => (
+const ColoredBar = ({ index, ...rest }: ComponentProps<typeof Rectangle> & { index?: number }) => (
   <Rectangle {...rest} fill={PALETTE[(index ?? 0) % PALETTE.length]} />
 );
 
 interface IndustryDatum {
   industry: string;
   count: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // ══════════════════════════════════════════════════════════════

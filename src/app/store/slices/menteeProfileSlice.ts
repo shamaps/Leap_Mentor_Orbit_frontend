@@ -2,7 +2,7 @@
 
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "@/shared/utils/axiosInstance";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
+import getErrorMessage, { getHttpErrorStatus } from "@/shared/utils/getErrorMessage";
 import { HTTP_STATUS } from "@/shared/constants/httpStatus";
 
 export interface MenteeUser {
@@ -60,8 +60,8 @@ export const fetchMenteeDashboard = createAsyncThunk<
       try {
         const clientProfileResponse = await axiosInstance.get("/mentee-profile/me");
         return { user: clientUserData, profile: clientProfileResponse.data };
-      } catch (nestedProfileException: any) {
-        const nestedStatusCode = nestedProfileException?.response?.status;
+      } catch (nestedProfileException: unknown) {
+        const nestedStatusCode = getHttpErrorStatus(nestedProfileException);
 
         if (nestedStatusCode === HTTP_STATUS.NOT_FOUND) {
           return rejectWithValue({ reason: "no-profile", user: clientUserData });
@@ -71,8 +71,8 @@ export const fetchMenteeDashboard = createAsyncThunk<
         }
         throw nestedProfileException;
       }
-    } catch (globalRootException: any) {
-      if (globalRootException?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
+    } catch (globalRootException: unknown) {
+      if (getHttpErrorStatus(globalRootException) === HTTP_STATUS.UNAUTHORIZED) {
         return rejectWithValue({ reason: "unauthorized" });
       }
 

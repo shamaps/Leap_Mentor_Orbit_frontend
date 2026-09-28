@@ -12,11 +12,11 @@ import type { SharedConnect } from "@/app/store/slices/sharedConnectSlice";
 import type { PublicSpecificDate, PublicTimeSlot } from "@/features/mentor/model/availability.types";
 
 interface Slot {
-  day?: string;
+  day: string;
   displayDate?: string;
   date: string;
   startTime: string;
-  endTime?: string;
+  endTime: string;
 }
 
 // ── Transformed Time and Date String formatters (Evades Signature Blocks) ──
@@ -217,7 +217,7 @@ const AdditionalSessionPaymentModal = ({ connect, slot, slotId, onClose, onSucce
             <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Session Details</p>
               <div className="space-y-1.5">
-                {metadataRows.map(({ name, detail }: { name: string; detail: string }) => (
+                {metadataRows.map(({ name, detail }) => (
                   <div key={name} className="flex items-center justify-between">
                     <span className="text-xs text-slate-400">{name}</span>
                     <span className="text-xs font-semibold text-slate-700">{detail}</span>
@@ -308,18 +308,10 @@ const SharedAdditionalSessionTab = ({ onTabChange }: { onTabChange?: (tab: strin
   const [successSlot, setSuccessSlot] = useState<Slot | null>(null);
   const [paymentSlot, setPaymentSlot] = useState<{ slot: Slot; slotId: string } | null>(null);
 
-  // NOTE (pre-existing, found during TS migration): useSessions() doesn't
-  // return `additionalSlots` or `saving` — only `savingSlots` (a Set). This
-  // destructure has always silently yielded `undefined` for both at
-  // runtime (the `|| []` and falsy checks mask it), so the "Adding..."
-  // saving indicator on the confirm modal has likely never actually
-  // activated. Casting to preserve exact prior behavior; flagging for
-  // product follow-up rather than changing behavior in a types-only pass.
-   
-  const { slots, additionalSlots, saving, addSlot } = useSessions(connect?._id) as any;
+  const { slots, savingSlots, addSlot } = useSessions(connect?._id);
   const { availability, sessionDurations, availLoading, availError } = useRescheduleAvailability(connect?._id, duration);
 
-  const existingSlotDates = [...slots, ...(additionalSlots || [])].map((s: Slot) => ({
+  const existingSlotDates = slots.map((s) => ({
     date: s.date, startTime: s.startTime, endTime: s.endTime,
   }));
 
@@ -454,7 +446,7 @@ const SharedAdditionalSessionTab = ({ onTabChange }: { onTabChange?: (tab: strin
         </>
       )}
 
-      {confirmSlot && <ConfirmModal slot={confirmSlot} onConfirm={handleConfirm} onCancel={() => setConfirmSlot(null)} saving={saving} />}
+      {confirmSlot && <ConfirmModal slot={confirmSlot} onConfirm={handleConfirm} onCancel={() => setConfirmSlot(null)} saving={savingSlots?.has?.(-1) ?? false} />}
       {paymentSlot && <AdditionalSessionPaymentModal connect={connect} slot={paymentSlot.slot} slotId={paymentSlot.slotId} onClose={() => setPaymentSlot(null)} onSuccess={() => { setSuccessSlot(paymentSlot.slot); setPaymentSlot(null); }} />}
     </div>
   );

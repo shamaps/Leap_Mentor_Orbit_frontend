@@ -43,7 +43,7 @@ const SentryErrorFallback = () => (
           : "Something went wrong. Please reload the page."}
       </p>
       <button
-        onClick={() => window.location.reload()}
+        onClick={() => globalThis.location.reload()}
         className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
       >
         Reload page

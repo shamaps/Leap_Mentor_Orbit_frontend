@@ -10,6 +10,7 @@ interface RouteErrorPageProps {
 const RouteErrorPage = ({ zone }: RouteErrorPageProps) => {
     const error = useRouteError();
     const { pathname } = useLocation();
+    const showDetails = import.meta.env.DEV;
 
     let message = "An unexpected error occurred.";
     if (isRouteErrorResponse(error)) {
@@ -34,12 +35,15 @@ const RouteErrorPage = ({ zone }: RouteErrorPageProps) => {
                     Something went wrong loading this page. This part of the app
                     failed, but the rest is still working.
                 </p>
-                <p className="text-xs font-mono text-rose-600 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2 max-w-full break-words">
-                    {message}
-                </p>
+               
+                {showDetails && (
+                    <p className="text-xs font-mono text-rose-600 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2 max-w-full break-words">
+                        {message}
+                    </p>
+                )}
                 <div className="flex gap-3">
                     <button
-                        onClick={() => window.location.reload()}
+                        onClick={() => globalThis.location.reload()}
                         className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
                     >
                         Try again
