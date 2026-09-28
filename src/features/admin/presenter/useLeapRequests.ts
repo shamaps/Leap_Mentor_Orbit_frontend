@@ -1,6 +1,8 @@
 // src/features/admin/presenter/useLeapRequests.js
 import { useState, useEffect, useCallback } from "react";
 import { getAllLeapRequests, approveLeapRequest, rejectLeapRequest } from "../model/admin.api";
+import type { AdminWalletRequest } from "../model/admin.types";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 import logger from "@/shared/utils/logger";
 
 export const TABS = [
@@ -11,7 +13,7 @@ export const TABS = [
 
 export const useLeapRequests = () => {
   const [tab, setTab] = useState("pending");
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<AdminWalletRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: string } | null>(null);
@@ -27,11 +29,11 @@ export const useLeapRequests = () => {
       const res = await getAllLeapRequests();
       setRequests(res.data.requests || []);
     } catch (err) {
-      logger.warn("LeapRequests fetch error", { message: err.message });
+      logger.warn("LeapRequests fetch error", { message: getErrorMessage(err) });
     } finally {
       setLoading(false);
     }
-  }, [tab]);
+  }, []);
 
   useEffect(() => {
     fetchRequests();
@@ -44,7 +46,7 @@ export const useLeapRequests = () => {
       showToast("Request approved.");
       fetchRequests();
     } catch (err) {
-      showToast(err.response?.data?.message || "Failed to approve.", "error");
+      showToast(getErrorMessage(err, "Failed to approve."), "error");
     } finally {
       setProcessingId(null);
     }
@@ -57,7 +59,7 @@ export const useLeapRequests = () => {
       showToast("Request rejected.");
       fetchRequests();
     } catch (err) {
-      showToast(err.response?.data?.message || "Failed to reject.", "error");
+      showToast(getErrorMessage(err, "Failed to reject."), "error");
     } finally {
       setProcessingId(null);
     }

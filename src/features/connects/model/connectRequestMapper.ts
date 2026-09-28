@@ -14,6 +14,7 @@ export interface ConnectSlot {
     date: string;
     startTime: string;
     endTime: string;
+    status?: string;
     [key: string]: unknown;
 }
 
@@ -26,6 +27,7 @@ export interface ConnectPerson {
 
 export interface ConnectPersonInfo {
     currentRole?: string;
+    hourlyRate?: number;
     company?: string;
     skills?: string[];
     profilePicture?: string;
@@ -38,14 +40,25 @@ export interface RawConnectRequest {
     selectedSlots?: ConnectSlot[];
     confirmedSlot?: ConnectSlot | null;
     referredTo?: ConnectPerson | null;
-    referredToProfile?: Record<string, unknown>;
+    referredToProfile?: ConnectPersonInfo;
     referredBy?: ConnectPerson | null;
-    referredByProfile?: Record<string, unknown>;
+    referredByProfile?: ConnectPersonInfo;
     mentor?: ConnectPerson | null;
     mentorProfile?: ConnectPersonInfo | null;
     mentee?: ConnectPerson | null;
     menteeProfile?: ConnectPersonInfo | null;
     totalAmount?: number;
+    message?: string;
+    requestedAt?: string;
+    respondedAt?: string;
+    paidAt?: string;
+    completedAt?: string;
+    sessionRate?: number;
+    sessionCount?: number;
+    paymentStatus?: string;
+    commissionRate?: number;
+    commissionAmount?: number;
+    mentorPayout?: number;
     [key: string]: unknown;
 }
 

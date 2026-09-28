@@ -1,10 +1,12 @@
-//src / pages / VerifyEmail.tsx
+// src/features/auth/view/pages/VerifyEmail.tsx
 
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "@/app/store/hooks";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "zod";
 import {
   sendOtp,
   verifyEmail,
@@ -18,11 +20,15 @@ import { verifyEmailSchema } from "@/shared/schemas/authSchemas";
 
 const OTP_DIGIT_KEYS = ["digit-0", "digit-1", "digit-2", "digit-3", "digit-4", "digit-5"];
 
+// Form values inferred from the zod schema, so react-hook-form knows every
+// field is a string and `errors.email.message` is typed as `string | undefined`.
+type VerifyEmailForm = z.infer<typeof verifyEmailSchema>;
+
 const VerifyEmail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { loading, sending, error, successMsg } = useSelector(selectAuth);
 
@@ -41,7 +47,7 @@ const VerifyEmail = () => {
     setError,
     clearErrors,
     formState: { errors },
-  } = useForm({
+  } = useForm<VerifyEmailForm>({
     resolver: zodResolver(verifyEmailSchema),
     defaultValues: { email: location.state?.email || "", otp: "" },
   });
@@ -63,7 +69,7 @@ const VerifyEmail = () => {
       dispatch(clearMessages());
       clearErrors();
 
-      dispatch(verifyMagicLink({ token: queryToken, email: queryEmail }) as any).then((action: any) => {
+      dispatch(verifyMagicLink({ token: queryToken, email: queryEmail })).then((action) => {
         if (verifyMagicLink.fulfilled.match(action)) {
           setRedirecting(true);
           setTimeout(() => navigate("/login"), 1500);
@@ -86,7 +92,7 @@ const VerifyEmail = () => {
       return;
     }
 
-    const action: any = await Promise.resolve(dispatch(sendOtp({ email: watchedEmail }) as any));
+    const action = await dispatch(sendOtp({ email: watchedEmail }));
     if (sendOtp.fulfilled.match(action)) {
       clearErrors("root");
     } else {
@@ -136,11 +142,11 @@ const VerifyEmail = () => {
   // ── Verify OTP ────────────────────────────────────────────
   // zodResolver has already validated email + the full 6-digit otp by
   // the time this runs.
-  const onSubmit = async (data: { email: string; otp: string }) => {
+  const onSubmit = async (data: VerifyEmailForm) => {
     dispatch(clearMessages());
     clearErrors("root");
 
-    const action: any = await Promise.resolve(dispatch(verifyEmail({ email: data.email, otp: data.otp }) as any));
+    const action = await dispatch(verifyEmail({ email: data.email, otp: data.otp }));
     if (verifyEmail.fulfilled.match(action)) {
       setRedirecting(true);
       setTimeout(() => navigate(loginPath), 900);
@@ -218,7 +224,9 @@ const VerifyEmail = () => {
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all"
                     {...register("email")}
                   />
-                  {errors.email?.message && <p className="text-xs text-red-400 mt-1">{String(errors.email.message)}</p>}
+                  {errors.email?.message && (
+                    <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>
+                  )}
                 </div>
               )}
 

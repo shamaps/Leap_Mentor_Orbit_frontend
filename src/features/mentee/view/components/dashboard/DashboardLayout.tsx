@@ -19,7 +19,6 @@ import ErrorState from "@/shared/components/ErrorState";
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
 
-const ErrorStateAny = ErrorState as any;
 const MENTEE_NAV_ITEMS = [
   { key: "home", label: "Home", icon: <Home size={16} /> },
   { key: "profile", label: "Profile", icon: <User size={16} /> },
@@ -80,7 +79,7 @@ const DashboardLayout = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <ErrorStateAny message={error} onAction={() => globalThis.location.reload()} />
+        <ErrorState message={error} onAction={() => globalThis.location.reload()} />
       </div>
     );
   }

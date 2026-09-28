@@ -1,10 +1,10 @@
 // src/hooks/useMentorEditProfile.js
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, type SubmitEvent as ReactSubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 import logger from "@/shared/utils/logger";
 import * as mentorProfileApi from "@/features/mentor/model/mentorProfile.api";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
 import { commonOnboardingSchema, getFirstErrorMessage } from "@/features/mentee/schemas/onboardingSchemas";
 import { selectAuthToken } from "@/app/store/selectors";
 import { refetchMentorProfile } from "@/app/store/slices/mentorProfileSlice";
@@ -56,7 +56,7 @@ const useMentorEditProfile = () => {
           portfolioUrl: data.portfolioUrl || "",
         });
       } catch (err) {
-        logger.warn("Failed to load mentor profile data", { message: err?.message });
+        logger.warn("Failed to load mentor profile data", { message: getErrorMessage(err) });
         setMsg({ type: "error", text: "Failed to load profile data." });
       } finally {
         setFetchLoading(false);
@@ -70,7 +70,7 @@ const useMentorEditProfile = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: ReactSubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
 

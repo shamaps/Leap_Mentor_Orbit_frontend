@@ -1,9 +1,12 @@
+import type { AdminReport } from "./admin.types";
 // src/features/admin/model/adminReports.loader.ts
 
 import { getReportStats, getReports } from "./admin.api";
 import logger from "@/shared/utils/logger";
+import { requireAdminAuth } from "./requireAdminAuth";
 
 export const adminReportsLoader = async ({ request }: { request: Request }) => {
+    await requireAdminAuth();
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page") ?? "1");
     const search = url.searchParams.get("search") ?? "";
@@ -19,7 +22,7 @@ export const adminReportsLoader = async ({ request }: { request: Request }) => {
     ]);
 
     let error: string | null = null;
-    let reports: any[] = [];
+    let reports: AdminReport[] = [];
     let pagination = { totalCount: 0, currentPage: 1, totalPages: 1 };
     if (reportsResult.status === "fulfilled") {
         reports = reportsResult.value.data.reports || [];

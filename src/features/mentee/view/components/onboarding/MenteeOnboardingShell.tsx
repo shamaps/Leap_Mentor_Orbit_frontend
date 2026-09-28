@@ -1,6 +1,7 @@
 // components/mentee/onboarding/MenteeOnboardingShell.jsx
 /* eslint-disable react-hooks/refs -- sectionRefs values are RefObjects passed straight through as `ref` props, not read during render */
-import { useState, useRef, useMemo, type RefObject } from "react";
+import { useState, useRef, useMemo, useCallback, type RefObject, type SubmitEvent as ReactSubmitEvent } from "react";
+import type { MenteeOnboardingFieldEvent } from "@/features/mentee/presenter/useMenteeOnboarding";
 import useMenteeOnboarding from "@/features/mentee/presenter/useMenteeOnboarding";
 import { MenteeOnboardingFormContext } from "@/features/mentee/context/MenteeOnboardingFormContext";
 import { menteeOnboardingSchema, getFieldErrorMap } from "@/features/mentee/schemas/onboardingSchemas";
@@ -40,7 +41,7 @@ const MenteeOnboardingShell = () => {
 
   // Clears the error for a field as soon as the user starts filling it
    
-  const onChange = (e: any) => {
+  const onChange = useCallback((e: MenteeOnboardingFieldEvent) => {
     const { name } = e.target;
     if (errors[name]) {
       setErrors((prev) => {
@@ -50,17 +51,17 @@ const MenteeOnboardingShell = () => {
       });
     }
     handleChange(e);
-  };
+  }, [errors, handleChange]);
    
-  const onBlur = (e: any) => {
+  const onBlur = useCallback((e: MenteeOnboardingFieldEvent) => {
     const { name } = e.target;
     const fieldErrors = getFieldErrorMap(menteeOnboardingSchema, form);
     if (fieldErrors[name]) {
       setErrors((prev) => ({ ...prev, [name]: true }));
     }
-  };
+  }, [form]);
    
-  const onSubmit = (e: any) => {
+  const onSubmit = (e: ReactSubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {

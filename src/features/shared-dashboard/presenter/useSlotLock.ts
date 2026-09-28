@@ -1,6 +1,7 @@
 // src/hooks/useSlotLock.js
 import { useCallback, useRef } from "react";
 import * as sessionsApi from "@/features/shared-dashboard/model/sessions.api";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 import logger from "@/shared/utils/logger";
 import { useToast } from "@/shared/context/ToastContext";
 const useSlotLock = (mentorId: string) => {
@@ -17,8 +18,9 @@ const useSlotLock = (mentorId: string) => {
         lockedKeys.current.add(`${date}-${startTime}`);
         return { ok: true, expiresAt: data.expiresAt };
       } catch (err) {
-        const code = err?.response?.data?.code;
-        const msg = err?.response?.data?.message || "Could not lock slot";
+        const apiError = err as { response?: { data?: { code?: string; message?: string } } };
+        const code = apiError.response?.data?.code;
+        const msg = getErrorMessage(err, "Could not lock slot");
         return { ok: false, code, msg };
       }
     },
@@ -37,7 +39,7 @@ const useSlotLock = (mentorId: string) => {
         // Non-fatal — lock self-expires via TTL either way — but the user
         // deliberately clicked to free this slot, so tell them it didn't
         // go through immediately rather than leaving them guessing.
-        logger.warn("unlock failed", { message: err?.message });
+        logger.warn("unlock failed", { message: getErrorMessage(err) });
         showToast({
           type: "info",
           title: "Slot release delayed",
@@ -56,7 +58,7 @@ const useSlotLock = (mentorId: string) => {
       await sessionsApi.unlockAllSlots(mentorId);
       lockedKeys.current.clear();
     } catch (err) {
-      logger.warn("unlock-all failed", { message: err?.message });
+      logger.warn("unlock-all failed", { message: getErrorMessage(err) });
     }
   }, [mentorId]);
 

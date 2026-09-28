@@ -140,7 +140,7 @@ export const MINUTES = [0, 15, 30, 45]; // quarter-hours only
 
 export const parseTyped = (raw: string): string | null => {
     const s = raw.trim();
-    const match = s.match(/^(\d{1,2})[:.]?(\d{2})?\s*(am|pm)?$/i);
+    const match = /^(\d{1,2})[:.]?(\d{2})?\s*(am|pm)?$/i.exec(s);
     if (!match) return null;
     let hh = Number.parseInt(match[1], 10);
     let mm = match[2] ? Number.parseInt(match[2], 10) : 0;

@@ -6,7 +6,6 @@ import type { MentorSummary } from "@/features/mentee/presenter/useMentorSearch"
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const EmptyStateAny = EmptyState as any;
 import MentorCardSkeleton from "@/shared/components/MentorCardSkeleton";
 import { withProfiler } from "@/shared/utils/withProfiler";
 import { useMountLogger } from "@/shared/hooks/useMountLogger";
@@ -41,7 +40,7 @@ const MentorGrid = ({
   }
   if (hasSearched && mentors.length === 0) {
     return (
-      <EmptyStateAny
+      <EmptyState
         message="No mentors found"
         subMessage="Try adjusting your filters or searching a different skill."
       />

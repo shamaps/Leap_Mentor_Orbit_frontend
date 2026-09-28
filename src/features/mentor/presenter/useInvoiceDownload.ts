@@ -1,6 +1,7 @@
 // src/hooks/useInvoiceDownload.js
 import { useState } from "react";
 import { downloadInvoicePdf } from "@/features/mentor/model/mentorProfile.api";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 import logger from "@/shared/utils/logger";
 
 export const useInvoiceDownload = () => {
@@ -24,7 +25,7 @@ export const useInvoiceDownload = () => {
             link.remove();
             globalThis.URL.revokeObjectURL(url);
         } catch (err) {
-            logger.error("Invoice download failed", { requestId, message: err.message });
+            logger.error("Invoice download failed", { requestId, message: getErrorMessage(err) });
             setError("Failed to download invoice. Please try again.");
         } finally {
             setDownloading(false);

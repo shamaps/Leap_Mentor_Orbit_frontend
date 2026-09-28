@@ -1,7 +1,7 @@
 // src/store/slices/mentorProfileSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "@/shared/utils/axiosInstance";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
+import getErrorMessage, { getHttpErrorStatus } from "@/shared/utils/getErrorMessage";
 import { logoutUser } from "./authSlice";
 import logger from "@/shared/utils/logger";
 import { HTTP_STATUS } from "@/shared/constants/httpStatus";
@@ -60,8 +60,8 @@ export const fetchMentorDashboard = createAsyncThunk<
       try {
         const specProfileResponse = await axiosInstance.get("/mentor-profile/me");
         return { user: providerUserData, profile: specProfileResponse.data };
-      } catch (nestedProfileException: any) {
-        const nestedStatusCode = nestedProfileException?.response?.status;
+      } catch (nestedProfileException: unknown) {
+        const nestedStatusCode = getHttpErrorStatus(nestedProfileException);
 
         if (nestedStatusCode === HTTP_STATUS.NOT_FOUND) {
           return rejectWithValue({ reason: "no-profile", user: providerUserData });
@@ -71,8 +71,8 @@ export const fetchMentorDashboard = createAsyncThunk<
         }
         throw nestedProfileException;
       }
-    } catch (globalRootException: any) {
-      if (globalRootException?.response?.status === HTTP_STATUS.UNAUTHORIZED) {
+    } catch (globalRootException: unknown) {
+      if (getHttpErrorStatus(globalRootException) === HTTP_STATUS.UNAUTHORIZED) {
         return triggerDeauthCleanup();
       }
 
@@ -94,8 +94,8 @@ export const refetchMentorProfile = createAsyncThunk<
     try {
       const res = await axiosInstance.get("/mentor-profile/me");
       return res.data;
-    } catch (err: any) {
-      logger.warn("Profile refetch failed", { message: err.message });
+    } catch (err: unknown) {
+      logger.warn("Profile refetch failed", { message: getErrorMessage(err) });
       return rejectWithValue(getErrorMessage(err, "Profile refetch failed."));
     }
   }

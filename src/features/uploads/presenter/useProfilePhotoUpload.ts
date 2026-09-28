@@ -1,6 +1,7 @@
 // src/hooks/useProfilePhotoUpload.ts
 import { useRef, useState, type ChangeEvent } from "react";
 import { uploadProfilePicture } from "@/features/uploads/model/upload.api";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -39,11 +40,8 @@ export const useProfilePhotoUpload = (onUploaded: (url: string) => void) => {
 
             const res = await uploadProfilePicture(formData);
             onUploaded(res.data.url);
-        } catch (err: any) {
-            setUploadErr(
-                err?.response?.data?.message ||
-                "Failed to upload image. Please try again.",
-            );
+        } catch (err: unknown) {
+            setUploadErr(getErrorMessage(err, "Failed to upload image. Please try again."));
         } finally {
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = "";

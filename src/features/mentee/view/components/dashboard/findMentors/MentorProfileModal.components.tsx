@@ -1,37 +1,17 @@
 // src/features/mentee/view/components/dashboard/findMentors/MentorProfileModal.components.tsx
 //
-// SOLID / SRP refactor note: badge config, slot-formatting helpers, and the
-// pure presentational sub-components (StarRating, SlotPill, SelectedSlotRow)
-// used to live inline inside MentorProfileModal.tsx. Extracted here because
-// none of them depend on the modal's own state/hooks (useMentorSlots,
-// useConnectRequest, useSlotLock) — they're pure functions of their props.
+// SOLID / SRP refactor note: the pure presentational sub-components
+// (StarRating, SlotPill, SelectedSlotRow) used to live inline inside
+// MentorProfileModal.tsx. Extracted here because none of them depend on the
+// modal's own state/hooks (useMentorSlots, useConnectRequest, useSlotLock) —
+// they're pure functions of their props.
+//
+// Non-component config/constants/helpers live in
+// MentorProfileModal.constants.ts, kept separate so this file only exports
+// components (required for react-refresh/only-export-components).
 
 import type { PublicTimeSlot, PublicSpecificDate } from "@/features/mentor/model/availability.types";
-
-type MentorProfile = Record<string, any>;
-
-interface SelectedSlot extends PublicTimeSlot {
-    date: string;
-    day?: string;
-    displayDate?: string;
-}
-
-export const ELIGIBLE_BADGES_CONFIG = [
-    { id: "newcomer", title: "Newcomer", icon: "👋", blurb: "Joined LeapMentor", verify: () => true },
-    { id: "ten_sessions", title: "10 Sessions", icon: "🎯", blurb: "Completed 10 sessions", verify: (m: MentorProfile) => (m?.totalSessions || 0) >= 10 },
-    { id: "top_rated", title: "Top Rated", icon: "⭐", blurb: "Achieved 4.5+ rating", verify: (m: MentorProfile) => (m?.avgRating || 0) >= 4.5 },
-    { id: "expert_guide", title: "Expert Guide", icon: "🏆", blurb: "50+ sessions completed", verify: (m: MentorProfile) => (m?.totalSessions || 0) >= 50 }
-];
-export const SLOT_DOT_KEYS = ["dot-1", "dot-2", "dot-3", "dot-4", "dot-5"];
-export const MAX_SLOTS = 5;
-
-export const formatTime = (timeString?: string) => {
-    if (!timeString) return "";
-    const fragments = timeString.split(":").map(Number);
-    const notation = fragments[0] >= 12 ? "PM" : "AM";
-    const adjustedHour = fragments[0] % 12 || 12;
-    return `${String(adjustedHour).padStart(2, "0")}:${String(fragments[1]).padStart(2, "0")} ${notation}`;
-};
+import { formatTime, type SelectedSlot } from "./MentorProfileModal.constants";
 
 export const StarRating = ({ rating, reviewCount }: { rating?: number | string; reviewCount?: number }) => {
     const numericRating = Number(rating) || 0;

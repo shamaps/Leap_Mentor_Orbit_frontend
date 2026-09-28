@@ -58,7 +58,7 @@ const sanitizeLabelKeys = (value: unknown): unknown => {
 
     const output: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(value)) {
-        const safeKey = key.replace(/[.*\\]/g, "_");
+        const safeKey = key.replaceAll(/[.*\\]/g, "_");
         output[safeKey] = sanitizeLabelKeys(val);
     }
     return output;

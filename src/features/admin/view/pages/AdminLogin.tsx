@@ -14,6 +14,7 @@ const AdminLogin = () => {
     emailField,
     passwordField,
     errors,
+    sessionExpired,
   } = useAdminLogin();
 
   return (
@@ -198,7 +199,20 @@ const AdminLogin = () => {
                 <p className="text-xs text-red-400 mt-1.5">{errors.password.message}</p>
               )}
             </div>
-
+            {sessionExpired && !errors.root?.message && (
+              <div
+                role="status"
+                className="px-3 py-2.5 rounded-xl"
+                style={{
+                  background: "rgba(245,158,11,0.1)",
+                  border: "1px solid rgba(245,158,11,0.25)",
+                }}
+              >
+                <p className="text-xs text-amber-400">
+                  Your session expired. Please sign in again.
+                </p>
+              </div>
+            )}
             {errors.root?.message && (
               <div
                 className="flex items-center gap-2 px-3 py-2.5 rounded-xl"

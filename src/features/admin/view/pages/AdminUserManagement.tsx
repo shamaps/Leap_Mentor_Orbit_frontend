@@ -1,3 +1,4 @@
+import type { AdminUser } from "../../model/admin.types";
 // src/features/admin/view/pages/AdminUserManagement.jsx
 import { useAdminUserManagement } from "../../presenter/useAdminUserManagement";
 import StatCard from "@/shared/components/StatCard";
@@ -5,13 +6,12 @@ import StatCard from "@/shared/components/StatCard";
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const StatCardAny = StatCard as any;
 import UserGrowthChart from "../charts/UserGrowthChart";
 import MentorIndustryChart from "../charts/MentorIndustryChart";
 const SKELETON_ROW_KEYS = ["row-1", "row-2", "row-3", "row-4", "row-5"];
 const SKELETON_COL_KEYS = ["col-1", "col-2", "col-3", "col-4", "col-5"];
 // ── Unified Action Modal (Handles Delete, Block, Unblock) ─────
-const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }: { user: any; mode: "delete" | "block" | "unblock"; onConfirm: () => void; onCancel: () => void; loading: boolean }) => {
+const ConfirmActionModal = ({ user, mode, onConfirm, onCancel, loading }: { user: AdminUser; mode: "delete" | "block" | "unblock"; onConfirm: () => void; onCancel: () => void; loading: boolean }) => {
   const config = {
     delete: {
       color: "#ef4444",
@@ -297,7 +297,7 @@ const AdminUserManagement = () => {
             className="text-xs text-slate-900"
             style={{ fontFamily: "'DM Mono', monospace" }}
           >
-            {new Date(user.createdAt).toLocaleDateString(
+            {new Date(user.createdAt ?? "").toLocaleDateString(
               "en-US",
               { month: "short", day: "numeric", year: "numeric" },
             )}
@@ -459,7 +459,7 @@ const AdminUserManagement = () => {
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <StatCardAny
+          <StatCard
             label="Total Users"
             value={stats?.totalUsers}
             sub={`+${stats?.newUsersThisMonth ?? 0} this month`}
@@ -510,7 +510,7 @@ const AdminUserManagement = () => {
               </svg>
             }
           />
-          <StatCardAny
+          <StatCard
             label="Active Mentors"
             value={stats?.totalMentors}
             sub={`+${stats?.newMentorsThisMonth ?? 0} this month`}
@@ -560,7 +560,7 @@ const AdminUserManagement = () => {
               </svg>
             }
           />
-          <StatCardAny
+          <StatCard
             label="Active Mentees"
             value={stats?.totalMentees}
             sub={`+${stats?.newMenteesThisMonth ?? 0} this month`}

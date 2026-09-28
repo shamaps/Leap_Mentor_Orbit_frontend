@@ -6,26 +6,9 @@ import ConnectSuccessModal from "./ConnectSucessModal";
 import useSlotLock from "@/features/shared-dashboard/presenter/useSlotLock";
 import { useMentorSlots } from "@/features/mentor/presenter/useMentorSlots";
 import type { PublicTimeSlot, PublicSpecificDate } from "@/features/mentor/model/availability.types";
-
-interface SelectedSlot extends PublicTimeSlot {
-  date: string;
-  day?: string;
-  displayDate?: string;
-}
-
-// Mentor profile payload used loosely in this file — the search/profile
-// endpoints return more fields than we destructure here.
-type MentorProfile = Record<string, any>;
-
-import {
-  ELIGIBLE_BADGES_CONFIG,
-  SLOT_DOT_KEYS,
-  MAX_SLOTS,
-  StarRating,
-  SlotPill,
-  SelectedSlotRow,
-} from "./MentorProfileModal.components";
-
+import type { MentorProfile, SelectedSlot } from "./MentorProfileModal.constants";
+import { StarRating, SlotPill, SelectedSlotRow } from "./MentorProfileModal.components";
+import { ELIGIBLE_BADGES_CONFIG, MAX_SLOTS, SLOT_DOT_KEYS } from "./MentorProfileModal.constants";
 // ── Main Controller Component Layout ──────────────────────────
 const MentorProfileModal = ({
   mentor,
@@ -42,11 +25,12 @@ const MentorProfileModal = ({
   const sendingRef = useRef(false);
   const [imgError, setImgError] = useState(false);
 
+  const mentorUserId = mentor.userId ?? "";
   const { groupedSlots, availableDurations, fetchingSlots, slotsError, fetchSlots } =
-    useMentorSlots(mentor?.userId, selectedDuration, setSelectedDuration);
+    useMentorSlots(mentorUserId || undefined, selectedDuration, setSelectedDuration);
 
   const { sending, error, sendRequest, reset } = useConnectRequest();
-  const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentor?.userId);
+  const { lockSlot, unlockSlot, unlockAll } = useSlotLock(mentorUserId);
   const [lockError, setLockError] = useState("");
 
   const {
@@ -105,10 +89,10 @@ const MentorProfileModal = ({
     if (sendingRef.current || selectedSlots.length === 0) return;
     sendingRef.current = true;
     const isSuccessResult = await sendRequest({
-      mentorId: mentor.userId,
+      mentorId: mentorUserId,
       message,
       selectedSlots: selectedSlots.map(({ day, date, startTime, endTime }) => ({ day, date, startTime, endTime })),
-      sessionRate: hourlyRate,
+      sessionRate: hourlyRate ?? 0,
       sessionCount: selectedSlots.length,
     });
     sendingRef.current = false;

@@ -9,8 +9,7 @@ import SessionCard from "./goals/SessionCard";
 import FeedbackModal from "./FeedbackModal";
 import { useSelector } from "react-redux";
 import { selectConnect } from "@/app/store/selectors";
-import type { ActionResult, Goal, Milestone } from "@/features/shared-dashboard/model/types";
-import type { SharedConnect as ModelSharedConnect } from "@/features/shared-dashboard/model/types";
+import type { ActionResult, Goal, Milestone, SharedConnect as ModelSharedConnect } from "@/features/shared-dashboard/model/types";
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col gap-4">

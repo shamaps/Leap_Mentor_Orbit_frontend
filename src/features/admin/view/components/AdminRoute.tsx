@@ -1,6 +1,7 @@
-// src/features/admin/view/components/AdminRoute.jsx
+// src/features/admin/view/components/AdminRoute.tsx
 // Wraps admin pages — redirects to /admin/login if no valid session
 
+import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAdminSession } from "../../presenter/useAdminSession";
 
@@ -16,11 +17,16 @@ const PageLoader = () => (
   </div>
 );
 
-const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+interface AdminRouteProps {
+  children: ReactNode;
+}
+
+const AdminRoute = ({ children }: AdminRouteProps) => {
   const status = useAdminSession();
 
   if (status === "checking") return <PageLoader />;
   if (status === "denied") return <Navigate to="/admin/login" replace />;
+
   return children;
 };
 

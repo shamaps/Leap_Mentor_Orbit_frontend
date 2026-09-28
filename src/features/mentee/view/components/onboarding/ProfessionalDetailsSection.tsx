@@ -5,7 +5,6 @@ import FormField from "@/shared/components/FormField";
 // prop types (via forwardRef) resolve to no accepted props. Cast locally to
 // avoid coupling this migration to that one.
  
-const FormFieldAny = FormField as any;
 const EXPERIENCE_OPTIONS = [
   "Student / Aspiring",
   "0-1 Years",
@@ -57,7 +56,7 @@ const ProfessionalDetailsSection = () => {
       <div className="px-6 py-5">
         <div className="grid grid-cols-2 gap-4">
           {/* Current Role */}
-          <FormFieldAny
+          <FormField
             label="Current Role"
             required
             name="currentRole"
@@ -65,11 +64,11 @@ const ProfessionalDetailsSection = () => {
             onChange={handleChange}
             onBlur={onBlur}
             placeholder="e.g. Junior Product Designer"
-            error={errors.currentRole && "Current role is required."}
+            error={errors.currentRole ? "Current role is required." : undefined}
           />
 
           {/* Years of Experience */}
-          <FormFieldAny
+          <FormField
             as="select"
             label="Years of Experience"
             required
@@ -77,7 +76,7 @@ const ProfessionalDetailsSection = () => {
             value={form.yearsOfExperience ?? ""}
             onChange={handleChange}
             onBlur={onBlur}
-            error={errors.yearsOfExperience && "Please select your experience."}
+            error={errors.yearsOfExperience ? "Please select your experience." : undefined}
           >
             <option value="">Select Experience</option>
             {EXPERIENCE_OPTIONS.map((opt) => (
@@ -85,10 +84,10 @@ const ProfessionalDetailsSection = () => {
                 {opt}
               </option>
             ))}
-          </FormFieldAny>
+          </FormField>
 
           {/* Company */}
-          <FormFieldAny
+          <FormField
             label="Company / Organization"
             name="company"
             value={form.company}
@@ -98,7 +97,7 @@ const ProfessionalDetailsSection = () => {
           />
 
           {/* Industry */}
-          <FormFieldAny
+          <FormField
             as="select"
             label="Industry"
             required
@@ -106,7 +105,7 @@ const ProfessionalDetailsSection = () => {
             value={form.industry ?? ""}
             onChange={handleChange}
             onBlur={onBlur}
-            error={errors.industry && "Please select an industry."}
+            error={errors.industry ? "Please select an industry." : undefined}
           >
             <option value="">Select Industry</option>
             {INDUSTRY_OPTIONS.map((opt) => (
@@ -114,7 +113,7 @@ const ProfessionalDetailsSection = () => {
                 {opt}
               </option>
             ))}
-          </FormFieldAny>
+          </FormField>
         </div>
       </div>
     </div>

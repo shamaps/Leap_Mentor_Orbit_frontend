@@ -713,7 +713,7 @@ const CalendarAvailabilitySection = ({
 
   useEffect(() => {
     onValidationChange?.(!hasInvalidSlots);
-  }, [hasInvalidSlots, minDuration]);
+  }, [hasInvalidSlots, minDuration, onValidationChange]);
 
   const handleToggleDate = (dateStr: string) => {
     setSpecificDates((prev) => {

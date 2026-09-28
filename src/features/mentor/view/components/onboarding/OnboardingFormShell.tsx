@@ -7,7 +7,7 @@ import {
   clearMentorOnboardingMessages,
 } from "@/app/store/slices/mentorOnboardingSlice";
 import { IMAGES } from "@/shared/constants/images";
-import { useState, useEffect, useRef, useMemo, type RefObject, type FormEvent } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, type RefObject, type SubmitEvent as ReactSubmitEvent } from "react";
 import {
   mentorOnboardingSchema,
   commonOnboardingSchema,
@@ -78,13 +78,13 @@ const OnboardingFormShell = () => {
       setRedirecting(true);
       setTimeout(() => navigate("/onboarding/mentor/verify-documents"), 1500);
     }
-  }, [error, successMsg]);
+  }, [dispatch, error, navigate, successMsg]);
 
   useEffect(() => {
     return () => {
       dispatch(clearMentorOnboardingMessages());
     };
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     sessionStore.setJSON("mentorOnboardingForm", form);
@@ -105,7 +105,7 @@ const OnboardingFormShell = () => {
     }
   };
 
-  const handleChange = (e: MentorOnboardingChangeEvent) => {
+  const handleChange = useCallback((e: MentorOnboardingChangeEvent) => {
     const { name, value } = e.target;
     if (name === "hourlyRate" && value !== "") {
       const num = Number(value);
@@ -119,15 +119,15 @@ const OnboardingFormShell = () => {
       });
     }
     setForm((prev) => ({ ...prev, [name]: value }));
-  };
-  const handleBlur = (e: MentorOnboardingChangeEvent) => {
+  }, [errors]);
+  const handleBlur = useCallback((e: MentorOnboardingChangeEvent) => {
     const { name } = e.target;
     const fieldErrors = getFieldErrorMap(mentorOnboardingSchema, form);
     if (fieldErrors[name]) {
       setErrors((prev) => ({ ...prev, [name]: true }));
     }
-  };
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  }, [form]);
+  const handleSubmit = async (e: ReactSubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMsg({ type: "", text: "" });
     dispatch(clearMentorOnboardingMessages());

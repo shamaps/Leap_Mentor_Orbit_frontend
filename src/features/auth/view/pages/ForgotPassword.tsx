@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "@/app/store/hooks";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   forgotPassword,
@@ -53,7 +54,7 @@ const grabVisualBarAttributes = (pointsScored: number) => {
 const ForgotPassword = () => {
   const navigate = useNavigate();
   useSearchParams();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { loading } = useSelector(selectAuth);
 
   const loginPath = "/login";
@@ -82,7 +83,7 @@ const ForgotPassword = () => {
     defaultValues: { newPassword: "", confirmPassword: "" },
   });
 
-  const watchedNewPassword = passwordForm.watch("newPassword");
+  const watchedNewPassword = useWatch({ control: passwordForm.control, name: "newPassword" });
 
   useEffect(() => {
     dispatch(clearMessages());
@@ -92,7 +93,7 @@ const ForgotPassword = () => {
     dispatch(clearMessages());
     emailForm.clearErrors("root");
 
-    const response: any = await Promise.resolve(dispatch(forgotPassword({ email: data.email }) as any));
+    const response = await dispatch(forgotPassword({ email: data.email }));
     if (forgotPassword.fulfilled.match(response)) {
       setEmail(data.email);
       dispatch(clearMessages());
@@ -140,7 +141,7 @@ const ForgotPassword = () => {
     dispatch(clearMessages());
     otpForm.clearErrors("root");
 
-    const response: any = await Promise.resolve(dispatch(verifyResetOtp({ email, otp: data.otp }) as any));
+    const response = await dispatch(verifyResetOtp({ email, otp: data.otp }));
     if (verifyResetOtp.fulfilled.match(response)) {
       dispatch(clearMessages());
       setStep(STEPS.PASSWORD);
@@ -153,7 +154,7 @@ const ForgotPassword = () => {
     dispatch(clearMessages());
     passwordForm.clearErrors("root");
 
-    const response: any = await Promise.resolve(dispatch(resetPassword({ email, otp: otp.join(""), newPassword: data.newPassword }) as any));
+    const response = await dispatch(resetPassword({ email, otp: otp.join(""), newPassword: data.newPassword }));
     if (resetPassword.fulfilled.match(response)) {
       dispatch(clearMessages());
       setRedirecting(true);

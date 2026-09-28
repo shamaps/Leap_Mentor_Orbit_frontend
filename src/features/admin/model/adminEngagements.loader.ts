@@ -1,9 +1,12 @@
+import type { AdminEngagement } from "./admin.types";
 // src/features/admin/model/adminEngagements.loader.ts
 
 import { getEngagementStats, getEngagements } from "./admin.api";
 import logger from "@/shared/utils/logger";
+import { requireAdminAuth } from "./requireAdminAuth";
 
 export const adminEngagementsLoader = async ({ request }: { request: Request }) => {
+    await requireAdminAuth();
     const url = new URL(request.url);
     const page = Number(url.searchParams.get("page") ?? "1");
     const search = url.searchParams.get("search") ?? "";
@@ -26,7 +29,7 @@ export const adminEngagementsLoader = async ({ request }: { request: Request }) 
     ]);
 
     let error: string | null = null;
-    let engagements: any[] = [];
+    let engagements: AdminEngagement[] = [];
     let pagination = { total: 0, page: 1, totalPages: 1 };
     if (engagementsResult.status === "fulfilled") {
         engagements = engagementsResult.value.data.engagements;

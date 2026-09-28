@@ -1,3 +1,4 @@
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 // src/hooks/useMenteeHomeData.js
 import { useState, useEffect } from "react";
 import { searchMentors } from "@/features/mentee/model/mentorSearch.api";
@@ -39,7 +40,7 @@ export const useMenteeHomeData = (profile: MenteeHomeProfile | null | undefined)
                 const data = await searchMentors({ skill: skillTerm, limit: 4 });
                 setMentors(data.mentors || []);
             } catch (err) {
-                logger.warn("Mentor search fetch failed", { message: err?.message });
+                logger.warn("Mentor search fetch failed", { message: getErrorMessage(err) });
             } finally {
                 setLoadingMentors(false);
             }
@@ -58,7 +59,7 @@ export const useMenteeHomeData = (profile: MenteeHomeProfile | null | undefined)
                     });
                 setSessions(upcoming);
             } catch (err) {
-                logger.warn("Sessions fetch failed", { message: err?.message });
+                logger.warn("Sessions fetch failed", { message: getErrorMessage(err) });
             } finally {
                 setLoadingSessions(false);
             }
@@ -71,7 +72,7 @@ export const useMenteeHomeData = (profile: MenteeHomeProfile | null | undefined)
                 setBalance(data.balance ?? 0);
                 setEscrow(data.escrow ?? 0);
             } catch (err) {
-                logger.warn("Wallet fetch failed", { message: err?.message });
+                logger.warn("Wallet fetch failed", { message: getErrorMessage(err) });
             } finally {
                 setLoadingWallet(false);
             }

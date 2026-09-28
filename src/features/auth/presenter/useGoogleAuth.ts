@@ -3,22 +3,38 @@ import { useEffect, useRef, type RefObject } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/app/store/slices/authSlice";
 import { googleAuthSync } from "@/features/auth/model/auth.api";
+import { getApiFailureMessage } from "@/shared/utils/getErrorMessage";
+
+interface GoogleCredentialResponse { credential: string }
+interface GoogleIdentityApi {
+  accounts: {
+    id: {
+      initialize(options: { client_id: string; callback: (response: GoogleCredentialResponse) => void }): void;
+      renderButton(element: HTMLElement, options: { theme: "outline"; size: "large"; width: number; text: "continue_with" }): void;
+    };
+  };
+}
 
 declare global {
   interface Window {
-    google?: any;
+    google?: GoogleIdentityApi;
     __googleInitialized?: boolean;
   }
-   
-  var google: any;
-   
+  var google: GoogleIdentityApi | undefined;
   var __googleInitialized: boolean | undefined;
 }
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+export interface GoogleAuthResult {
+  token?: string;
+  accessToken?: string;
+  isNewUser?: boolean;
+  user?: { roles?: string[]; [key: string]: unknown } | null;
+}
+
 interface CallbackRefShape {
-  onSuccess: ((data: unknown) => void) | null | undefined;
+  onSuccess: ((data: GoogleAuthResult) => void) | null | undefined;
   onError: ((text: string) => void) | null | undefined;
   onLoadingChange: ((loading: boolean) => void) | null | undefined;
   rolesRef: RefObject<string[]> | null;
@@ -43,7 +59,7 @@ interface UseGoogleAuthArgs {
   btnRef: RefObject<HTMLDivElement | null>;
   roles: string[];
   termsAcceptedRef?: RefObject<boolean> | null;
-  onSuccess?: (data: unknown) => void;
+  onSuccess?: (data: GoogleAuthResult) => void;
   onError?: (text: string) => void;
   onLoadingChange?: (loading: boolean) => void;
 }
@@ -75,16 +91,17 @@ const useGoogleAuth = ({
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
-      onError?.("Missing VITE_GOOGLE_CLIENT_ID in frontend .env");
+      callbackRef.onError?.("Missing VITE_GOOGLE_CLIENT_ID in frontend .env");
       return;
     }
 
     const initGoogle = () => {
-      if (!btnRef.current) return;
+      const google = globalThis.google;
+      if (!btnRef.current || !google) return;
 
       // Only initialize once for the entire app lifetime
       if (!globalThis.__googleInitialized) {
-        globalThis.google.accounts.id.initialize({
+        google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: async (response: { credential: string }) => {
             const termsAccepted = callbackRef.termsAcceptedRef?.current ?? true;
@@ -115,12 +132,8 @@ const useGoogleAuth = ({
               }
 
               callbackRef.onSuccess?.(res.data);
-            } catch (err: any) {
-              const apiMsg =
-                err?.response?.data?.message ||
-                err?.response?.data?.error ||
-                err?.message ||
-                "Already user exists";
+            } catch (err: unknown) {
+              const apiMsg = getApiFailureMessage(err, "Already user exists");
               callbackRef.onError?.(apiMsg);
             } finally {
               callbackRef.onLoadingChange?.(false);
@@ -132,7 +145,7 @@ const useGoogleAuth = ({
 
       // Always re-render the button — safe to call multiple times
       btnRef.current.innerHTML = "";
-      globalThis.google.accounts.id.renderButton(btnRef.current, {
+      google.accounts.id.renderButton(btnRef.current, {
         theme: "outline",
         size: "large",
         width: 400,
@@ -158,7 +171,7 @@ const useGoogleAuth = ({
     }
 
     return undefined;
-  }, []);
+  }, [btnRef]);
 };
 
 export default useGoogleAuth;

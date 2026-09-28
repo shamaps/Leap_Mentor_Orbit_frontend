@@ -1,6 +1,6 @@
 // src/components/shared-dashboard/tabs/ReportModal.jsx
 import { useState, useRef, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import useReportComplaint from "@/features/shared-dashboard/presenter/useReportComplaint";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { reportSchema } from "@/shared/schemas/miscSchemas";
@@ -13,7 +13,20 @@ const COMPLAINT_ICONS = {
   other: "💬",
 };
 
-const BASE_COMPLAINT_TYPES = [
+interface ComplaintTypeOption {
+  value: keyof typeof COMPLAINT_ICONS;
+  label: string;
+  sub: string;
+}
+
+interface ReportConnectContext {
+  _id?: string;
+  viewerRole?: string;
+  mentor?: { name?: string };
+  mentee?: { name?: string };
+}
+
+const BASE_COMPLAINT_TYPES: ComplaintTypeOption[] = [
   {
     value: "inappropriate_behavior",
     label: "Inappropriate Behavior",
@@ -37,13 +50,13 @@ const BASE_COMPLAINT_TYPES = [
   { value: "other", label: "Other", sub: "Something not listed above" },
 ];
 
-const ReportModal = ({ connect, onClose, onSuccess }: { connect: any; onClose: () => void; onSuccess: () => void }) => {
+const ReportModal = ({ connect, onClose, onSuccess }: { connect?: ReportConnectContext | null; onClose: () => void; onSuccess: () => void }) => {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const {
-    watch,
+    control,
     setValue,
     handleSubmit,
     formState: { errors },
@@ -53,30 +66,22 @@ const ReportModal = ({ connect, onClose, onSuccess }: { connect: any; onClose: (
     mode: "onChange",
   });
 
-  const complaintType = watch("complaintType");
-  const description = watch("description") || "";
+  const complaintType = useWatch({ control, name: "complaintType" });
+  const description = useWatch({ control, name: "description" }) || "";
 
-  const COMPLAINT_TYPES = [
-    ...BASE_COMPLAINT_TYPES.filter((ct: any) => ct.value !== "refund"),
-    ...(connect?.viewerRole === "mentee"
-      ? [
-        {
-          value: "refund",
-          label: " Refund Issue",
-          sub: "Request a refund for a session or payment",
-        },
-      ]
-      : []),
-  ]
-    .reduce((acc: any[], ct: any) => {
-      if (ct.value === "other") return acc; // drop dupes first
-      acc.push(ct);
-      return acc;
-    }, [] as any[])
-    .concat(BASE_COMPLAINT_TYPES.find((ct) => ct.value === "other"));
+  const refundOption: ComplaintTypeOption = {
+    value: "refund",
+    label: " Refund Issue",
+    sub: "Request a refund for a session or payment",
+  };
+  const COMPLAINT_TYPES: ComplaintTypeOption[] = [
+    ...BASE_COMPLAINT_TYPES.filter((option) => option.value !== "other"),
+    ...(connect?.viewerRole === "mentee" ? [refundOption] : []),
+    BASE_COMPLAINT_TYPES.find((option) => option.value === "other")!,
+  ];
 
   const { submitReport, submitting, error, setError } = useReportComplaint(
-    connect?._id,
+    connect?._id ?? "",
   );
 
   const otherName =
@@ -218,7 +223,7 @@ const ReportModal = ({ connect, onClose, onSuccess }: { connect: any; onClose: (
               Complaint Type <span className="text-red-400">*</span>
             </legend>
             <div className="flex flex-col rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
-              {COMPLAINT_TYPES.map((ct: any) => {
+              {COMPLAINT_TYPES.map((ct) => {
                 const selected = complaintType === ct.value;
                 return (
                   <button
@@ -233,7 +238,7 @@ const ReportModal = ({ connect, onClose, onSuccess }: { connect: any; onClose: (
                         className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0
                         ${selected ? "bg-red-100" : "bg-slate-100"}`}
                       >
-                        {COMPLAINT_ICONS[ct.value as keyof typeof COMPLAINT_ICONS]}
+                        {COMPLAINT_ICONS[ct.value]}
                       </span>
                       <div>
                         <p

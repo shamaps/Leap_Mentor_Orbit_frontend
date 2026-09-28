@@ -1,3 +1,4 @@
+import type { ConnectPersonProfile } from "@/app/store/slices/connectRequestsSlice";
 // src/components/mentor/dashboard/requests/ReferredByProfileModal.jsx
 const StarRating = ({ rating }: { rating?: number | string }) => {
   const r = Number(rating) || 0;
@@ -22,11 +23,11 @@ const StarRating = ({ rating }: { rating?: number | string }) => {
     </div>
   );
 };// ── Read-only Mentor Profile Modal ────────────────────────────
-const ReferredByProfileModal = ({ mentor, onClose }: { mentor: Record<string, any> | null; onClose: () => void }) => {
+const ReferredByProfileModal = ({ mentor, onClose }: { mentor: ConnectPersonProfile | null; onClose: () => void }) => {
   if (!mentor) return null;
 
   const {
-    name,
+    name = "",
     email,
     currentRole,
     company,

@@ -5,6 +5,7 @@ import {
   fetchIncomingRequests,
   updateRequestStatus,
 } from "@/app/store/slices/connectRequestsSlice";
+import type { ConnectRequest } from "@/app/store/slices/connectRequestsSlice";
 import {
   selectIncomingRequests,
   selectConnectRequestsLoading,
@@ -32,7 +33,7 @@ const RequestsTab = () => {
   const initialLoad = useAppSelector(selectConnectRequestsInitialLoad);
   const error = useAppSelector(selectConnectRequestsError);
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedRequest, setSelectedRequest] = useState<Record<string, any> | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<ConnectRequest | null>(null);
 
   //  socket listener now dispatches the thunk instead of calling a local fetch fn
   useEffect(() => {
@@ -67,16 +68,16 @@ const RequestsTab = () => {
   const filtered =
     activeTab === "all"
       ? requests
-      : requests.filter((r: any) => r.status === activeTab);
+      : requests.filter((r) => r.status === activeTab);
 
   const counts: Record<string, number> = {
     all: requests.length,
-    pending: requests.filter((r: any) => r.status === "pending").length,
-    accepted: requests.filter((r: any) => r.status === "accepted").length,
-    rejected: requests.filter((r: any) => r.status === "rejected").length,
-    referred: requests.filter((r: any) => r.status === "referred").length,
-    ongoing: requests.filter((r: any) => r.status === "ongoing").length,
-    completed: requests.filter((r: any) => r.status === "completed").length,
+    pending: requests.filter((r) => r.status === "pending").length,
+    accepted: requests.filter((r) => r.status === "accepted").length,
+    rejected: requests.filter((r) => r.status === "rejected").length,
+    referred: requests.filter((r) => r.status === "referred").length,
+    ongoing: requests.filter((r) => r.status === "ongoing").length,
+    completed: requests.filter((r) => r.status === "completed").length,
   };
 
   if (loading && initialLoad) {
@@ -166,11 +167,11 @@ const RequestsTab = () => {
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {filtered.map((request: any) => (
+            {filtered.map((request) => (
               <RequestCard
                 key={request._id}
                 request={request}
-                onViewProfile={(r: any) => setSelectedRequest(r)}
+                onViewProfile={(r) => setSelectedRequest(r)}
               />
             ))}
           </div>

@@ -1,14 +1,14 @@
 // src/context/MenteeOnboardingFormContext.jsx
 import { createContext, useContext } from "react";
-import type { MenteeOnboardingForm } from "@/features/mentee/presenter/useMenteeOnboarding";
+import type { MenteeOnboardingFieldEvent, MenteeOnboardingForm } from "@/features/mentee/presenter/useMenteeOnboarding";
 
 export interface MenteeOnboardingFormContextValue {
   form: MenteeOnboardingForm;
-  errors?: Record<string, unknown>;
+  errors?: Record<string, boolean>;
    
-  handleChange: (e: any) => void;
+  handleChange: (e: MenteeOnboardingFieldEvent) => void;
    
-  onBlur?: (e: any) => void;
+  onBlur?: (e: MenteeOnboardingFieldEvent) => void;
 }
 
 export const MenteeOnboardingFormContext = createContext<MenteeOnboardingFormContextValue | null>(null);

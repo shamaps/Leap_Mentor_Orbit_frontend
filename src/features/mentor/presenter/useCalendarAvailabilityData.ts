@@ -27,7 +27,7 @@ const useCalendarAvailabilityData = (
 
     useEffect(() => {
         if (!googleCalendarConnected) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect -- intentionally syncing local state from an external source (prop/URL), not derivable from render inputs alone
+             
             setBusySlots([]);
             setCalendarEvents([]);
             return;

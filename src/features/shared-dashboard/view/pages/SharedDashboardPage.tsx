@@ -1,6 +1,7 @@
 // src/pages/SharedDashboardPage.jsx
 import { useEffect, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "@/app/store/hooks";
 import { fetchSharedConnect } from "@/app/store/slices/sharedConnectSlice";
 import SharedDashboardLayout from "@/features/shared-dashboard/view/components/SharedDashboardLayout";
 import {
@@ -19,7 +20,7 @@ const SharedDashboardPage = () => {
   // useDispatch() isn't thunk-aware here. Cast locally rather than
   // coupling this migration to that one.
    
-  const dispatch = useDispatch() as any;
+  const dispatch = useAppDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const isValidId = OBJECT_ID_REGEX.test(connectRequestId ?? "");
   const token = useSelector(selectAuthToken);
@@ -37,11 +38,11 @@ const SharedDashboardPage = () => {
   );
 
   const fetchConnect = useCallback(() => {
-     
-    dispatch((fetchSharedConnect as any)(connectRequestId)).then((result: any) => {
+    if (!connectRequestId) return;
+    dispatch(fetchSharedConnect(connectRequestId)).then((result) => {
       if (fetchSharedConnect.rejected.match(result)) {
          
-        const reason = (result.payload as any)?.reason;
+        const reason = result.payload?.reason;
         if (reason === "unauthorized") return navigate("/login");
         if (reason === "forbidden") return navigate(-1);
       }

@@ -21,7 +21,18 @@ const ACCENT_COLORS = ["#1d4ed8", "#15803d", "#7e22ce", "#c2410c", "#be185d"];
 const getAccent = (idx: number) => ACCENT_COLORS[idx % ACCENT_COLORS.length];
 
 // Mentor profile shape used loosely across this file (badges, completion %).
-type MentorProfileLike = Record<string, any>;
+interface MentorProfileLike {
+  totalSessions?: number;
+  avgRating?: number;
+  currentRole?: string;
+  bio?: string;
+  company?: string;
+  industry?: string;
+  profilePicture?: string;
+  skills?: string[];
+  linkedInUrl?: string;
+  yearsOfExperience?: number;
+}
 
 interface SessionSlot {
   date?: string;
@@ -77,9 +88,9 @@ const getProfileCompletion = (profile?: MentorProfileLike | null) => {
     profile.company,
     profile.industry,
     profile.profilePicture,
-    profile.skills?.length > 0,
+    (profile.skills?.length ?? 0) > 0,
     profile.linkedInUrl,
-    profile.yearsOfExperience > 0,
+    (profile.yearsOfExperience ?? 0) > 0,
   ];
   return Math.round((fields.filter(Boolean).length / fields.length) * 100);
 };
@@ -96,7 +107,15 @@ const IconStar = () => (
   </svg>
 );
 
-const SessionCard = ({ request, index, navigate }: { request: any; index: number; navigate: (path: string) => void }) => {
+interface MentorSessionRequest {
+  _id: string;
+  status: string;
+  mentee?: { name?: string; profilePicture?: string };
+  confirmedSlot?: SessionSlot | null;
+  selectedSlots?: SessionSlot[];
+}
+
+const SessionCard = ({ request, index, navigate }: { request: MentorSessionRequest; index: number; navigate: (path: string) => void }) => {
   const slot = request.confirmedSlot || request.selectedSlots?.[0];
   const { numericDayStr, uppercaseMonthStr, textFullDateStr } = parseSessionSlotDate(slot);
   const timeStr = slot ? `${convertTimeString(slot.startTime)} – ${convertTimeString(slot.endTime)}` : "Time TBD";

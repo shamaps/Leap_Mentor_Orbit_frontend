@@ -7,6 +7,7 @@ import { AuthenticateWithRedirectCallback, useAuth } from "@clerk/clerk-react";
 import { clerkSsoSync } from "@/features/auth/model/auth.api";
 import logger from "@/shared/utils/logger";
 import { ssoFlags } from "@/shared/utils/storage";
+import getErrorMessage, { getHttpErrorStatus } from "@/shared/utils/getErrorMessage";
 
 const redirectByRole = (roles: string[], navigate: (path: string) => void) => {
   if (roles.includes("mentor")) {
@@ -64,18 +65,18 @@ export const SyncWithBackend = () => {
         } else {
           redirectByRole(res.data?.user?.roles || [], navigate);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         logger.error("SSO sync failed", {
-          status: err?.response?.status,
-          message: err?.response?.data?.message || err.message,
+          status: getHttpErrorStatus(err),
+          message: getErrorMessage(err, "SSO failed"),
         });
-        setError(err?.response?.data?.message || err.message || "SSO failed");
+        setError(getErrorMessage(err, "SSO failed"));
         ssoFlags.clear();
       }
     };
 
     sync();
-  }, []);
+  }, [dispatch, getToken, navigate]);
 
   if (error) {
     return (

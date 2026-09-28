@@ -536,14 +536,12 @@ const SharedChatTab = () => {
       ? connect?.mentee?._id?.toString()
       : connect?.mentor?._id?.toString();
 
-  const isOwn = (msg: ChatMessage) => {
-    const sender = msg.sender;
-    const sid =
-      typeof sender === "string"
-        ? sender
-        : sender?._id?.toString() ?? sender?.toString();
-    return sid === myId;
+  const getSenderId = (sender: ChatMessage["sender"]): string | undefined => {
+    if (typeof sender === "string") return sender;
+    return sender?._id?.toString();
   };
+
+  const isOwn = (msg: ChatMessage) => getSenderId(msg.sender) === myId;
 
   const otherName =
     viewerRole === "mentee"

@@ -8,7 +8,28 @@
 // convention) — `unknown` here would make every `raw.field ?? default`
 // widen to `{} | typeof default` instead of the plain default's type.
  
-export function mapMenteeProfile(raw: Record<string, any> | null | undefined) {
+interface RawMenteeProfile {
+    _id?: string;
+    id?: string;
+    profilePicture160?: string;
+    profilePicture?: string;
+    bio?: string;
+    currentRole?: string;
+    company?: string;
+    industry?: string;
+    yearsOfExperience?: number | string;
+    skills?: string[];
+    interestedFields?: string[];
+    communicationPreferences?: string[];
+    languages?: string | string[];
+    linkedInUrl?: string;
+    portfolioUrl?: string;
+    emailNotifications?: boolean;
+    marketingPreferences?: boolean;
+    updatedAt?: string | null;
+}
+
+export function mapMenteeProfile(raw: RawMenteeProfile | null | undefined) {
     if (!raw) return null;
     return {
         id: raw._id ?? raw.id ?? null,

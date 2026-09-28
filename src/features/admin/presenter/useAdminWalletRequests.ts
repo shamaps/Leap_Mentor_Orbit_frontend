@@ -1,16 +1,18 @@
 // src/features/admin/presenter/useAdminWalletRequests.js
 import { useState, useEffect, useCallback } from "react";
 import { getLeapWalletRequests, approveLeapWalletRequest, rejectLeapWalletRequest } from "../model/admin.api";
+import type { AdminWalletRequest } from "../model/admin.types";
 import { useToast } from "@/shared/context/ToastContext";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 import logger from "@/shared/utils/logger";
 
 export const useAdminWalletRequests = () => {
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<AdminWalletRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
   const [search, setSearch] = useState("");
-  const [historyMentee, setHistoryMentee] = useState<any>(null);
+  const [historyMentee, setHistoryMentee] = useState<AdminWalletRequest["mentee"] | null>(null);
   const { showToast } = useToast();
 
   const fetchRequests = useCallback(async () => {
@@ -19,12 +21,12 @@ export const useAdminWalletRequests = () => {
       const res = await getLeapWalletRequests();
       setRequests(res.data.requests || res.data || []);
     } catch (err) {
-      logger.warn("Failed to fetch leap requests", { message: err?.message });
+      logger.warn("Failed to fetch leap requests", { message: getErrorMessage(err) });
       showToast({ message: "Failed to load requests.", type: "error" });
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showToast]);
 
   useEffect(() => {
     fetchRequests();
@@ -39,7 +41,7 @@ export const useAdminWalletRequests = () => {
       );
       showToast({ message: "500 LP added to mentee's wallet successfully!", type: "success" });
     } catch (err) {
-      showToast({ message: err.response?.data?.message || "Approval failed.", type: "error" });
+      showToast({ message: getErrorMessage(err, "Approval failed."), type: "error" });
     } finally {
       setActionLoading(null);
     }
@@ -54,7 +56,7 @@ export const useAdminWalletRequests = () => {
       );
       showToast({ message: "Request rejected.", type: "error" });
     } catch (err) {
-      showToast({ message: err.response?.data?.message || "Rejection failed.", type: "error" });
+      showToast({ message: getErrorMessage(err, "Rejection failed."), type: "error" });
     } finally {
       setActionLoading(null);
     }

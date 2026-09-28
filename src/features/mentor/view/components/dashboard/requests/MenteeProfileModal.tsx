@@ -1,3 +1,4 @@
+import type { ConnectRequest } from "@/app/store/slices/connectRequestsSlice";
 // src/components/mentor/dashboard/requests/MenteeProfileModal.jsx
 
 import { useState } from "react";
@@ -29,7 +30,7 @@ interface ActionFeedback {
 }
 
 // Loosely typed — mentor-facing connect request payload, varies by endpoint.
-type MenteeRequest = Record<string, any>;
+type MenteeRequest = ConnectRequest;
 
 const MenteeProfileModal = ({
   request,
@@ -159,7 +160,7 @@ const MenteeProfileModal = ({
           </div>
 
           <p className="text-xs text-slate-400 text-center">
-            Requested on {new Date(request.requestedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+            Requested on {new Date(request.requestedAt ?? "").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </p>
 
           <div className="flex gap-3 pt-1">

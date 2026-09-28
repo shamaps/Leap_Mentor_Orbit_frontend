@@ -4,18 +4,6 @@ import { useMenteeOnboardingForm } from "@/features/mentee/context/MenteeOnboard
 const errorClass =
   "border-red-400 focus:border-red-400 focus:ring-red-100 hover:border-red-400";
 
-// useMenteeOnboardingForm() is currently typed as `never` because
-// MenteeOnboardingFormContext is created with createContext(null) and has
-// no generic. That's a shared-context typing issue (it also breaks
-// SocialLinksSection, PersonalInfoSection, etc.) — out of scope here, so we
-// cast locally just for this file, same pattern as FormFieldAny elsewhere.
- 
-type MenteeOnboardingFormCtx = {
-  form: Record<string, string[] | undefined>;
-  handleChange: (e: { target: { name: string; value: unknown } }) => void;
-  errors?: Record<string, boolean | undefined>;
-};
-
 interface TagInputProps {
   id: string;
   tags: string[];
@@ -84,14 +72,14 @@ const TagInput = ({ id, tags, onAdd, onRemove, placeholder, error }: TagInputPro
 // land on the specific errored input if it comes up first.
 const InterestedFieldsSection = forwardRef<HTMLDivElement>((_, ref) => {
   const { form, handleChange, errors = {} } =
-    useMenteeOnboardingForm() as MenteeOnboardingFormCtx;
-  const addToArray = (field: string, value: string) => {
+    useMenteeOnboardingForm();
+  const addToArray = (field: "interestedFields" | "skills", value: string) => {
     handleChange({
       target: { name: field, value: [...(form[field] || []), value] },
     });
   };
 
-  const removeFromArray = (field: string, value: string) => {
+  const removeFromArray = (field: "interestedFields" | "skills", value: string) => {
     handleChange({
       target: {
         name: field,
@@ -140,9 +128,9 @@ const InterestedFieldsSection = forwardRef<HTMLDivElement>((_, ref) => {
             onAdd={(v) => addToArray("interestedFields", v)}
             onRemove={(v) => removeFromArray("interestedFields", v)}
             placeholder="Add fields e.g. AI, Growth, Design..."
-            error={errors.interestedFields}
+            error={Boolean(errors.interestedFields)}
           />
-          {errors.interestedFields && (
+          {Boolean(errors.interestedFields) && (
             <p className="text-[10px] text-red-500 mt-1">
               Add at least one field of interest.
             </p>
@@ -161,9 +149,9 @@ const InterestedFieldsSection = forwardRef<HTMLDivElement>((_, ref) => {
             onAdd={(v) => addToArray("skills", v)}
             onRemove={(v) => removeFromArray("skills", v)}
             placeholder="Add skills e.g. Figma, Python, Leadership..."
-            error={errors.skills}
+            error={Boolean(errors.skills)}
           />
-          {errors.skills && (
+          {Boolean(errors.skills) && (
             <p className="text-[10px] text-red-500 mt-1">
               Add at least one skill of interest.
             </p>

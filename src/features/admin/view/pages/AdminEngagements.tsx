@@ -1,11 +1,11 @@
 // src/features/admin/view/pages/AdminEngagements.jsx
+import type { AdminEngagement, AdminPerson, AdminSlot } from "../../model/admin.types";
 import { useAdminEngagements } from "../../presenter/useAdminEngagements";
 import StatCard from "@/shared/components/StatCard";
 // StatCard is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
 
-const StatCardAny = StatCard as any;
 import StatusBadge from "@/shared/components/StatusBadge";
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
@@ -25,7 +25,7 @@ const Avatar = ({ name }: { name?: string }) => {
 };
 
 // ── User Cell ─────────────────────────────────────────────────
-const UserCell = ({ user }: { user: any }) => (
+const UserCell = ({ user }: { user: AdminPerson | null | undefined }) => (
   <div className="flex items-center gap-2.5">
     <Avatar name={user?.name} />
     <div>
@@ -36,7 +36,7 @@ const UserCell = ({ user }: { user: any }) => (
 );
 
 // ── Slot Pill ─────────────────────────────────────────────────
-const SlotPill = ({ slot }: { slot: any }) => {
+const SlotPill = ({ slot }: { slot: AdminSlot }) => {
   const isCancelled = slot.status === "cancelled";
   return (
     <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
@@ -71,7 +71,7 @@ const SlotPill = ({ slot }: { slot: any }) => {
 };
 
 // ── Expanded Detail Row ───────────────────────────────────────
-const ExpandedDetail = ({ eng }: { eng: any }) => (
+const ExpandedDetail = ({ eng }: { eng: AdminEngagement }) => (
   <tr>
     <td colSpan={6} style={{ background: "#f8fafc", borderBottom: "1px solid #e8eaf0" }}>
       <div className="px-6 py-4 grid grid-cols-2 gap-6">
@@ -81,7 +81,7 @@ const ExpandedDetail = ({ eng }: { eng: any }) => (
           <p className="text-[10px] font-700 uppercase tracking-widest text-slate-400 mb-2"
             style={{ fontWeight: 700, letterSpacing: "0.1em" }}>Proposed Slots</p>
           <div className="flex flex-col gap-1.5">
-            {eng.selectedSlots?.map((s: any) => (
+            {eng.selectedSlots?.map((s) => (
               <SlotPill key={`${s.date}-${s.startTime}`} slot={s} />
             ))}
           </div>
@@ -94,7 +94,7 @@ const ExpandedDetail = ({ eng }: { eng: any }) => (
           <div className="grid grid-cols-2 gap-2">
             {[
               { label: "Rate / Session", value: eng.sessionRate ? `₹${eng.sessionRate}` : "—" },
-              { label: "Session Count", value: eng.selectedSlots?.filter((s: any) => s.status !== "cancelled").length ?? eng.sessionCount ?? "—" },
+              { label: "Session Count", value: eng.selectedSlots?.filter((s) => s.status !== "cancelled").length ?? eng.sessionCount ?? "—" },
               { label: "Payment", value: <StatusBadge status={eng.paymentStatus || "unpaid"} /> },
               { label: "Requested", value: eng.requestedAt ? new Date(eng.requestedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—" },
               { label: "Responded", value: eng.respondedAt ? new Date(eng.respondedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—" },
@@ -227,7 +227,7 @@ const AdminEngagements = () => {
         {/* ── Stat Cards ────────────────────────────────────── */}
         <div className="grid grid-cols-5 gap-4">
           {STAT_CARDS.map(({ key, label, accent, icon }) => (
-            <StatCardAny key={key} label={label} value={stats?.[key]} accent={accent} icon={icon} />
+            <StatCard key={key} label={label} value={stats?.[key]} accent={accent} icon={icon} />
           ))}
         </div>
 

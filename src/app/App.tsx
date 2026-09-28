@@ -9,7 +9,6 @@ import { selectAuthToken } from "./store/selectors";
 import Home from "@/shared/marketing/Home";
 import GlobalErrorBanner from "@/shared/components/GlobalErrorBanner";
 import NotFound from "@/shared/marketing/NotFound";
-import AdminRoute from "@/features/admin/view/components/AdminRoute";
 import RouteErrorBoundary from "@/shared/components/RouteErrorBoundary";
 import ProtectedRoute from "@/features/auth/view/components/ProtectedRoute";
 import { PERMISSIONS } from "@/features/auth/model/permissions";
@@ -22,6 +21,10 @@ import { adminUserManagementLoader } from "@/features/admin/model/adminUserManag
 import { adminEngagementsLoader } from "@/features/admin/model/adminEngagements.loader";
 import { adminReportsLoader } from "@/features/admin/model/adminReports.loader";
 import { adminPaymentsLoader } from "@/features/admin/model/adminPayments.loader";
+import AdminPageLoader from "@/shared/components/AdminPageLoader";
+import AdminRoute from "@/features/admin/view/components/AdminRoute";
+import { createAdminUnauthorizedHandler } from "@/features/admin/model/adminSessionExpired";
+import { setAdminUnauthorizedHandler } from "@/shared/utils/axiosInstance";
 
 const RegisterMentee = lazy(() => import("@/features/auth/view/pages/RegisterMentee"));
 const RegisterMentor = lazy(() => import("@/features/auth/view/pages/RegisterMentor"));
@@ -269,6 +272,7 @@ const router = createBrowserRouter([
       {
         path: "users",
         loader: adminUserManagementLoader,
+        hydrateFallbackElement: <AdminPageLoader />,
         element: (
           <RouteErrorBoundary zone="admin-child">
             <AdminUserManagement />
@@ -278,6 +282,7 @@ const router = createBrowserRouter([
       {
         path: "engagements",
         loader: adminEngagementsLoader,
+        hydrateFallbackElement: <AdminPageLoader />,
         element: (
           <RouteErrorBoundary zone="admin-child">
             <AdminEngagements />
@@ -287,6 +292,7 @@ const router = createBrowserRouter([
       {
         path: "reports",
         loader: adminReportsLoader,
+        hydrateFallbackElement: <AdminPageLoader />,
         element: (
           <RouteErrorBoundary zone="admin-child">
             <AdminReports />
@@ -296,6 +302,7 @@ const router = createBrowserRouter([
       {
         path: "payments",
         loader: adminPaymentsLoader,
+        hydrateFallbackElement: <AdminPageLoader />,
         element: (
           <RouteErrorBoundary zone="admin-child">
             <AdminPayments />
@@ -305,6 +312,7 @@ const router = createBrowserRouter([
       {
         path: "settings",
         loader: adminSettingsLoader,
+        hydrateFallbackElement: <AdminPageLoader />,
         element: (
           <RouteErrorBoundary zone="admin-child">
             <AdminSettings />
@@ -313,6 +321,7 @@ const router = createBrowserRouter([
       },
       {
         path: "wallet-requests",
+        hydrateFallbackElement: <AdminPageLoader />,
         element: (
           <RouteErrorBoundary zone="admin-child">
             <AdminWalletRequests />
@@ -321,6 +330,7 @@ const router = createBrowserRouter([
       },
       {
         path: "support",
+        hydrateFallbackElement: <AdminPageLoader />,
         element: (
           <RouteErrorBoundary zone="admin-child">
             <AdminSupportMessages />
@@ -329,6 +339,7 @@ const router = createBrowserRouter([
       },
       {
         path: "verifications",
+        hydrateFallbackElement: <AdminPageLoader />,
         loader: adminVerificationsLoader,
         action: adminVerificationsAction,
         element: (
@@ -347,8 +358,13 @@ const router = createBrowserRouter([
       </RouteErrorBoundary>
     ),
   },
-]);
-
+], {
+  future: {
+    v7_partialHydration: true,
+  },
+});
+// Admin
+setAdminUnauthorizedHandler(createAdminUnauthorizedHandler(router));
 const App = () => {
   const dispatch = useDispatch();
   const token = useSelector(selectAuthToken);
@@ -375,7 +391,7 @@ const App = () => {
       .finally(() => {
         dispatch(setBootstrapped()); //  always fires
       });
-  }, []); // intentionally empty — runs once on mount only
+  }, [dispatch, token]);
 
   return (
     <Suspense fallback={<PageLoader />}>

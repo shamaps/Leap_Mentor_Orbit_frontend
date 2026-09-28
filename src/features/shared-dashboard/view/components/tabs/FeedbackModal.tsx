@@ -5,7 +5,6 @@ import Spinner from "@/shared/components/Spinner";
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const SpinnerAny = Spinner as any;
 const STAR_LABELS = ["Poor", "Fair", "Good", "Great", "Excellent"];
 
 interface StarRatingInputProps {
@@ -262,7 +261,7 @@ const FeedbackModal = ({
                   hover:bg-blue-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed
                   flex items-center justify-center gap-2"
               >
-                {submitting ? <><SpinnerAny size="sm" light />Submitting...</> : (
+                {submitting ? <><Spinner size="sm" light />Submitting...</> : (
                   <>
                     <svg
                       width="12"

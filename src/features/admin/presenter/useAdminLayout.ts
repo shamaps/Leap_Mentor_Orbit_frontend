@@ -1,15 +1,21 @@
 // src/features/admin/presenter/useAdminLayout.js
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useNavigation, useLocation } from "react-router-dom";
 import { getCurrentAdmin, getPendingLeapRequestsCount, logoutAdmin } from "../model/admin.api";
+import { resetAdminSessionCache } from "../model/requireAdminAuth";
+import getErrorMessage, { getHttpErrorStatus } from "@/shared/utils/getErrorMessage";
 import logger from "@/shared/utils/logger";
 
 export const useAdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingWalletCount, setPendingWalletCount] = useState(0);
   const navigate = useNavigate();
-  const [adminUser, setAdminUser] = useState < { name: string; email?: string } > ({ name: "Admin" });
-
+  const navigation = useNavigation();
+  const location = useLocation();
+  const [adminUser, setAdminUser] = useState<{ name: string; email?: string }>({ name: "Admin" });
+  const isNavigating =
+    navigation.state !== "idle" &&
+    navigation.location?.pathname === location.pathname;
   useEffect(() => {
     const fetchAdminUser = async () => {
       try {
@@ -45,10 +51,13 @@ export const useAdminLayout = () => {
     } catch (err) {
       // even if request fails, redirect to login
       logger.error("[AdminLayout] Logout request failed", {
-        status: err?.response?.status,
-        message: err.message,
+        status: getHttpErrorStatus(err),
+        message: getErrorMessage(err),
       });
     }
+    // Invalidate the cached session check regardless of whether the
+    // logout request itself succeeded — the client is done being "admin".
+    resetAdminSessionCache();
     navigate("/admin/login");
   };
 
@@ -61,5 +70,6 @@ export const useAdminLayout = () => {
     adminUser,
     handleLogout,
     closeSidebar,
+    isNavigating,
   };
 };

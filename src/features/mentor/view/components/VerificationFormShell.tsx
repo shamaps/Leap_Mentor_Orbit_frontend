@@ -1,5 +1,5 @@
 // components/mentor/verification/VerificationFormShell.jsx
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent as ReactSubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useVerificationSubmit } from "@/features/mentor/presenter/useVerificationSubmit";
 import FullScreenLoader from "@/shared/components/FullScreenLoader";
@@ -53,7 +53,7 @@ const VerificationFormShell = () => {
   };
 
   // ── Submit ──
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: ReactSubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const validationErrors = validate();

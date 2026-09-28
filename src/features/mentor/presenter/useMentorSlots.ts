@@ -55,7 +55,7 @@ export const useMentorSlots = (
     useEffect(() => {
         if (!mentorUserId) return;
         fetchSlots(selectedDuration);
-    }, [mentorUserId, selectedDuration]);
+    }, [fetchSlots, mentorUserId, selectedDuration]);
 
     return {
         groupedSlots,

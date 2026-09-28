@@ -3,8 +3,8 @@
 import { useRef, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useDispatch } from "react-redux";
-import { loginUser } from "@/app//store/slices/authSlice";
+import { useAppDispatch } from "@/app/store/hooks";
+import { loginUser } from "@/app/store/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { useSignIn, useClerk } from "@clerk/clerk-react";
 import { HTTP_STATUS } from "@/shared/constants/httpStatus";
@@ -20,9 +20,9 @@ import { loginSchema } from "@/shared/schemas/authSchemas";
 import { mapServerErrorsToForm } from "@/shared/utils/mapServerErrorsToForm";
 import PasswordVisibilityIcon from "@/shared/components/PasswordVisibilityIcon";
 
-const CLERK_STRATEGY: Record<string, string> = {
+const CLERK_STRATEGY = {
   linkedin: "oauth_linkedin_oidc",
-};
+} as const;
 
 interface LoginFormProps {
   placeholder?: string;
@@ -35,7 +35,7 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
   const googleBtnRef = useRef<HTMLDivElement>(null);
   const { signIn, isLoaded: clerkLoaded } = useSignIn();
   const { signOut } = useClerk();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -79,19 +79,19 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
   useGoogleAuth({
     btnRef: googleBtnRef,
     roles: [],
-    onSuccess: (data: any) => handlePostAuth(data?.token, data?.user),
+    onSuccess: (data) => handlePostAuth(data?.token, data?.user),
     onError: (text: string) => setError("root", { type: "server", message: text }),
     onLoadingChange: setLoading,
   });
 
-  const handleClerkSSO = async (provider: string) => {
+  const handleClerkSSO = async (provider: keyof typeof CLERK_STRATEGY) => {
     if (!clerkLoaded) return;
     try {
       setLoading(true);
-      await signOut({ redirectUrl: globalThis.location.href } as any);
+      await signOut({ redirectUrl: globalThis.location.href });
       ssoFlags.set("existing", true);
-      await signIn!.authenticateWithRedirect({
-        strategy: CLERK_STRATEGY[provider] as any,
+      await signIn.authenticateWithRedirect({
+        strategy: CLERK_STRATEGY[provider],
         redirectUrl: `${globalThis.location.origin}/sso-callback`,
         redirectUrlComplete: `${globalThis.location.origin}/sso-callback-sync`,
       });
@@ -108,20 +108,21 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
   const onSubmit = async (data: { email: string; password: string }) => {
     setLoading(true);
     try {
-      const res: any = await Promise.resolve(dispatch(loginUser({ email: data.email.trim(), password: data.password }) as any));
+      const res = await dispatch(loginUser({ email: data.email.trim(), password: data.password }));
 
       if (loginUser.fulfilled.match(res)) {
         handlePostAuth(res.payload?.accessToken ?? undefined, res.payload?.user);
       } else {
         setError("password", { type: "server", message: res.payload || "Invalid email or password." });
       }
-    } catch (err: any) {
-      const responseStatus = err?.response?.status;
-      const responseData = err?.response?.data;
+    } catch (err: unknown) {
+      const apiError = err as { response?: { status?: number; data?: { isEmailVerified?: boolean; email?: string } } };
+      const responseStatus = apiError.response?.status;
+      const responseData = apiError.response?.data;
 
       if (responseStatus === HTTP_STATUS.FORBIDDEN && responseData?.isEmailVerified === false) {
         setError("root", { type: "server", message: "Please verify your email first. Redirecting..." });
-        setTimeout(() => navigate(`/verify-email?email=${encodeURIComponent(responseData.email)}`), 1000);
+        setTimeout(() => navigate(`/verify-email?email=${encodeURIComponent(responseData.email ?? "")}`), 1000);
         return;
       }
 

@@ -1,3 +1,4 @@
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 // src/hooks/useRespondToRequest.js
 import { useState } from "react";
 import { respondToRequest, referRequest } from "@/features/connects/model/connectRequests.api";
@@ -39,7 +40,7 @@ const useRespondToRequest = () => {
       return true;
     } catch (err) {
       const msg =
-        err?.response?.data?.message || "Failed to respond to request.";
+        getErrorMessage(err, "Failed to respond to request.");
       showToast({ type: "error", title: "Action failed", message: msg });
       return false;
     } finally {
@@ -69,7 +70,7 @@ const useRespondToRequest = () => {
       });
       return true;
     } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to refer request.";
+      const msg = getErrorMessage(err, "Failed to refer request.");
       showToast({ type: "error", title: "Referral failed", message: msg });
       return false;
     } finally {

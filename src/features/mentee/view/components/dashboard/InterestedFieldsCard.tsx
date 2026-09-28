@@ -1,5 +1,5 @@
 // components/mentee/dashboard/InterestedFieldsCard.jsx
-const TagChip = ({ label }: { label: string; color?: string }) => {
+const TagChip = ({ label }: Readonly<{ label: string }>) => {
   return (
     <span
       className={`inline-flex items-center text-sm font-m text-slate-600 px-3 py-1.5 rounded-full border `}
@@ -46,7 +46,7 @@ const InterestedFieldsCard = ({ profile }: InterestedFieldsCardProps) => {
         ) : (
           <div className="flex flex-wrap gap-2">
             {skills.map((s: string) => (
-              <TagChip key={s} label={s} color="slate" />
+              <TagChip key={s} label={s} />   
             ))}
           </div>
         )}

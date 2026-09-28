@@ -1,3 +1,4 @@
+import type { AdminReport } from "../../model/admin.types";
 // src/features/admin/view/pages/AdminReports.jsx
 
 import { useAdminReports } from "../../presenter/useAdminReports";
@@ -7,7 +8,6 @@ import StatCard from "@/shared/components/StatCard";
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const StatCardAny = StatCard as any;
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
@@ -121,7 +121,7 @@ const REPORT_RESOLUTION_STATUSES = [
   { key: "dismissed", label: "Dismissed", color: "#64748b" },
 ];
 
-const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }: { report: any; onClose: () => void; onSave: (id: string, updated: any) => void; onRefund: (id: string) => void; onDeleteSession: (id: string) => void }) => {
+const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }: { report: AdminReport; onClose: () => void; onSave: (id: string, updated: Partial<AdminReport>) => void; onRefund: (id: string) => void; onDeleteSession: (id: string) => void }) => {
   const {
     selectedStatus,
     setSelectedStatus,
@@ -182,7 +182,7 @@ const HandleModal = ({ report, onClose, onSave, onRefund, onDeleteSession }: { r
                 ))}
               </div>
 
-              {report.totalAmount > 0 && (
+              {(report.totalAmount ?? 0) > 0 && (
                 <div className="pt-2 border-t" style={{ borderColor: "#e8eaf0" }}>
                   <p className="text-[9px] font-700 uppercase tracking-widest text-slate-400" style={{ fontWeight: 700 }}>Session Amount</p>
                   <p className="text-sm font-700 text-slate-800 mt-0.5" style={{ fontWeight: 700, fontFamily: MONO }}>{report.totalAmount} tokens</p>
@@ -414,7 +414,7 @@ const AdminReports = () => {
 
         <div className="grid grid-cols-3 gap-4">
           {OVERVIEW_CARDS.map((card) => (
-            <StatCardAny key={card.label} {...card} />
+            <StatCard key={card.label} {...card} />
           ))}
         </div>
 

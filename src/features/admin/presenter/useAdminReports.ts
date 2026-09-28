@@ -1,15 +1,16 @@
 // src/features/admin/presenter/useAdminReports.js
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useLoaderData, useSearchParams, useRevalidator, useNavigation } from "react-router-dom";
+import type { AdminReport, AdminStats } from "../model/admin.types";
 import { useToast } from "@/shared/context/ToastContext";
 
 export const useAdminReports = () => {
   // Initial (and every subsequent filter/page) fetch is done by
   // adminReportsLoader — see App.tsx's "/admin/reports" route.
   const { reports: loaderReports, pagination, stats, error } = useLoaderData() as {
-    reports: any[];
+    reports: AdminReport[];
     pagination: { totalCount: number; currentPage: number; totalPages: number };
-    stats: any;
+    stats: AdminStats | null;
     error: string | null;
   };
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,7 +23,7 @@ export const useAdminReports = () => {
   const loading = navigation.state !== "idle";
 
   const [searchInput, setSearchInput] = useState(search);
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] = useState<AdminReport | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Local copy so the optimistic updates below (handleSave/handleRefund/
@@ -71,7 +72,7 @@ export const useAdminReports = () => {
     updateParams({ page: 1, status: s });
   };
 
-  const handleSave = (id: string, updated: any) => {
+  const handleSave = (id: string, updated: Partial<AdminReport>) => {
     setReports((prev) => prev.map((r) => r.id.toString() === id.toString() ? { ...r, ...updated } : r));
     revalidator.revalidate();
     showToast({ message: "Report updated. Reporter has been notified. ✅" });

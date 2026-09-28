@@ -1,9 +1,11 @@
 // src/features/admin/presenter/useAdminLogin.js
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginAdmin } from "../model/admin.api";
+import { resetAdminSessionCache } from "../model/requireAdminAuth";
+import { getSafeAdminReturnPath, type AdminLoginLocationState } from "../model/adminSessionExpired";
 import { loginSchema } from "@/shared/schemas/authSchemas";
 import { mapServerErrorsToForm } from "@/shared/utils/mapServerErrorsToForm";
 
@@ -11,6 +13,12 @@ export const useAdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Set by the axios admin-401 handler when a live session expires.
+  const locationState = location.state as AdminLoginLocationState | null;
+  const sessionExpired = locationState?.reason === "session-expired";
+  const returnPath = getSafeAdminReturnPath(locationState?.from);
 
   const {
     register,
@@ -35,7 +43,10 @@ export const useAdminLogin = () => {
     try {
 
       await loginAdmin(data.email, data.password);
-      navigate("/admin/users");
+      // A fresh login invalidates any stale "denied" result cached from
+      // before the user signed in.
+      resetAdminSessionCache();
+      navigate(returnPath ?? "/admin/users", { replace: true });
     } catch (err) {
       mapServerErrorsToForm(err, setError);
     } finally {
@@ -52,5 +63,6 @@ export const useAdminLogin = () => {
     emailField,
     passwordField,
     errors,
+    sessionExpired,
   };
 };

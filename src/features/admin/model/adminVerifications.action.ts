@@ -1,8 +1,11 @@
 // src/features/admin/model/adminVerifications.action.ts
 
 import { verifyMentor } from "./admin.api";
+import { requireAdminAuth } from "./requireAdminAuth";
+import { getApiResponseMessage } from "@/shared/utils/getErrorMessage";
 
 export const adminVerificationsAction = async ({ request }: { request: Request }) => {
+    await requireAdminAuth();
     const formData = await request.formData();
     const mentorProfileId = formData.get("mentorProfileId") as string;
 
@@ -13,10 +16,10 @@ export const adminVerificationsAction = async ({ request }: { request: Request }
     try {
         await verifyMentor(mentorProfileId);
         return { success: true, mentorProfileId };
-    } catch (err: any) {
+    } catch (err: unknown) {
         return {
             success: false,
-            error: err?.response?.data?.message || "Verification failed.",
+            error: getApiResponseMessage(err, "Verification failed."),
         };
     }
 };

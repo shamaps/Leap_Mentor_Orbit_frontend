@@ -1,3 +1,4 @@
+import type { AdminStats, AdminUser, AdminGrowthDatum, AdminIndustryDatum } from "../model/admin.types";
 // src/features/admin/presenter/useAdminUserManagement.js
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -9,11 +10,12 @@ import {
   blockUser,
   unblockUser,
 } from "../model/admin.api";
+import { getApiResponseMessage } from "@/shared/utils/getErrorMessage";
 import logger from "@/shared/utils/logger";
 
 export const useAdminUserManagement = () => {
-  const [stats, setStats] = useState<any>(null);
-  const [users, setUsers] = useState<any[]>([]);
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -24,12 +26,12 @@ export const useAdminUserManagement = () => {
   const [showBlocked, setShowBlocked] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const [actionModal, setActionModal] = useState<{ user: any; mode: "delete" | "block" | "unblock" } | null>(null);
+  const [actionModal, setActionModal] = useState<{ user: AdminUser; mode: "delete" | "block" | "unblock" } | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
   const [toast, setToast] = useState<{ msg: string; type: string } | null>(null);
-  const [growthData, setGrowthData] = useState<any[]>([]);
-  const [industryData, setIndustryData] = useState<any[]>([]);
+  const [growthData, setGrowthData] = useState<AdminGrowthDatum[]>([]);
+  const [industryData, setIndustryData] = useState<AdminIndustryDatum[]>([]);
 
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -93,6 +95,8 @@ export const useAdminUserManagement = () => {
     fetchUsers();
     fetchGrowthData();
     fetchIndustryData();
+    // This is the one-time initial load; later filter changes call fetchUsers from handlers.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Handlers ──────────────────────────────────────────────
@@ -137,7 +141,7 @@ export const useAdminUserManagement = () => {
       fetchUsers(pagination.page);
       if (mode === "delete") fetchIndustryData();
     } catch (err) {
-      showToast({ message: err?.response?.data?.message || "Action failed.", type: "error" });
+      showToast({ message: getApiResponseMessage(err, "Action failed."), type: "error" });
     } finally {
       setActionLoading(false);
     }

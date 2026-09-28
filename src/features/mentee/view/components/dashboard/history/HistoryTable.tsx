@@ -7,7 +7,6 @@ import type { ConnectRequestSummary } from "@/features/mentee/presenter/useReque
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const EmptyStateAny = EmptyState as any;
 const DeleteIcon = ({ onClick, title }: { onClick: () => void; title: string }) => (
   <button
     type="button"
@@ -81,7 +80,7 @@ interface HistoryTableProps {
 const HistoryTable = ({ requests, selected, onSelect, onDelete }: HistoryTableProps) => {
   if (requests.length === 0) {
     return (
-      <EmptyStateAny
+      <EmptyState
         icon={
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -153,7 +152,7 @@ const HistoryTable = ({ requests, selected, onSelect, onDelete }: HistoryTablePr
             {/* Date */}
             <div>
               <p className="text-sm text-slate-800">
-                {formatDate(request.requestedAt as string | undefined)}
+                {formatDate(request.requestedAt)}
               </p>
             </div>
 

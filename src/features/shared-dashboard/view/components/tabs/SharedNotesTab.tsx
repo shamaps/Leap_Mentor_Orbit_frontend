@@ -227,7 +227,18 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }: NoteCardProps
       globalThis.open(note.fileUrl, "_blank");
     }
   };
-
+  const getUploaderLabel = (
+    uploadedBy: string | { name?: string } | null | undefined,
+    isCurrentUser: boolean,
+  ): string => {
+    if (isCurrentUser) return "You";
+    if (typeof uploadedBy === "string") return "Partner";
+    return uploadedBy?.name || "Partner";
+  };
+  const uploaderLabel = getUploaderLabel(uploadedBy, activeUserMatch);
+  const uploaderBadgeClass = activeUserMatch
+    ? "bg-blue-50 text-blue-600 border-blue-200"
+    : "bg-violet-50 text-violet-600 border-violet-200";
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 flex gap-4 hover:border-blue-200 hover:shadow-md transition-all duration-200 w-full h-full">
       <div className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center shrink-0 border p-2.5 ${cfg.bg} ${cfg.border}`} style={{ width: "52px", height: "52px" }}>
@@ -242,8 +253,10 @@ const NoteCard = ({ note, myId, onDelete, isPrivateView = false }: NoteCardProps
             {isPrivateView ? (
               <span className="shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border bg-amber-50 text-amber-600 border-amber-200">🔒 Private</span>
             ) : (
-              <span className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border ${activeUserMatch ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-violet-50 text-violet-600 border-violet-200"}`}>{activeUserMatch ? "You" : (typeof uploadedBy === "string" ? "Partner" : uploadedBy?.name || "Partner")}</span>
-            )}
+                <span className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border ${uploaderBadgeClass}`}>
+                  {uploaderLabel}
+                </span>
+                )}
           </div>
 
           {note.title && note.title !== note.fileName && <p className="text-xs text-slate-400 truncate mt-0.5">{note.fileName}</p>}

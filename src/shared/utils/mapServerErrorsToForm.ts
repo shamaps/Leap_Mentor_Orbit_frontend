@@ -41,10 +41,11 @@ type SetErrorFn<TField extends string = string> = (
 ) => void;
 
 export function mapServerErrorsToForm<TField extends string = string>(
-    err: ServerErrorLike | undefined,
+    error: unknown,
     setError: SetErrorFn<TField>,
     { fallbackField = "root" as TField | "root" }: { fallbackField?: TField | "root" } = {},
 ): void {
+    const err = error as ServerErrorLike | undefined;
     const responseData = err?.response?.data;
 
     // Shape 1: backend returned per-field validation errors.

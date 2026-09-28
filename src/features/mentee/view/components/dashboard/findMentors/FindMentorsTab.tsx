@@ -12,7 +12,6 @@ import type { MentorSummary } from "@/features/mentee/presenter/useMentorSearch"
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const ErrorStateAny = ErrorState as any;
 const FindMentorsTab = () => {
   const {
     skill,
@@ -99,7 +98,7 @@ const FindMentorsTab = () => {
       </div>
 
       {/* Error */}
-      {error && <ErrorStateAny message={error} fullWidth compact />}
+      {error && <ErrorState message={error} fullWidth compact />}
 
       {/* Results */}
       <MentorGrid

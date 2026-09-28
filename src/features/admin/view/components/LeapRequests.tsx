@@ -3,12 +3,12 @@
 
 import { useState } from "react";
 import { useLeapRequests } from "../../presenter/useLeapRequests";
+import type { AdminWalletRequest } from "../../model/admin.types";
 import EmptyState from "../../../../shared/components/EmptyState";
 // EmptyState is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const EmptyStateAny = EmptyState as any;
 // ── Helpers ───────────────────────────────────────────────────
 const getInitials = (name = "") =>
   name
@@ -58,7 +58,7 @@ const ActivityBar = ({ value, max, color }: { value: number; max: number; color:
 );
 
 // ── Request Card ──────────────────────────────────────────────
-const RequestCard = ({ request, onApprove, onReject, processing }: { request: any; onApprove: (id: string) => void; onReject: (id: string, note: string) => void; processing: boolean }) => {
+const RequestCard = ({ request, onApprove, onReject, processing }: { request: AdminWalletRequest; onApprove: (id: string) => void; onReject: (id: string, note: string) => void; processing: boolean }) => {
   const [showRejectNote, setShowRejectNote] = useState(false);
   const [note, setNote] = useState("");
   const name = request.mentee?.name || "Unknown";
@@ -122,7 +122,7 @@ const RequestCard = ({ request, onApprove, onReject, processing }: { request: an
             {activityScore} Activity
           </span>
           <span className="text-[10px] text-slate-400">
-            {timeAgo(request.createdAt)}
+            {timeAgo(request.createdAt ?? "")}
           </span>
         </div>
       </div>
@@ -308,7 +308,7 @@ const LeapRequests = () => {
     );
   } else if (requests.length === 0) {
     requestsContent = (
-      <EmptyStateAny
+      <EmptyState
         fullWidth
         icon={
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

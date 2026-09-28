@@ -1,11 +1,10 @@
 // src/features/admin/view/pages/AdminVerifications.jsx
-import { useAdminVerifications } from "../../presenter/useAdminVerifications";
+import { useAdminVerifications, type AdminMentorVerification } from "../../presenter/useAdminVerifications";
 import ErrorState from "@/shared/components/ErrorState";
 // ErrorState is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const ErrorStateAny = ErrorState as any;
 // ── Icons 
 const IconShield = () => (
   <svg
@@ -265,7 +264,7 @@ const Pill = ({ label }: { label: string }) => (
 // ══════════════════════════════════════════════════════════
 // DETAIL DRAWER (Updated)
 // ══════════════════════════════════════════════════════════
-const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: { mentor: any; onClose: () => void; onVerify: (id: string) => void; verifying: boolean }) => {
+const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: { mentor: AdminMentorVerification; onClose: () => void; onVerify: (id: string) => void; verifying: boolean }) => {
   if (!mentor) return null;
   const { user } = mentor;
   const mentorProfile = mentor; // mentor itself is the flat MentorProfile document
@@ -323,7 +322,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: { mentor: any; o
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <StatusBadge status={mentorProfile?.verificationStatus} />
+            <StatusBadge status={mentorProfile?.verificationStatus ?? "pending"} />
             <button
               onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
@@ -439,7 +438,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: { mentor: any; o
           )}
 
           {/* Skills */}
-          {mentorProfile?.skills?.length > 0 && (
+          {(mentorProfile?.skills?.length ?? 0) > 0 && (
             <section>
               <div
                 className="flex items-center gap-2 px-3 py-2 rounded-xl mb-3"
@@ -453,7 +452,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: { mentor: any; o
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 px-1">
-                {mentorProfile.skills.map((s: string) => (
+                {(mentorProfile.skills ?? []).map((s: string) => (
                   <Pill key={s} label={s} />
                 ))}
               </div>
@@ -481,7 +480,7 @@ const DetailDrawer = ({ mentor, onClose, onVerify, verifying }: { mentor: any; o
                   icon={<IconDoc />}
                 />
               )}
-              {mentorProfile?.workExperienceDocuments?.map((doc: any, i: number) => (
+              {mentorProfile?.workExperienceDocuments?.map((doc, i: number) => (
                 <DocCard
                   key={doc.url}
                   label={`Work Experience Doc ${i + 1}`}
@@ -572,7 +571,7 @@ const AdminVerifications = () => {
       </div>
     );
   } else if (error) {
-    mentorRowsContent = <ErrorStateAny message={error} onAction={fetchMentors} compact />;
+    mentorRowsContent = <ErrorState message={error} onAction={fetchMentors} compact />;
   } else if (filtered.length === 0) {
     mentorRowsContent = (
       <div className="px-5 py-16 text-center">
@@ -652,7 +651,7 @@ const AdminVerifications = () => {
           </p>
 
           {/* Status badge */}
-          <StatusBadge status={m.verificationStatus} />
+          <StatusBadge status={m.verificationStatus || "pending"} />
 
           {/* View button */}
           <div className="flex justify-end">

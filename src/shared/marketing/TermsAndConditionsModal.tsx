@@ -15,7 +15,6 @@ interface TermsAndConditionsModalProps {
   onAccept: () => void;
   role?: "mentor" | "mentee";
   readOnly?: boolean;
-  termsAccepted?: boolean;
 }
 
 const TermsAndConditionsModal = ({
@@ -52,6 +51,19 @@ const TermsAndConditionsModal = ({
     };
   }, [isOpen]);
 
+  // Close when the backdrop (not the modal content) is clicked.
+  // Attached imperatively (rather than a JSX onClick on a non-interactive
+  // element) to keep the backdrop free of mouse-only event handlers.
+  useEffect(() => {
+    const backdropEl = backdropRef.current;
+    if (!backdropEl) return;
+    const handleBackdropClick = (e: MouseEvent) => {
+      if (e.target === backdropEl) onClose();
+    };
+    backdropEl.addEventListener("click", handleBackdropClick);
+    return () => backdropEl.removeEventListener("click", handleBackdropClick);
+  }, [onClose]);
+
   const handleAccept = () => {
     if (!agreed) return;
     onAccept();
@@ -66,10 +78,6 @@ const TermsAndConditionsModal = ({
     >
       <div
         ref={backdropRef}
-        role="presentation"
-        onClick={(e) => {
-          if (e.target === backdropRef.current) onClose();
-        }}
         className="flex items-center justify-center w-full h-full px-4"
       >
         <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-modal-in">   {/* ── Header ── */}

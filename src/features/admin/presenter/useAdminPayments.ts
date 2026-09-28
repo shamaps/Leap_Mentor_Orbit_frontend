@@ -1,16 +1,17 @@
 // src/features/admin/presenter/useAdminPayments.js
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useLoaderData, useSearchParams, useNavigation } from "react-router-dom";
+import type { AdminPaymentTransaction, AdminPaymentChartPoint, AdminStats } from "../model/admin.types";
 import { useToast } from "@/shared/context/ToastContext";
 
 export const useAdminPayments = () => {
   // Initial (and every subsequent filter/page) fetch is done by
   // adminPaymentsLoader — see App.tsx's "/admin/payments" route.
   const { transactions, pagination, stats, chartData, error } = useLoaderData() as {
-    transactions: any[];
+    transactions: AdminPaymentTransaction[];
     pagination: { totalCount: number; currentPage: number; totalPages: number };
-    stats: any;
-    chartData: any[];
+    stats: AdminStats | null;
+    chartData: AdminPaymentChartPoint[];
     error: string | null;
   };
   const [searchParams, setSearchParams] = useSearchParams();

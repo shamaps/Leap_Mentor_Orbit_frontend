@@ -10,9 +10,9 @@ import {
 import StatusBadge from "@/shared/components/StatusBadge";
 import EscrowPaymentModal from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
-import { mapReferredMentor } from "@/features/connects/model/connectRequestMapper";
+import { mapReferredMentor, type RawConnectRequest, type ConnectSlot } from "@/features/connects/model/connectRequestMapper";
 // ── Slot row ────────────────────────────────────────────────
-const SlotRow = ({ slot, isConfirmed }: { slot: Record<string, any>; isConfirmed: boolean }) => (
+const SlotRow = ({ slot, isConfirmed }: { slot: ConnectSlot; isConfirmed: boolean }) => (
   <div
     className={`flex items-center justify-between rounded-xl px-3 py-2 border ${isConfirmed
       ? "bg-emerald-50 border-emerald-200"
@@ -33,13 +33,13 @@ const SlotRow = ({ slot, isConfirmed }: { slot: Record<string, any>; isConfirmed
 );
 
 // ── Shared Content Sections (Fixes SonarQube Duplications) ──
-const SlotsSection = ({ slots = [], heading, isConfirmed = false }: { slots?: Record<string, any>[]; heading: string; isConfirmed?: boolean }) => (
+const SlotsSection = ({ slots = [], heading, isConfirmed = false }: { slots?: ConnectSlot[]; heading: string; isConfirmed?: boolean }) => (
   <div>
     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1.5">
       {heading}
     </p>
     <div className="space-y-1.5">
-      {slots.map((slot: Record<string, any>) => (
+      {slots.map((slot: ConnectSlot) => (
         <SlotRow key={`${slot.date}-${slot.startTime}`} slot={slot} isConfirmed={isConfirmed} />
       ))}
     </div>
@@ -59,7 +59,7 @@ const UserMessage = ({ content }: { content?: string }) => {
 };
 
 // ── Pending content ─────────────────────────────────────────
-const PendingContent = ({ request, onDelete }: { request: Record<string, any>; onDelete: () => void }) => {
+const PendingContent = ({ request, onDelete }: { request: RawConnectRequest; onDelete: () => void }) => {
   const { selectedSlots = [], message, requestedAt } = request;
 
   return (
@@ -79,7 +79,7 @@ const PendingContent = ({ request, onDelete }: { request: Record<string, any>; o
 };
 
 // ── Accepted content ────────────────────────────────────────
-const AcceptedContent = ({ request, onClose, onPayClick }: { request: Record<string, any>; onClose: () => void; onPayClick: () => void }) => {
+const AcceptedContent = ({ request, onClose, onPayClick }: { request: RawConnectRequest; onClose: () => void; onPayClick: () => void }) => {
   const { selectedSlots = [], message } = request;
 
   return (
@@ -116,7 +116,7 @@ const AcceptedContent = ({ request, onClose, onPayClick }: { request: Record<str
 };
 
 // ── Ongoing content ─────────────────────────────────────────
-const OngoingContent = ({ request, onClose }: { request: Record<string, any>; onClose: () => void }) => {
+const OngoingContent = ({ request, onClose }: { request: RawConnectRequest; onClose: () => void }) => {
   const { confirmedSlot, sessionRate, sessionCount, totalAmount, paidAt } = request;
   const { downloading, error: downloadError, downloadInvoice } = useInvoiceDownload();
 
@@ -203,7 +203,7 @@ const OngoingContent = ({ request, onClose }: { request: Record<string, any>; on
 };
 
 // ── Completed content ───────────────────────────────────────
-const CompletedContent = ({ request, onClose }: { request: Record<string, any>; onClose: () => void }) => {
+const CompletedContent = ({ request, onClose }: { request: RawConnectRequest; onClose: () => void }) => {
   const { confirmedSlot, totalAmount, completedAt } = request;
 
   return (
@@ -245,7 +245,7 @@ const CompletedContent = ({ request, onClose }: { request: Record<string, any>; 
 };
 
 // ── Referred content ────────────────────────────────────────
-const ReferredContent = ({ request, onDelete }: { request: Record<string, any>; onDelete: () => void }) => {
+const ReferredContent = ({ request, onDelete }: { request: RawConnectRequest; onDelete: () => void }) => {
   const { mentor, referredTo, referredToProfile, selectedSlots = [], message } = request;
   const [showReferredProfile, setShowReferredProfile] = useState(false);
 
@@ -308,7 +308,7 @@ const ReferredContent = ({ request, onDelete }: { request: Record<string, any>; 
 };
 
 // ── Rejected content ────────────────────────────────────────
-const RejectedContent = ({ request, onClose }: { request: Record<string, any>; onClose: () => void }) => {
+const RejectedContent = ({ request, onClose }: { request: RawConnectRequest; onClose: () => void }) => {
   const { selectedSlots = [], message, respondedAt } = request;
 
   return (
@@ -328,12 +328,12 @@ const RejectedContent = ({ request, onClose }: { request: Record<string, any>; o
 };
 
 // ── Main Drawer ─────────────────────────────────────────────
-const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }: { request: Record<string, any> | null; onClose: () => void; onDelete: (id: string) => void; onUpdateRequest: (id: string, patch: Record<string, any>) => void }) => {
+const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }: { request: RawConnectRequest | null; onClose: () => void; onDelete: (id: string) => void; onUpdateRequest: (id: string, patch: Partial<RawConnectRequest>) => void }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   if (!request) return null;
 
-  const { mentor, status, requestedAt, respondedAt } = request as Record<string, any> & { status: string };
+  const { mentor, status, requestedAt, respondedAt } = request;
   const initials = getInitials(mentor?.name);
 
   return (
@@ -398,7 +398,7 @@ const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }: { request
         <EscrowPaymentModal
           request={request}
           onClose={() => setShowPaymentModal(false)}
-          onSuccess={(patch: Record<string, any>) => onUpdateRequest(request._id, patch)}
+          onSuccess={(patch: Partial<RawConnectRequest>) => onUpdateRequest(request._id, patch)}
         />
       )}
     </>

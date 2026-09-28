@@ -5,7 +5,6 @@ import ErrorState from "@/shared/components/ErrorState";
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
  
-const ErrorStateAny = ErrorState as any;
 import FilterTabs from "@/shared/components/FilterTabs";
 
 export default function AdminSupportMessages() {
@@ -35,7 +34,7 @@ export default function AdminSupportMessages() {
       </div>
     );
   } else if (error) {
-    statusContent = <ErrorStateAny message={error} onAction={fetchMessages} />;
+    statusContent = <ErrorState message={error} onAction={fetchMessages} />;
   } else if (filtered.length === 0) {
     statusContent = (
       <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
@@ -109,7 +108,7 @@ export default function AdminSupportMessages() {
 
       {!statusContent && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {filtered.map((msg: any) => {
+          {filtered.map((msg) => {
             const isOpen = expanded === msg._id;
             const isResolving = resolving === msg._id;
             const statusSt = STATUS_STYLES[msg.status as keyof typeof STATUS_STYLES] || STATUS_STYLES.open;
@@ -186,7 +185,7 @@ export default function AdminSupportMessages() {
                   <span
                     style={{ fontSize: 12, color: "#94a3b8", flexShrink: 0 }}
                   >
-                    {new Date(msg.createdAt).toLocaleDateString("en-US", {
+                    {new Date(msg.createdAt || "").toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
