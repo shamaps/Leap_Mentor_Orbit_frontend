@@ -55,4 +55,14 @@ describe("menteeOnboardingSlice", () => {
         expect(result.loading).toBe(false);
         expect(result.error).toBe("Something failed");
     });
+
+    it("submitMenteeOnboarding.rejected uses the fallback when no payload is provided", () => {
+        const result = reducer(
+            { ...initialState, loading: true },
+            { type: submitMenteeOnboarding.rejected.type },
+        );
+        expect(result.loading).toBe(false);
+        expect(result.error).toBe("Something went wrong.");
+    });
+
 });

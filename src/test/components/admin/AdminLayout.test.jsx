@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, MemoryRouter } from "react-router-dom";
 import AdminLayout from "../../../features/admin/view/components/AdminLayout";
 import adminAxiosInstance from "../../../shared/utils/axiosInstance";
 
 // Mock subcomponents and routing packages
 const mockNavigate = vi.fn();
+let mockNavigationState = "idle";
+let mockPendingCount = 12;
 vi.mock("react-router-dom", async () => {
     const actual = await vi.importActual("react-router-dom");
     return {
@@ -16,7 +18,7 @@ vi.mock("react-router-dom", async () => {
         // AdminLayout reads useNavigation() for a top-bar nav indicator. That
         // hook only works under a data router, but this suite renders under a
         // plain <BrowserRouter>, so it must be stubbed.
-        useNavigation: () => ({ state: "idle" }),
+        useNavigation: () => ({ state: mockNavigationState }),
     };
 });
 
@@ -27,7 +29,7 @@ vi.mock("../../../shared/utils/axiosInstance", () => ({
                 return Promise.resolve({ data: { admin: { name: "Jane Admin", email: "jane@test.com" } } });
             }
             if (url === "/admin/leap-requests/pending-count") {
-                return Promise.resolve({ data: { count: 12 } });
+                return Promise.resolve({ data: { count: mockPendingCount } });
             }
             return Promise.resolve({ data: {} });
         }),
@@ -50,6 +52,8 @@ vi.mock("../../../shared/constants/images", () => ({
 describe("AdminLayout Component Suite", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockNavigationState = "idle";
+        mockPendingCount = 12;
     });
 
     it("should mount structural sidebar navigation blocks and read user metadata info from API requests", async () => {
@@ -151,4 +155,25 @@ describe("AdminLayout Component Suite", () => {
         // Validates that state engines drop users to login pages regardless of background api faults
         expect(mockNavigate).toHaveBeenCalledWith("/admin/login");
     });
+
+    it("shows the pending navigation bar while a route transition is active", () => {
+        mockNavigationState = "loading";
+        render(
+            <BrowserRouter>
+                <AdminLayout />
+            </BrowserRouter>
+        );
+        expect(document.querySelector(".animate-pulse")).toBeInTheDocument();
+    });
+
+    it("marks the current admin route as active", async () => {
+        render(
+            <MemoryRouter initialEntries={["/admin/users"]}>
+                <AdminLayout />
+            </MemoryRouter>
+        );
+        await waitFor(() => expect(screen.getByText("Jane Admin")).toBeInTheDocument());
+        expect(screen.getByText("User Management").closest("a").className).toContain("bg-blue-600");
+    });
+
 });

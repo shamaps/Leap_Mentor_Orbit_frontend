@@ -252,4 +252,26 @@ describe("authSlice thunks", () => {
         expect(dispatch).toHaveBeenCalledWith(logout());
         expect(action.type).toBe("auth/logoutUser/fulfilled");
     });
+
+    it("logoutUser clears storage and records a Sentry breadcrumb when keys existed", async () => {
+        server.use(http.post(`${BASE}/auth/logout`, () => HttpResponse.json({ ok: true })));
+        vi.spyOn(storage.localStore, "keys").mockReturnValue(["profile", "preferences"]);
+        const localClearSpy = vi.spyOn(storage.localStore, "clear").mockImplementation(() => {});
+        const sessionClearSpy = vi.spyOn(storage.sessionStore, "clear").mockImplementation(() => {});
+        const setUserSpy = vi.spyOn(Sentry, "setUser").mockImplementation(() => {});
+        const breadcrumbSpy = vi.spyOn(Sentry, "addBreadcrumb").mockImplementation(() => {});
+
+        const { action, dispatch } = await runThunk(logoutUser);
+
+        expect(localClearSpy).toHaveBeenCalled();
+        expect(sessionClearSpy).toHaveBeenCalled();
+        expect(setUserSpy).toHaveBeenCalledWith(null);
+        expect(breadcrumbSpy).toHaveBeenCalledWith(expect.objectContaining({
+            message: "Logout cleared 2 localStorage key(s)",
+            data: { keys: ["profile", "preferences"] },
+        }));
+        expect(dispatch).toHaveBeenCalledWith(logout());
+        expect(action.type).toBe("auth/logoutUser/fulfilled");
+    });
+
 });

@@ -54,4 +54,57 @@ describe("ResumeUpload Component Suite", () => {
         fireEvent.click(removeBtn);
         expect(mockChange).toHaveBeenCalledWith(null, null);
     });
+
+    it("does nothing when the picker has no selected file", () => {
+        const mockChange = vi.fn();
+        render(<ResumeUpload file={null} onChange={mockChange} />);
+        fireEvent.change(screen.getByLabelText(/Upload resume file/i).querySelector("input"), {
+            target: { files: [] },
+        });
+        expect(mockChange).not.toHaveBeenCalled();
+    });
+
+    it("rejects unsupported file types selected through the picker", () => {
+        const mockChange = vi.fn();
+        render(<ResumeUpload file={null} onChange={mockChange} />);
+        const file = new File(["bad"], "resume.txt", { type: "text/plain" });
+        fireEvent.change(screen.getByLabelText(/Upload resume file/i).querySelector("input"), {
+            target: { files: [file] },
+        });
+        expect(mockChange).toHaveBeenCalledWith(null, expect.stringContaining("File type not supported"));
+    });
+
+    it("rejects oversized files selected through the picker", () => {
+        const mockChange = vi.fn();
+        render(<ResumeUpload file={null} onChange={mockChange} />);
+        const file = new File(["large"], "resume.pdf", { type: "application/pdf" });
+        Object.defineProperty(file, "size", { value: 11 * 1024 * 1024 });
+        fireEvent.change(screen.getByLabelText(/Upload resume file/i).querySelector("input"), {
+            target: { files: [file] },
+        });
+        expect(mockChange).toHaveBeenCalledWith(null, "File too large. Maximum size is 10MB.");
+    });
+
+    it("accepts a supported file dropped onto the upload target", () => {
+        const mockChange = vi.fn();
+        render(<ResumeUpload file={null} onChange={mockChange} />);
+        const file = new File(["image"], "resume.webp", { type: "image/webp" });
+        fireEvent.drop(screen.getByLabelText(/Upload resume file/i), {
+            dataTransfer: { files: [file] },
+        });
+        expect(mockChange).toHaveBeenCalledWith(file, null);
+    });
+
+    it("renders the supplied error message", () => {
+        render(<ResumeUpload file={null} onChange={vi.fn()} error="Please upload a resume." />);
+        expect(screen.getByText("Please upload a resume.")).toBeInTheDocument();
+    });
+
+    it("prevents the browser's default behavior while dragging over the upload target", () => {
+        render(<ResumeUpload file={null} onChange={vi.fn()} />);
+        const event = new Event("dragover", { bubbles: true, cancelable: true });
+        screen.getByLabelText(/Upload resume file/i).dispatchEvent(event);
+        expect(event.defaultPrevented).toBe(true);
+    });
+
 });

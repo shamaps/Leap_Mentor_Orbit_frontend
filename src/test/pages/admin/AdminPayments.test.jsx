@@ -4,8 +4,9 @@ import { render, screen, waitFor, fireEvent, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { useToast } from "../../../shared/context/ToastContext";
-import { getPaymentStats, getPaymentChart, getPaymentTransactions } from "../../../features/admin/model/admin.api";
+import { getCurrentAdmin, getPaymentStats, getPaymentChart, getPaymentTransactions } from "../../../features/admin/model/admin.api";
 import { adminPaymentsLoader } from "../../../features/admin/model/adminPayments.loader";
+import { resetAdminSessionCache } from "../../../features/admin/model/requireAdminAuth";
 import AdminPayments from "../../../features/admin/view/pages/AdminPayments";
 
 vi.mock("../../../shared/context/ToastContext");
@@ -14,14 +15,7 @@ vi.mock("../../../shared/utils/logger", () => ({
 }));
 vi.mock("../../../features/admin/model/admin.api");
 
-// AdminPayments's data now comes from adminPaymentsLoader (a route loader),
-// and filters/search/pagination navigate via setSearchParams rather than
-// calling the API again directly — so this renders through a REAL
-// MemoryRouter with the REAL loader wired to a single "/payments" route.
-// A filter click causes a real navigation, which causes React Router to
-// actually re-run the loader — exercising the same integration path
-// production uses, rather than a static per-test mock of useLoaderData
-// that can't react to navigation.
+
 const renderPage = (initialPath = "/payments") => {
     const router = createMemoryRouter(
         [{ path: "/payments", loader: adminPaymentsLoader, element: <AdminPayments /> }],
@@ -66,8 +60,10 @@ describe("AdminPayments", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        resetAdminSessionCache();
         showToast = vi.fn();
         useToast.mockReturnValue({ showToast });
+        getCurrentAdmin.mockResolvedValue({ data: {} });
         getPaymentStats.mockResolvedValue({ data: baseStats });
         getPaymentChart.mockResolvedValue({ data: baseChart });
         getPaymentTransactions.mockResolvedValue(mockTxResponse([baseTx]));
@@ -80,7 +76,15 @@ describe("AdminPayments", () => {
     it("fetches stats, chart, and transactions on mount (via the loader)", async () => {
         renderPage();
 
-        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument());
+        // adminPaymentsLoader now awaits requireAdminAuth() before its data
+        // calls, adding a microtask hop on top of the loader's own
+        // Promise.allSettled — comfortably under the 1000ms default in an
+        // isolated run, but tight under a full-suite run with many workers
+        // contending for CPU. Give it explicit headroom rather than relying
+        // on the global default.
+        await waitFor(() => expect(screen.getByText("TXN-001")).toBeInTheDocument(), {
+            timeout: 5000,
+        });
 
         expect(getPaymentStats).toHaveBeenCalled();
         expect(getPaymentChart).toHaveBeenCalled();

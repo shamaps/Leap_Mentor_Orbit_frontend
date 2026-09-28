@@ -1,9 +1,10 @@
 // components/mentee/onboarding/MenteeOnboardingShell.test.jsx
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import MenteeOnboardingShell from "../../../../features/mentee/view/components/onboarding/MenteeOnboardingShell";
+import { MenteeOnboardingFormContext } from "../../../../features/mentee/context/MenteeOnboardingFormContext";
 
 
 const mockUseMenteeOnboarding = vi.fn();
@@ -37,7 +38,18 @@ vi.mock("@/features/mentee/config/onboardingFields", () => ({
 // attributes the shell's scrollToFirstError logic looks for, without needing
 // to reach into the real context.
 vi.mock("@/features/mentee/view/components/onboarding/PersonalInfoSection", () => ({
-    default: () => <input name="bio" data-testid="personal-info-stub" />,
+    default: function PersonalInfoSectionStub() {
+        const { handleChange, onBlur, errors = {} } = React.useContext(MenteeOnboardingFormContext);
+        return (
+            <input
+                name="bio"
+                data-testid="personal-info-stub"
+                aria-invalid={Boolean(errors.bio)}
+                onChange={handleChange}
+                onBlur={onBlur}
+            />
+        );
+    },
 }));
 vi.mock("@/features/mentee/view/components/onboarding/ProfessionalDetailsSection", () => ({
     default: () => <input name="currentRole" data-testid="professional-details-stub" />,
@@ -184,4 +196,29 @@ describe("MenteeOnboardingShell", () => {
         await user.click(screen.getByRole("button", { name: /Complete Profile/ }));
         expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
     });
+
+    it("sets a field error on blur and clears it on change", () => {
+        const ctx = setup();
+        mockGetFieldErrorMap.mockReturnValue({ bio: true });
+        render(<MenteeOnboardingShell />);
+        const input = screen.getByTestId("personal-info-stub");
+
+        fireEvent.blur(input);
+        expect(input).toHaveAttribute("aria-invalid", "true");
+
+        fireEvent.change(input, { target: { name: "bio", value: "A" } });
+        expect(ctx.handleChange).toHaveBeenCalled();
+        expect(input).toHaveAttribute("aria-invalid", "false");
+    });
+
+
+    it("leaves fields unmarked when blur validation reports no error", () => {
+        setup();
+        mockGetFieldErrorMap.mockReturnValue({});
+        render(<MenteeOnboardingShell />);
+        const input = screen.getByTestId("personal-info-stub");
+        fireEvent.blur(input);
+        expect(input).toHaveAttribute("aria-invalid", "false");
+    });
+
 });

@@ -17,21 +17,38 @@ describe("EscrowSuccessModal Component Suite", () => {
         expect(screen.getByText("Priya Sharma")).toBeInTheDocument();
     });
 
-    it("should call onDone when the header close button is clicked", () => {
+    it("should call onDone exactly once when the X (close) button is clicked", () => {
         render(<EscrowSuccessModal totalAmount={100} mentorName="Alex" onDone={mockDone} />);
-        fireEvent.click(screen.getAllByRole("button")[0]); // backdrop button is first
+        fireEvent.click(screen.getByRole("button", { name: "Close" }));
         expect(mockDone).toHaveBeenCalledTimes(1);
     });
 
-    it("should call onDone when the Done button is clicked", () => {
+    it("should not call onDone a second time if the X button is clicked again after the first dismiss", () => {
+        render(<EscrowSuccessModal totalAmount={100} mentorName="Alex" onDone={mockDone} />);
+        const closeButton = screen.getByRole("button", { name: "Close" });
+
+        fireEvent.click(closeButton);
+        fireEvent.click(closeButton);
+
+        expect(mockDone).toHaveBeenCalledTimes(1);
+    });
+
+    it("should call onDone exactly once when the Done button is clicked", () => {
         render(<EscrowSuccessModal totalAmount={100} mentorName="Alex" onDone={mockDone} />);
         fireEvent.click(screen.getByRole("button", { name: "Done" }));
         expect(mockDone).toHaveBeenCalledTimes(1);
     });
 
-    it("should call onDone when the backdrop is clicked", () => {
+    it("should call onDone exactly once when Escape is pressed", () => {
         render(<EscrowSuccessModal totalAmount={100} mentorName="Alex" onDone={mockDone} />);
-        fireEvent.click(screen.getByRole("button", { name: "Close" })); // backdrop has aria-label="Close"
+        fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
+        expect(mockDone).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not call onDone twice even if both a dismiss path and a direct click race (X then Done)", () => {
+        render(<EscrowSuccessModal totalAmount={100} mentorName="Alex" onDone={mockDone} />);
+        fireEvent.click(screen.getByRole("button", { name: "Close" }));
+        fireEvent.click(screen.getByRole("button", { name: "Done" }));
         expect(mockDone).toHaveBeenCalledTimes(1);
     });
 

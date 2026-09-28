@@ -7,6 +7,7 @@ import adminAxiosInstance from "../../../shared/utils/axiosInstance";
 import { useToast } from "../../../shared/context/ToastContext";
 import AdminReports from "../../../features/admin/view/pages/AdminReports";
 import { adminReportsLoader } from "../../../features/admin/model/adminReports.loader";
+import { resetAdminSessionCache } from "../../../features/admin/model/requireAdminAuth";
 
 vi.mock("../../../shared/utils/axiosInstance");
 vi.mock("../../../shared/context/ToastContext");
@@ -35,6 +36,15 @@ const paginationPayload = { totalCount: 1, currentPage: 1, totalPages: 1 };
 
 const mockStatsAndReports = (reports = [baseReport]) => {
     adminAxiosInstance.get.mockImplementation((url) => {
+        // adminReportsLoader calls requireAdminAuth() first, which hits this
+        // endpoint to confirm the session before loading anything else. Left
+        // unmocked, the auth check "fails" and the loader throws a redirect
+        // to "/admin/login" — a route this test's memory router doesn't
+        // define — so react-router renders its own 404 error page instead
+        // of AdminReports.
+        if (url === "/admin/auth/me") {
+            return Promise.resolve({ data: { id: "admin1", name: "Admin" } });
+        }
         if (url === "/admin/reports/stats") {
             return Promise.resolve({ data: statsPayload });
         }
@@ -83,6 +93,11 @@ describe("AdminReports", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        // requireAdminAuth() caches its session check in a module-level
+        // variable so parallel loaders don't double-fire it. Reset it here
+        // so each test's mocked /admin/auth/me response is actually re-read
+        // instead of an earlier test's cached result leaking through.
+        resetAdminSessionCache();
         showToast = vi.fn();
         useToast.mockReturnValue({ showToast });
         user = userEvent.setup();
@@ -160,6 +175,7 @@ describe("AdminReports", () => {
 
     it("toasts an error when fetching reports fails", async () => {
         adminAxiosInstance.get.mockImplementation((url) => {
+            if (url === "/admin/auth/me") return Promise.resolve({ data: { id: "admin1" } });
             if (url === "/admin/reports/stats") return Promise.resolve({ data: statsPayload });
             return Promise.reject(new Error("reports down"));
         });

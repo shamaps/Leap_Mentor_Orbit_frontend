@@ -23,7 +23,12 @@ vi.mock("../../../../features/shared-dashboard/view/components/tabs/goals/GoalFo
 }));
 
 vi.mock("../../../../features/shared-dashboard/view/components/tabs/goals/TimelineTracker", () => ({
-    default: () => <div data-testid="mock-timeline-tracker">Timeline</div>,
+    default: ({ onUpdate }) => (
+        <div data-testid="mock-timeline-tracker">
+            Timeline
+            <button onClick={() => onUpdate("g-1", { startDate: "2099-06-20" })}>Update Timeline</button>
+        </div>
+    ),
 }));
 
 vi.mock("../../../../features/shared-dashboard/view/components/tabs/goals/MilestoneList", () => ({
@@ -37,9 +42,13 @@ vi.mock("../../../../features/shared-dashboard/view/components/tabs/goals/Milest
 }));
 
 vi.mock("../../../../features/shared-dashboard/view/components/tabs/goals/SessionCard", () => ({
-    default: ({ onSessionComplete }) => (
+    default: ({ onSessionComplete, onSetLink, onMarkComplete, onCancelSlot, onRescheduleSlot }) => (
         <div data-testid="mock-session-card">
             <button onClick={() => onSessionComplete(2)}>Complete Session Slot 2</button>
+            <button onClick={() => onSetLink(2, "https://meet.example")}>Set Meeting Link</button>
+            <button onClick={() => onMarkComplete(2)}>Mark Complete</button>
+            <button onClick={() => onCancelSlot(2)}>Cancel Session</button>
+            <button onClick={() => onRescheduleSlot(2, { date: "2099-06-20" })}>Reschedule Session</button>
         </div>
     ),
 }));
@@ -312,7 +321,13 @@ describe("SharedGoalsTab Component Suite", () => {
             });
 
             expect(screen.getByTestId("mock-feedback-modal")).toBeInTheDocument();
+            fireEvent.click(screen.getByText("Close Feedback"));
+            expect(screen.queryByTestId("mock-feedback-modal")).not.toBeInTheDocument();
 
+            fireEvent.click(screen.getByText("Complete Session Slot 2"));
+            act(() => {
+                vi.advanceTimersByTime(1200);
+            });
             fireEvent.click(screen.getByText("Submit Feedback From Modal"));
             expect(mockRefetchFeedback).toHaveBeenCalled();
             expect(screen.queryByTestId("mock-feedback-modal")).not.toBeInTheDocument();
@@ -320,4 +335,78 @@ describe("SharedGoalsTab Component Suite", () => {
             vi.useRealTimers();
         });
     });
+
+    it("should forward session card callbacks and keep cancelled slots out of active progress", () => {
+        const setMeetingLink = vi.fn();
+        const markSlotComplete = vi.fn();
+        const cancelSlot = vi.fn();
+        const rescheduleSlot = vi.fn();
+        useSessions.mockReturnValue({
+            slots: [
+                { date: "2099-06-20", startTime: "10:00", status: "active" },
+                { date: "2099-06-21", startTime: "10:00", status: "cancelled" },
+            ],
+            completedSlots: 0,
+            totalSlots: 1,
+            progress: 0,
+            setMeetingLink,
+            markSlotComplete,
+            cancelSlot,
+            rescheduleSlot,
+        });
+        render(<SharedGoalsTab />);
+
+        expect(screen.getByText("Sessions (1 active, 1 cancelled)")).toBeInTheDocument();
+        fireEvent.click(screen.getAllByText("Set Meeting Link")[0]);
+        fireEvent.click(screen.getAllByText("Mark Complete")[0]);
+        fireEvent.click(screen.getAllByText("Cancel Session")[0]);
+        fireEvent.click(screen.getAllByText("Reschedule Session")[0]);
+
+        expect(setMeetingLink).toHaveBeenCalledWith(2, "https://meet.example");
+        expect(markSlotComplete).toHaveBeenCalledWith(2);
+        expect(cancelSlot).toHaveBeenCalledWith(2);
+        expect(rescheduleSlot).toHaveBeenCalledWith(2, {
+            date: "2099-06-20", startTime: "", endTime: "",
+        });
+    });
+
+    it("should close overall feedback and refresh feedback after submission", () => {
+        useGoals.mockReturnValue({
+            goal: { _id: "g-1", title: "Test Goal", status: "active" },
+            milestones: [], loading: false, error: null, saving: false,
+            createGoal: mockCreateGoal, updateGoal: mockUpdateGoal,
+            addMilestone: mockAddMilestone, toggleMilestone: mockToggleMilestone,
+            deleteMilestone: mockDeleteMilestone,
+        });
+        useSessions.mockReturnValue({
+            slots: [{ date: "2026-07-12", startTime: "10:00", status: "active" }],
+            completedSlots: 1, totalSlots: 1, progress: 100,
+        });
+        render(<SharedGoalsTab />);
+
+        fireEvent.click(screen.getByText("Leave Feedback"));
+        expect(screen.getByTestId("mock-feedback-modal")).toBeInTheDocument();
+        fireEvent.click(screen.getByText("Close Feedback"));
+        expect(screen.queryByTestId("mock-feedback-modal")).not.toBeInTheDocument();
+
+        fireEvent.click(screen.getByText("Leave Feedback"));
+        fireEvent.click(screen.getByText("Submit Feedback From Modal"));
+        expect(mockRefetchFeedback).toHaveBeenCalled();
+        expect(screen.queryByTestId("mock-feedback-modal")).not.toBeInTheDocument();
+    });
+
+
+    it("should pass timeline date updates through to updateGoal", async () => {
+        useGoals.mockReturnValue({
+            goal: { _id: "g-1", title: "Test Goal", status: "active" },
+            milestones: [], loading: false, error: null, saving: false,
+            createGoal: mockCreateGoal, updateGoal: mockUpdateGoal,
+            addMilestone: mockAddMilestone, toggleMilestone: mockToggleMilestone,
+            deleteMilestone: mockDeleteMilestone,
+        });
+        render(<SharedGoalsTab />);
+        await act(async () => fireEvent.click(screen.getByText("Update Timeline")));
+        expect(mockUpdateGoal).toHaveBeenCalledWith("g-1", { startDate: "2099-06-20" });
+    });
+
 });
