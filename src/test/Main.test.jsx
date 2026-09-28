@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 const mockRender = vi.fn();
 const mockCreateRoot = vi.fn(() => ({ render: mockRender }));
@@ -105,4 +106,32 @@ describe("main.jsx entry point", () => {
         expect(mockCreateRoot).toHaveBeenCalledWith(document.getElementById("root"));
         expect(mockRender).toHaveBeenCalledTimes(1);
     });
+
+    it("renders the fallback and reloads when the app error boundary catches an error", async () => {
+        const reload = vi.fn();
+        vi.stubGlobal("location", { reload });
+        await import("../app/main");
+
+        const strictModeElement = mockRender.mock.calls[0][0];
+        const errorBoundaryElement = strictModeElement.props.children;
+        const fallbackElement = errorBoundaryElement.props.fallback;
+        render(fallbackElement.type());
+
+        expect(screen.getByText("Something went wrong. Please reload the page.")).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Reload page" }));
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows the notified message when production Sentry is active", async () => {
+        vi.stubEnv("PROD", true);
+        vi.stubEnv("VITE_SENTRY_DSN", "https://example-dsn.ingest.sentry.io/1");
+        await import("../app/main");
+
+        const errorBoundaryElement = mockRender.mock.calls[0][0].props.children;
+        const fallbackElement = errorBoundaryElement.props.fallback;
+        render(fallbackElement.type());
+
+        expect(screen.getByText("Something went wrong. Our team has been notified.")).toBeInTheDocument();
+    });
+
 });

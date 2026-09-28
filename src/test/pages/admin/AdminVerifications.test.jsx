@@ -1,4 +1,3 @@
-// src/test/pages/admin/AdminVerifications.test.jsx
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, within, act, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -165,7 +164,10 @@ describe("AdminVerifications", () => {
         await screen.findByText("Mentor One");
 
         const statButtons = screen.getAllByRole("button");
-        const verifiedStatPill = statButtons.find(btn => within(btn).queryByText("Verified Review") || within(btn).queryByText("Verified"));
+        const verifiedStatPill = statButtons.find(
+            (btn) =>
+                within(btn).queryByText("Verified Review") || within(btn).queryByText("Verified")
+        );
         await user.click(verifiedStatPill);
 
         expect(screen.queryByText("Mentor One")).not.toBeInTheDocument();
@@ -185,7 +187,7 @@ describe("AdminVerifications", () => {
         it("opens with full mentor details and displays uploaded documents safely", async () => {
             await openDrawer({
                 ...baseMentor,
-                resumeDocument: { url: "https://example.com/resume.png", uploadedAt: "2026-01-01T00:00:00.000Z" }
+                resumeDocument: { url: "https://example.com/resume.png", uploadedAt: "2026-01-01T00:00:00.000Z" },
             });
 
             expect(screen.getByText("Engineer")).toBeInTheDocument();
@@ -200,7 +202,7 @@ describe("AdminVerifications", () => {
             expect(screen.getByText("Work Experience Doc 1")).toBeInTheDocument();
             expect(screen.getByText(/Submitted on/)).toBeInTheDocument();
 
-            // Triggers line 190 (DocCard onError image layout state branch recovery)
+            // Triggers DocCard onError image layout state branch recovery
             const image = screen.getByAltText("Resume / CV");
             fireEvent.error(image);
             expect(image.style.display).toBe("none");
@@ -230,7 +232,7 @@ describe("AdminVerifications", () => {
             await openDrawer({ ...baseMentor, profilePicture: "https://img/mentor.png" });
 
             const images = screen.getAllByAltText("Mentor One");
-            const headerDrawerImg = images.find(img => img.className.includes("w-11"));
+            const headerDrawerImg = images.find((img) => img.className.includes("w-11"));
 
             expect(headerDrawerImg).toHaveAttribute("src", "https://img/mentor.png");
         });
@@ -264,7 +266,7 @@ describe("AdminVerifications", () => {
 
             expect(adminAxiosInstance.patch).toHaveBeenCalledWith(
                 "/admin/mentor-verifications/m1/verify",
-                { status: "verified" },
+                { status: "verified" }
             );
             expect(await screen.findByText("✓ Mentor verified successfully!")).toBeInTheDocument();
             expect(screen.getByText("Already Verified")).toBeInTheDocument();
@@ -297,7 +299,7 @@ describe("AdminVerifications", () => {
             adminAxiosInstance.patch.mockReturnValue(
                 new Promise((resolve) => {
                     resolvePatch = resolve;
-                }),
+                })
             );
             await openDrawer();
 

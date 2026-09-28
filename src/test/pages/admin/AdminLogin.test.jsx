@@ -2,13 +2,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import adminAxiosInstance from "../../../shared/utils/axiosInstance";
 import AdminLogin from "../../../features/admin/view/pages/AdminLogin";
 
+
 vi.mock("react-router-dom", () => ({
     useNavigate: vi.fn(),
+    useLocation: vi.fn(),         
 }));
+
+useLocation.mockReturnValue({
+    state: { from: "/admin/payments", reason: "session-expired" },
+});
+
 vi.mock("../../../shared/utils/axiosInstance");
 
 describe("AdminLogin", () => {
@@ -18,6 +25,7 @@ describe("AdminLogin", () => {
         vi.clearAllMocks();
         navigate = vi.fn();
         useNavigate.mockReturnValue(navigate);
+        useLocation.mockReturnValue({ state: null });  
     });
 
     it("renders the form with email and password fields", () => {
@@ -84,7 +92,7 @@ describe("AdminLogin", () => {
                 password: "correctpassword",
             });
         });
-        expect(navigate).toHaveBeenCalledWith("/admin/users");
+        expect(navigate).toHaveBeenCalledWith("/admin/users", { replace: true });
     });
 
     it("shows the loading state while submitting", async () => {
@@ -151,7 +159,9 @@ describe("AdminLogin", () => {
 
         await user.click(screen.getByRole("button", { name: /sign in/i }));
 
-        await waitFor(() => expect(navigate).toHaveBeenCalledWith("/admin/users"));
+        await waitFor(() =>
+            expect(navigate).toHaveBeenCalledWith("/admin/users", { replace: true }),
+        );
         expect(screen.queryByText("Invalid email or password.")).not.toBeInTheDocument();
     });
 });

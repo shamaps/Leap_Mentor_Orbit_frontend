@@ -485,4 +485,75 @@ describe("CalendarAvailabilitySection Component Suite", () => {
             ),
         );
     });
+
+    it("should roll the calendar year forward and backward at year boundaries", () => {
+        setup();
+        const next = () => screen.getAllByRole("button").find((button) =>
+            button.querySelector("svg polyline")?.getAttribute("points") === "9 18 15 12 9 6",
+        );
+        const previous = () => screen.getAllByRole("button").find((button) =>
+            button.querySelector("svg polyline")?.getAttribute("points") === "15 18 9 12 15 6",
+        );
+
+        for (let month = 0; month < 6; month += 1) fireEvent.click(next());
+        expect(screen.getByText("December 2099")).toBeInTheDocument();
+        fireEvent.click(next());
+        expect(screen.getByText("January 2100")).toBeInTheDocument();
+        fireEvent.click(previous());
+        expect(screen.getByText("December 2099")).toBeInTheDocument();
+    });
+
+    it("should show timed and all-day calendar events when hovering an event date", async () => {
+        mockAxiosGet.mockImplementation((url) => url.includes("events")
+            ? Promise.resolve({ data: { events: [
+                { id: "timed", summary: "Planning call", start: "2099-06-20T10:00:00.000Z", end: "2099-06-20T11:00:00.000Z" },
+                { id: "all-day", summary: "Company holiday", start: "2099-06-20", allDay: true },
+            ] } })
+            : Promise.resolve({ data: { busy: [] } }));
+        setup({ googleCalendarConnected: true });
+
+        const day = screen.getByRole("button", { name: /^20$/ });
+        await vi.waitFor(() => expect(screen.getByText("Has events")).toBeInTheDocument());
+        fireEvent.mouseEnter(day);
+
+        expect(screen.getByText("Google Calendar")).toBeInTheDocument();
+        expect(screen.getByText("Planning call")).toBeInTheDocument();
+        expect(screen.getByText("Company holiday")).toBeInTheDocument();
+        expect(screen.getByText("All day")).toBeInTheDocument();
+    });
+
+    it("should show the busy-only tooltip on hover when a date has no event details", async () => {
+        mockAxiosGet.mockImplementation((url) => url.includes("busy")
+            ? Promise.resolve({ data: { busy: [{ start: "2099-06-20T09:00:00.000Z", end: "2099-06-20T10:00:00.000Z" }] } })
+            : Promise.resolve({ data: { events: [] } }));
+        setup({ googleCalendarConnected: true });
+
+        await vi.waitFor(() => expect(onBusySlotsChange).toHaveBeenCalled());
+        fireEvent.mouseEnter(screen.getByRole("button", { name: /^20$/ }));
+        expect(screen.getByText("Google Calendar")).toBeInTheDocument();
+        expect(screen.getByText("Busy", { selector: "span" })).toBeInTheDocument();
+    });
+
+
+    it("should remove an already selected day and update only the targeted date slot", () => {
+        const dates = [
+            { date: "2099-06-20", slots: [
+                { id: "s1", startTime: "09:00", endTime: "12:00" },
+                { id: "s1b", startTime: "13:00", endTime: "17:00" },
+            ] },
+            { date: "2099-06-21", slots: [{ id: "s2", startTime: "09:00", endTime: "17:00" }] },
+        ];
+        setup({ specificDates: dates });
+        fireEvent.click(screen.getByRole("button", { name: /^20$/ }));
+        const removeDateUpdater = setSpecificDates.mock.calls.at(-1)[0];
+        expect(removeDateUpdater(dates)).toEqual([dates[1]]);
+
+        fireEvent.click(screen.getAllByTitle("Remove this slot")[0]);
+        const removeSlotUpdater = setSpecificDates.mock.calls.at(-1)[0];
+        expect(removeSlotUpdater(dates)).toEqual([
+            { ...dates[0], slots: [dates[0].slots[1]] },
+            dates[1],
+        ]);
+    });
+
 });

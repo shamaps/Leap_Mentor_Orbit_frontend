@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import React from "react";
 import OnboardingFormShell from "../../../../features/mentor/view/components/onboarding/OnboardingFormShell";
+import { MentorOnboardingFormContext } from "../../../../features/mentor/context/MentorOnboardingFormContext";
 
 // ── redux mocks ──
 const mockDispatch = vi.fn();
@@ -76,16 +77,31 @@ vi.mock("../../../../features/mentee/schemas/onboardingSchemas", () => ({
     getFirstErrorMessage: vi.fn(() => mockFirstErrorMessage),
 }));
 
-vi.mock("../../../../features/mentor/context/MentorOnboardingFormContext", () => ({
-    MentorOnboardingFormContext: React.createContext(null),
-}));
 
 // ── section stubs, each reading/writing context to prove wiring ──
 vi.mock("../../../../features/mentor/view/components/onboarding/PersonalInfoSection", () => ({
     default: () => <div data-testid="section-personal">Personal</div>,
 }));
 vi.mock("../../../../features/mentor/view/components/onboarding/ProfessionalInfoSection", () => ({
-    default: () => <div data-testid="section-professional">Professional</div>,
+    default: function ProfessionalInfoSectionStub() {
+        const context = React.useContext(MentorOnboardingFormContext);
+        return (
+            <div data-testid="section-professional">
+                <input
+                    data-testid="hourly-rate-input"
+                    name="hourlyRate"
+                    value={context.form.hourlyRate}
+                    aria-invalid={Boolean(context.errors.hourlyRate)}
+                    onChange={(event) => context.onChange({
+                        target: { name: "hourlyRate", value: event.target.value },
+                    })}
+                    onBlur={() => context.onBlur({
+                        target: { name: "hourlyRate", value: context.form.hourlyRate },
+                    })}
+                />
+            </div>
+        );
+    },
 }));
 vi.mock("../../../../features/mentor/view/components/onboarding/SkillsSection", () => ({
     default: React.forwardRef(function SkillsSectionStub(_, ref) {
@@ -312,11 +328,23 @@ describe("OnboardingFormShell Component Suite", () => {
         expect(mockClearMentorOnboardingMessages).toHaveBeenCalled();
     });
 
-    it("should cap hourlyRate changes above 100 via handleChange guard", () => {
+    it("ignores hourly-rate changes above the allowed maximum", () => {
         render(<OnboardingFormShell />);
-        // handleChange is exercised indirectly through context by ProfessionalInfoSection,
-        // which is stubbed here; this test ensures the shell renders without crashing
-        // when large values would be passed through onChange in integration.
-        expect(screen.getByTestId("section-professional")).toBeInTheDocument();
+        const input = screen.getByTestId("hourly-rate-input");
+        fireEvent.change(input, { target: { value: "101" } });
+        expect(input).toHaveValue("");
+    });
+
+    it("updates regular field changes and marks invalid fields on blur", () => {
+        mockFieldErrorMap = { hourlyRate: true };
+        render(<OnboardingFormShell />);
+        const input = screen.getByTestId("hourly-rate-input");
+
+        fireEvent.blur(input);
+        expect(input).toHaveAttribute("aria-invalid", "true");
+
+        fireEvent.change(input, { target: { value: "50" } });
+        expect(input).toHaveValue("50");
+        expect(input).toHaveAttribute("aria-invalid", "false");
     });
 });

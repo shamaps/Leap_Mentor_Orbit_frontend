@@ -10,7 +10,7 @@ vi.mock("../../../../features/mentee/context/MenteeOnboardingFormContext", () =>
 }));
 
 const mockUseProfilePhotoUpload = vi.fn();
-vi.mock("../../../../features/uploads/model/useProfilePhotoUpload", () => ({
+vi.mock("../../../../features/uploads/presenter/useProfilePhotoUpload", () => ({
     useProfilePhotoUpload: (...args) => mockUseProfilePhotoUpload(...args),
 }));
 

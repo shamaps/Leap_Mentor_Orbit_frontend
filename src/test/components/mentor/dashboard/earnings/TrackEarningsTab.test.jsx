@@ -12,7 +12,12 @@ vi.mock("recharts", () => ({
     XAxis: () => null,
     YAxis: () => null,
     CartesianGrid: () => null,
-    Tooltip: () => null,
+    Tooltip: ({ content }) => (
+        <div data-testid="mock-chart-tooltip">
+            {React.cloneElement(content, { active: true, payload: [{ value: 1234.5 }], label: "Jan" })}
+            {React.cloneElement(content, { active: false, payload: [], label: "Feb" })}
+        </div>
+    ),
 }));
 
 // ── Mock Local Custom Hook State Machine ──
@@ -241,4 +246,36 @@ describe("TrackEarningsTab Component Suite", () => {
             expect(mockGoNext).toHaveBeenCalled();
         });
     });
+
+    it("should render formatted active chart tooltip data and omit the inactive tooltip", () => {
+        useTrackEarnings.mockReturnValue(baseHookValue);
+        render(<TrackEarningsTab />);
+
+        expect(screen.getByTestId("mock-chart-tooltip")).toHaveTextContent("Jan");
+        expect(screen.getByTestId("mock-chart-tooltip")).toHaveTextContent("1,234.50");
+        expect(screen.getByTestId("mock-chart-tooltip")).not.toHaveTextContent("Feb");
+    });
+
+    it("should disable pagination controls at the first and last page", () => {
+        useTrackEarnings.mockReturnValue({ ...baseHookValue, page: 1, hasMore: false });
+        render(<TrackEarningsTab />);
+        expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
+        expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+    });
+
+
+    it("should display zero defaults for missing numeric earning values", () => {
+        useTrackEarnings.mockReturnValue({
+            ...baseHookValue,
+            stats: { totalEarnings: 0, sessionsThisMonth: 0, avgRating: 0, pendingPayout: 0 },
+            payouts: [{ ...mockPayouts[0], amount: 0 }],
+        });
+        render(<TrackEarningsTab />);
+
+        expect(screen.getByTestId("stat-total-earnings")).toHaveTextContent("0.00");
+        expect(screen.getByTestId("stat-average-rating")).toHaveTextContent("0.0/5.0");
+        expect(screen.getByTestId("stat-pending-payout")).toHaveTextContent("0.00");
+        expect(screen.getByText("0.00", { selector: "td" })).toBeInTheDocument();
+    });
+
 });

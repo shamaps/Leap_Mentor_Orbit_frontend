@@ -123,7 +123,13 @@ describe("RouteErrorBoundary", () => {
 
             expect(resetError).toHaveBeenCalledTimes(1);
         });
-
+        it("hides the raw error message in production", () => {
+            vi.stubEnv("DEV", false);
+            renderFallback(new Error("Something specific broke"));   // use your existing render helper
+            expect(screen.queryByText("Something specific broke")).not.toBeInTheDocument();
+            expect(screen.getByText(/something went wrong loading this page/i)).toBeInTheDocument();
+            vi.unstubAllEnvs();
+        });
         it("renders a 'Go home' link pointing at the root", () => {
             renderFallback(new Error("boom"));
 

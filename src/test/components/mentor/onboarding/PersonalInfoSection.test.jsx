@@ -24,7 +24,7 @@ const mockHandleFileChange = vi.fn();
 let mockUploading = false;
 let mockUploadErr = "";
 
-vi.mock("../../../../features/uploads/model/useProfilePhotoUpload", () => ({
+vi.mock("../../../../features/uploads/presenter/useProfilePhotoUpload", () => ({
     useProfilePhotoUpload: (onUploaded) => {
         capturedOnUploaded = onUploaded;
         return {

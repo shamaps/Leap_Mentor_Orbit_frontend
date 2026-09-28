@@ -244,4 +244,35 @@ describe("MentorProfileModal Component Suite", () => {
         expect(mockReset).toHaveBeenCalled();
         expect(mockClose).toHaveBeenCalled();
     });
+
+    it("falls back to mentor initials after the profile image fails", () => {
+        const mentorWithImage = { ...baseMentor, profilePicture: "/broken.png" };
+        render(<MentorProfileModal mentor={mentorWithImage} onClose={mockClose} />);
+        fireEvent.error(screen.getByAltText("Alex Chen"));
+        expect(screen.getByText("AC")).toBeInTheDocument();
+    });
+
+    it("shows the temporary-held message for other slot-lock conflicts", async () => {
+        mockLockSlot.mockResolvedValueOnce({ ok: false, code: "LOCKED" });
+        render(<MentorProfileModal mentor={baseMentor} onClose={mockClose} />);
+        await act(async () => {
+            fireEvent.click(screen.getByRole("button", { name: /10:00 AM.*11:00 AM/i }));
+        });
+        expect(screen.getByText(/temporarily held by someone/i)).toBeInTheDocument();
+        expect(mockFetchSlots).toHaveBeenCalled();
+    });
+
+    it("does not show success when sending a request fails", async () => {
+        mockLockSlot.mockResolvedValueOnce({ ok: true });
+        mockSendRequest.mockResolvedValueOnce(false);
+        render(<MentorProfileModal mentor={baseMentor} onClose={mockClose} />);
+        await act(async () => {
+            fireEvent.click(screen.getByRole("button", { name: /10:00 AM.*11:00 AM/i }));
+        });
+        await act(async () => {
+            fireEvent.click(screen.getByRole("button", { name: /Send Connect Request/i }));
+        });
+        expect(screen.queryByTestId("mock-success-modal")).not.toBeInTheDocument();
+    });
+
 });

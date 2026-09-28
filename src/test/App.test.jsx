@@ -81,6 +81,7 @@ const mockGet = vi.fn(() => Promise.resolve({ data: {} }));
 vi.mock("../shared/utils/axiosInstance", () => ({
     default: { post: (...args) => mockPost(...args), get: (...args) => mockGet(...args) },
     injectStore: vi.fn(),
+    setAdminUnauthorizedHandler: vi.fn(),
 }));
 
 import App from "../app/App";
@@ -212,4 +213,27 @@ describe("App", () => {
             expect(screen.getByText("AdminLayout")).toBeInTheDocument();
         });
     });
+
+    it.each([
+        ["/register/mentee", "RegisterMentee"],
+        ["/register/mentor", "RegisterMentor"],
+        ["/login/mentor", "LoginMentor"],
+        ["/login/mentee", "LoginMentee"],
+        ["/verify-email", "VerifyEmail"],
+        ["/forgot-password", "ForgotPassword"],
+        ["/sso-callback", "SSOCallback"],
+        ["/sso-callback-sync", "SSOSync"],
+        ["/onboarding/mentor", "MentorOnboarding"],
+        ["/onboarding/mentor/verify-documents", "MentorVerification"],
+        ["/onboarding/mentee", "MenteeOnboarding"],
+        ["/dashboard/mentee/edit-profile", "MenteeEditProfileShell"],
+        ["/dashboard/mentor/edit-profile", "MentorEditProfileShell"],
+        ["/dashboard/mentee", "MenteeDashboard"],
+    ])("renders the lazy route %s", async (path, pageText) => {
+        mockToken = "token";
+        navigateTo(path);
+        render(<App />);
+        await waitFor(() => expect(screen.getByText(pageText)).toBeInTheDocument());
+    });
+
 });

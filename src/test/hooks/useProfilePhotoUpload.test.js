@@ -2,8 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import axiosInstance from "../../shared/utils/axiosInstance";
-import { useProfilePhotoUpload } from "../../features/uploads/model/useProfilePhotoUpload";
-
+import { useProfilePhotoUpload } from "../../features/uploads/presenter/useProfilePhotoUpload";
 vi.mock("../../shared/utils/axiosInstance");
 
 const makeFile = (name, type, sizeBytes) => {

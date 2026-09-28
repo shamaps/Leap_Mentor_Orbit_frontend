@@ -77,6 +77,35 @@ describe("SharedNotesTab", () => {
         render(<SharedNotesTab />);
         expect(screen.queryByText("Upload First File")).not.toBeInTheDocument();
     });
+    it("shows the spinner while the upload is in flight, then hides it once uploadNote resolves", async () => {
+        let resolveUpload;
+        mockUploadNote.mockImplementation(
+            () => new Promise((resolve) => { resolveUpload = resolve; })
+        );
+        mockUseNotesReturn = { ...mockUseNotesReturn, notes: [makeNote()], uploadNote: mockUploadNote };
+
+        const { rerender } = render(<SharedNotesTab />);
+        fireEvent.click(screen.getByText("Upload File"));
+        const input = document.getElementById("shared-note-file-input");
+        const goodFile = new File(["x"], "resume.pdf", { type: "application/pdf" });
+        fireEvent.change(input, { target: { files: [goodFile] } });
+
+        const submitButtons = screen.getAllByText("Upload File", { selector: "button" });
+        fireEvent.click(submitButtons[submitButtons.length - 1]);
+
+        
+        mockUseNotesReturn = { ...mockUseNotesReturn, notes: [makeNote()], uploading: true, uploadNote: mockUploadNote };
+        rerender(<SharedNotesTab />);
+        expect(screen.getByText("Uploading...")).toBeInTheDocument();
+
+        await act(async () => {
+            resolveUpload({ success: true });
+        });
+
+        mockUseNotesReturn = { ...mockUseNotesReturn, notes: [makeNote()], uploading: false, uploadNote: mockUploadNote };
+        rerender(<SharedNotesTab />);
+        expect(screen.queryByText("Uploading...")).not.toBeInTheDocument();
+    });
 
     it("shows the loading skeletons while notes are loading", () => {
         mockUseNotesReturn = { ...mockUseNotesReturn, loading: true };

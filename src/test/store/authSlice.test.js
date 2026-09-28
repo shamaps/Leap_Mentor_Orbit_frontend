@@ -224,3 +224,36 @@ describe("redirectByRole", () => {
         expect(navigate).toHaveBeenCalledWith("/");
     });
 });
+
+describe("authSlice extraReducers — remaining async lifecycle branches", () => {
+    it.each([
+        ["verifyEmail", verifyEmail],
+        ["verifyMagicLink", verifyMagicLink],
+        ["forgotPassword", forgotPassword],
+        ["verifyResetOtp", verifyResetOtp],
+        ["resetPassword", resetPassword],
+    ])("%s pending starts loading and clears prior messages", (_name, thunk) => {
+        const result = reducer(
+            { ...initialState, error: "old error", successMsg: "old success" },
+            { type: thunk.pending.type },
+        );
+        expect(result.loading).toBe(true);
+        expect(result.error).toBeNull();
+        expect(result.successMsg).toBeNull();
+    });
+
+    it.each([
+        ["verifyEmail", verifyEmail],
+        ["verifyMagicLink", verifyMagicLink],
+        ["forgotPassword", forgotPassword],
+        ["verifyResetOtp", verifyResetOtp],
+        ["resetPassword", resetPassword],
+    ])("%s rejected clears loading and stores its error", (_name, thunk) => {
+        const result = reducer(
+            { ...initialState, loading: true },
+            { type: thunk.rejected.type, payload: "Request failed" },
+        );
+        expect(result.loading).toBe(false);
+        expect(result.error).toBe("Request failed");
+    });
+});

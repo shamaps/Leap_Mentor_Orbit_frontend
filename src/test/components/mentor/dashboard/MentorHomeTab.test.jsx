@@ -6,6 +6,7 @@ import axiosInstance from "../../../../shared/utils/axiosInstance";
 
 // ── 1. DIRECTLY MOCK SELECTORS FILE FOR TOTAL STATE CONTROL ──
 let mockSelectorsData;
+const mockDispatch = vi.fn();
 
 const resetMockSelectors = () => {
     mockSelectorsData = {
@@ -50,7 +51,7 @@ vi.mock("../../../../app/store/selectors", () => ({
 
 // Mock standard react-redux hooks basics safely
 vi.mock("react-redux", () => ({
-    useDispatch: () => vi.fn(),
+    useDispatch: () => mockDispatch,
     useSelector: (selectorFn) => selectorFn(),
 }));
 
@@ -154,4 +155,30 @@ describe("MentorHomeTab Component Suite", () => {
         expect(mockSetActiveTab).toHaveBeenCalledWith("profile");
         await waitFor(() => expect(axiosInstance.get).toHaveBeenCalled());
     });
+
+    it("dispatches an initial request fetch while the dashboard is bootstrapping", async () => {
+        mockSelectorsData.initialLoad = true;
+        await renderWithContexts(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+        expect(mockDispatch).toHaveBeenCalled();
+    });
+
+    it("shows loading skeletons and fallback copy while sessions are loading", async () => {
+        mockSelectorsData.loadingSessions = true;
+        mockSelectorsData.activeSessions = [];
+        await renderWithContexts(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+        expect(screen.getByText("Loading your dashboard...")).toBeInTheDocument();
+        expect(screen.getAllByTestId("stat-card")[0]).toHaveTextContent("Total Sessions: —");
+        expect(document.querySelectorAll(".animate-pulse").length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("uses profile and session fallbacks when data is missing", async () => {
+        mockSelectorsData.mentorProfile = { user: null, profile: null };
+        mockSelectorsData.activeSessions = [{ _id: "session-no-slot", status: "accepted" }];
+        await renderWithContexts(<MentorHomeTab setActiveTab={mockSetActiveTab} />);
+        expect(screen.getByText("Welcome, there! 👋")).toBeInTheDocument();
+        expect(screen.getByText("Mentee")).toBeInTheDocument();
+        expect(screen.getByText("Time TBD")).toBeInTheDocument();
+        expect(screen.getByText("Avg Rating: New")).toBeInTheDocument();
+    });
+
 });
