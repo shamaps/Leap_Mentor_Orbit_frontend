@@ -8,10 +8,9 @@
 - **Environment:** jsdom
 - **Coverage provider:** v8, reported as text + html + lcov (feeds SonarQube via `sonar.javascript.lcov.reportPaths`)
 
-There are currently **231 test files** under `src/test/`, organized to mirror
-`src/` — `components/`, `hooks/`, `store/`, `api/`, `mappers/`, `schemas/`,
-`utils/`, `pages/`, `context/`, `config/`, `constants/`, `ui/`.
-
+There are currently **246 test files** under `src/test/`, organized by type
+(`components/`, `hooks/`, `store/`, `api/`, `mappers/`, `schemas/`, `utils/`,
+`pages/`, `context/`, `config/`, `constants/`, `ui/`, `loaders/`, `model/`).
 ## Running tests
 
 ```bash
@@ -54,10 +53,10 @@ delete or restructure `coverage/` without checking `sonar-project.properties`.
 
 ## Adding a new test
 
-1. Mirror the source path under `src/test/` (e.g. a new hook at
-   `src/features/mentor/presenter/useFoo.ts` gets its test at
-   `src/test/hooks/useFoo.test.ts` or alongside the existing feature's test
-   grouping — check how neighboring files in that feature are organized).
+1. Place the test under `src/test/` in the folder for its type (e.g. a new hook
+   at `src/features/mentor/presenter/useFoo.ts` gets its test at
+   `src/test/hooks/useFoo.test.js`). Tests are `.js` (logic) or `.jsx`
+   (components/pages); check neighboring files for which to use.
 2. Reuse the mock patterns above instead of inventing new ones.
 3. Run `npm run test:coverage` before opening a PR and check nothing you
    touched dropped in coverage.

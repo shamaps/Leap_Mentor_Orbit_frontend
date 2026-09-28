@@ -52,13 +52,11 @@ grouping/replay locally by default. For a prod-only bug:
    user did leading up to the error.
 2. Check **BetterStack** for the structured log trail — search by
    `requestId` if you have one from Sentry's breadcrumbs, or by `url.full` /
-   `service.environment` (see [`Testing.md`](./Testing.md)'s sibling note on the logger's
-   ECS-shaped payload). This gives you the sequence of `debug`/`info`/`warn`/
+   `service.environment`. This gives you the sequence of `debug`/`info`/`warn`/
    `error` events, not just the final exception.
 3. Cross-reference: Sentry tells you **what broke and how often**; BetterStack
    tells you **what happened right before it broke**. Neither alone usually
-   has the full picture — see the "Sentry vs BetterStack" note the CQF review
-   asked for.
+   has the full picture 
 4. If you need to reproduce prod-like Sentry behavior locally: temporarily set
    `enabled: true` (or use `import.meta.env.DEV` in a local branch) — **never
    commit this change**, it would send your local noise to the shared Sentry

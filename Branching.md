@@ -11,18 +11,13 @@ platform shipping in batches) and a need to keep `main` always deployable.
 
 | Branch | Purpose | Branched from | Merges into |
 |---|---|---|---|
-| `main` | Always production-deployable. Every commit here is a release. | — | — |
-| `develop` | Integration branch for the next release. | `main` | `main` (via release) |
-| `feature/<name>` | One feature or fix, scoped to a single reviewable change. | `develop` | `develop` |
-
+| `main` | Production-deployable. | — | — |
+| `develop` | Integration branch for the next release. | `main` | `main` |
+| `pr/<topic>` | One reviewable change (e.g. `pr/error-boundaries`, `pr/axios-consolidation`). | `develop` | `develop` |
 
 ### Naming
 
-- `feature/mentor-availability-calendar`
-- `feature/rbac-permission-layer`
-
-
-Use kebab-case
+Use `pr/<kebab-case-topic>`, for example `pr/logging-strategy` or `pr/data-router-rbac`.
 
 ### Rules
 
@@ -33,19 +28,13 @@ Use kebab-case
 
 ## Pull Requests
 
-Per the CQF review findings, PRs currently get opened and self-merged with no
-review and no comments. Going forward:
-
 1. **Every PR requires at least one approval** before merge (target: two, once
    the team isn't a single contributor).
 2. **Reviewers leave comments**, not just an approval click — at minimum,
    confirm what was tested and flag anything that needs follow-up.
 3. **The PR description states**: what changed, why, and how it was tested
    (which test files, or manual steps if no automated coverage exists yet).
-4. **CI must pass** (lint, typecheck, test) before merge — see
-   [`TESTING.md`](./TESTING.md) for what that covers today and what's missing
-   (there is currently no CI pipeline defined in this repo — that's a
-   prerequisite to enforcing this rule, not something already running).
+4. **CI must pass** (lint, typecheck, test) before merge 
 
 ## Commit messages
 
