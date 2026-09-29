@@ -18,7 +18,7 @@ src/
 Every folder under `src/features/<name>/` follows the same convention:
 
 | Layer | Contents 
-|---|---|---|
+|---|---|
 | `model/` | API calls, response mappers, types, permissions/business rules
 | `presenter/` | Custom hooks that orchestrate model calls, local/derived state, and side effects for a view 
 | `view/` | Presentational React components 
@@ -70,10 +70,14 @@ The composition root:
   `hasPermission` / `hasAnyPermission` helpers that resolve a user's granted
   permissions from their roles. This is a frontend-only gate for UI
   visibility  it is not a substitute for backend authorization checks.
+  Admin routes don't use this RBAC layer. They're guarded by React Router
+  loaders that call `requireAdminAuth`,which checks the admin session once per 
+  navigation and redirects to `/admin/login` on failure. Admin data is fetched
+  in route `loader`s and mutated via route `action`s .
 
 ## Data layer
 
-- **HTTP:** a single shared `axiosInstance.ts` (`shared/utils/`) .
+- **HTTP:** a single shared `axiosInstance.ts` (`shared/utils/`) 
   It attaches a generated `X-Request-Id` header to every outgoing request and
   threads that id through error logging, so a failed request can be traced
   end-to-end in logs/Sentry.
@@ -101,7 +105,7 @@ Three layers, from broadest to narrowest:
 
 Structured logging goes through `shared/utils/logger.ts`, which mirrors to
 the console in dev (`import.meta.env.DEV`) and ships to BetterStack when
-`VITE_BETTERSTACK_SOURCE_TOKEN` is set, in any environment .
+`VITE_BETTERSTACK_SOURCE_TOKEN` is set in any environment .
 
 ## Testing
 

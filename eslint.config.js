@@ -7,7 +7,7 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "coverage"]),
 
   // JS/JSX — only test files 
   {
@@ -31,7 +31,7 @@ export default defineConfig([
     },
     rules: {
       "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
-      "react/prop-types": "warn",
+      "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
       "react-hooks/incompatible-library": "off",
     },
@@ -57,11 +57,26 @@ export default defineConfig([
       react: { version: "detect" },
     },
     rules: {
-      "react/prop-types": "off", // TS types replace prop-types entirely
+      "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
-      "@typescript-eslint/no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
-      "@typescript-eslint/no-explicit-any": "off",
-      "react-hooks/incompatible-library": "off",
-    },
+      "no-console": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
+      ],
+      "@typescript-eslint/no-explicit-any": "error",
+      "react-hooks/incompatible-library": "warn",
+    },},
+ {
+    files: ["*.config.js"],
+    languageOptions: { globals: globals.node },
+  },
+  {
+    files: [
+      "src/shared/utils/logger.ts",
+      "src/shared/hooks/useMountLogger.ts",
+      "src/shared/utils/withProfiler.tsx",
+    ],
+    rules: { "no-console": "off" },
   },
 ]);

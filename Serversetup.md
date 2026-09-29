@@ -20,25 +20,21 @@ Copy `.env.example` if one exists, or create `.env` at the project root with
 the following keys (all consumed via Vite's `import.meta.env`, so they must be
 prefixed `VITE_` to be exposed to the client bundle):
 
-| Variable | Purpose |
-|---|---|
-| `VITE_API_URL` / `VITE_API_BASE_URL` | Backend API base URL |
-| `VITE_APP_BASE_URL` | This app's own base URL (used for redirect/callback URLs) |
-| `VITE_SOCKET_URL` | Socket.io server URL for real-time features |
-| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk auth (SSO) publishable key |
-| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID |
-| `VITE_VAPID_PUBLIC_KEY` | Web push notification public key |
-| `VITE_SENTRY_DSN` | Sentry project DSN for error/trace reporting |
-| `VITE_BETTERSTACK_SOURCE_TOKEN` | BetterStack (Logtail) log ingestion token — see [logging notes](#logging) below |
-| `VITE_APP_VERSION` | App version string, surfaced wherever the build reports its own version |
+| Variable | Required | Purpose |
+|---|---|---|
+| `VITE_API_URL` | No (defaults to `http://localhost:5000/api/v1`) | Backend API base URL, read in `axiosInstance.ts` |
+| `VITE_SOCKET_URL` | No (defaults to `http://localhost:5000`) | Socket.io server URL, read in `useSocketToast.ts` |
+| `VITE_CLERK_PUBLISHABLE_KEY` | **Yes**, the app throws at startup without it | Clerk auth (SSO) publishable key |
+| `VITE_GOOGLE_CLIENT_ID` | Yes, for Google sign-in | Google OAuth client ID, read in `useGoogleAuth.ts` |
+| `VITE_SENTRY_DSN` | No | Sentry DSN. Sentry is only enabled in production builds |
+| `VITE_BETTERSTACK_SOURCE_TOKEN` | No | Enables log shipping to BetterStack in any environment, see [Logging](#logging) |
+| `VITE_BETTERSTACK_INGEST_URL` | No (defaults to `https://in.logs.betterstack.com`) | Override for the BetterStack ingest endpoint |
+| `VITE_APP_VERSION` | No (defaults to `dev`) | Sent as the `X-Client-Version` header on every API request |
 
-**Note on `VITE_API_URL` vs `VITE_API_BASE_URL`:** both exist in the current
-`.env` — confirm with whoever owns the Axios setup which one is actually read
-before assuming they're interchangeable; don't assume this is intentional
-redundancy without checking `axiosInstance.ts`.
+All variables are read through Vite's `import.meta.env`, so they must be prefixed `VITE_` to reach the client bundle.
 
 None of these are committed to git (`.env` is gitignored) — get real values
-from whoever manages secrets/1Password/team vault, not from this doc.
+from whoever manages secrets/Password, not from this doc.
 
 ## Running locally
 
