@@ -34,7 +34,7 @@ describe("auth.api", () => {
             roles: ["mentee"], termsAccepted: true,
         });
         expect(result).toEqual({
-            user: { id: "u1", name: "Shama", email: "s@test.com", roles: ["mentee"], isVerified: false },
+            user: { id: "u1", name: "Shama", email: "s@test.com", roles: ["mentee"], isVerified: false, permissions: [] },
             accessToken: "tok123",
             isNewUser: true,
         });
@@ -161,7 +161,7 @@ describe("auth.api", () => {
         );
         const result = await getCurrentUser();
         expect(result).toEqual({
-            id: "u1", name: "Shama", email: "s@test.com", roles: ["mentee"], isVerified: true,
+            id: "u1", name: "Shama", email: "s@test.com", roles: ["mentee"], isVerified: true, permissions: [],
         });
     });
 });

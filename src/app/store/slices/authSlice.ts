@@ -15,6 +15,7 @@ export interface AuthUser {
   name?: string;
   email?: string;
   roles?: string[];
+  permissions?: string[];
   [key: string]: unknown;
 }
 
