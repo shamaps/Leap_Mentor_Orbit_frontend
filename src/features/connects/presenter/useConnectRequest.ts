@@ -15,7 +15,7 @@ const useConnectRequest = () => {
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-  const [isRetryable, setIsRetryable] = useState(false); // new — enables a "Retry" button in the UI
+  const [isRetryable, setIsRetryable] = useState(false); 
   const inFlightRef = useRef(false);
 
   const sendRequest = async ({

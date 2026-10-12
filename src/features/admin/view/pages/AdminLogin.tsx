@@ -21,6 +21,7 @@ const AdminLogin = () => {
     <div
       className="min-h-screen flex items-center justify-center p-4"
       style={{
+       
         background:
           "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)",
         fontFamily: "'DM Sans', sans-serif",

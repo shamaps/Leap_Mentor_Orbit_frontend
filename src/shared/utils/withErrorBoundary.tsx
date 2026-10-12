@@ -16,7 +16,6 @@ function withErrorBoundary<P extends object>(
     const wrappedName =
         WrappedComponent.displayName || WrappedComponent.name || "Component";
     ComponentWithBoundary.displayName = `withErrorBoundary(${wrappedName})`;
-
     return ComponentWithBoundary;
 }
 
