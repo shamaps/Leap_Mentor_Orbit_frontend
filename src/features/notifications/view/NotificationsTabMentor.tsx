@@ -4,6 +4,7 @@ import { useNotifications, type NotificationItem } from "@/features/notification
 import StatCard from "@/shared/components/StatCard";
 import ErrorState from "@/shared/components/ErrorState";
 import TabLoader from "@/shared/components/TabLoader";
+import { resolveNotificationTab } from "@/features/notifications/model/notificationTabs";
 
 interface TypeCfg {
   bg: string;
@@ -224,34 +225,8 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
 const resolveNavigation = (notif: NotificationItem, setActiveTab?: (tab: string) => void) => {
   if (!setActiveTab) return;
 
-  const type = notif.type;
-
-  switch (type) {
-    case "connect_request_received":
-    case "connect_request_declined":
-      setActiveTab("requests");
-      break;
-
-    case "connect_request_accepted":
-      setActiveTab("history"); // ← mentee goes here to make payment
-      break;
-    case "upcoming_session":
-    case "new_message":
-    case "session_completed":
-      setActiveTab("connects");
-      break;
-
-    case "new_review":
-      setActiveTab("profile");
-      break;
-
-    case "support_resolved":
-      setActiveTab("home");
-      break;
-
-    default:
-      break;
-  }
+  const tab = resolveNotificationTab(notif.type);
+  if (tab) setActiveTab(tab);
 };
 
 // ── Notification Card ─────────────────────────────────────────

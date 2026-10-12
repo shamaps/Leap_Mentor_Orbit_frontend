@@ -3,10 +3,11 @@ import type { AdminPerson, AdminSlot, AdminWalletRequest } from "../../model/adm
 import { useMenteeHistoryModal } from "../../presenter/useMenteeHistoryModal";
 import { useAdminWalletRequests } from "../../presenter/useAdminWalletRequests";
 import EmptyState from "@/shared/components/EmptyState";
+import { getOwn } from "@/shared/utils/getOwn";
 // EmptyState is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
- 
+
 const getInitials = (name = "") =>
   name
     .split(" ")
@@ -34,53 +35,62 @@ const formatDate = (iso?: string) => {
   });
 };
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const styles = {
-    pending: {
-      bg: "#fef3c7",
-      text: "#92400e",
-      border: "#fde68a",
-      label: "Pending",
-    },
-    approved: {
-      bg: "#d1fae5",
-      text: "#065f46",
-      border: "#a7f3d0",
-      label: "Approved",
-    },
-    rejected: {
-      bg: "#fee2e2",
-      text: "#b91c1c",
-      border: "#fecaca",
-      label: "Rejected",
-    },
-    completed: {
-      bg: "#dbeafe",
-      text: "#1e3a8a",
-      border: "#bfdbfe",
-      label: "Completed",
-    },
-    accepted: {
-      bg: "#d1fae5",
-      text: "#065f46",
-      border: "#a7f3d0",
-      label: "Accepted",
-    },
-    cancelled: {
-      bg: "#f1f5f9",
-      text: "#64748b",
-      border: "#e2e8f0",
-      label: "Cancelled",
-    },
-    paid: { bg: "#d1fae5", text: "#065f46", border: "#a7f3d0", label: "Paid" },
-    unpaid: {
-      bg: "#fef3c7",
-      text: "#92400e",
-      border: "#fde68a",
-      label: "Unpaid",
-    },
-  };
-  const s = styles[status as keyof typeof styles] || styles.pending;
+interface WalletStatusStyle {
+  bg: string;
+  text: string;
+  border: string;
+  label: string;
+}
+
+// OCP: add a new wallet-request status by adding an entry here.
+const WALLET_STATUS_STYLES: Readonly<Record<string, WalletStatusStyle>> = {
+  pending: {
+    bg: "#fef3c7",
+    text: "#92400e",
+    border: "#fde68a",
+    label: "Pending",
+  },
+  approved: {
+    bg: "#d1fae5",
+    text: "#065f46",
+    border: "#a7f3d0",
+    label: "Approved",
+  },
+  rejected: {
+    bg: "#fee2e2",
+    text: "#b91c1c",
+    border: "#fecaca",
+    label: "Rejected",
+  },
+  completed: {
+    bg: "#dbeafe",
+    text: "#1e3a8a",
+    border: "#bfdbfe",
+    label: "Completed",
+  },
+  accepted: {
+    bg: "#d1fae5",
+    text: "#065f46",
+    border: "#a7f3d0",
+    label: "Accepted",
+  },
+  cancelled: {
+    bg: "#f1f5f9",
+    text: "#64748b",
+    border: "#e2e8f0",
+    label: "Cancelled",
+  },
+  paid: { bg: "#d1fae5", text: "#065f46", border: "#a7f3d0", label: "Paid" },
+  unpaid: {
+    bg: "#fef3c7",
+    text: "#92400e",
+    border: "#fde68a",
+    label: "Unpaid",
+  },
+};
+
+const WalletStatusBadge = ({ status }: { status: string }) => {
+  const s = getOwn(WALLET_STATUS_STYLES, status) ?? WALLET_STATUS_STYLES.pending;
   return (
     <span
       className="text-[10px] font-bold px-2 py-0.5 rounded-full"
@@ -308,7 +318,7 @@ const MenteeHistoryModal = ({ mentee, onClose }: { mentee: AdminPerson; onClose:
                               {
                                 label: "Payment",
                                 value: (
-                                  <StatusBadge
+                                  <WalletStatusBadge
                                     status={eng.paymentStatus || "unpaid"}
                                   />
                                 ),
@@ -468,7 +478,7 @@ const RequestRow = ({
         </span>
       </td>
       <td className="px-5 py-3">
-        <StatusBadge status={req.status} />
+        <WalletStatusBadge status={req.status} />
       </td>
       {/* View History button */}
       <td className="px-5 py-3">
