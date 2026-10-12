@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { setToken, setUser, setBootstrapped } from "./store/slices/authSlice";
-import axiosInstance from "@/shared/utils/axiosInstance";
+import axiosInstance, { setAdminUnauthorizedHandler } from "@/shared/utils/axiosInstance";
 import * as Sentry from "@sentry/react";
 import { selectAuthToken } from "./store/selectors";
 import Home from "@/shared/marketing/Home";
@@ -11,7 +11,6 @@ import GlobalErrorBanner from "@/shared/components/GlobalErrorBanner";
 import NotFound from "@/shared/marketing/NotFound";
 import RouteErrorBoundary from "@/shared/components/RouteErrorBoundary";
 import ProtectedRoute from "@/features/auth/view/components/ProtectedRoute";
-import { PERMISSIONS } from "@/features/auth/model/permissions";
 import withErrorBoundary from "@/shared/utils/withErrorBoundary";
 import RouteErrorPage from "@/shared/components/RouteErrorPage";
 import { adminSettingsLoader } from "@/features/admin/model/adminSettings.loader";
@@ -24,7 +23,6 @@ import { adminPaymentsLoader } from "@/features/admin/model/adminPayments.loader
 import AdminPageLoader from "@/shared/components/AdminPageLoader";
 import AdminRoute from "@/features/admin/view/components/AdminRoute";
 import { createAdminUnauthorizedHandler } from "@/features/admin/model/adminSessionExpired";
-import { setAdminUnauthorizedHandler } from "@/shared/utils/axiosInstance";
 
 const RegisterMentee = lazy(() => import("@/features/auth/view/pages/RegisterMentee"));
 const RegisterMentor = lazy(() => import("@/features/auth/view/pages/RegisterMentor"));
@@ -175,7 +173,7 @@ const router = createBrowserRouter([
     path: "/onboarding/mentor",
     element: (
       <RouteErrorBoundary zone="onboarding">
-        <ProtectedRoute permission={PERMISSIONS.MANAGE_MENTOR_PROFILE}>
+        <ProtectedRoute permission={"manage:mentor-profile"}>
           <MentorOnboarding />
         </ProtectedRoute>
       </RouteErrorBoundary>
@@ -185,7 +183,7 @@ const router = createBrowserRouter([
     path: "/onboarding/mentor/verify-documents",
     element: (
       <RouteErrorBoundary zone="onboarding">
-        <ProtectedRoute permission={PERMISSIONS.UPLOAD_VERIFICATION_DOCS}>
+        <ProtectedRoute permission={"upload:verification-docs"}>
           <MentorVerification />
         </ProtectedRoute>
       </RouteErrorBoundary>
@@ -195,7 +193,7 @@ const router = createBrowserRouter([
     path: "/onboarding/mentee",
     element: (
       <RouteErrorBoundary zone="onboarding">
-        <ProtectedRoute permission={PERMISSIONS.MANAGE_MENTEE_PROFILE}>
+        <ProtectedRoute permission={"manage:mentee-profile"}>
           <MenteeOnboarding />
         </ProtectedRoute>
       </RouteErrorBoundary>
@@ -205,7 +203,7 @@ const router = createBrowserRouter([
     // HOC-wrapped example
     path: "/dashboard/mentee/edit-profile",
     element: (
-      <ProtectedRoute permission={PERMISSIONS.MANAGE_MENTEE_PROFILE}>
+      <ProtectedRoute permission={"manage:mentee-profile"}>
         <SafeMenteeEditProfileShell />
       </ProtectedRoute>
     ),
@@ -214,7 +212,7 @@ const router = createBrowserRouter([
     // HOC-wrapped example 
     path: "/dashboard/mentor/edit-profile",
     element: (
-      <ProtectedRoute permission={PERMISSIONS.MANAGE_MENTOR_PROFILE}>
+      <ProtectedRoute permission={"manage:mentor-profile"}>
         <SafeMentorEditProfileShell />
       </ProtectedRoute>
     ),
@@ -223,7 +221,7 @@ const router = createBrowserRouter([
     path: "/dashboard/mentor",
     element: (
       <RouteErrorBoundary zone="mentor-dashboard">
-        <ProtectedRoute permission={PERMISSIONS.VIEW_MENTOR_DASHBOARD}>
+        <ProtectedRoute permission={"view:mentor-dashboard"}>
           <MentorDashboard />
         </ProtectedRoute>
       </RouteErrorBoundary>
@@ -234,7 +232,7 @@ const router = createBrowserRouter([
     path: "/dashboard/mentee",
     element: (
       <RouteErrorBoundary zone="mentee-dashboard">
-        <ProtectedRoute permission={PERMISSIONS.VIEW_MENTEE_DASHBOARD}>
+        <ProtectedRoute permission={"view:mentee-dashboard"}>
           <MenteeDashboard />
         </ProtectedRoute>
       </RouteErrorBoundary>

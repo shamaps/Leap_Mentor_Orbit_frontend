@@ -3,7 +3,6 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "../../../features/auth/view/components/ProtectedRoute";
-import { PERMISSIONS } from "../../../features/auth/model/permissions";
 vi.mock("react-redux", () => ({
     useSelector: vi.fn(),
 }));
@@ -56,23 +55,33 @@ describe("ProtectedRoute", () => {
         useSelector.mockReturnValue({
             token: "abc",
             isBootstrapping: false,
-            user: { isEmailVerified: true, roles: ["mentor"] },
+            user: { isEmailVerified: true, roles: ["mentor"], permissions: ["view:mentor-dashboard"] },
         });
-        renderWithRoute(["/protected"], PERMISSIONS.VIEW_MENTEE_DASHBOARD);
+        renderWithRoute(["/protected"], "view:mentee-dashboard");
         expect(screen.getByText("Mentor Dashboard")).toBeInTheDocument();
     });
 
-    it("renders children when token valid, verified, and role matches", () => {
+    it("renders children when backend permission list grants access", () => {
         useSelector.mockReturnValue({
             token: "abc",
             isBootstrapping: false,
-            user: { isEmailVerified: true, roles: ["mentor"] },
+            user: { isEmailVerified: true, roles: ["mentor"], permissions: ["view:mentor-dashboard"] },
         });
-         renderWithRoute(["/protected"], PERMISSIONS.VIEW_MENTOR_DASHBOARD);
+         renderWithRoute(["/protected"], "view:mentor-dashboard");
         expect(screen.getByText("Protected Content")).toBeInTheDocument();
     });
 
-    it("renders children when no role prop is passed (role check skipped)", () => {
+    it("denies a protected route when backend permissions are missing", () => {
+        useSelector.mockReturnValue({
+            token: "abc",
+            isBootstrapping: false,
+            user: { isEmailVerified: true, roles: ["mentee"] },
+        });
+        renderWithRoute(["/protected"], "view:mentee-dashboard");
+        expect(screen.getByText("Mentee Dashboard")).toBeInTheDocument();
+    });
+
+    it("renders children when no permission prop is passed", () => {
         useSelector.mockReturnValue({
             token: "abc",
             isBootstrapping: false,

@@ -14,6 +14,7 @@ describe("mapUser", () => {
             name: "Jane Doe",
             email: "jane@example.com",
             roles: ["mentee"],
+            permissions: ["view:mentee-dashboard"],
             isVerified: true,
         };
         expect(mapUser(raw)).toEqual({
@@ -21,6 +22,7 @@ describe("mapUser", () => {
             name: "Jane Doe",
             email: "jane@example.com",
             roles: ["mentee"],
+            permissions: ["view:mentee-dashboard"],
             isVerified: true,
         });
     });
@@ -37,6 +39,7 @@ describe("mapUser", () => {
             name: "",
             email: "",
             roles: [],
+            permissions: [],
             isVerified: false,
         });
     });

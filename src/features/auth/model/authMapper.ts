@@ -8,6 +8,7 @@ export interface RawUser {
     name?: string;
     email?: string;
     roles?: string[];
+    permissions?: string[];
     isVerified?: boolean;
     [key: string]: unknown;
 }
@@ -17,6 +18,7 @@ export interface MappedUser {
     name: string;
     email: string;
     roles: string[];
+    permissions: string[];
     isVerified: boolean;
     [key: string]: unknown;
 }
@@ -40,6 +42,7 @@ export function mapUser(rawUser?: RawUser | null): MappedUser | null {
         name: rawUser.name ?? "",
         email: rawUser.email ?? "",
         roles: rawUser.roles ?? [],
+        permissions: rawUser.permissions ?? [],
         isVerified: Boolean(rawUser.isVerified),
     };
 }

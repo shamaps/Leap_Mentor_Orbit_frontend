@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectAuth } from "@/app/store/selectors";
-import { hasPermission, type Permission } from "@/features/auth/model/permissions";
 
 const PageLoader = () => (
   <div
@@ -19,8 +18,8 @@ const PageLoader = () => (
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  /** Permission required to view this route. Omit for "any authenticated user". */
-  permission?: Permission;
+  /** Permission required to view this route */
+  permission?: string;
 }
 
 const ProtectedRoute = ({ children, permission }: ProtectedRouteProps) => {
@@ -43,7 +42,7 @@ const ProtectedRoute = ({ children, permission }: ProtectedRouteProps) => {
   if (user?.isEmailVerified === false) {
     return <Navigate to="/verify-email" state={{ email: user.email, role: storedRole }} replace />;
   }
-  if (permission && !hasPermission(user?.roles, permission)) {
+  if (permission && !user?.permissions?.includes(permission)) {
     return <Navigate to={storedRole ? `/dashboard/${storedRole}` : "/"} replace />;
   }
 
