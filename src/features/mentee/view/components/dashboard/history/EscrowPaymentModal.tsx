@@ -5,7 +5,6 @@ import { formatTime } from "./constants";
 import EscrowSuccessModal from "./EscrowSuccessModal";
 import logger from "@/shared/utils/logger";
 import getErrorMessage from "@/shared/utils/getErrorMessage";
-import type { RawConnectRequest } from "@/features/connects/model/connectRequestMapper";
 const TokenIcon = ({ size = 13 }) => (
   <svg
     width={size}
@@ -38,10 +37,39 @@ const LockIcon = ({ size = 13 }) => (
   </svg>
 );
 
+/** The only request fields the escrow modal reads. */
+export interface EscrowRequestInput {
+  _id: string;
+  /** Only the count is used (one session per proposed slot). */
+  selectedSlots?: readonly unknown[];
+  confirmedSlot?: {
+    day: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+  } | null;
+  mentor?: { name?: string } | null;
+  mentorProfile?: { hourlyRate?: number } | null;
+}
+
+/** The only request fields the escrow modal writes back after payment. */
+// A type alias (not an interface) so it stays assignable to the
+// index-signature-based Partial<RawConnectRequest> the drawer's callback takes.
+export type EscrowPaymentPatch = {
+  status: string;
+  paymentStatus: string;
+  sessionRate: number;
+  sessionCount: number;
+  totalAmount: number;
+  commissionRate: number;
+  commissionAmount: number;
+  mentorPayout: number;
+};
+
 interface EscrowPaymentModalProps {
-  request: RawConnectRequest;
+  request: EscrowRequestInput;
   onClose: () => void;
-  onSuccess: (patch: Partial<RawConnectRequest>) => void;
+  onSuccess: (patch: EscrowPaymentPatch) => void;
 }
 
 const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalProps) => {
@@ -50,7 +78,7 @@ const EscrowPaymentModal = ({ request, onClose, onSuccess }: EscrowPaymentModalP
   const [error, setError] = useState("");
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [commissionRate, setCommissionRate] = useState(20);
-  const [successPatch, setSuccessPatch] = useState<Partial<RawConnectRequest> | null>(null);
+  const [successPatch, setSuccessPatch] = useState<EscrowPaymentPatch | null>(null);
 
   const sessionCount = request?.selectedSlots?.length || 1;
   const sessionRate = request?.mentorProfile?.hourlyRate || 0;

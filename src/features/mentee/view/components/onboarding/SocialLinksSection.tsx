@@ -1,10 +1,6 @@
 // components/mentee/onboarding/SocialLinksSection.jsx
 import { useMenteeOnboardingForm } from "@/features/mentee/context/MenteeOnboardingFormContext";
-import FormField from "@/shared/components/FormField";
-// FormField is still a plain JS component (migrates in Phase 3.5); its inferred
-// prop types (via forwardRef) resolve to no accepted props. Cast locally to
-// avoid coupling this migration to that one.
- 
+import TextField from "@/shared/components/TextField";
 
 const SocialLinksSection = () => {
   const { form, handleChange, onBlur } = useMenteeOnboardingForm();
@@ -31,7 +27,7 @@ const SocialLinksSection = () => {
 
       <div className="px-6 py-5 space-y-4">
         {/* LinkedIn */}
-        <FormField
+        <TextField
           label="LinkedIn URL"
           name="linkedInUrl"
           value={form.linkedInUrl}
@@ -47,7 +43,7 @@ const SocialLinksSection = () => {
           }
         />
         {/* Portfolio */}
-        <FormField
+        <TextField
           label="Portfolio URL"
           name="portfolioUrl"
           value={form.portfolioUrl}

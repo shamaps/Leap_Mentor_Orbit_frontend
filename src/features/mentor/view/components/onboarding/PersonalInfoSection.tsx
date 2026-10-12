@@ -1,7 +1,7 @@
 // components/mentor/onboarding/PersonalInfoSection.jsx
 import { useProfilePhotoUpload } from "@/features/uploads/presenter/useProfilePhotoUpload";
 import { useMentorOnboardingForm } from "@/features/mentor/context/MentorOnboardingFormContext";
-import FormField from "@/shared/components/FormField";
+import TextAreaField from "@/shared/components/TextAreaField";
 import PersonIcon from "@/shared/components/PersonIcon";
 const PersonalInfoSection = () => {
   const { form, errors = {}, onChange, onBlur } = useMentorOnboardingForm();
@@ -86,8 +86,7 @@ const PersonalInfoSection = () => {
 
           {/* Bio */}
           <div className="flex-1">
-            <FormField
-              as="textarea"
+            <TextAreaField
               label="Professional Bio"
               name="bio"
               value={form.bio}

@@ -1,6 +1,6 @@
 // components/mentor/onboarding/SocialLinksSection.jsx
 import { useMentorOnboardingForm } from "@/features/mentor/context/MentorOnboardingFormContext";
-import FormField from "@/shared/components/FormField";
+import TextField from "@/shared/components/TextField";
 
 const GlobeIcon = () => (
   <svg
@@ -62,7 +62,7 @@ const SocialLinksSection = () => {
 
       <div className="px-6 py-5 space-y-4">
         {/* Portfolio URL */}
-        <FormField
+        <TextField
           label="Portfolio or Personal Website URL"
           name="portfolioUrl"
           value={form.portfolioUrl}
@@ -73,7 +73,7 @@ const SocialLinksSection = () => {
         />
 
         {/* LinkedIn URL */}
-        <FormField
+        <TextField
           label="LinkedIn Profile URL"
           name="linkedInUrl"
           value={form.linkedInUrl}

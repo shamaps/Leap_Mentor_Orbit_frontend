@@ -1,10 +1,7 @@
 // components/mentee/onboarding/ProfessionalDetailsSection.jsx
 import { useMenteeOnboardingForm } from "@/features/mentee/context/MenteeOnboardingFormContext"
-import FormField from "@/shared/components/FormField";
-// FormField is still a plain JS component (migrates in Phase 3.5); its inferred
-// prop types (via forwardRef) resolve to no accepted props. Cast locally to
-// avoid coupling this migration to that one.
- 
+import TextField from "@/shared/components/TextField";
+import SelectField from "@/shared/components/SelectField";
 const EXPERIENCE_OPTIONS = [
   "Student / Aspiring",
   "0-1 Years",
@@ -56,7 +53,7 @@ const ProfessionalDetailsSection = () => {
       <div className="px-6 py-5">
         <div className="grid grid-cols-2 gap-4">
           {/* Current Role */}
-          <FormField
+          <TextField
             label="Current Role"
             required
             name="currentRole"
@@ -68,8 +65,7 @@ const ProfessionalDetailsSection = () => {
           />
 
           {/* Years of Experience */}
-          <FormField
-            as="select"
+          <SelectField
             label="Years of Experience"
             required
             name="yearsOfExperience"
@@ -84,10 +80,10 @@ const ProfessionalDetailsSection = () => {
                 {opt}
               </option>
             ))}
-          </FormField>
+          </SelectField>
 
           {/* Company */}
-          <FormField
+          <TextField
             label="Company / Organization"
             name="company"
             value={form.company}
@@ -97,8 +93,7 @@ const ProfessionalDetailsSection = () => {
           />
 
           {/* Industry */}
-          <FormField
-            as="select"
+          <SelectField
             label="Industry"
             required
             name="industry"
@@ -113,7 +108,7 @@ const ProfessionalDetailsSection = () => {
                 {opt}
               </option>
             ))}
-          </FormField>
+          </SelectField>
         </div>
       </div>
     </div>

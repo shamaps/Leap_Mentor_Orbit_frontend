@@ -15,7 +15,7 @@ vi.mock("../../../../features/mentor/context/MentorOnboardingFormContext", () =>
     }),
 }));
 
-vi.mock("@/shared/components/FormField", () => ({
+vi.mock("@/shared/components/TextField", () => ({
     default: ({ label, name, value, onChange, onBlur, placeholder, icon }) => (
         <div>
             <label htmlFor={name}>{label}</label>
