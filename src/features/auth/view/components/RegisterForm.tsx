@@ -17,7 +17,7 @@ import {
   clearMessages,
 } from "@/app/store/slices/authSlice";
 import FullScreenLoader from "@/shared/components/FullScreenLoader";
-import FormField from "@/shared/components/FormField";
+import TextField from "@/shared/components/TextField";
 import AuthSSOButtons from "./AuthSSOButtons";
 import { AuthMessageBanner, AuthDivider, AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
@@ -195,14 +195,14 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
       {errors.root?.message && <AuthMessageBanner type="error" text={errors.root.message} />}
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
-        <FormField
+        <TextField
           label="Full Name"
           required
           placeholder="John Doe"
           error={errors.name?.message}
           {...register("name")}
         />
-        <FormField
+        <TextField
           label="Email Address"
           required
           type="email"
@@ -213,7 +213,7 @@ const RegisterForm = ({ role }: RegisterFormProps) => {
 
         <div className="flex flex-col gap-1.5">
           <div className="relative">
-            <FormField
+            <TextField
               label="Password"
               required
               type={showPassword ? "text" : "password"}

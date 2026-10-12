@@ -64,7 +64,7 @@ describe("EscrowPaymentModal Component Suite", () => {
         expect(screen.getByText("+ 10 tokens")).toBeInTheDocument();
         expect(screen.getByText(/60 tokens/)).toBeInTheDocument();
     });
-    
+
     it("should show an insufficient balance warning and disable pay when balance is too low", async () => {
         getEscrowStatus.mockResolvedValue({ wallet: { balance: 10 }, commissionRate: 20 });
         render(<EscrowPaymentModal request={baseRequest} onClose={mockClose} onSuccess={mockSuccess} />);
@@ -149,5 +149,34 @@ describe("EscrowPaymentModal Component Suite", () => {
 
         expect(screen.getByText("Date")).toBeInTheDocument();
         expect(screen.getByText("Time")).toBeInTheDocument();
+    });
+
+    it("should work with only the minimal request fields and report exactly the payment patch", async () => {
+        const minimalRequest = {
+            _id: "req-min",
+            selectedSlots: [{}, {}],
+            mentor: { name: "Dana Scott" },
+            mentorProfile: { hourlyRate: 50 },
+        };
+        payEscrow.mockResolvedValue({});
+        render(<EscrowPaymentModal request={minimalRequest} onClose={mockClose} onSuccess={mockSuccess} />);
+        await waitFor(() => screen.getByText("500 tokens"));
+
+        await act(async () => {
+            fireEvent.click(screen.getByRole("button", { name: /Confirm & Pay/i }));
+        });
+        fireEvent.click(await screen.findByText("Done"));
+
+        expect(payEscrow).toHaveBeenCalledWith({ connectRequestId: "req-min", sessionRate: 50, sessionCount: 2 });
+        expect(mockSuccess).toHaveBeenCalledWith({
+            status: "ongoing",
+            paymentStatus: "paid",
+            sessionRate: 50,
+            sessionCount: 2,
+            totalAmount: 120,
+            commissionRate: 20,
+            commissionAmount: 20,
+            mentorPayout: 100,
+        });
     });
 });

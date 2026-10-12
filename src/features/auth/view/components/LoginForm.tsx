@@ -14,7 +14,7 @@ import { AuthBrand } from "./AuthUI";
 import { LeapMentorLogo } from "./AuthIcons";
 import { ssoFlags } from "@/shared/utils/storage";
 import FullScreenLoader from "@/shared/components/FullScreenLoader";
-import FormField from "@/shared/components/FormField";
+import TextField from "@/shared/components/TextField";
 import getErrorMessage from "@/shared/utils/getErrorMessage";
 import { loginSchema } from "@/shared/schemas/authSchemas";
 import { mapServerErrorsToForm } from "@/shared/utils/mapServerErrorsToForm";
@@ -156,7 +156,7 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        <FormField
+        <TextField
           label="Email Address"
           required
           type="email"
@@ -167,7 +167,7 @@ const LoginForm = ({ placeholder, registerPath }: LoginFormProps) => {
 
         <div>
           <div className="relative">
-            <FormField
+            <TextField
               label="Password"
               required
               type={showPw ? "text" : "password"}

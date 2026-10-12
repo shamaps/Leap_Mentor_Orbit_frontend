@@ -9,7 +9,7 @@ vi.mock("../../../../features/mentee/context/MenteeOnboardingFormContext", () =>
     useMenteeOnboardingForm: (...args) => mockUseMenteeOnboardingForm(...args),
 }));
 
-vi.mock("@/shared/components/FormField", () => ({
+vi.mock("@/shared/components/TextField", () => ({
     default: ({ label, name, value, onChange, onBlur, placeholder, icon }) => (
         <div data-testid={`field-${name}`}>
             <label htmlFor={name}>{label}</label>

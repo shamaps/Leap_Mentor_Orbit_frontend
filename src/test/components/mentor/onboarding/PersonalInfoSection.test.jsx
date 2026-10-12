@@ -37,7 +37,7 @@ vi.mock("../../../../features/uploads/presenter/useProfilePhotoUpload", () => ({
     },
 }));
 
-vi.mock("../../../../shared/components/FormField", () => ({
+vi.mock("../../../../shared/components/TextAreaField", () => ({
     default: ({ label, name, value, onChange, onBlur, error }) => (
         <div>
             <label htmlFor={name}>{label}</label>

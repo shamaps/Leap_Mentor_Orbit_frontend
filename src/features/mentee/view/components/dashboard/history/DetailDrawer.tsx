@@ -8,7 +8,7 @@ import {
   getInitials,
 } from "./constants";
 import StatusBadge from "@/shared/components/StatusBadge";
-import EscrowPaymentModal from "./EscrowPaymentModal";
+import EscrowPaymentModal, { type EscrowPaymentPatch } from "./EscrowPaymentModal";
 import MentorProfileModal from "../findMentors/MentorProfileModal";
 import { mapReferredMentor, type RawConnectRequest, type ConnectSlot } from "@/features/connects/model/connectRequestMapper";
 // ── Slot row ────────────────────────────────────────────────
@@ -398,7 +398,7 @@ const DetailDrawer = ({ request, onClose, onDelete, onUpdateRequest }: { request
         <EscrowPaymentModal
           request={request}
           onClose={() => setShowPaymentModal(false)}
-          onSuccess={(patch: Partial<RawConnectRequest>) => onUpdateRequest(request._id, patch)}
+          onSuccess={(patch: EscrowPaymentPatch) => onUpdateRequest(request._id, patch)}
         />
       )}
     </>

@@ -9,27 +9,36 @@ vi.mock("../../../../features/mentee/context/MenteeOnboardingFormContext", () =>
     useMenteeOnboardingForm: (...args) => mockUseMenteeOnboardingForm(...args),
 }));
 
-vi.mock("@/shared/components/FormField", () => ({
-    default: ({ as, label, required, name, value, onChange, onBlur, placeholder, error, children }) => (
+vi.mock("@/shared/components/TextField", () => ({
+    default: ({ label, required, name, value, onChange, onBlur, placeholder, error }) => (
         <div data-testid={`field-${name}`}>
             <label htmlFor={name}>
                 {label}
                 {required ? " *" : ""}
             </label>
-            {as === "select" ? (
-                <select id={name} name={name} value={value} onChange={onChange} onBlur={onBlur}>
-                    {children}
-                </select>
-            ) : (
-                <input
-                    id={name}
-                    name={name}
-                    value={value}
-                    placeholder={placeholder}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                />
-            )}
+            <input
+                id={name}
+                name={name}
+                value={value}
+                placeholder={placeholder}
+                onChange={onChange}
+                onBlur={onBlur}
+            />
+            {error && <span data-testid={`error-${name}`}>{error}</span>}
+        </div>
+    ),
+}));
+
+vi.mock("@/shared/components/SelectField", () => ({
+    default: ({ label, required, name, value, onChange, onBlur, error, children }) => (
+        <div data-testid={`field-${name}`}>
+            <label htmlFor={name}>
+                {label}
+                {required ? " *" : ""}
+            </label>
+            <select id={name} name={name} value={value} onChange={onChange} onBlur={onBlur}>
+                {children}
+            </select>
             {error && <span data-testid={`error-${name}`}>{error}</span>}
         </div>
     ),
