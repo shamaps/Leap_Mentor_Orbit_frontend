@@ -17,6 +17,12 @@ export interface Slot {
     isRescheduled?: boolean;
 }
 
+/** Fields needed to describe when a session happens (display only). */
+export type SessionTime = Pick<Slot, "date" | "startTime" | "endTime">;
+
+/** Fields needed to check a slot against new availability. */
+export type BookedSlot = Pick<Slot, "date" | "startTime" | "endTime" | "status">;
+
 export interface AvailabilityGroup {
     day?: string;
     date: string;

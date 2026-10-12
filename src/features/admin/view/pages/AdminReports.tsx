@@ -4,23 +4,33 @@ import type { AdminReport } from "../../model/admin.types";
 import { useAdminReports } from "../../presenter/useAdminReports";
 import { useHandleReportModal } from "../../presenter/useHandleReportModal";
 import StatCard from "@/shared/components/StatCard";
+import { getOwn } from "@/shared/utils/getOwn";
 // StatCard is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
- 
+
 const FONT = "'DM Sans', sans-serif";
 const MONO = "'DM Mono', monospace";
 
 // ── Status Badge ───────────────────────────────────────────────
-const SEPARATE_STATUS_MAP = {
+interface ReportStatusStyle {
+  bg: string;
+  color: string;
+  border: string;
+  dot: string;
+  label: string;
+}
+
+// OCP: add a new report status by adding an entry here.
+const SEPARATE_STATUS_MAP: Readonly<Record<string, ReportStatusStyle>> = {
   open: { bg: "#fef2f2", color: "#dc2626", border: "#fecaca", dot: "#ef4444", label: "Pending" },
   under_review: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe", dot: "#3b82f6", label: "Under Review" },
   resolved: { bg: "#f0fdf4", color: "#059669", border: "#bbf7d0", dot: "#22c55e", label: "Resolved" },
   dismissed: { bg: "#f8fafc", color: "#64748b", border: "#e2e8f0", dot: "#94a3b8", label: "Dismissed" },
 };
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const cfg = SEPARATE_STATUS_MAP[status as keyof typeof SEPARATE_STATUS_MAP] || SEPARATE_STATUS_MAP.open;
+const ReportStatusBadge = ({ status }: { status: string }) => {
+  const cfg = getOwn(SEPARATE_STATUS_MAP, status) ?? SEPARATE_STATUS_MAP.open;
   return (
     <span
       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-700 uppercase tracking-wide"
@@ -389,7 +399,7 @@ const AdminReports = () => {
         </td>
         <td className="px-5 py-4"><CategoryBadge category={report.category} /></td>
         <td className="px-5 py-4"><span className="text-xs text-slate-800" style={{ fontFamily: MONO }}>{report.date}</span></td>
-        <td className="px-5 py-4"><StatusBadge status={report.status} /></td>
+        <td className="px-5 py-4"><ReportStatusBadge status={report.status} /></td>
         <td className="px-5 py-4">
           <button
             type="button" onClick={() => setSelected(report)} className="px-3 py-1.5 rounded-xl text-xs font-600 border border-bfdbfe bg-eff6ff text-2563eb transition-all"

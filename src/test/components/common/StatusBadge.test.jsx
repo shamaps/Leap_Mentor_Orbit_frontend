@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import StatusBadge from "../../../shared/components/StatusBadge";
+import { STATUS_CONFIG } from "../../../shared/components/statusBadge.config";
 
 describe("StatusBadge Component Suite", () => {
     it("should render the admin variant (default) with dot and label for a known status", () => {
@@ -67,5 +68,18 @@ describe("StatusBadge Component Suite", () => {
     it("should render the fallback status label in the history variant too", () => {
         render(<StatusBadge status={"weird_status"} variant="history" />);
         expect(screen.getByText("weird_status")).toBeInTheDocument();
+    });
+
+    it("should render the label of every entry in STATUS_CONFIG", () => {
+        Object.entries(STATUS_CONFIG).forEach(([status, cfg]) => {
+            const { unmount } = render(<StatusBadge status={status} />);
+            expect(screen.getByText(cfg.label)).toBeInTheDocument();
+            unmount();
+        });
+    });
+
+    it("should treat inherited object keys as unknown statuses", () => {
+        render(<StatusBadge status="constructor" />);
+        expect(screen.getByText("constructor")).toBeInTheDocument();
     });
 });

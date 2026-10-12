@@ -4,10 +4,11 @@ import type { AdminPaymentTransaction, AdminPaymentChartPoint } from "../../mode
 import { useState } from "react";
 import { useAdminPayments } from "../../presenter/useAdminPayments";
 import StatCard from "@/shared/components/StatCard";
+import { getOwn } from "@/shared/utils/getOwn";
 // StatCard is still a plain JS component (migrates in Phase 3.5); its inferred
 // prop types mark every prop as required. Cast locally to avoid coupling
 // this migration to that one.
- 
+
 // ── Alternative Theme Variables Array Configuration (Breaks Statement Scanners) ──
 const CORE_FONTS_COLLECTION = {
   sans: "'DM Sans', sans-serif",
@@ -66,14 +67,21 @@ const TypeBadge = ({ type }: { type: string }) => {
 };
 
 // Status Badge
-const MATRIX_STATUS_MAP = {
+interface TxStatusStyle {
+  hexColor: string;
+  coreDot: string;
+  titleLabel: string;
+}
+
+// OCP: add a new transaction status by adding an entry here.
+const MATRIX_STATUS_MAP: Readonly<Record<string, TxStatusStyle>> = {
   completed: { hexColor: "#059669", coreDot: "#22c55e", titleLabel: "COMPLETED" },
   pending: { hexColor: "#d97706", coreDot: "#f59e0b", titleLabel: "PENDING" },
   refunded: { hexColor: "#dc2626", coreDot: "#ef4444", titleLabel: "REFUNDED" },
 };
 
 const TxStatusBadge = ({ status }: { status: string }) => {
-  const currentCfg = MATRIX_STATUS_MAP[status as keyof typeof MATRIX_STATUS_MAP] || { hexColor: "#64748b", coreDot: "#94a3b8", titleLabel: String(status || "").toUpperCase() };
+  const currentCfg = getOwn(MATRIX_STATUS_MAP, status) ?? { hexColor: "#64748b", coreDot: "#94a3b8", titleLabel: String(status || "").toUpperCase() };
 
   return (
     <span
