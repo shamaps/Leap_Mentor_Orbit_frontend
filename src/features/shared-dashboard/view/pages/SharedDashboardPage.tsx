@@ -16,9 +16,6 @@ const OBJECT_ID_REGEX = /^[0-9a-fA-F]{24}$/;
 const SharedDashboardPage = () => {
   const { connectRequestId } = useParams();
   const navigate = useNavigate();
-  // Store/slices are still plain JS (Phase 2 typing not yet done), so
-  // useDispatch() isn't thunk-aware here. Cast locally rather than
-  // coupling this migration to that one.
    
   const dispatch = useAppDispatch();
   const [searchParams, setSearchParams] = useSearchParams();

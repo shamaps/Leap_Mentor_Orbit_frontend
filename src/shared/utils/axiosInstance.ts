@@ -208,8 +208,7 @@ const handleUserUnauthorized = (error: AxiosError, originalRequest: RetryableReq
 
 // ── Admin-side 401: single SPA redirect ──
 // The redirect itself needs the React Router instance, which lives in the app
-// layer. It is injected (like the store) so this low-level module never
-// imports app code.
+// layer.
 type AdminUnauthorizedHandler = () => unknown;
 let adminUnauthorizedHandler: AdminUnauthorizedHandler | null = null;
 let adminRedirectInFlight = false;

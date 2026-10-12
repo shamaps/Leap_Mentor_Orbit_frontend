@@ -77,6 +77,7 @@ describe("SharedNotesTab", () => {
         render(<SharedNotesTab />);
         expect(screen.queryByText("Upload First File")).not.toBeInTheDocument();
     });
+    
     it("shows the spinner while the upload is in flight, then hides it once uploadNote resolves", async () => {
         let resolveUpload;
         mockUploadNote.mockImplementation(

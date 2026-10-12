@@ -1,7 +1,7 @@
 {
   "name": "leapmentor-frontend",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.",
   "type": "module",
   "description": "Frontend for LeapMentor, a mentorship platform connecting mentors and mentees.",
   "scripts": {
@@ -27,7 +27,6 @@
     "@sentry/react": "^10.56.0",
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.5",
-    "google-auth-library": "^10.5.0",
     "lucide-react": "^1.6.0",
     "prop-types": "^15.8.1",
     "react": "^19.2.0",
