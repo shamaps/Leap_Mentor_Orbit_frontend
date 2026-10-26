@@ -59,7 +59,7 @@ describe("main.jsx entry point", () => {
         expect(config.environment).toBe("test");
         expect(config.tracesSampleRate).toBe(0.2);
         expect(config.replaysOnErrorSampleRate).toBe(1);
-        expect(config.tracePropagationTargets).toEqual(["localhost"]);
+        expect(config.tracePropagationTargets).toEqual(["localhost", /^\/api\//]);
     });
 
     it("disables Sentry when not in production", async () => {

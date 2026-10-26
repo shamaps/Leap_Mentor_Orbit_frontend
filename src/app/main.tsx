@@ -19,7 +19,7 @@ Sentry.init({
   ],
   tracesSampleRate: 0.2,
   replaysOnErrorSampleRate: 1,
-  tracePropagationTargets: ["localhost"],
+  tracePropagationTargets: ["localhost", /^\/api\//],
 });
 
 const App = lazy(() => import("./App"));
