@@ -9,7 +9,7 @@ import { selectAuthToken } from "@/app/store/selectors";
 import logger from "@/shared/utils/logger";
 import type { LeapSocket } from "@/features/shared-dashboard/model/types";
 
-const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_SOCKET_URL || globalThis.location.origin;
 
 const useSocketToast = (onRequestChanged?: (data: unknown) => void) => {
   const { showToast } = useToast();

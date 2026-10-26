@@ -1,0 +1,20 @@
+# Env files: Vite would bake .env values (localhost URLs, keys) into the bundle
+.env
+.env.*
+!.env.example
+
+node_modules
+dist
+coverage
+.scannerwork
+.git
+.gitignore
+.vscode
+.idea
+*.md
+help.txt
+sonar-project.properties
+Dockerfile
+.dockerignore
+*.log
+.DS_Store

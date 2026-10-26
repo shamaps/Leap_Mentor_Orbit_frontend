@@ -16,7 +16,7 @@
     "ci": "npm run lint && npm run typecheck && npm run test:coverage && npm run build"
   },
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=22.12.0",
     "npm": ">=10.0.0"
   },
   "dependencies": {
