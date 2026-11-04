@@ -1,6 +1,6 @@
-// src/escrow.api.ts
-import axiosInstance from "@/shared/utils/axiosInstance";
+//src/features/shared-dashboard/model/escrow.api.ts
 
+import axiosInstance from "@/shared/utils/axiosInstance";
 interface PayEscrowPayload {
   connectRequestId: string;
   sessionRate: number;
@@ -13,22 +13,6 @@ export const payEscrow = async ({ connectRequestId, sessionRate, sessionCount }:
     connectRequestId,
     sessionRate,
     sessionCount,
-  });
-  return res.data;
-};
-
-// POST /escrow/release/:requestId — Mentee confirms session complete
-export const releaseEscrow = async (requestId: string) => {
-  const res = await axiosInstance.patch(`/escrow/${requestId}`, {
-    action: "release",
-  });
-  return res.data;
-};
-
-// POST /escrow/refund/:requestId — Either party cancels
-export const refundEscrow = async (requestId: string) => {
-  const res = await axiosInstance.patch(`/escrow/${requestId}`, {
-    action: "refund",
   });
   return res.data;
 };
